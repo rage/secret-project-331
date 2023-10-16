@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_datetime-1.2.1/src/time_zone.rs`."><title>time_zone.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_datetime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../icu_datetime/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_datetime-1.3.2/src/time_zone.rs`."><title>time_zone.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_datetime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../icu_datetime/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1294,6 +1294,60 @@
 <a href="#1294" id="1294">1294</a>
 <a href="#1295" id="1295">1295</a>
 <a href="#1296" id="1296">1296</a>
+<a href="#1297" id="1297">1297</a>
+<a href="#1298" id="1298">1298</a>
+<a href="#1299" id="1299">1299</a>
+<a href="#1300" id="1300">1300</a>
+<a href="#1301" id="1301">1301</a>
+<a href="#1302" id="1302">1302</a>
+<a href="#1303" id="1303">1303</a>
+<a href="#1304" id="1304">1304</a>
+<a href="#1305" id="1305">1305</a>
+<a href="#1306" id="1306">1306</a>
+<a href="#1307" id="1307">1307</a>
+<a href="#1308" id="1308">1308</a>
+<a href="#1309" id="1309">1309</a>
+<a href="#1310" id="1310">1310</a>
+<a href="#1311" id="1311">1311</a>
+<a href="#1312" id="1312">1312</a>
+<a href="#1313" id="1313">1313</a>
+<a href="#1314" id="1314">1314</a>
+<a href="#1315" id="1315">1315</a>
+<a href="#1316" id="1316">1316</a>
+<a href="#1317" id="1317">1317</a>
+<a href="#1318" id="1318">1318</a>
+<a href="#1319" id="1319">1319</a>
+<a href="#1320" id="1320">1320</a>
+<a href="#1321" id="1321">1321</a>
+<a href="#1322" id="1322">1322</a>
+<a href="#1323" id="1323">1323</a>
+<a href="#1324" id="1324">1324</a>
+<a href="#1325" id="1325">1325</a>
+<a href="#1326" id="1326">1326</a>
+<a href="#1327" id="1327">1327</a>
+<a href="#1328" id="1328">1328</a>
+<a href="#1329" id="1329">1329</a>
+<a href="#1330" id="1330">1330</a>
+<a href="#1331" id="1331">1331</a>
+<a href="#1332" id="1332">1332</a>
+<a href="#1333" id="1333">1333</a>
+<a href="#1334" id="1334">1334</a>
+<a href="#1335" id="1335">1335</a>
+<a href="#1336" id="1336">1336</a>
+<a href="#1337" id="1337">1337</a>
+<a href="#1338" id="1338">1338</a>
+<a href="#1339" id="1339">1339</a>
+<a href="#1340" id="1340">1340</a>
+<a href="#1341" id="1341">1341</a>
+<a href="#1342" id="1342">1342</a>
+<a href="#1343" id="1343">1343</a>
+<a href="#1344" id="1344">1344</a>
+<a href="#1345" id="1345">1345</a>
+<a href="#1346" id="1346">1346</a>
+<a href="#1347" id="1347">1347</a>
+<a href="#1348" id="1348">1348</a>
+<a href="#1349" id="1349">1349</a>
+<a href="#1350" id="1350">1350</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
@@ -1370,7 +1424,7 @@
 ///
 /// ```
 /// use icu::calendar::DateTime;
-/// use icu::timezone::{CustomTimeZone, MetazoneCalculator};
+/// use icu::timezone::{CustomTimeZone, MetazoneCalculator, IanaToBcp47Mapper};
 /// use icu::datetime::{DateTimeError, time_zone::TimeZoneFormatter};
 /// use icu::locid::locale;
 /// use tinystr::tinystr;
@@ -1378,29 +1432,29 @@
 ///
 /// // Set up the time zone. Note: the inputs here are
 /// //   1. The GMT offset
-/// //   2. The BCP-47 time zone ID
+/// //   2. The IANA time zone ID
 /// //   3. A datetime (for metazone resolution)
 /// //   4. Note: we do not need the zone variant because of `load_generic_*()`
 ///
-/// // Set up the Metazone calculator and the DateTime to use in calculation
-/// let mzc = MetazoneCalculator::try_new_unstable(&amp;icu_testdata::unstable())
-///     .unwrap();
+/// // Set up the Metazone calculator, time zone ID mapper,
+/// // and the DateTime to use in calculation
+/// let mzc = MetazoneCalculator::new();
+/// let mapper = IanaToBcp47Mapper::new();
 /// let datetime = DateTime::try_new_iso_datetime(2022, 8, 29, 0, 0, 0)
 ///     .unwrap();
 ///
 /// // Set up the formatter
-/// let mut tzf = TimeZoneFormatter::try_new_unstable(
-///     &amp;icu_testdata::unstable(),
+/// let mut tzf = TimeZoneFormatter::try_new(
 ///     &amp;locale!(&quot;en&quot;).into(),
 ///     Default::default(),
 /// )
 /// .unwrap();
-/// tzf.load_generic_non_location_short(&amp;icu_testdata::unstable())?
-///     .load_generic_non_location_long(&amp;icu_testdata::unstable())?;
+/// tzf.include_generic_non_location_short()?
+///     .include_generic_non_location_long()?;
 ///
 /// // &quot;uschi&quot; - has metazone symbol data for generic_non_location_short
 /// let mut time_zone = &quot;-0600&quot;.parse::&lt;CustomTimeZone&gt;().unwrap();
-/// time_zone.time_zone_id = Some(tinystr!(8, &quot;uschi&quot;).into());
+/// time_zone.time_zone_id = mapper.as_borrowed().get(&quot;America/Chicago&quot;);
 /// time_zone.maybe_calculate_metazone(&amp;mzc, &amp;datetime);
 /// assert_writeable_eq!(
 ///     tzf.format(&amp;time_zone),
@@ -1576,17 +1630,17 @@
                 },
                 TimeZone::UpperZ =&gt; <span class="kw">match </span>length {
                     <span class="number">1</span>..=<span class="number">3 </span>=&gt; {
-                        tz_format.load_iso_8601_format(
+                        tz_format.include_iso_8601_format(
                             IsoFormat::Basic,
                             IsoMinutes::Required,
                             IsoSeconds::Optional,
                         )<span class="question-mark">?</span>;
                     }
                     <span class="number">4 </span>=&gt; {
-                        tz_format.load_localized_gmt_format()<span class="question-mark">?</span>;
+                        tz_format.include_localized_gmt_format()<span class="question-mark">?</span>;
                     }
                     <span class="number">5 </span>=&gt; {
-                        tz_format.load_iso_8601_format(
+                        tz_format.include_iso_8601_format(
                             IsoFormat::UtcExtended,
                             IsoMinutes::Required,
                             IsoSeconds::Optional,
@@ -1600,35 +1654,35 @@
                 },
                 TimeZone::LowerX =&gt; <span class="kw">match </span>length {
                     <span class="number">1 </span>=&gt; {
-                        tz_format.load_iso_8601_format(
+                        tz_format.include_iso_8601_format(
                             IsoFormat::UtcBasic,
                             IsoMinutes::Optional,
                             IsoSeconds::Never,
                         )<span class="question-mark">?</span>;
                     }
                     <span class="number">2 </span>=&gt; {
-                        tz_format.load_iso_8601_format(
+                        tz_format.include_iso_8601_format(
                             IsoFormat::UtcBasic,
                             IsoMinutes::Required,
                             IsoSeconds::Never,
                         )<span class="question-mark">?</span>;
                     }
                     <span class="number">3 </span>=&gt; {
-                        tz_format.load_iso_8601_format(
+                        tz_format.include_iso_8601_format(
                             IsoFormat::UtcExtended,
                             IsoMinutes::Required,
                             IsoSeconds::Never,
                         )<span class="question-mark">?</span>;
                     }
                     <span class="number">4 </span>=&gt; {
-                        tz_format.load_iso_8601_format(
+                        tz_format.include_iso_8601_format(
                             IsoFormat::UtcBasic,
                             IsoMinutes::Required,
                             IsoSeconds::Optional,
                         )<span class="question-mark">?</span>;
                     }
                     <span class="number">5 </span>=&gt; {
-                        tz_format.load_iso_8601_format(
+                        tz_format.include_iso_8601_format(
                             IsoFormat::UtcExtended,
                             IsoMinutes::Required,
                             IsoSeconds::Optional,
@@ -1642,35 +1696,35 @@
                 },
                 TimeZone::UpperX =&gt; <span class="kw">match </span>length {
                     <span class="number">1 </span>=&gt; {
-                        tz_format.load_iso_8601_format(
+                        tz_format.include_iso_8601_format(
                             IsoFormat::Basic,
                             IsoMinutes::Optional,
                             IsoSeconds::Never,
                         )<span class="question-mark">?</span>;
                     }
                     <span class="number">2 </span>=&gt; {
-                        tz_format.load_iso_8601_format(
+                        tz_format.include_iso_8601_format(
                             IsoFormat::Basic,
                             IsoMinutes::Required,
                             IsoSeconds::Never,
                         )<span class="question-mark">?</span>;
                     }
                     <span class="number">3 </span>=&gt; {
-                        tz_format.load_iso_8601_format(
+                        tz_format.include_iso_8601_format(
                             IsoFormat::Extended,
                             IsoMinutes::Required,
                             IsoSeconds::Never,
                         )<span class="question-mark">?</span>;
                     }
                     <span class="number">4 </span>=&gt; {
-                        tz_format.load_iso_8601_format(
+                        tz_format.include_iso_8601_format(
                             IsoFormat::Basic,
                             IsoMinutes::Required,
                             IsoSeconds::Optional,
                         )<span class="question-mark">?</span>;
                     }
                     <span class="number">5 </span>=&gt; {
-                        tz_format.load_iso_8601_format(
+                        tz_format.include_iso_8601_format(
                             IsoFormat::Extended,
                             IsoMinutes::Required,
                             IsoSeconds::Optional,
@@ -1684,7 +1738,7 @@
                 },
                 TimeZone::UpperO =&gt; <span class="kw">match </span>length {
                     <span class="number">1</span>..=<span class="number">4 </span>=&gt; {
-                        tz_format.load_localized_gmt_format()<span class="question-mark">?</span>;
+                        tz_format.include_localized_gmt_format()<span class="question-mark">?</span>;
                     }
                     <span class="kw">_ </span>=&gt; {
                         <span class="kw">return </span><span class="prelude-val">Err</span>(DateTimeError::Pattern(PatternError::FieldLengthInvalid(
@@ -1697,38 +1751,44 @@
         <span class="prelude-val">Ok</span>(tz_format)
     }
 
-    <span class="doccomment">/// Creates a new [`TimeZoneFormatter`] with a GMT or ISO format.
-    ///
-    /// To enable other time zone styles, use one of the `load` methods.
-    ///
-    /// [📚 Help choosing a constructor](icu_provider::constructors)
-    /// &lt;div class=&quot;stab unstable&quot;&gt;
-    /// ⚠️ The bounds on this function may change over time, including in SemVer minor releases.
-    /// &lt;/div&gt;
-    ///
-    /// # Examples
-    ///
-    /// Default format is Localized GMT:
-    ///
-    /// ```
-    /// use icu::datetime::time_zone::{
-    ///     TimeZoneFormatter, TimeZoneFormatterOptions,
-    /// };
-    /// use icu::locid::locale;
-    /// use icu::timezone::CustomTimeZone;
-    /// use writeable::assert_writeable_eq;
-    ///
-    /// let tzf = TimeZoneFormatter::try_new_unstable(
-    ///     &amp;icu_testdata::unstable(),
-    ///     &amp;locale!(&quot;es&quot;).into(),
-    ///     TimeZoneFormatterOptions::default(),
-    /// )
-    /// .unwrap();
-    ///
-    /// let time_zone = &quot;-0700&quot;.parse::&lt;CustomTimeZone&gt;().unwrap();
-    ///
-    /// assert_writeable_eq!(tzf.format(&amp;time_zone), &quot;GMT-07:00&quot;);
-    /// ```
+    <span class="macro">icu_provider::gen_any_buffer_data_constructors!</span>(
+        locale: include,
+        options: TimeZoneFormatterOptions,
+        error: DateTimeError,
+        <span class="doccomment">/// Creates a new [`TimeZoneFormatter`] with a GMT or ISO format using compiled data.
+        ///
+        /// To enable other time zone styles, use one of the `with` (compiled data) or `load` (runtime
+        /// data provider) methods.
+        ///
+        /// ✨ *Enabled with the `compiled_data` Cargo feature.*
+        ///
+        /// [📚 Help choosing a constructor](icu_provider::constructors)
+        ///
+        /// # Examples
+        ///
+        /// Default format is Localized GMT:
+        ///
+        /// ```
+        /// use icu::datetime::time_zone::{
+        ///     TimeZoneFormatter, TimeZoneFormatterOptions,
+        /// };
+        /// use icu::locid::locale;
+        /// use icu::timezone::CustomTimeZone;
+        /// use writeable::assert_writeable_eq;
+        ///
+        /// let tzf = TimeZoneFormatter::try_new(
+        ///     &amp;locale!(&quot;es&quot;).into(),
+        ///     TimeZoneFormatterOptions::default(),
+        /// )
+        /// .unwrap();
+        ///
+        /// let time_zone = &quot;-0700&quot;.parse::&lt;CustomTimeZone&gt;().unwrap();
+        ///
+        /// assert_writeable_eq!(tzf.format(&amp;time_zone), &quot;GMT-07:00&quot;);
+        /// ```
+    </span>);
+
+    <span class="attr">#[doc = <span class="macro">icu_provider::gen_any_buffer_unstable_docs!</span>(UNSTABLE, <span class="self">Self</span>::try_new)]
     </span><span class="kw">pub fn </span>try_new_unstable&lt;P&gt;(
         provider: <span class="kw-2">&amp;</span>P,
         locale: <span class="kw-2">&amp;</span>DataLocale,
@@ -1759,13 +1819,72 @@
         })
     }
 
-    <span class="macro">icu_provider::gen_any_buffer_constructors!</span>(
-        locale: include,
-        options: TimeZoneFormatterOptions,
-        error: DateTimeError
-    );
+    <span class="doccomment">/// Include generic-non-location-long format for timezone from compiled data. For example, &quot;Pacific Time&quot;.
+    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    </span><span class="kw">pub fn </span>include_generic_non_location_long(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;mut </span>TimeZoneFormatter, DateTimeError&gt; {
+        <span class="self">self</span>.load_generic_non_location_long(<span class="kw-2">&amp;</span><span class="kw">crate</span>::provider::Baked)
+    }
 
-    <span class="doccomment">/// Load generic non location long format for timezone. For example, Pacific Time.
+    <span class="doccomment">/// Include generic-non-location-short format for timezone from compiled data. For example, &quot;PT&quot;.
+    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    </span><span class="kw">pub fn </span>include_generic_non_location_short(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;mut </span>TimeZoneFormatter, DateTimeError&gt; {
+        <span class="self">self</span>.load_generic_non_location_short(<span class="kw-2">&amp;</span><span class="kw">crate</span>::provider::Baked)
+    }
+
+    <span class="doccomment">/// Include specific-non-location-long format for timezone from compiled data. For example, &quot;Pacific Standard Time&quot;.
+    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    </span><span class="kw">pub fn </span>include_specific_non_location_long(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;mut </span>TimeZoneFormatter, DateTimeError&gt; {
+        <span class="self">self</span>.load_specific_non_location_long(<span class="kw-2">&amp;</span><span class="kw">crate</span>::provider::Baked)
+    }
+
+    <span class="doccomment">/// Include specific-non-location-short format for timezone from compiled data. For example, &quot;PDT&quot;.
+    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    </span><span class="kw">pub fn </span>include_specific_non_location_short(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;mut </span>TimeZoneFormatter, DateTimeError&gt; {
+        <span class="self">self</span>.load_specific_non_location_short(<span class="kw-2">&amp;</span><span class="kw">crate</span>::provider::Baked)
+    }
+
+    <span class="doccomment">/// Include generic-location format for timezone from compiled data. For example, &quot;Los Angeles Time&quot;.
+    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    </span><span class="kw">pub fn </span>include_generic_location_format(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;mut </span>TimeZoneFormatter, DateTimeError&gt; {
+        <span class="self">self</span>.load_generic_location_format(<span class="kw-2">&amp;</span><span class="kw">crate</span>::provider::Baked)
+    }
+
+    <span class="doccomment">/// Include localized-GMT format for timezone. For example, &quot;GMT-07:00&quot;.
+    </span><span class="kw">pub fn </span>include_localized_gmt_format(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;mut </span>TimeZoneFormatter, DateTimeError&gt; {
+        <span class="self">self</span>.format_units
+            .push(TimeZoneFormatterUnit::LocalizedGmt(LocalizedGmtFormat {}));
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>)
+    }
+
+    <span class="doccomment">/// Include ISO-8601 format for timezone. For example, &quot;-07:00&quot;.
+    </span><span class="kw">pub fn </span>include_iso_8601_format(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        format: IsoFormat,
+        minutes: IsoMinutes,
+        seconds: IsoSeconds,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;mut </span>TimeZoneFormatter, DateTimeError&gt; {
+        <span class="self">self</span>.format_units
+            .push(TimeZoneFormatterUnit::Iso8601(Iso8601Format {
+                format,
+                minutes,
+                seconds,
+            }));
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>)
+    }
+
+    <span class="doccomment">/// Load generic-non-location-long format for timezone. For example, &quot;Pacific Time&quot;.
     </span><span class="kw">pub fn </span>load_generic_non_location_long&lt;ZP&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         zone_provider: <span class="kw-2">&amp;</span>ZP,
@@ -1787,7 +1906,7 @@
         <span class="prelude-val">Ok</span>(<span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Load generic non location short format for timezone. For example, PT.
+    <span class="doccomment">/// Load generic-non-location-short format for timezone. For example, &quot;PT&quot;.
     </span><span class="kw">pub fn </span>load_generic_non_location_short&lt;ZP&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         zone_provider: <span class="kw-2">&amp;</span>ZP,
@@ -1809,7 +1928,7 @@
         <span class="prelude-val">Ok</span>(<span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Load specific non location long format for timezone. For example, Pacific Standard Time.
+    <span class="doccomment">/// Load specific-non-location-long format for timezone. For example, &quot;Pacific Standard Time&quot;.
     </span><span class="kw">pub fn </span>load_specific_non_location_long&lt;ZP&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         zone_provider: <span class="kw-2">&amp;</span>ZP,
@@ -1831,7 +1950,7 @@
         <span class="prelude-val">Ok</span>(<span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Load specific non location short format for timezone. For example, PDT.
+    <span class="doccomment">/// Load specific-non-location-short format for timezone. For example, &quot;PDT&quot;.
     </span><span class="kw">pub fn </span>load_specific_non_location_short&lt;ZP&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         zone_provider: <span class="kw-2">&amp;</span>ZP,
@@ -1853,7 +1972,7 @@
         <span class="prelude-val">Ok</span>(<span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Load generic location format for timezone. For example, Los Angeles Time.
+    <span class="doccomment">/// Load generic-location format for timezone. For example, &quot;Los Angeles Time&quot;.
     </span><span class="kw">pub fn </span>load_generic_location_format&lt;ZP&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         zone_provider: <span class="kw-2">&amp;</span>ZP,
@@ -1875,7 +1994,7 @@
         <span class="prelude-val">Ok</span>(<span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Load exemplar city format for timezone. For example, Los Angeles.
+    <span class="doccomment">/// Load exemplar-city format for timezone. For example, &quot;Los Angeles&quot;.
     </span><span class="kw">fn </span>load_exemplar_city_format&lt;ZP&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         zone_provider: <span class="kw-2">&amp;</span>ZP,
@@ -1895,27 +2014,21 @@
         <span class="prelude-val">Ok</span>(<span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Load localized GMT format for timezone. For example, GMT-07:00.
+    <span class="doccomment">/// Alias to [`TimeZoneFormatter::include_localized_gmt_format`].
+    </span><span class="attr">#[deprecated(since = <span class="string">&quot;1.3.0&quot;</span>, note = <span class="string">&quot;renamed to `include_localized_gmt_format`&quot;</span>)]
     </span><span class="kw">pub fn </span>load_localized_gmt_format(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;mut </span>TimeZoneFormatter, DateTimeError&gt; {
-        <span class="self">self</span>.format_units
-            .push(TimeZoneFormatterUnit::LocalizedGmt(LocalizedGmtFormat {}));
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>)
+        <span class="self">self</span>.include_localized_gmt_format()
     }
 
-    <span class="doccomment">/// Load Iso8601 format for timezone. For example, -07:00.
+    <span class="doccomment">/// Alias to [`TimeZoneFormatter::include_iso_8601_format`].
+    </span><span class="attr">#[deprecated(since = <span class="string">&quot;1.3.0&quot;</span>, note = <span class="string">&quot;renamed to `include_iso_8601_format`&quot;</span>)]
     </span><span class="kw">pub fn </span>load_iso_8601_format(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         format: IsoFormat,
         minutes: IsoMinutes,
         seconds: IsoSeconds,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;mut </span>TimeZoneFormatter, DateTimeError&gt; {
-        <span class="self">self</span>.format_units
-            .push(TimeZoneFormatterUnit::Iso8601(Iso8601Format {
-                format,
-                minutes,
-                seconds,
-            }));
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>)
+        <span class="self">self</span>.include_iso_8601_format(format, minutes, seconds)
     }
 
     <span class="doccomment">/// Load a fallback format for timezone. The fallback format will be executed if there are no
@@ -1948,8 +2061,7 @@
     /// use icu::timezone::CustomTimeZone;
     /// use writeable::assert_writeable_eq;
     ///
-    /// let tzf = TimeZoneFormatter::try_new_unstable(
-    ///     &amp;icu_testdata::unstable(),
+    /// let tzf = TimeZoneFormatter::try_new(
     ///     &amp;locale!(&quot;en&quot;).into(),
     ///     TimeZoneFormatterOptions::default(),
     /// )
@@ -2087,19 +2199,15 @@
 <span class="doccomment">/// An enum for time zone fallback formats.
 </span><span class="attr">#[derive(Debug, Clone, Copy, PartialEq)]
 #[non_exhaustive]
+#[derive(Default)]
 </span><span class="kw">pub enum </span>FallbackFormat {
     <span class="doccomment">/// The ISO 8601 format for time zone format fallback.
     </span>Iso8601(IsoFormat, IsoMinutes, IsoSeconds),
     <span class="doccomment">/// The localized GMT format for time zone format fallback.
     ///
     /// See [UTS 35 on Dates](https://unicode.org/reports/tr35/tr35-dates.html#71-time-zone-format-terminology) for more information.
+    </span><span class="attr">#[default]
     </span>LocalizedGmt,
-}
-
-<span class="kw">impl </span>Default <span class="kw">for </span>FallbackFormat {
-    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
-        FallbackFormat::LocalizedGmt
-    }
 }
 
 <span class="doccomment">/// A bag of options to define how time zone will be formatted.

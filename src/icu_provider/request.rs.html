@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_provider-1.2.0/src/request.rs`."><title>request.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_provider" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../icu_provider/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_provider-1.3.2/src/request.rs`."><title>request.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_provider" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../icu_provider/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -512,21 +512,625 @@
 <a href="#512" id="512">512</a>
 <a href="#513" id="513">513</a>
 <a href="#514" id="514">514</a>
+<a href="#515" id="515">515</a>
+<a href="#516" id="516">516</a>
+<a href="#517" id="517">517</a>
+<a href="#518" id="518">518</a>
+<a href="#519" id="519">519</a>
+<a href="#520" id="520">520</a>
+<a href="#521" id="521">521</a>
+<a href="#522" id="522">522</a>
+<a href="#523" id="523">523</a>
+<a href="#524" id="524">524</a>
+<a href="#525" id="525">525</a>
+<a href="#526" id="526">526</a>
+<a href="#527" id="527">527</a>
+<a href="#528" id="528">528</a>
+<a href="#529" id="529">529</a>
+<a href="#530" id="530">530</a>
+<a href="#531" id="531">531</a>
+<a href="#532" id="532">532</a>
+<a href="#533" id="533">533</a>
+<a href="#534" id="534">534</a>
+<a href="#535" id="535">535</a>
+<a href="#536" id="536">536</a>
+<a href="#537" id="537">537</a>
+<a href="#538" id="538">538</a>
+<a href="#539" id="539">539</a>
+<a href="#540" id="540">540</a>
+<a href="#541" id="541">541</a>
+<a href="#542" id="542">542</a>
+<a href="#543" id="543">543</a>
+<a href="#544" id="544">544</a>
+<a href="#545" id="545">545</a>
+<a href="#546" id="546">546</a>
+<a href="#547" id="547">547</a>
+<a href="#548" id="548">548</a>
+<a href="#549" id="549">549</a>
+<a href="#550" id="550">550</a>
+<a href="#551" id="551">551</a>
+<a href="#552" id="552">552</a>
+<a href="#553" id="553">553</a>
+<a href="#554" id="554">554</a>
+<a href="#555" id="555">555</a>
+<a href="#556" id="556">556</a>
+<a href="#557" id="557">557</a>
+<a href="#558" id="558">558</a>
+<a href="#559" id="559">559</a>
+<a href="#560" id="560">560</a>
+<a href="#561" id="561">561</a>
+<a href="#562" id="562">562</a>
+<a href="#563" id="563">563</a>
+<a href="#564" id="564">564</a>
+<a href="#565" id="565">565</a>
+<a href="#566" id="566">566</a>
+<a href="#567" id="567">567</a>
+<a href="#568" id="568">568</a>
+<a href="#569" id="569">569</a>
+<a href="#570" id="570">570</a>
+<a href="#571" id="571">571</a>
+<a href="#572" id="572">572</a>
+<a href="#573" id="573">573</a>
+<a href="#574" id="574">574</a>
+<a href="#575" id="575">575</a>
+<a href="#576" id="576">576</a>
+<a href="#577" id="577">577</a>
+<a href="#578" id="578">578</a>
+<a href="#579" id="579">579</a>
+<a href="#580" id="580">580</a>
+<a href="#581" id="581">581</a>
+<a href="#582" id="582">582</a>
+<a href="#583" id="583">583</a>
+<a href="#584" id="584">584</a>
+<a href="#585" id="585">585</a>
+<a href="#586" id="586">586</a>
+<a href="#587" id="587">587</a>
+<a href="#588" id="588">588</a>
+<a href="#589" id="589">589</a>
+<a href="#590" id="590">590</a>
+<a href="#591" id="591">591</a>
+<a href="#592" id="592">592</a>
+<a href="#593" id="593">593</a>
+<a href="#594" id="594">594</a>
+<a href="#595" id="595">595</a>
+<a href="#596" id="596">596</a>
+<a href="#597" id="597">597</a>
+<a href="#598" id="598">598</a>
+<a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
+<a href="#604" id="604">604</a>
+<a href="#605" id="605">605</a>
+<a href="#606" id="606">606</a>
+<a href="#607" id="607">607</a>
+<a href="#608" id="608">608</a>
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
+<a href="#614" id="614">614</a>
+<a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
+<a href="#618" id="618">618</a>
+<a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a>
+<a href="#624" id="624">624</a>
+<a href="#625" id="625">625</a>
+<a href="#626" id="626">626</a>
+<a href="#627" id="627">627</a>
+<a href="#628" id="628">628</a>
+<a href="#629" id="629">629</a>
+<a href="#630" id="630">630</a>
+<a href="#631" id="631">631</a>
+<a href="#632" id="632">632</a>
+<a href="#633" id="633">633</a>
+<a href="#634" id="634">634</a>
+<a href="#635" id="635">635</a>
+<a href="#636" id="636">636</a>
+<a href="#637" id="637">637</a>
+<a href="#638" id="638">638</a>
+<a href="#639" id="639">639</a>
+<a href="#640" id="640">640</a>
+<a href="#641" id="641">641</a>
+<a href="#642" id="642">642</a>
+<a href="#643" id="643">643</a>
+<a href="#644" id="644">644</a>
+<a href="#645" id="645">645</a>
+<a href="#646" id="646">646</a>
+<a href="#647" id="647">647</a>
+<a href="#648" id="648">648</a>
+<a href="#649" id="649">649</a>
+<a href="#650" id="650">650</a>
+<a href="#651" id="651">651</a>
+<a href="#652" id="652">652</a>
+<a href="#653" id="653">653</a>
+<a href="#654" id="654">654</a>
+<a href="#655" id="655">655</a>
+<a href="#656" id="656">656</a>
+<a href="#657" id="657">657</a>
+<a href="#658" id="658">658</a>
+<a href="#659" id="659">659</a>
+<a href="#660" id="660">660</a>
+<a href="#661" id="661">661</a>
+<a href="#662" id="662">662</a>
+<a href="#663" id="663">663</a>
+<a href="#664" id="664">664</a>
+<a href="#665" id="665">665</a>
+<a href="#666" id="666">666</a>
+<a href="#667" id="667">667</a>
+<a href="#668" id="668">668</a>
+<a href="#669" id="669">669</a>
+<a href="#670" id="670">670</a>
+<a href="#671" id="671">671</a>
+<a href="#672" id="672">672</a>
+<a href="#673" id="673">673</a>
+<a href="#674" id="674">674</a>
+<a href="#675" id="675">675</a>
+<a href="#676" id="676">676</a>
+<a href="#677" id="677">677</a>
+<a href="#678" id="678">678</a>
+<a href="#679" id="679">679</a>
+<a href="#680" id="680">680</a>
+<a href="#681" id="681">681</a>
+<a href="#682" id="682">682</a>
+<a href="#683" id="683">683</a>
+<a href="#684" id="684">684</a>
+<a href="#685" id="685">685</a>
+<a href="#686" id="686">686</a>
+<a href="#687" id="687">687</a>
+<a href="#688" id="688">688</a>
+<a href="#689" id="689">689</a>
+<a href="#690" id="690">690</a>
+<a href="#691" id="691">691</a>
+<a href="#692" id="692">692</a>
+<a href="#693" id="693">693</a>
+<a href="#694" id="694">694</a>
+<a href="#695" id="695">695</a>
+<a href="#696" id="696">696</a>
+<a href="#697" id="697">697</a>
+<a href="#698" id="698">698</a>
+<a href="#699" id="699">699</a>
+<a href="#700" id="700">700</a>
+<a href="#701" id="701">701</a>
+<a href="#702" id="702">702</a>
+<a href="#703" id="703">703</a>
+<a href="#704" id="704">704</a>
+<a href="#705" id="705">705</a>
+<a href="#706" id="706">706</a>
+<a href="#707" id="707">707</a>
+<a href="#708" id="708">708</a>
+<a href="#709" id="709">709</a>
+<a href="#710" id="710">710</a>
+<a href="#711" id="711">711</a>
+<a href="#712" id="712">712</a>
+<a href="#713" id="713">713</a>
+<a href="#714" id="714">714</a>
+<a href="#715" id="715">715</a>
+<a href="#716" id="716">716</a>
+<a href="#717" id="717">717</a>
+<a href="#718" id="718">718</a>
+<a href="#719" id="719">719</a>
+<a href="#720" id="720">720</a>
+<a href="#721" id="721">721</a>
+<a href="#722" id="722">722</a>
+<a href="#723" id="723">723</a>
+<a href="#724" id="724">724</a>
+<a href="#725" id="725">725</a>
+<a href="#726" id="726">726</a>
+<a href="#727" id="727">727</a>
+<a href="#728" id="728">728</a>
+<a href="#729" id="729">729</a>
+<a href="#730" id="730">730</a>
+<a href="#731" id="731">731</a>
+<a href="#732" id="732">732</a>
+<a href="#733" id="733">733</a>
+<a href="#734" id="734">734</a>
+<a href="#735" id="735">735</a>
+<a href="#736" id="736">736</a>
+<a href="#737" id="737">737</a>
+<a href="#738" id="738">738</a>
+<a href="#739" id="739">739</a>
+<a href="#740" id="740">740</a>
+<a href="#741" id="741">741</a>
+<a href="#742" id="742">742</a>
+<a href="#743" id="743">743</a>
+<a href="#744" id="744">744</a>
+<a href="#745" id="745">745</a>
+<a href="#746" id="746">746</a>
+<a href="#747" id="747">747</a>
+<a href="#748" id="748">748</a>
+<a href="#749" id="749">749</a>
+<a href="#750" id="750">750</a>
+<a href="#751" id="751">751</a>
+<a href="#752" id="752">752</a>
+<a href="#753" id="753">753</a>
+<a href="#754" id="754">754</a>
+<a href="#755" id="755">755</a>
+<a href="#756" id="756">756</a>
+<a href="#757" id="757">757</a>
+<a href="#758" id="758">758</a>
+<a href="#759" id="759">759</a>
+<a href="#760" id="760">760</a>
+<a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
+<a href="#763" id="763">763</a>
+<a href="#764" id="764">764</a>
+<a href="#765" id="765">765</a>
+<a href="#766" id="766">766</a>
+<a href="#767" id="767">767</a>
+<a href="#768" id="768">768</a>
+<a href="#769" id="769">769</a>
+<a href="#770" id="770">770</a>
+<a href="#771" id="771">771</a>
+<a href="#772" id="772">772</a>
+<a href="#773" id="773">773</a>
+<a href="#774" id="774">774</a>
+<a href="#775" id="775">775</a>
+<a href="#776" id="776">776</a>
+<a href="#777" id="777">777</a>
+<a href="#778" id="778">778</a>
+<a href="#779" id="779">779</a>
+<a href="#780" id="780">780</a>
+<a href="#781" id="781">781</a>
+<a href="#782" id="782">782</a>
+<a href="#783" id="783">783</a>
+<a href="#784" id="784">784</a>
+<a href="#785" id="785">785</a>
+<a href="#786" id="786">786</a>
+<a href="#787" id="787">787</a>
+<a href="#788" id="788">788</a>
+<a href="#789" id="789">789</a>
+<a href="#790" id="790">790</a>
+<a href="#791" id="791">791</a>
+<a href="#792" id="792">792</a>
+<a href="#793" id="793">793</a>
+<a href="#794" id="794">794</a>
+<a href="#795" id="795">795</a>
+<a href="#796" id="796">796</a>
+<a href="#797" id="797">797</a>
+<a href="#798" id="798">798</a>
+<a href="#799" id="799">799</a>
+<a href="#800" id="800">800</a>
+<a href="#801" id="801">801</a>
+<a href="#802" id="802">802</a>
+<a href="#803" id="803">803</a>
+<a href="#804" id="804">804</a>
+<a href="#805" id="805">805</a>
+<a href="#806" id="806">806</a>
+<a href="#807" id="807">807</a>
+<a href="#808" id="808">808</a>
+<a href="#809" id="809">809</a>
+<a href="#810" id="810">810</a>
+<a href="#811" id="811">811</a>
+<a href="#812" id="812">812</a>
+<a href="#813" id="813">813</a>
+<a href="#814" id="814">814</a>
+<a href="#815" id="815">815</a>
+<a href="#816" id="816">816</a>
+<a href="#817" id="817">817</a>
+<a href="#818" id="818">818</a>
+<a href="#819" id="819">819</a>
+<a href="#820" id="820">820</a>
+<a href="#821" id="821">821</a>
+<a href="#822" id="822">822</a>
+<a href="#823" id="823">823</a>
+<a href="#824" id="824">824</a>
+<a href="#825" id="825">825</a>
+<a href="#826" id="826">826</a>
+<a href="#827" id="827">827</a>
+<a href="#828" id="828">828</a>
+<a href="#829" id="829">829</a>
+<a href="#830" id="830">830</a>
+<a href="#831" id="831">831</a>
+<a href="#832" id="832">832</a>
+<a href="#833" id="833">833</a>
+<a href="#834" id="834">834</a>
+<a href="#835" id="835">835</a>
+<a href="#836" id="836">836</a>
+<a href="#837" id="837">837</a>
+<a href="#838" id="838">838</a>
+<a href="#839" id="839">839</a>
+<a href="#840" id="840">840</a>
+<a href="#841" id="841">841</a>
+<a href="#842" id="842">842</a>
+<a href="#843" id="843">843</a>
+<a href="#844" id="844">844</a>
+<a href="#845" id="845">845</a>
+<a href="#846" id="846">846</a>
+<a href="#847" id="847">847</a>
+<a href="#848" id="848">848</a>
+<a href="#849" id="849">849</a>
+<a href="#850" id="850">850</a>
+<a href="#851" id="851">851</a>
+<a href="#852" id="852">852</a>
+<a href="#853" id="853">853</a>
+<a href="#854" id="854">854</a>
+<a href="#855" id="855">855</a>
+<a href="#856" id="856">856</a>
+<a href="#857" id="857">857</a>
+<a href="#858" id="858">858</a>
+<a href="#859" id="859">859</a>
+<a href="#860" id="860">860</a>
+<a href="#861" id="861">861</a>
+<a href="#862" id="862">862</a>
+<a href="#863" id="863">863</a>
+<a href="#864" id="864">864</a>
+<a href="#865" id="865">865</a>
+<a href="#866" id="866">866</a>
+<a href="#867" id="867">867</a>
+<a href="#868" id="868">868</a>
+<a href="#869" id="869">869</a>
+<a href="#870" id="870">870</a>
+<a href="#871" id="871">871</a>
+<a href="#872" id="872">872</a>
+<a href="#873" id="873">873</a>
+<a href="#874" id="874">874</a>
+<a href="#875" id="875">875</a>
+<a href="#876" id="876">876</a>
+<a href="#877" id="877">877</a>
+<a href="#878" id="878">878</a>
+<a href="#879" id="879">879</a>
+<a href="#880" id="880">880</a>
+<a href="#881" id="881">881</a>
+<a href="#882" id="882">882</a>
+<a href="#883" id="883">883</a>
+<a href="#884" id="884">884</a>
+<a href="#885" id="885">885</a>
+<a href="#886" id="886">886</a>
+<a href="#887" id="887">887</a>
+<a href="#888" id="888">888</a>
+<a href="#889" id="889">889</a>
+<a href="#890" id="890">890</a>
+<a href="#891" id="891">891</a>
+<a href="#892" id="892">892</a>
+<a href="#893" id="893">893</a>
+<a href="#894" id="894">894</a>
+<a href="#895" id="895">895</a>
+<a href="#896" id="896">896</a>
+<a href="#897" id="897">897</a>
+<a href="#898" id="898">898</a>
+<a href="#899" id="899">899</a>
+<a href="#900" id="900">900</a>
+<a href="#901" id="901">901</a>
+<a href="#902" id="902">902</a>
+<a href="#903" id="903">903</a>
+<a href="#904" id="904">904</a>
+<a href="#905" id="905">905</a>
+<a href="#906" id="906">906</a>
+<a href="#907" id="907">907</a>
+<a href="#908" id="908">908</a>
+<a href="#909" id="909">909</a>
+<a href="#910" id="910">910</a>
+<a href="#911" id="911">911</a>
+<a href="#912" id="912">912</a>
+<a href="#913" id="913">913</a>
+<a href="#914" id="914">914</a>
+<a href="#915" id="915">915</a>
+<a href="#916" id="916">916</a>
+<a href="#917" id="917">917</a>
+<a href="#918" id="918">918</a>
+<a href="#919" id="919">919</a>
+<a href="#920" id="920">920</a>
+<a href="#921" id="921">921</a>
+<a href="#922" id="922">922</a>
+<a href="#923" id="923">923</a>
+<a href="#924" id="924">924</a>
+<a href="#925" id="925">925</a>
+<a href="#926" id="926">926</a>
+<a href="#927" id="927">927</a>
+<a href="#928" id="928">928</a>
+<a href="#929" id="929">929</a>
+<a href="#930" id="930">930</a>
+<a href="#931" id="931">931</a>
+<a href="#932" id="932">932</a>
+<a href="#933" id="933">933</a>
+<a href="#934" id="934">934</a>
+<a href="#935" id="935">935</a>
+<a href="#936" id="936">936</a>
+<a href="#937" id="937">937</a>
+<a href="#938" id="938">938</a>
+<a href="#939" id="939">939</a>
+<a href="#940" id="940">940</a>
+<a href="#941" id="941">941</a>
+<a href="#942" id="942">942</a>
+<a href="#943" id="943">943</a>
+<a href="#944" id="944">944</a>
+<a href="#945" id="945">945</a>
+<a href="#946" id="946">946</a>
+<a href="#947" id="947">947</a>
+<a href="#948" id="948">948</a>
+<a href="#949" id="949">949</a>
+<a href="#950" id="950">950</a>
+<a href="#951" id="951">951</a>
+<a href="#952" id="952">952</a>
+<a href="#953" id="953">953</a>
+<a href="#954" id="954">954</a>
+<a href="#955" id="955">955</a>
+<a href="#956" id="956">956</a>
+<a href="#957" id="957">957</a>
+<a href="#958" id="958">958</a>
+<a href="#959" id="959">959</a>
+<a href="#960" id="960">960</a>
+<a href="#961" id="961">961</a>
+<a href="#962" id="962">962</a>
+<a href="#963" id="963">963</a>
+<a href="#964" id="964">964</a>
+<a href="#965" id="965">965</a>
+<a href="#966" id="966">966</a>
+<a href="#967" id="967">967</a>
+<a href="#968" id="968">968</a>
+<a href="#969" id="969">969</a>
+<a href="#970" id="970">970</a>
+<a href="#971" id="971">971</a>
+<a href="#972" id="972">972</a>
+<a href="#973" id="973">973</a>
+<a href="#974" id="974">974</a>
+<a href="#975" id="975">975</a>
+<a href="#976" id="976">976</a>
+<a href="#977" id="977">977</a>
+<a href="#978" id="978">978</a>
+<a href="#979" id="979">979</a>
+<a href="#980" id="980">980</a>
+<a href="#981" id="981">981</a>
+<a href="#982" id="982">982</a>
+<a href="#983" id="983">983</a>
+<a href="#984" id="984">984</a>
+<a href="#985" id="985">985</a>
+<a href="#986" id="986">986</a>
+<a href="#987" id="987">987</a>
+<a href="#988" id="988">988</a>
+<a href="#989" id="989">989</a>
+<a href="#990" id="990">990</a>
+<a href="#991" id="991">991</a>
+<a href="#992" id="992">992</a>
+<a href="#993" id="993">993</a>
+<a href="#994" id="994">994</a>
+<a href="#995" id="995">995</a>
+<a href="#996" id="996">996</a>
+<a href="#997" id="997">997</a>
+<a href="#998" id="998">998</a>
+<a href="#999" id="999">999</a>
+<a href="#1000" id="1000">1000</a>
+<a href="#1001" id="1001">1001</a>
+<a href="#1002" id="1002">1002</a>
+<a href="#1003" id="1003">1003</a>
+<a href="#1004" id="1004">1004</a>
+<a href="#1005" id="1005">1005</a>
+<a href="#1006" id="1006">1006</a>
+<a href="#1007" id="1007">1007</a>
+<a href="#1008" id="1008">1008</a>
+<a href="#1009" id="1009">1009</a>
+<a href="#1010" id="1010">1010</a>
+<a href="#1011" id="1011">1011</a>
+<a href="#1012" id="1012">1012</a>
+<a href="#1013" id="1013">1013</a>
+<a href="#1014" id="1014">1014</a>
+<a href="#1015" id="1015">1015</a>
+<a href="#1016" id="1016">1016</a>
+<a href="#1017" id="1017">1017</a>
+<a href="#1018" id="1018">1018</a>
+<a href="#1019" id="1019">1019</a>
+<a href="#1020" id="1020">1020</a>
+<a href="#1021" id="1021">1021</a>
+<a href="#1022" id="1022">1022</a>
+<a href="#1023" id="1023">1023</a>
+<a href="#1024" id="1024">1024</a>
+<a href="#1025" id="1025">1025</a>
+<a href="#1026" id="1026">1026</a>
+<a href="#1027" id="1027">1027</a>
+<a href="#1028" id="1028">1028</a>
+<a href="#1029" id="1029">1029</a>
+<a href="#1030" id="1030">1030</a>
+<a href="#1031" id="1031">1031</a>
+<a href="#1032" id="1032">1032</a>
+<a href="#1033" id="1033">1033</a>
+<a href="#1034" id="1034">1034</a>
+<a href="#1035" id="1035">1035</a>
+<a href="#1036" id="1036">1036</a>
+<a href="#1037" id="1037">1037</a>
+<a href="#1038" id="1038">1038</a>
+<a href="#1039" id="1039">1039</a>
+<a href="#1040" id="1040">1040</a>
+<a href="#1041" id="1041">1041</a>
+<a href="#1042" id="1042">1042</a>
+<a href="#1043" id="1043">1043</a>
+<a href="#1044" id="1044">1044</a>
+<a href="#1045" id="1045">1045</a>
+<a href="#1046" id="1046">1046</a>
+<a href="#1047" id="1047">1047</a>
+<a href="#1048" id="1048">1048</a>
+<a href="#1049" id="1049">1049</a>
+<a href="#1050" id="1050">1050</a>
+<a href="#1051" id="1051">1051</a>
+<a href="#1052" id="1052">1052</a>
+<a href="#1053" id="1053">1053</a>
+<a href="#1054" id="1054">1054</a>
+<a href="#1055" id="1055">1055</a>
+<a href="#1056" id="1056">1056</a>
+<a href="#1057" id="1057">1057</a>
+<a href="#1058" id="1058">1058</a>
+<a href="#1059" id="1059">1059</a>
+<a href="#1060" id="1060">1060</a>
+<a href="#1061" id="1061">1061</a>
+<a href="#1062" id="1062">1062</a>
+<a href="#1063" id="1063">1063</a>
+<a href="#1064" id="1064">1064</a>
+<a href="#1065" id="1065">1065</a>
+<a href="#1066" id="1066">1066</a>
+<a href="#1067" id="1067">1067</a>
+<a href="#1068" id="1068">1068</a>
+<a href="#1069" id="1069">1069</a>
+<a href="#1070" id="1070">1070</a>
+<a href="#1071" id="1071">1071</a>
+<a href="#1072" id="1072">1072</a>
+<a href="#1073" id="1073">1073</a>
+<a href="#1074" id="1074">1074</a>
+<a href="#1075" id="1075">1075</a>
+<a href="#1076" id="1076">1076</a>
+<a href="#1077" id="1077">1077</a>
+<a href="#1078" id="1078">1078</a>
+<a href="#1079" id="1079">1079</a>
+<a href="#1080" id="1080">1080</a>
+<a href="#1081" id="1081">1081</a>
+<a href="#1082" id="1082">1082</a>
+<a href="#1083" id="1083">1083</a>
+<a href="#1084" id="1084">1084</a>
+<a href="#1085" id="1085">1085</a>
+<a href="#1086" id="1086">1086</a>
+<a href="#1087" id="1087">1087</a>
+<a href="#1088" id="1088">1088</a>
+<a href="#1089" id="1089">1089</a>
+<a href="#1090" id="1090">1090</a>
+<a href="#1091" id="1091">1091</a>
+<a href="#1092" id="1092">1092</a>
+<a href="#1093" id="1093">1093</a>
+<a href="#1094" id="1094">1094</a>
+<a href="#1095" id="1095">1095</a>
+<a href="#1096" id="1096">1096</a>
+<a href="#1097" id="1097">1097</a>
+<a href="#1098" id="1098">1098</a>
+<a href="#1099" id="1099">1099</a>
+<a href="#1100" id="1100">1100</a>
+<a href="#1101" id="1101">1101</a>
+<a href="#1102" id="1102">1102</a>
+<a href="#1103" id="1103">1103</a>
+<a href="#1104" id="1104">1104</a>
+<a href="#1105" id="1105">1105</a>
+<a href="#1106" id="1106">1106</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
 
-</span><span class="kw">use </span>core::cmp::Ordering;
+</span><span class="kw">use crate</span>::{DataError, DataErrorKind};
+<span class="kw">use </span>core::cmp::Ordering;
 <span class="kw">use </span>core::default::Default;
 <span class="kw">use </span>core::fmt;
 <span class="kw">use </span>core::fmt::Debug;
+<span class="kw">use </span>core::hash::Hash;
+<span class="kw">use </span>core::str::FromStr;
 <span class="kw">use </span>icu_locid::extensions::unicode <span class="kw">as </span>unicode_ext;
 <span class="kw">use </span>icu_locid::subtags::{Language, Region, Script, Variants};
 <span class="kw">use </span>icu_locid::{LanguageIdentifier, Locale, SubtagOrderingResult};
 <span class="kw">use </span>writeable::{LengthHint, Writeable};
 
+<span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+</span><span class="kw">use </span>alloc::string::String;
+<span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+</span><span class="kw">use </span>core::ops::Deref;
+<span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+</span><span class="kw">use </span>tinystr::TinyAsciiStr;
+
 <span class="attr">#[cfg(doc)]
 </span><span class="kw">use </span>icu_locid::subtags::Variant;
+
+<span class="kw">const </span>AUXILIARY_KEY_SEPARATOR: u8 = <span class="string">b&#39;+&#39;</span>;
 
 <span class="doccomment">/// The request type passed into all data provider implementations.
 </span><span class="attr">#[derive(Default, Debug, Clone, Copy, PartialEq, Eq)]
@@ -556,7 +1160,7 @@
     </span><span class="kw">pub </span>silent: bool,
 }
 
-<span class="doccomment">/// The main locale type used by the ICU4X data provider.
+<span class="doccomment">/// A locale type optimized for use in fallbacking and the ICU4X data pipeline.
 ///
 /// [`DataLocale`] contains less functionality than [`Locale`] but more than
 /// [`LanguageIdentifier`] for better size and performance while still meeting
@@ -623,6 +1227,8 @@
 </span><span class="kw">pub struct </span>DataLocale {
     langid: LanguageIdentifier,
     keywords: unicode_ext::Keywords,
+    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    </span>aux: <span class="prelude-ty">Option</span>&lt;AuxiliaryKeys&gt;,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Default <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>DataLocale {
@@ -630,6 +1236,8 @@
         <span class="kw">static </span>DEFAULT: DataLocale = DataLocale {
             langid: LanguageIdentifier::UND,
             keywords: unicode_ext::Keywords::new(),
+            <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+            </span>aux: <span class="prelude-val">None</span>,
         };
         <span class="kw-2">&amp;</span>DEFAULT
     }
@@ -648,20 +1256,34 @@
             sink.write_str(<span class="string">&quot;-u-&quot;</span>)<span class="question-mark">?</span>;
             <span class="self">self</span>.keywords.write_to(sink)<span class="question-mark">?</span>;
         }
+        <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(aux) = <span class="self">self</span>.aux.as_ref() {
+            sink.write_char(AuxiliaryKeys::separator() <span class="kw">as </span>char)<span class="question-mark">?</span>;
+            aux.write_to(sink)<span class="question-mark">?</span>;
+        }
         <span class="prelude-val">Ok</span>(())
     }
 
     <span class="kw">fn </span>writeable_length_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; LengthHint {
-        <span class="self">self</span>.langid.writeable_length_hint()
-            + <span class="kw">if </span>!<span class="self">self</span>.keywords.is_empty() {
-                <span class="self">self</span>.keywords.writeable_length_hint() + <span class="number">3
-            </span>} <span class="kw">else </span>{
-                LengthHint::exact(<span class="number">0</span>)
-            }
+        <span class="kw">let </span><span class="kw-2">mut </span>length_hint = <span class="self">self</span>.langid.writeable_length_hint();
+        <span class="kw">if </span>!<span class="self">self</span>.keywords.is_empty() {
+            length_hint += <span class="self">self</span>.keywords.writeable_length_hint() + <span class="number">3</span>;
+        }
+        <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(aux) = <span class="self">self</span>.aux.as_ref() {
+            length_hint += aux.writeable_length_hint() + <span class="number">1</span>;
+        }
+        length_hint
     }
 
     <span class="kw">fn </span>write_to_string(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; alloc::borrow::Cow&lt;str&gt; {
-        <span class="kw">if </span><span class="self">self</span>.keywords.is_empty() {
+        <span class="attr">#[cfg_attr(not(feature = <span class="string">&quot;experimental&quot;</span>), allow(unused_mut))]
+        </span><span class="kw">let </span><span class="kw-2">mut </span>is_only_langid = <span class="self">self</span>.keywords.is_empty();
+        <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+        </span>{
+            is_only_langid = is_only_langid &amp;&amp; <span class="self">self</span>.aux.is_none();
+        }
+        <span class="kw">if </span>is_only_langid {
             <span class="kw">return </span><span class="self">self</span>.langid.write_to_string();
         }
         <span class="kw">let </span><span class="kw-2">mut </span>string =
@@ -678,6 +1300,8 @@
         <span class="self">Self </span>{
             langid,
             keywords: unicode_ext::Keywords::new(),
+            <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+            </span>aux: <span class="prelude-val">None</span>,
         }
     }
 }
@@ -687,6 +1311,8 @@
         <span class="self">Self </span>{
             langid: locale.id,
             keywords: locale.extensions.unicode.keywords,
+            <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+            </span>aux: <span class="prelude-val">None</span>,
         }
     }
 }
@@ -696,6 +1322,8 @@
         <span class="self">Self </span>{
             langid: langid.clone(),
             keywords: unicode_ext::Keywords::new(),
+            <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+            </span>aux: <span class="prelude-val">None</span>,
         }
     }
 }
@@ -705,7 +1333,40 @@
         <span class="self">Self </span>{
             langid: locale.id.clone(),
             keywords: locale.extensions.unicode.keywords.clone(),
+            <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+            </span>aux: <span class="prelude-val">None</span>,
         }
+    }
+}
+
+<span class="kw">impl </span>FromStr <span class="kw">for </span>DataLocale {
+    <span class="kw">type </span><span class="prelude-val">Err </span>= DataError;
+    <span class="kw">fn </span>from_str(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>aux_iter = s.splitn(<span class="number">2</span>, AUXILIARY_KEY_SEPARATOR <span class="kw">as </span>char);
+        <span class="kw">let </span><span class="prelude-val">Some</span>(locale_str) = aux_iter.next() <span class="kw">else </span>{
+            <span class="kw">return </span><span class="prelude-val">Err</span>(DataErrorKind::KeyLocaleSyntax
+                .into_error()
+                .with_display_context(s));
+        };
+        <span class="kw">let </span>locale = Locale::from_str(locale_str).map_err(|e| {
+            DataErrorKind::KeyLocaleSyntax
+                .into_error()
+                .with_display_context(s)
+                .with_display_context(<span class="kw-2">&amp;</span>e)
+        })<span class="question-mark">?</span>;
+        <span class="attr">#[cfg_attr(not(feature = <span class="string">&quot;experimental&quot;</span>), allow(unused_mut))]
+        </span><span class="kw">let </span><span class="kw-2">mut </span>data_locale = DataLocale::from(locale);
+        <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(aux_str) = aux_iter.next() {
+            <span class="kw">let </span>aux = AuxiliaryKeys::from_str(aux_str)<span class="question-mark">?</span>;
+            data_locale.set_aux(aux);
+        }
+        <span class="kw">if </span>aux_iter.next().is_some() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(DataErrorKind::KeyLocaleSyntax
+                .into_error()
+                .with_display_context(s));
+        }
+        <span class="prelude-val">Ok</span>(data_locale)
     }
 }
 
@@ -726,11 +1387,18 @@
     /// use std::cmp::Ordering;
     ///
     /// let bcp47_strings: &amp;[&amp;str] = &amp;[
+    ///     &quot;ca&quot;,
+    ///     &quot;ca+EUR&quot;,
     ///     &quot;ca-ES&quot;,
+    ///     &quot;ca-ES+GBP&quot;,
+    ///     &quot;ca-ES+GBP+short&quot;,
+    ///     &quot;ca-ES+USD&quot;,
     ///     &quot;ca-ES-u-ca-buddhist&quot;,
     ///     &quot;ca-ES-valencia&quot;,
+    ///     &quot;cat&quot;,
     ///     &quot;pl-Latn-PL&quot;,
     ///     &quot;und&quot;,
+    ///     &quot;und+MXN&quot;,
     ///     &quot;und-fonipa&quot;,
     ///     &quot;und-u-ca-hebrew&quot;,
     ///     &quot;und-u-ca-japanese&quot;,
@@ -740,37 +1408,70 @@
     /// for ab in bcp47_strings.windows(2) {
     ///     let a = ab[0];
     ///     let b = ab[1];
-    ///     assert!(a.cmp(b) == Ordering::Less);
-    ///     let a_loc: DataLocale = a.parse::&lt;Locale&gt;().unwrap().into();
-    ///     assert!(
-    ///         a_loc.strict_cmp(a.as_bytes()) == Ordering::Equal,
-    ///         &quot;{} == {}&quot;,
-    ///         a,
+    ///     assert_eq!(a.cmp(b), Ordering::Less, &quot;strings: {} &lt; {}&quot;, a, b);
+    ///     let a_loc: DataLocale = a.parse().unwrap();
+    ///     assert_eq!(
+    ///         a_loc.strict_cmp(a.as_bytes()),
+    ///         Ordering::Equal,
+    ///         &quot;strict_cmp: {} == {}&quot;,
+    ///         a_loc,
     ///         a
     ///     );
-    ///     assert!(
-    ///         a_loc.strict_cmp(b.as_bytes()) == Ordering::Less,
-    ///         &quot;{} &lt; {}&quot;,
-    ///         a,
+    ///     assert_eq!(
+    ///         a_loc.strict_cmp(b.as_bytes()),
+    ///         Ordering::Less,
+    ///         &quot;strict_cmp: {} &lt; {}&quot;,
+    ///         a_loc,
     ///         b
     ///     );
-    ///     let b_loc: DataLocale = b.parse::&lt;Locale&gt;().unwrap().into();
-    ///     assert!(
-    ///         b_loc.strict_cmp(b.as_bytes()) == Ordering::Equal,
-    ///         &quot;{} == {}&quot;,
-    ///         b,
+    ///     let b_loc: DataLocale = b.parse().unwrap();
+    ///     assert_eq!(
+    ///         b_loc.strict_cmp(b.as_bytes()),
+    ///         Ordering::Equal,
+    ///         &quot;strict_cmp: {} == {}&quot;,
+    ///         b_loc,
     ///         b
     ///     );
-    ///     assert!(
-    ///         b_loc.strict_cmp(a.as_bytes()) == Ordering::Greater,
-    ///         &quot;{} &gt; {}&quot;,
-    ///         b,
+    ///     assert_eq!(
+    ///         b_loc.strict_cmp(a.as_bytes()),
+    ///         Ordering::Greater,
+    ///         &quot;strict_cmp: {} &gt; {}&quot;,
+    ///         b_loc,
     ///         a
     ///     );
     /// }
     /// ```
+    ///
+    /// Comparison against invalid strings:
+    ///
+    /// ```
+    /// use icu_provider::DataLocale;
+    ///
+    /// let invalid_strings: &amp;[&amp;str] = &amp;[
+    ///     // Less than &quot;ca-ES&quot;
+    ///     &quot;CA&quot;,
+    ///     &quot;ar+GBP+FOO&quot;,
+    ///     // Greater than &quot;ca-ES+GBP&quot;
+    ///     &quot;ca_ES&quot;,
+    ///     &quot;ca-ES+GBP+FOO&quot;,
+    /// ];
+    ///
+    /// let data_locale = &quot;ca-ES+GBP&quot;.parse::&lt;DataLocale&gt;().unwrap();
+    ///
+    /// for s in invalid_strings.iter() {
+    ///     let expected_ordering = &quot;ca-ES+GBP&quot;.cmp(s);
+    ///     let actual_ordering = data_locale.strict_cmp(s.as_bytes());
+    ///     assert_eq!(expected_ordering, actual_ordering, &quot;{}&quot;, s);
+    /// }
+    /// ```
     </span><span class="kw">pub fn </span>strict_cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>[u8]) -&gt; Ordering {
-        <span class="kw">let </span>subtags = other.split(|b| <span class="kw-2">*</span>b == <span class="string">b&#39;-&#39;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>aux_iter = other.splitn(<span class="number">2</span>, |b| <span class="kw-2">*</span>b == AUXILIARY_KEY_SEPARATOR);
+        <span class="kw">let </span><span class="prelude-val">Some</span>(locale_str) = aux_iter.next() <span class="kw">else </span>{
+            <span class="macro">debug_assert!</span>(other.is_empty());
+            <span class="kw">return </span>Ordering::Greater;
+        };
+        <span class="kw">let </span>aux_str = aux_iter.next();
+        <span class="kw">let </span>subtags = locale_str.split(|b| <span class="kw-2">*</span>b == <span class="string">b&#39;-&#39;</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>subtag_result = <span class="self">self</span>.langid.strict_cmp_iter(subtags);
         <span class="kw">if </span><span class="self">self</span>.has_unicode_ext() {
             <span class="kw">let </span><span class="kw-2">mut </span>subtags = <span class="kw">match </span>subtag_result {
@@ -784,20 +1485,114 @@
             }
             subtag_result = <span class="self">self</span>.keywords.strict_cmp_iter(subtags);
         }
-        subtag_result.end()
+        <span class="kw">let </span>has_more_subtags = <span class="kw">match </span>subtag_result {
+            SubtagOrderingResult::Subtags(<span class="kw-2">mut </span>s) =&gt; s.next().is_some(),
+            SubtagOrderingResult::Ordering(o) =&gt; <span class="kw">return </span>o,
+        };
+        <span class="comment">// If we get here, `self` has equal or fewer subtags than the `other`.
+        // There are 2^3 = 8 cases to handle for auxiliary keys, expanded below.
+        </span><span class="kw">match </span>(has_more_subtags, <span class="self">self</span>.get_aux(), aux_str) {
+            (<span class="bool-val">false</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; {
+                <span class="comment">// foo == foo
+                </span>Ordering::Equal
+            }
+            (<span class="bool-val">false</span>, <span class="prelude-val">Some</span>(self_aux), <span class="prelude-val">Some</span>(other_aux)) =&gt; {
+                <span class="comment">// foo+BAR1 ?= foo+BAR2
+                </span><span class="kw">let </span>aux_ordering = self_aux.as_bytes().cmp(other_aux);
+                <span class="kw">if </span>aux_ordering != Ordering::Equal {
+                    <span class="kw">return </span>aux_ordering;
+                }
+                Ordering::Equal
+            }
+            (<span class="bool-val">false</span>, <span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="prelude-val">None</span>) =&gt; {
+                <span class="comment">// foo+BAR &gt; foo
+                </span>Ordering::Greater
+            }
+            (<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
+                <span class="comment">// foo &lt; foo-bar
+                // foo &lt; foo-bar+BAR
+                // foo &lt; foo+BAR
+                // foo+BAR &lt; foo-bar
+                // foo+BAR &lt; foo-bar+BAR
+                </span>Ordering::Less
+            }
+        }
     }
 }
 
 <span class="kw">impl </span>DataLocale {
     <span class="doccomment">/// Returns whether this [`DataLocale`] has all empty fields (no components).
+    ///
+    /// See also:
+    ///
+    /// - [`DataLocale::is_und()`]
+    /// - [`DataLocale::is_langid_und()`]
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use icu_provider::DataLocale;
+    ///
+    /// assert!(&quot;und&quot;.parse::&lt;DataLocale&gt;().unwrap().is_empty());
+    /// assert!(!&quot;und-u-ca-buddhist&quot;
+    ///     .parse::&lt;DataLocale&gt;()
+    ///     .unwrap()
+    ///     .is_empty());
+    /// assert!(!&quot;und+auxiliary&quot;.parse::&lt;DataLocale&gt;().unwrap().is_empty());
+    /// assert!(!&quot;ca-ES&quot;.parse::&lt;DataLocale&gt;().unwrap().is_empty());
+    /// ```
     </span><span class="kw">pub fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self </span>== &lt;<span class="kw-2">&amp;</span>DataLocale&gt;::default()
     }
 
+    <span class="doccomment">/// Returns whether this [`DataLocale`] is `und` in the locale and extensions portion.
+    ///
+    /// This ignores auxiliary keys.
+    ///
+    /// See also:
+    ///
+    /// - [`DataLocale::is_empty()`]
+    /// - [`DataLocale::is_langid_und()`]
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use icu_provider::DataLocale;
+    ///
+    /// assert!(&quot;und&quot;.parse::&lt;DataLocale&gt;().unwrap().is_und());
+    /// assert!(!&quot;und-u-ca-buddhist&quot;.parse::&lt;DataLocale&gt;().unwrap().is_und());
+    /// assert!(&quot;und+auxiliary&quot;.parse::&lt;DataLocale&gt;().unwrap().is_und());
+    /// assert!(!&quot;ca-ES&quot;.parse::&lt;DataLocale&gt;().unwrap().is_und());
+    /// ```
+    </span><span class="kw">pub fn </span>is_und(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.langid == LanguageIdentifier::UND &amp;&amp; <span class="self">self</span>.keywords.is_empty()
+    }
+
     <span class="doccomment">/// Returns whether the [`LanguageIdentifier`] associated with this request is `und`.
     ///
-    /// Note that this only checks the language identifier; extension keywords may also be set.
-    /// To check the entire `DataLocale`, use [`DataLocale::is_empty()`].
+    /// This ignores extension keywords and auxiliary keys.
+    ///
+    /// See also:
+    ///
+    /// - [`DataLocale::is_empty()`]
+    /// - [`DataLocale::is_und()`]
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use icu_provider::DataLocale;
+    ///
+    /// assert!(&quot;und&quot;.parse::&lt;DataLocale&gt;().unwrap().is_langid_und());
+    /// assert!(&quot;und-u-ca-buddhist&quot;
+    ///     .parse::&lt;DataLocale&gt;()
+    ///     .unwrap()
+    ///     .is_langid_und());
+    /// assert!(&quot;und+auxiliary&quot;
+    ///     .parse::&lt;DataLocale&gt;()
+    ///     .unwrap()
+    ///     .is_langid_und());
+    /// assert!(!&quot;ca-ES&quot;.parse::&lt;DataLocale&gt;().unwrap().is_langid_und());
+    /// ```
     </span><span class="kw">pub fn </span>is_langid_und(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.langid == LanguageIdentifier::UND
     }
@@ -853,7 +1648,8 @@
     ///
     /// ```
     /// use icu_locid::{
-    ///     langid, locale, subtags_language as language, subtags_region as region,
+    ///     langid, locale,
+    ///     subtags::{language, region},
     ///     Locale,
     /// };
     /// use icu_provider::prelude::*;
@@ -956,7 +1752,7 @@
     ///
     /// ```
     /// use icu_locid::{
-    ///     extensions_unicode_key as key, extensions_unicode_value as value,
+    ///     extensions::unicode::{key, value},
     ///     Locale,
     /// };
     /// use icu_provider::prelude::*;
@@ -998,6 +1794,327 @@
     {
         <span class="self">self</span>.keywords.retain_by_key(predicate)
     }
+
+    <span class="doccomment">/// Gets the auxiliary key for this [`DataLocale`].
+    ///
+    /// For more information and examples, see [`AuxiliaryKeys`].
+    </span><span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    </span><span class="kw">pub fn </span>get_aux(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>AuxiliaryKeys&gt; {
+        <span class="self">self</span>.aux.as_ref()
+    }
+
+    <span class="attr">#[cfg(not(feature = <span class="string">&quot;experimental&quot;</span>))]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get_aux(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
+        <span class="prelude-val">None
+    </span>}
+
+    <span class="doccomment">/// Returns whether this [`DataLocale`] has an auxiliary key.
+    ///
+    /// For more information and examples, see [`AuxiliaryKeys`].
+    </span><span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    </span><span class="kw">pub fn </span>has_aux(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.aux.is_some()
+    }
+
+    <span class="doccomment">/// Sets an auxiliary key on this [`DataLocale`].
+    ///
+    /// Returns the previous auxiliary key if present.
+    ///
+    /// For more information and examples, see [`AuxiliaryKeys`].
+    </span><span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    </span><span class="kw">pub fn </span>set_aux(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: AuxiliaryKeys) -&gt; <span class="prelude-ty">Option</span>&lt;AuxiliaryKeys&gt; {
+        <span class="self">self</span>.aux.replace(value)
+    }
+
+    <span class="doccomment">/// Remove an auxiliary key, if present. Returns the removed auxiliary key.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use icu_locid::locale;
+    /// use icu_provider::prelude::*;
+    /// use writeable::assert_writeable_eq;
+    ///
+    /// let mut data_locale: DataLocale = locale!(&quot;ar-EG&quot;).into();
+    /// let aux = &quot;GBP&quot;
+    ///     .parse::&lt;AuxiliaryKeys&gt;()
+    ///     .expect(&quot;contains valid characters&quot;);
+    /// data_locale.set_aux(aux);
+    /// assert_writeable_eq!(data_locale, &quot;ar-EG+GBP&quot;);
+    ///
+    /// let maybe_aux = data_locale.remove_aux();
+    /// assert_writeable_eq!(data_locale, &quot;ar-EG&quot;);
+    /// assert_writeable_eq!(maybe_aux.unwrap(), &quot;GBP&quot;);
+    /// ```
+    </span><span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    </span><span class="kw">pub fn </span>remove_aux(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;AuxiliaryKeys&gt; {
+        <span class="self">self</span>.aux.take()
+    }
+}
+
+<span class="doccomment">/// The &quot;auxiliary key&quot; is an annotation on [`DataLocale`] that can contain an arbitrary
+/// information that does not fit into the [`LanguageIdentifier`] or [`Keywords`].
+///
+/// A [`DataLocale`] can have multiple auxiliary keys, represented by this struct. The auxiliary
+/// keys are separated from the BCP-47 locale and from each other with the character returned by
+/// [`AuxiliaryKeys::separator()`].
+///
+/// An auxiliary key currently allows alphanumerics and `-`.
+///
+/// &lt;div class=&quot;stab unstable&quot;&gt;
+/// 🚧 This code is experimental; it may change at any time, in breaking or non-breaking ways,
+/// including in SemVer minor releases. It can be enabled with the &quot;experimental&quot; Cargo feature
+/// of the `icu_provider` crate. Use with caution.
+/// &lt;a href=&quot;https://github.com/unicode-org/icu4x/issues/3632&quot;&gt;#3632&lt;/a&gt;
+/// &lt;/div&gt;
+///
+/// # Examples
+///
+/// ```
+/// use icu_locid::locale;
+/// use icu_provider::prelude::*;
+/// use writeable::assert_writeable_eq;
+///
+/// let mut data_locale: DataLocale = locale!(&quot;ar-EG&quot;).into();
+/// assert_writeable_eq!(data_locale, &quot;ar-EG&quot;);
+/// assert!(!data_locale.has_aux());
+/// assert_eq!(data_locale.get_aux(), None);
+///
+/// let aux = &quot;GBP&quot;
+///     .parse::&lt;AuxiliaryKeys&gt;()
+///     .expect(&quot;contains valid characters&quot;);
+///
+/// data_locale.set_aux(aux);
+/// assert_writeable_eq!(data_locale, &quot;ar-EG+GBP&quot;);
+/// assert!(data_locale.has_aux());
+/// assert_eq!(data_locale.get_aux(), Some(&amp;&quot;GBP&quot;.parse().unwrap()));
+/// ```
+///
+/// Multiple auxiliary keys are allowed:
+///
+/// ```
+/// use icu_locid::locale;
+/// use icu_provider::prelude::*;
+/// use writeable::assert_writeable_eq;
+///
+/// let data_locale = &quot;ar-EG+GBP+long&quot;.parse::&lt;DataLocale&gt;().unwrap();
+/// assert_writeable_eq!(data_locale, &quot;ar-EG+GBP+long&quot;);
+/// assert_eq!(data_locale.get_aux().unwrap().iter().count(), 2);
+/// ```
+///
+/// Not all strings are valid auxiliary keys:
+///
+/// ```
+/// use icu_provider::prelude::*;
+///
+/// assert!(&quot;abcdefg&quot;.parse::&lt;AuxiliaryKeys&gt;().is_ok());
+/// assert!(&quot;ABC123&quot;.parse::&lt;AuxiliaryKeys&gt;().is_ok());
+/// assert!(&quot;abc-xyz&quot;.parse::&lt;AuxiliaryKeys&gt;().is_ok());
+///
+/// assert!(&quot;&quot;.parse::&lt;AuxiliaryKeys&gt;().is_err());
+/// assert!(&quot;!@#$%&quot;.parse::&lt;AuxiliaryKeys&gt;().is_err());
+/// assert!(&quot;abc_xyz&quot;.parse::&lt;AuxiliaryKeys&gt;().is_err());
+/// ```
+///
+/// [`Keywords`]: unicode_ext::Keywords
+</span><span class="attr">#[derive(Debug, PartialEq, Clone, Eq, Hash)]
+#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+</span><span class="kw">pub struct </span>AuxiliaryKeys {
+    <span class="comment">// DISCUSS: SmallStr? TinyStrAuto?
+    // DISCUSS: Make this a dynamically sized type so references can be taken?
+    </span>value: AuxiliaryKeysInner,
+}
+
+<span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+#[derive(Clone)]
+</span><span class="kw">enum </span>AuxiliaryKeysInner {
+    Boxed(alloc::boxed::Box&lt;str&gt;),
+    Stack(TinyAsciiStr&lt;<span class="number">23</span>&gt;),
+    <span class="comment">// NOTE: In the future, a `Static` variant could be added to allow `data_locale!(&quot;...&quot;)`
+    // Static(&amp;&#39;static str),
+</span>}
+
+<span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+</span><span class="kw">impl </span>Deref <span class="kw">for </span>AuxiliaryKeysInner {
+    <span class="kw">type </span>Target = str;
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::Boxed(s) =&gt; s.deref(),
+            <span class="self">Self</span>::Stack(s) =&gt; s.as_str(),
+        }
+    }
+}
+
+<span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+</span><span class="kw">impl </span>PartialEq <span class="kw">for </span>AuxiliaryKeysInner {
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
+        <span class="self">self</span>.deref() == other.deref()
+    }
+}
+
+<span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+</span><span class="kw">impl </span>Eq <span class="kw">for </span>AuxiliaryKeysInner {}
+
+<span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+</span><span class="kw">impl </span>Debug <span class="kw">for </span>AuxiliaryKeysInner {
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="self">self</span>.deref().fmt(f)
+    }
+}
+
+<span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+</span><span class="kw">impl </span>Hash <span class="kw">for </span>AuxiliaryKeysInner {
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>hash&lt;H: core::hash::Hasher&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, state: <span class="kw-2">&amp;mut </span>H) {
+        <span class="self">self</span>.deref().hash(state)
+    }
+}
+
+<span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+</span><span class="macro">writeable::impl_display_with_writeable!</span>(AuxiliaryKeys);
+
+<span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+</span><span class="kw">impl </span>Writeable <span class="kw">for </span>AuxiliaryKeys {
+    <span class="kw">fn </span>write_to&lt;W: fmt::Write + <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, sink: <span class="kw-2">&amp;mut </span>W) -&gt; fmt::Result {
+        <span class="self">self</span>.value.write_to(sink)
+    }
+    <span class="kw">fn </span>writeable_length_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; LengthHint {
+        <span class="self">self</span>.value.writeable_length_hint()
+    }
+    <span class="kw">fn </span>write_to_string(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; alloc::borrow::Cow&lt;str&gt; {
+        <span class="self">self</span>.value.write_to_string()
+    }
+}
+
+<span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+</span><span class="kw">impl </span>FromStr <span class="kw">for </span>AuxiliaryKeys {
+    <span class="kw">type </span><span class="prelude-val">Err </span>= DataError;
+
+    <span class="kw">fn </span>from_str(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt; {
+        <span class="self">Self</span>::try_from_str(s)
+    }
+}
+
+<span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+</span><span class="kw">impl </span>AuxiliaryKeys {
+    <span class="doccomment">/// Returns this [`AuxiliaryKeys`] as a single byte slice.
+    ///
+    /// NOTE: Do not make this public because we might not always store these in a single string.
+    /// External clients who need this can use `&lt;Self as Writeable&gt;::write_to_string`.
+    </span><span class="attr">#[inline]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>as_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
+        <span class="self">self</span>.value.as_bytes()
+    }
+
+    <span class="doccomment">/// Creates an [`AuxiliaryKeys`] from an iterator of individual keys.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use icu_provider::prelude::*;
+    ///
+    /// // Single auxiliary key:
+    /// let a = AuxiliaryKeys::try_from_iter([&quot;abc&quot;]).unwrap();
+    /// let b = &quot;abc&quot;.parse::&lt;AuxiliaryKeys&gt;().unwrap();
+    /// assert_eq!(a, b);
+    ///
+    /// // Multiple auxiliary keys:
+    /// let a = AuxiliaryKeys::try_from_iter([&quot;abc&quot;, &quot;defg&quot;]).unwrap();
+    /// let b = &quot;abc+defg&quot;.parse::&lt;AuxiliaryKeys&gt;().unwrap();
+    /// assert_eq!(a, b);
+    /// ```
+    ///
+    /// Don&#39;t include the auxiliary key separator or other invalid chars in the iterator strings:
+    ///
+    /// ```
+    /// use icu_provider::prelude::*;
+    ///
+    /// assert!(AuxiliaryKeys::try_from_iter([&quot;abc+defg&quot;]).is_err());
+    /// assert!(AuxiliaryKeys::try_from_iter([&quot;AB$C&quot;]).is_err());
+    /// ```
+    </span><span class="kw">pub fn </span>try_from_iter&lt;<span class="lifetime">&#39;a</span>&gt;(iter: <span class="kw">impl </span>IntoIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, DataError&gt; {
+        <span class="comment">// TODO: Avoid the allocation when possible
+        </span><span class="kw">let </span><span class="kw-2">mut </span>builder = String::new();
+        <span class="kw">for </span>item <span class="kw">in </span>iter {
+            <span class="kw">if </span>!item.is_empty()
+                &amp;&amp; item
+                    .bytes()
+                    .all(|b| b.is_ascii_alphanumeric() || <span class="macro">matches!</span>(b, <span class="string">b&#39;-&#39;</span>))
+            {
+                <span class="kw">if </span>!builder.is_empty() {
+                    builder.push(AuxiliaryKeys::separator() <span class="kw">as </span>char);
+                }
+                builder.push_str(item)
+            } <span class="kw">else </span>{
+                <span class="kw">return </span><span class="prelude-val">Err</span>(DataErrorKind::KeyLocaleSyntax
+                    .into_error()
+                    .with_display_context(item));
+            }
+        }
+        <span class="kw">if </span>builder.len() &lt;= <span class="number">23 </span>{
+            <span class="attr">#[allow(clippy::unwrap_used)] </span><span class="comment">// we just checked that the string is ascii
+            </span><span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+                value: AuxiliaryKeysInner::Stack(builder.parse().unwrap()),
+            })
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+                value: AuxiliaryKeysInner::Boxed(builder.into()),
+            })
+        }
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>try_from_str(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, DataError&gt; {
+        <span class="kw">if </span>!s.is_empty()
+            &amp;&amp; s.bytes()
+                .all(|b| b.is_ascii_alphanumeric() || <span class="macro">matches!</span>(b, <span class="string">b&#39;-&#39; </span>| <span class="string">b&#39;+&#39;</span>))
+        {
+            <span class="kw">if </span>s.len() &lt;= <span class="number">23 </span>{
+                <span class="attr">#[allow(clippy::unwrap_used)] </span><span class="comment">// we just checked that the string is ascii
+                </span><span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+                    value: AuxiliaryKeysInner::Stack(s.parse().unwrap()),
+                })
+            } <span class="kw">else </span>{
+                <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+                    value: AuxiliaryKeysInner::Boxed(s.into()),
+                })
+            }
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Err</span>(DataErrorKind::KeyLocaleSyntax
+                .into_error()
+                .with_display_context(s))
+        }
+    }
+
+    <span class="doccomment">/// Iterates over the components of the auxiliary key.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use icu_provider::AuxiliaryKeys;
+    ///
+    /// let aux: AuxiliaryKeys = &quot;abc+defg&quot;.parse().unwrap();
+    /// assert_eq!(aux.iter().collect::&lt;Vec&lt;_&gt;&gt;(), vec![&quot;abc&quot;, &quot;defg&quot;]);
+    /// ```
+    </span><span class="kw">pub fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span>str&gt; + <span class="lifetime">&#39;_ </span>{
+        <span class="self">self</span>.value.split(<span class="self">Self</span>::separator() <span class="kw">as </span>char)
+    }
+
+    <span class="doccomment">/// Returns the separator byte used for auxiliary keys in data locales.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use icu_provider::AuxiliaryKeys;
+    ///
+    /// assert_eq!(AuxiliaryKeys::separator(), b&#39;+&#39;);
+    /// ```
+    </span><span class="attr">#[inline]
+    </span><span class="kw">pub const fn </span>separator() -&gt; u8 {
+        AUXILIARY_KEY_SEPARATOR
+    }
 }
 
 <span class="attr">#[test]
@@ -1005,25 +2122,92 @@
     <span class="kw">use </span>icu_locid::locale;
 
     <span class="kw">struct </span>TestCase {
-        <span class="kw">pub </span>locale: DataLocale,
+        <span class="kw">pub </span>locale: Locale,
+        <span class="kw">pub </span>aux: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt;,
         <span class="kw">pub </span>expected: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
     }
 
     <span class="kw">for </span>cas <span class="kw">in </span>[
         TestCase {
-            locale: Locale::UND.into(),
+            locale: Locale::UND,
+            aux: <span class="prelude-val">None</span>,
             expected: <span class="string">&quot;und&quot;</span>,
         },
         TestCase {
-            locale: <span class="macro">locale!</span>(<span class="string">&quot;und-u-cu-gbp&quot;</span>).into(),
+            locale: <span class="macro">locale!</span>(<span class="string">&quot;und-u-cu-gbp&quot;</span>),
+            aux: <span class="prelude-val">None</span>,
             expected: <span class="string">&quot;und-u-cu-gbp&quot;</span>,
         },
         TestCase {
-            locale: <span class="macro">locale!</span>(<span class="string">&quot;en-ZA-u-cu-gbp&quot;</span>).into(),
+            locale: <span class="macro">locale!</span>(<span class="string">&quot;en-ZA-u-cu-gbp&quot;</span>),
+            aux: <span class="prelude-val">None</span>,
             expected: <span class="string">&quot;en-ZA-u-cu-gbp&quot;</span>,
         },
+        <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+        </span>TestCase {
+            locale: <span class="macro">locale!</span>(<span class="string">&quot;en-ZA-u-nu-arab&quot;</span>),
+            aux: <span class="prelude-val">Some</span>(<span class="string">&quot;GBP&quot;</span>),
+            expected: <span class="string">&quot;en-ZA-u-nu-arab+GBP&quot;</span>,
+        },
     ] {
-        <span class="macro">writeable::assert_writeable_eq!</span>(cas.locale, cas.expected);
+        <span class="kw">let </span><span class="kw-2">mut </span>data_locale = DataLocale::from(cas.locale);
+        <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(aux) = cas.aux {
+            data_locale.set_aux(aux.parse().unwrap());
+        }
+        <span class="macro">writeable::assert_writeable_eq!</span>(data_locale, cas.expected);
+    }
+}
+
+<span class="attr">#[test]
+</span><span class="kw">fn </span>test_data_locale_from_string() {
+    <span class="attr">#[derive(Debug)]
+    </span><span class="kw">struct </span>TestCase {
+        <span class="kw">pub </span>input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        <span class="kw">pub </span>success: bool,
+    }
+
+    <span class="kw">for </span>cas <span class="kw">in </span>[
+        TestCase {
+            input: <span class="string">&quot;und&quot;</span>,
+            success: <span class="bool-val">true</span>,
+        },
+        TestCase {
+            input: <span class="string">&quot;und-u-cu-gbp&quot;</span>,
+            success: <span class="bool-val">true</span>,
+        },
+        TestCase {
+            input: <span class="string">&quot;en-ZA-u-cu-gbp&quot;</span>,
+            success: <span class="bool-val">true</span>,
+        },
+        TestCase {
+            input: <span class="string">&quot;en...&quot;</span>,
+            success: <span class="bool-val">false</span>,
+        },
+        <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+        </span>TestCase {
+            input: <span class="string">&quot;en-ZA-u-nu-arab+GBP&quot;</span>,
+            success: <span class="bool-val">true</span>,
+        },
+        <span class="attr">#[cfg(not(feature = <span class="string">&quot;experimental&quot;</span>))]
+        </span>TestCase {
+            input: <span class="string">&quot;en-ZA-u-nu-arab+GBP&quot;</span>,
+            success: <span class="bool-val">false</span>,
+        },
+    ] {
+        <span class="kw">let </span>data_locale = <span class="kw">match </span>(DataLocale::from_str(cas.input), cas.success) {
+            (<span class="prelude-val">Ok</span>(l), <span class="bool-val">true</span>) =&gt; l,
+            (<span class="prelude-val">Err</span>(<span class="kw">_</span>), <span class="bool-val">false</span>) =&gt; {
+                <span class="kw">continue</span>;
+            }
+            (<span class="prelude-val">Ok</span>(<span class="kw">_</span>), <span class="bool-val">false</span>) =&gt; {
+                <span class="macro">panic!</span>(<span class="string">&quot;DataLocale parsed but it was supposed to fail: {cas:?}&quot;</span>);
+            }
+            (<span class="prelude-val">Err</span>(<span class="kw">_</span>), <span class="bool-val">true</span>) =&gt; {
+                <span class="macro">panic!</span>(<span class="string">&quot;DataLocale was supposed to parse but it failed: {cas:?}&quot;</span>);
+            }
+        };
+        <span class="macro">writeable::assert_writeable_eq!</span>(data_locale, cas.input);
     }
 }
 </code></pre></div></section></main></body></html>

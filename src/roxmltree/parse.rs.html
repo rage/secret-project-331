@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/roxmltree-0.18.0/src/parse.rs`."><title>parse.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="roxmltree" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../roxmltree/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/roxmltree-0.18.1/src/parse.rs`."><title>parse.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="roxmltree" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../roxmltree/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1356,8 +1356,21 @@
 <a href="#1356" id="1356">1356</a>
 <a href="#1357" id="1357">1357</a>
 <a href="#1358" id="1358">1358</a>
+<a href="#1359" id="1359">1359</a>
+<a href="#1360" id="1360">1360</a>
+<a href="#1361" id="1361">1361</a>
+<a href="#1362" id="1362">1362</a>
+<a href="#1363" id="1363">1363</a>
+<a href="#1364" id="1364">1364</a>
+<a href="#1365" id="1365">1365</a>
+<a href="#1366" id="1366">1366</a>
+<a href="#1367" id="1367">1367</a>
+<a href="#1368" id="1368">1368</a>
+<a href="#1369" id="1369">1369</a>
+<a href="#1370" id="1370">1370</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>alloc::string::{String, ToString};
 <span class="kw">use </span>alloc::vec::Vec;
+<span class="kw">use </span>core::ops::Range;
 
 <span class="kw">use </span>xmlparser::{<span class="self">self</span>, Reference, StrSpan, Stream, TextPos};
 
@@ -1460,7 +1473,6 @@
 
 <span class="kw">impl </span>Error {
     <span class="doccomment">/// Returns the error position.
-    </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>pos(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TextPos {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
             Error::InvalidXmlPrefixUri(pos) =&gt; pos,
@@ -1483,8 +1495,7 @@
 }
 
 <span class="kw">impl </span>From&lt;xmlparser::Error&gt; <span class="kw">for </span>Error {
-    <span class="attr">#[inline]
-    </span><span class="kw">fn </span>from(e: xmlparser::Error) -&gt; <span class="self">Self </span>{
+    <span class="kw">fn </span>from(e: xmlparser::Error) -&gt; <span class="self">Self </span>{
         Error::ParserError(e)
     }
 }
@@ -1578,8 +1589,7 @@
 
 <span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
 </span><span class="kw">impl </span>std::error::Error <span class="kw">for </span>Error {
-    <span class="attr">#[inline]
-    </span><span class="kw">fn </span>description(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+    <span class="kw">fn </span>description(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
         <span class="string">&quot;an XML parsing error&quot;
     </span>}
 }
@@ -1667,13 +1677,11 @@
 
     <span class="kw">fn </span>append(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        parent_id: NodeId,
         kind: NodeKind&lt;<span class="lifetime">&#39;input</span>&gt;,
-        range: core::ops::Range&lt;usize&gt;,
-        nodes_limit: u32,
-        awaiting_subtree: <span class="kw-2">&amp;mut </span>Vec&lt;NodeId&gt;,
+        range: Range&lt;usize&gt;,
+        state: <span class="kw-2">&amp;mut </span>ParserState&lt;<span class="lifetime">&#39;input</span>&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;NodeId, Error&gt; {
-        <span class="kw">if </span><span class="self">self</span>.nodes.len() &gt;= nodes_limit <span class="kw">as </span>usize {
+        <span class="kw">if </span><span class="self">self</span>.nodes.len() &gt;= state.opt.nodes_limit <span class="kw">as </span>usize {
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::NodesLimitReached);
         }
 
@@ -1688,7 +1696,7 @@
         };
 
         <span class="self">self</span>.nodes.push(NodeData {
-            parent: <span class="prelude-val">Some</span>(parent_id),
+            parent: <span class="prelude-val">Some</span>(state.parent_id),
             prev_sibling: <span class="prelude-val">None</span>,
             next_subtree: <span class="prelude-val">None</span>,
             last_child: <span class="prelude-val">None</span>,
@@ -1697,17 +1705,19 @@
             </span>range,
         });
 
-        <span class="kw">let </span>last_child_id = <span class="self">self</span>.nodes[parent_id.get_usize()].last_child;
+        <span class="kw">let </span>last_child_id = <span class="self">self</span>.nodes[state.parent_id.get_usize()].last_child;
         <span class="self">self</span>.nodes[new_child_id.get_usize()].prev_sibling = last_child_id;
-        <span class="self">self</span>.nodes[parent_id.get_usize()].last_child = <span class="prelude-val">Some</span>(new_child_id);
+        <span class="self">self</span>.nodes[state.parent_id.get_usize()].last_child = <span class="prelude-val">Some</span>(new_child_id);
 
-        awaiting_subtree.iter().for_each(|id| {
+        state.awaiting_subtree.iter().for_each(|id| {
             <span class="self">self</span>.nodes[id.get_usize()].next_subtree = <span class="prelude-val">Some</span>(new_child_id);
         });
-        awaiting_subtree.clear();
+        state.awaiting_subtree.clear();
 
         <span class="kw">if </span>!appending_element {
-            awaiting_subtree.push(NodeId::from(<span class="self">self</span>.nodes.len() - <span class="number">1</span>));
+            state
+                .awaiting_subtree
+                .push(NodeId::from(<span class="self">self</span>.nodes.len() - <span class="number">1</span>));
         }
 
         <span class="prelude-val">Ok</span>(new_child_id)
@@ -1719,15 +1729,15 @@
     value: StrSpan&lt;<span class="lifetime">&#39;input</span>&gt;,
 }
 
-<span class="kw">struct </span>ParserData&lt;<span class="lifetime">&#39;input</span>&gt; {
+<span class="kw">struct </span>ParserState&lt;<span class="lifetime">&#39;input</span>&gt; {
     opt: ParsingOptions,
-    ns_start_idx: usize,
-    tmp_attrs: Vec&lt;TempAttributeData&lt;<span class="lifetime">&#39;input</span>&gt;&gt;,
+    namespace_start_idx: usize,
+    current_attributes: Vec&lt;TempAttributeData&lt;<span class="lifetime">&#39;input</span>&gt;&gt;,
     awaiting_subtree: Vec&lt;NodeId&gt;,
     parent_prefixes: Vec&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;input </span>str&gt;,
     entities: Vec&lt;Entity&lt;<span class="lifetime">&#39;input</span>&gt;&gt;,
-    buffer: TextBuffer,
     after_text: bool,
+    parent_id: NodeId,
 }
 
 <span class="attr">#[derive(Clone, Copy)]
@@ -1792,12 +1802,12 @@
 
 <span class="kw">impl </span>LoopDetector {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>inc_depth(<span class="kw-2">&amp;mut </span><span class="self">self</span>, s: <span class="kw-2">&amp;</span>Stream) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+    </span><span class="kw">fn </span>inc_depth(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stream: <span class="kw-2">&amp;</span>Stream) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">if </span><span class="self">self</span>.depth &lt; <span class="number">10 </span>{
             <span class="self">self</span>.depth += <span class="number">1</span>;
             <span class="prelude-val">Ok</span>(())
         } <span class="kw">else </span>{
-            <span class="prelude-val">Err</span>(Error::EntityReferenceLoop(s.gen_text_pos()))
+            <span class="prelude-val">Err</span>(Error::EntityReferenceLoop(stream.gen_text_pos()))
         }
     }
 
@@ -1814,13 +1824,13 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>inc_references(<span class="kw-2">&amp;mut </span><span class="self">self</span>, s: <span class="kw-2">&amp;</span>Stream) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+    </span><span class="kw">fn </span>inc_references(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stream: <span class="kw-2">&amp;</span>Stream) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">if </span><span class="self">self</span>.depth == <span class="number">0 </span>{
             <span class="comment">// Allow infinite amount of references at zero depth.
             </span><span class="prelude-val">Ok</span>(())
         } <span class="kw">else </span>{
             <span class="kw">if </span><span class="self">self</span>.references == core::u8::MAX {
-                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::EntityReferenceLoop(s.gen_text_pos()));
+                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::EntityReferenceLoop(stream.gen_text_pos()));
             }
 
             <span class="self">self</span>.references += <span class="number">1</span>;
@@ -1830,16 +1840,17 @@
 }
 
 <span class="kw">fn </span>parse(text: <span class="kw-2">&amp;</span>str, opt: ParsingOptions) -&gt; <span class="prelude-ty">Result</span>&lt;Document, Error&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>pd = ParserData {
+    <span class="kw">let </span><span class="kw-2">mut </span>state = ParserState {
         opt,
-        ns_start_idx: <span class="number">1</span>,
-        tmp_attrs: Vec::with_capacity(<span class="number">16</span>),
+        namespace_start_idx: <span class="number">1</span>,
+        current_attributes: Vec::with_capacity(<span class="number">16</span>),
         entities: Vec::new(),
         awaiting_subtree: Vec::new(),
         parent_prefixes: Vec::new(),
-        buffer: TextBuffer::new(),
         after_text: <span class="bool-val">false</span>,
+        parent_id: NodeId::new(<span class="number">0</span>),
     };
+    <span class="kw">let </span><span class="kw-2">mut </span>text_buffer = TextBuffer::new();
 
     <span class="comment">// Trying to guess rough nodes and attributes amount.
     </span><span class="kw">let </span>nodes_capacity = text.bytes().filter(|c| <span class="kw-2">*</span>c == <span class="string">b&#39;&lt;&#39;</span>).count();
@@ -1849,7 +1860,7 @@
     </span><span class="kw">let </span><span class="kw-2">mut </span>doc = Document {
         text,
         nodes: Vec::with_capacity(nodes_capacity),
-        attrs: Vec::with_capacity(attributes_capacity),
+        attributes: Vec::with_capacity(attributes_capacity),
         namespaces: Namespaces::default(),
     };
 
@@ -1861,22 +1872,21 @@
         last_child: <span class="prelude-val">None</span>,
         kind: NodeKind::Root,
         <span class="attr">#[cfg(feature = <span class="string">&quot;positions&quot;</span>)]
-        </span>range: (<span class="number">0</span>..text.len()).into(),
+        </span>range: <span class="number">0</span>..text.len(),
     });
 
     doc.namespaces
         .push_ns(<span class="prelude-val">Some</span>(NS_XML_PREFIX), BorrowedText::Input(NS_XML_URI))<span class="question-mark">?</span>;
 
     <span class="kw">let </span>parser = xmlparser::Tokenizer::from(text);
-    <span class="kw">let </span>parent_id = doc.root().id;
-    pd.parent_prefixes.push(<span class="string">&quot;&quot;</span>);
+    state.parent_prefixes.push(<span class="string">&quot;&quot;</span>);
     <span class="kw">let </span><span class="kw-2">mut </span>tag_name = TagNameSpan::new_null();
     process_tokens(
         parser,
-        parent_id,
         <span class="kw-2">&amp;mut </span>LoopDetector::default(),
         <span class="kw-2">&amp;mut </span>tag_name,
-        <span class="kw-2">&amp;mut </span>pd,
+        <span class="kw-2">&amp;mut </span>text_buffer,
+        <span class="kw-2">&amp;mut </span>state,
         <span class="kw-2">&amp;mut </span>doc,
     )<span class="question-mark">?</span>;
 
@@ -1884,12 +1894,12 @@
         <span class="kw">return </span><span class="prelude-val">Err</span>(Error::NoRootNode);
     }
 
-    <span class="kw">if </span>pd.parent_prefixes.len() &gt; <span class="number">1 </span>{
+    <span class="kw">if </span>state.parent_prefixes.len() &gt; <span class="number">1 </span>{
         <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnclosedRootNode);
     }
 
     doc.nodes.shrink_to_fit();
-    doc.attrs.shrink_to_fit();
+    doc.attributes.shrink_to_fit();
     doc.namespaces.shrink_to_fit();
 
     <span class="prelude-val">Ok</span>(doc)
@@ -1898,10 +1908,10 @@
 <span class="attr">#[allow(clippy::collapsible_match)]
 </span><span class="kw">fn </span>process_tokens&lt;<span class="lifetime">&#39;input</span>&gt;(
     parser: xmlparser::Tokenizer&lt;<span class="lifetime">&#39;input</span>&gt;,
-    <span class="kw-2">mut </span>parent_id: NodeId,
     loop_detector: <span class="kw-2">&amp;mut </span>LoopDetector,
     tag_name: <span class="kw-2">&amp;mut </span>TagNameSpan&lt;<span class="lifetime">&#39;input</span>&gt;,
-    pd: <span class="kw-2">&amp;mut </span>ParserData&lt;<span class="lifetime">&#39;input</span>&gt;,
+    text_buffer: <span class="kw-2">&amp;mut </span>TextBuffer,
+    state: <span class="kw-2">&amp;mut </span>ParserState&lt;<span class="lifetime">&#39;input</span>&gt;,
     doc: <span class="kw-2">&amp;mut </span>Document&lt;<span class="lifetime">&#39;input</span>&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
     <span class="kw">for </span>token <span class="kw">in </span>parser {
@@ -1916,37 +1926,20 @@
                     target: target.as_str(),
                     value: content.map(|v| v.as_str()),
                 });
-                doc.append(
-                    parent_id,
-                    pi,
-                    span.range(),
-                    pd.opt.nodes_limit,
-                    <span class="kw-2">&amp;mut </span>pd.awaiting_subtree,
-                )<span class="question-mark">?</span>;
+                doc.append(pi, span.range(), state)<span class="question-mark">?</span>;
             }
             xmlparser::Token::Comment { text, span } =&gt; {
                 doc.append(
-                    parent_id,
                     NodeKind::Comment(StringStorage::Borrowed(text.as_str())),
                     span.range(),
-                    pd.opt.nodes_limit,
-                    <span class="kw-2">&amp;mut </span>pd.awaiting_subtree,
+                    state,
                 )<span class="question-mark">?</span>;
             }
             xmlparser::Token::Text { text } =&gt; {
-                process_text(text, parent_id, loop_detector, pd, doc)<span class="question-mark">?</span>;
+                process_text(text, loop_detector, text_buffer, state, doc)<span class="question-mark">?</span>;
             }
             xmlparser::Token::Cdata { text, span } =&gt; {
-                append_text(
-                    BorrowedText::Input(text.as_str()),
-                    parent_id,
-                    span.range(),
-                    pd.opt.nodes_limit,
-                    pd.after_text,
-                    doc,
-                    <span class="kw-2">&amp;mut </span>pd.awaiting_subtree,
-                )<span class="question-mark">?</span>;
-                pd.after_text = <span class="bool-val">true</span>;
+                process_cdata(text, span, text_buffer, state, doc)<span class="question-mark">?</span>;
             }
             xmlparser::Token::ElementStart {
                 prefix,
@@ -1966,13 +1959,22 @@
                 value,
                 span,
             } =&gt; {
-                process_attribute(prefix, local, value, span, loop_detector, pd, doc)<span class="question-mark">?</span>;
+                process_attribute(
+                    prefix,
+                    local,
+                    value,
+                    span,
+                    loop_detector,
+                    text_buffer,
+                    state,
+                    doc,
+                )<span class="question-mark">?</span>;
             }
             xmlparser::Token::ElementEnd { end, span } =&gt; {
-                process_element(<span class="kw-2">*</span>tag_name, end, span, <span class="kw-2">&amp;mut </span>parent_id, pd, doc)<span class="question-mark">?</span>;
+                process_element(<span class="kw-2">*</span>tag_name, end, span, state, doc)<span class="question-mark">?</span>;
             }
             xmlparser::Token::DtdStart { .. } =&gt; {
-                <span class="kw">if </span>!pd.opt.allow_dtd {
+                <span class="kw">if </span>!state.opt.allow_dtd {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(Error::DtdDetected);
                 }
             }
@@ -1980,7 +1982,7 @@
                 name, definition, ..
             } =&gt; {
                 <span class="kw">if let </span>xmlparser::EntityDefinition::EntityValue(value) = definition {
-                    pd.entities.push(Entity {
+                    state.entities.push(Entity {
                         name: name.as_str(),
                         value,
                     });
@@ -1994,7 +1996,7 @@
             | xmlparser::Token::Comment { .. }
             | xmlparser::Token::ElementStart { .. }
             | xmlparser::Token::ElementEnd { .. } =&gt; {
-                pd.after_text = <span class="bool-val">false</span>;
+                state.after_text = <span class="bool-val">false</span>;
             }
             <span class="kw">_ </span>=&gt; {}
         }
@@ -2003,13 +2005,15 @@
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">fn </span>process_attribute&lt;<span class="lifetime">&#39;input</span>&gt;(
+<span class="attr">#[allow(clippy::too_many_arguments)]
+</span><span class="kw">fn </span>process_attribute&lt;<span class="lifetime">&#39;input</span>&gt;(
     prefix: StrSpan&lt;<span class="lifetime">&#39;input</span>&gt;,
     local: StrSpan&lt;<span class="lifetime">&#39;input</span>&gt;,
     value: StrSpan&lt;<span class="lifetime">&#39;input</span>&gt;,
     token_span: StrSpan&lt;<span class="lifetime">&#39;input</span>&gt;,
     loop_detector: <span class="kw-2">&amp;mut </span>LoopDetector,
-    pd: <span class="kw-2">&amp;mut </span>ParserData&lt;<span class="lifetime">&#39;input</span>&gt;,
+    text_buffer: <span class="kw-2">&amp;mut </span>TextBuffer,
+    state: <span class="kw-2">&amp;mut </span>ParserState&lt;<span class="lifetime">&#39;input</span>&gt;,
     doc: <span class="kw-2">&amp;mut </span>Document&lt;<span class="lifetime">&#39;input</span>&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
     <span class="attr">#[cfg(not(feature = <span class="string">&quot;positions&quot;</span>))]
@@ -2017,7 +2021,7 @@
     <span class="attr">#[cfg(feature = <span class="string">&quot;positions&quot;</span>)]
     </span><span class="kw">let </span>pos = token_span.start();
 
-    <span class="kw">let </span>value = normalize_attribute(doc.text, value, <span class="kw-2">&amp;</span>pd.entities, loop_detector, <span class="kw-2">&amp;mut </span>pd.buffer)<span class="question-mark">?</span>;
+    <span class="kw">let </span>value = normalize_attribute(doc.text, value, <span class="kw-2">&amp;</span>state.entities, loop_detector, text_buffer)<span class="question-mark">?</span>;
 
     <span class="kw">if </span>prefix.as_str() == XMLNS {
         <span class="comment">// The xmlns namespace MUST NOT be declared as the default namespace.
@@ -2045,7 +2049,10 @@
         }
 
         <span class="comment">// Check for duplicated namespaces.
-        </span><span class="kw">if </span>doc.namespaces.exists(pd.ns_start_idx, <span class="prelude-val">Some</span>(local.as_str())) {
+        </span><span class="kw">if </span>doc
+            .namespaces
+            .exists(state.namespace_start_idx, <span class="prelude-val">Some</span>(local.as_str()))
+        {
             <span class="kw">let </span>pos = err_pos_from_qname(doc.text, prefix, local);
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::DuplicatedNamespace(local.as_str().to_string(), pos));
         }
@@ -2070,7 +2077,7 @@
         doc.namespaces.push_ns(<span class="prelude-val">None</span>, value)<span class="question-mark">?</span>;
     } <span class="kw">else </span>{
         <span class="kw">let </span>value = value.to_storage();
-        pd.tmp_attrs.push(TempAttributeData {
+        state.current_attributes.push(TempAttributeData {
             prefix,
             local,
             value,
@@ -2086,8 +2093,7 @@
     tag_name: TagNameSpan&lt;<span class="lifetime">&#39;input</span>&gt;,
     end_token: xmlparser::ElementEnd&lt;<span class="lifetime">&#39;input</span>&gt;,
     token_span: StrSpan&lt;<span class="lifetime">&#39;input</span>&gt;,
-    parent_id: <span class="kw-2">&amp;mut </span>NodeId,
-    pd: <span class="kw-2">&amp;mut </span>ParserData&lt;<span class="lifetime">&#39;input</span>&gt;,
+    state: <span class="kw-2">&amp;mut </span>ParserState&lt;<span class="lifetime">&#39;input</span>&gt;,
     doc: <span class="kw-2">&amp;mut </span>Document&lt;<span class="lifetime">&#39;input</span>&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
     <span class="kw">if </span>tag_name.name.is_empty() {
@@ -2104,16 +2110,15 @@
         }
     }
 
-    <span class="kw">let </span>namespaces = resolve_namespaces(pd.ns_start_idx, <span class="kw-2">*</span>parent_id, doc);
-    pd.ns_start_idx = doc.namespaces.tree_order.len();
+    <span class="kw">let </span>namespaces = resolve_namespaces(state.namespace_start_idx, state.parent_id, doc);
+    state.namespace_start_idx = doc.namespaces.tree_order.len();
 
-    <span class="kw">let </span>attributes = resolve_attributes(pd, namespaces, doc)<span class="question-mark">?</span>;
+    <span class="kw">let </span>attributes = resolve_attributes(state, namespaces, doc)<span class="question-mark">?</span>;
 
     <span class="kw">match </span>end_token {
         xmlparser::ElementEnd::Empty =&gt; {
             <span class="kw">let </span>tag_ns_idx = get_ns_idx_by_prefix(doc, namespaces, tag_name.prefix)<span class="question-mark">?</span>;
             <span class="kw">let </span>new_element_id = doc.append(
-                <span class="kw-2">*</span>parent_id,
                 NodeKind::Element {
                     tag_name: ExpandedNameIndexed {
                         namespace_idx: tag_ns_idx,
@@ -2123,19 +2128,18 @@
                     namespaces,
                 },
                 tag_name.span.start()..token_span.end(),
-                pd.opt.nodes_limit,
-                <span class="kw-2">&amp;mut </span>pd.awaiting_subtree,
+                state,
             )<span class="question-mark">?</span>;
-            pd.awaiting_subtree.push(new_element_id);
+            state.awaiting_subtree.push(new_element_id);
         }
         xmlparser::ElementEnd::Close(prefix, local) =&gt; {
             <span class="kw">let </span>prefix = prefix.as_str();
             <span class="kw">let </span>local = local.as_str();
 
-            <span class="kw">let </span>parent_node = <span class="kw-2">&amp;mut </span>doc.nodes[parent_id.get_usize()];
+            <span class="kw">let </span>parent_node = <span class="kw-2">&amp;mut </span>doc.nodes[state.parent_id.get_usize()];
             <span class="comment">// should never panic as we start with the single prefix of the
             // root node and always push another one when changing the parent
-            </span><span class="kw">let </span>parent_prefix = <span class="kw-2">*</span>pd.parent_prefixes.last().unwrap();
+            </span><span class="kw">let </span>parent_prefix = <span class="kw-2">*</span>state.parent_prefixes.last().unwrap();
 
             <span class="attr">#[cfg(feature = <span class="string">&quot;positions&quot;</span>)]
             </span>{
@@ -2151,20 +2155,19 @@
                     });
                 }
             }
-            pd.awaiting_subtree.push(<span class="kw-2">*</span>parent_id);
+            state.awaiting_subtree.push(state.parent_id);
 
             <span class="kw">if let </span><span class="prelude-val">Some</span>(id) = parent_node.parent {
-                <span class="kw-2">*</span>parent_id = id;
-                pd.parent_prefixes.pop();
-                <span class="macro">debug_assert!</span>(!pd.parent_prefixes.is_empty());
+                state.parent_id = id;
+                state.parent_prefixes.pop();
+                <span class="macro">debug_assert!</span>(!state.parent_prefixes.is_empty());
             } <span class="kw">else </span>{
                 <span class="macro">unreachable!</span>(<span class="string">&quot;should be already checked by the xmlparser&quot;</span>);
             }
         }
         xmlparser::ElementEnd::Open =&gt; {
             <span class="kw">let </span>tag_ns_idx = get_ns_idx_by_prefix(doc, namespaces, tag_name.prefix)<span class="question-mark">?</span>;
-            <span class="kw-2">*</span>parent_id = doc.append(
-                <span class="kw-2">*</span>parent_id,
+            state.parent_id = doc.append(
                 NodeKind::Element {
                     tag_name: ExpandedNameIndexed {
                         namespace_idx: tag_ns_idx,
@@ -2174,10 +2177,9 @@
                     namespaces,
                 },
                 tag_name.span.start()..token_span.end(),
-                pd.opt.nodes_limit,
-                <span class="kw-2">&amp;mut </span>pd.awaiting_subtree,
+                state,
             )<span class="question-mark">?</span>;
-            pd.parent_prefixes.push(tag_name.prefix.as_str());
+            state.parent_prefixes.push(tag_name.prefix.as_str());
         }
     }
 
@@ -2205,21 +2207,21 @@
 }
 
 <span class="kw">fn </span>resolve_attributes&lt;<span class="lifetime">&#39;input</span>&gt;(
-    pd: <span class="kw-2">&amp;mut </span>ParserData&lt;<span class="lifetime">&#39;input</span>&gt;,
+    state: <span class="kw-2">&amp;mut </span>ParserState&lt;<span class="lifetime">&#39;input</span>&gt;,
     namespaces: ShortRange,
     doc: <span class="kw-2">&amp;mut </span>Document&lt;<span class="lifetime">&#39;input</span>&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;ShortRange, Error&gt; {
-    <span class="kw">if </span>pd.tmp_attrs.is_empty() {
+    <span class="kw">if </span>state.current_attributes.is_empty() {
         <span class="kw">return </span><span class="prelude-val">Ok</span>(ShortRange::new(<span class="number">0</span>, <span class="number">0</span>));
     }
 
-    <span class="kw">if </span>doc.attrs.len() + pd.tmp_attrs.len() &gt;= core::u32::MAX <span class="kw">as </span>usize {
+    <span class="kw">if </span>doc.attributes.len() + state.current_attributes.len() &gt;= core::u32::MAX <span class="kw">as </span>usize {
         <span class="kw">return </span><span class="prelude-val">Err</span>(Error::AttributesLimitReached);
     }
 
-    <span class="kw">let </span>start_idx = doc.attrs.len();
+    <span class="kw">let </span>start_idx = doc.attributes.len();
 
-    <span class="kw">for </span>attr <span class="kw">in </span>pd.tmp_attrs.drain(..) {
+    <span class="kw">for </span>attr <span class="kw">in </span>state.current_attributes.drain(..) {
         <span class="kw">let </span>namespace_idx = <span class="kw">if </span>attr.prefix.as_str() == NS_XML_PREFIX {
             <span class="comment">// The prefix &#39;xml&#39; is by definition bound to the namespace name
             // http://www.w3.org/XML/1998/namespace. This namespace is added
@@ -2239,7 +2241,7 @@
         };
 
         <span class="comment">// Check for duplicated attributes.
-        </span><span class="kw">if </span>doc.attrs[start_idx..]
+        </span><span class="kw">if </span>doc.attributes[start_idx..]
             .iter()
             .any(|attr| attr.name.as_expanded_name(doc) == attr_name.as_expanded_name(doc))
         {
@@ -2247,7 +2249,7 @@
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::DuplicatedAttribute(attr.local.to_string(), pos));
         }
 
-        doc.attrs.push(AttributeData {
+        doc.attributes.push(AttributeData {
             name: attr_name,
             value: attr.value,
             <span class="attr">#[cfg(feature = <span class="string">&quot;positions&quot;</span>)]
@@ -2255,53 +2257,45 @@
         });
     }
 
-    <span class="prelude-val">Ok</span>((start_idx..doc.attrs.len()).into())
+    <span class="prelude-val">Ok</span>((start_idx..doc.attributes.len()).into())
 }
 
 <span class="kw">fn </span>process_text&lt;<span class="lifetime">&#39;input</span>&gt;(
     text: StrSpan&lt;<span class="lifetime">&#39;input</span>&gt;,
-    parent_id: NodeId,
     loop_detector: <span class="kw-2">&amp;mut </span>LoopDetector,
-    pd: <span class="kw-2">&amp;mut </span>ParserData&lt;<span class="lifetime">&#39;input</span>&gt;,
+    text_buffer: <span class="kw-2">&amp;mut </span>TextBuffer,
+    state: <span class="kw-2">&amp;mut </span>ParserState&lt;<span class="lifetime">&#39;input</span>&gt;,
     doc: <span class="kw-2">&amp;mut </span>Document&lt;<span class="lifetime">&#39;input</span>&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
     <span class="comment">// Add text as is if it has only valid characters.
     </span><span class="kw">if </span>!text.as_str().bytes().any(|b| b == <span class="string">b&#39;&amp;&#39; </span>|| b == <span class="string">b&#39;\r&#39;</span>) {
-        append_text(
-            BorrowedText::Input(text.as_str()),
-            parent_id,
-            text.range(),
-            pd.opt.nodes_limit,
-            pd.after_text,
-            doc,
-            <span class="kw-2">&amp;mut </span>pd.awaiting_subtree,
-        )<span class="question-mark">?</span>;
-        pd.after_text = <span class="bool-val">true</span>;
+        append_text(BorrowedText::Input(text.as_str()), text.range(), doc, state)<span class="question-mark">?</span>;
+        state.after_text = <span class="bool-val">true</span>;
         <span class="kw">return </span><span class="prelude-val">Ok</span>(());
     }
 
-    pd.buffer.clear();
+    text_buffer.clear();
 
     <span class="kw">let </span><span class="kw-2">mut </span>is_as_is = <span class="bool-val">false</span>; <span class="comment">// TODO: explain
-    </span><span class="kw">let </span><span class="kw-2">mut </span>s = Stream::from_substr(doc.text, text.range());
-    <span class="kw">while </span>!s.at_end() {
-        <span class="kw">match </span>parse_next_chunk(<span class="kw-2">&amp;mut </span>s, <span class="kw-2">&amp;</span>pd.entities)<span class="question-mark">? </span>{
+    </span><span class="kw">let </span><span class="kw-2">mut </span>stream = Stream::from_substr(doc.text, text.range());
+    <span class="kw">while </span>!stream.at_end() {
+        <span class="kw">match </span>parse_next_chunk(<span class="kw-2">&amp;mut </span>stream, <span class="kw-2">&amp;</span>state.entities)<span class="question-mark">? </span>{
             NextChunk::Byte(c) =&gt; {
                 <span class="kw">if </span>is_as_is {
-                    pd.buffer.push_raw(c);
+                    text_buffer.push_raw(c);
                     is_as_is = <span class="bool-val">false</span>;
                 } <span class="kw">else </span>{
-                    pd.buffer.push_from_text(c, s.at_end());
+                    text_buffer.push_from_text(c, stream.at_end());
                 }
             }
             NextChunk::Char(c) =&gt; {
                 <span class="kw">for </span>b <span class="kw">in </span>CharToBytes::new(c) {
                     <span class="kw">if </span>loop_detector.depth &gt; <span class="number">0 </span>{
-                        pd.buffer.push_from_text(b, s.at_end());
+                        text_buffer.push_from_text(b, stream.at_end());
                     } <span class="kw">else </span>{
                         <span class="comment">// Characters not from entity should be added as is.
                         // Not sure why... At least `lxml` produces the same result.
-                        </span>pd.buffer.push_raw(b);
+                        </span>text_buffer.push_raw(b);
                         is_as_is = <span class="bool-val">true</span>;
                     }
                 }
@@ -2309,45 +2303,46 @@
             NextChunk::Text(fragment) =&gt; {
                 is_as_is = <span class="bool-val">false</span>;
 
-                <span class="kw">if </span>!pd.buffer.is_empty() {
+                <span class="kw">if </span>!text_buffer.is_empty() {
                     append_text(
-                        BorrowedText::Temp(pd.buffer.to_str()),
-                        parent_id,
+                        BorrowedText::Temp(text_buffer.to_str()),
                         text.range(),
-                        pd.opt.nodes_limit,
-                        pd.after_text,
                         doc,
-                        <span class="kw-2">&amp;mut </span>pd.awaiting_subtree,
+                        state,
                     )<span class="question-mark">?</span>;
-                    pd.after_text = <span class="bool-val">true</span>;
-                    pd.buffer.clear();
+                    state.after_text = <span class="bool-val">true</span>;
+                    text_buffer.clear();
                 }
 
-                loop_detector.inc_references(<span class="kw-2">&amp;</span>s)<span class="question-mark">?</span>;
-                loop_detector.inc_depth(<span class="kw-2">&amp;</span>s)<span class="question-mark">?</span>;
+                loop_detector.inc_references(<span class="kw-2">&amp;</span>stream)<span class="question-mark">?</span>;
+                loop_detector.inc_depth(<span class="kw-2">&amp;</span>stream)<span class="question-mark">?</span>;
 
                 <span class="kw">let </span>parser = xmlparser::Tokenizer::from_fragment(doc.text, fragment.range());
                 <span class="kw">let </span><span class="kw-2">mut </span>tag_name = TagNameSpan::new_null();
-                process_tokens(parser, parent_id, loop_detector, <span class="kw-2">&amp;mut </span>tag_name, pd, doc)<span class="question-mark">?</span>;
-                pd.buffer.clear();
+                process_tokens(
+                    parser,
+                    loop_detector,
+                    <span class="kw-2">&amp;mut </span>tag_name,
+                    text_buffer,
+                    state,
+                    doc,
+                )<span class="question-mark">?</span>;
+                text_buffer.clear();
 
                 loop_detector.dec_depth();
             }
         }
     }
 
-    <span class="kw">if </span>!pd.buffer.is_empty() {
+    <span class="kw">if </span>!text_buffer.is_empty() {
         append_text(
-            BorrowedText::Temp(pd.buffer.to_str()),
-            parent_id,
+            BorrowedText::Temp(text_buffer.to_str()),
             text.range(),
-            pd.opt.nodes_limit,
-            pd.after_text,
             doc,
-            <span class="kw-2">&amp;mut </span>pd.awaiting_subtree,
+            state,
         )<span class="question-mark">?</span>;
-        pd.after_text = <span class="bool-val">true</span>;
-        pd.buffer.clear();
+        state.after_text = <span class="bool-val">true</span>;
+        text_buffer.clear();
     }
 
     <span class="prelude-val">Ok</span>(())
@@ -2374,17 +2369,52 @@
     }
 }
 
-<span class="attr">#[allow(clippy::needless_lifetimes)]
-</span><span class="kw">fn </span>append_text&lt;<span class="lifetime">&#39;input</span>, <span class="lifetime">&#39;temp</span>&gt;(
-    text: BorrowedText&lt;<span class="lifetime">&#39;input</span>, <span class="lifetime">&#39;temp</span>&gt;,
-    parent_id: NodeId,
-    range: core::ops::Range&lt;usize&gt;,
-    nodes_limit: u32,
-    after_text: bool,
+<span class="comment">// While the whole purpose of CDATA is to indicate to an XML library that this text
+// has to be stored as is, carriage return (`\r`) is still has to be replaced with `\n`.
+</span><span class="kw">fn </span>process_cdata&lt;<span class="lifetime">&#39;input</span>&gt;(
+    text: StrSpan&lt;<span class="lifetime">&#39;input</span>&gt;,
+    span: StrSpan&lt;<span class="lifetime">&#39;input</span>&gt;,
+    text_buffer: <span class="kw-2">&amp;mut </span>TextBuffer,
+    state: <span class="kw-2">&amp;mut </span>ParserState&lt;<span class="lifetime">&#39;input</span>&gt;,
     doc: <span class="kw-2">&amp;mut </span>Document&lt;<span class="lifetime">&#39;input</span>&gt;,
-    awaiting_subtree: <span class="kw-2">&amp;mut </span>Vec&lt;NodeId&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-    <span class="kw">if </span>after_text {
+    <span class="comment">// Add text as is if it has only valid characters.
+    </span><span class="kw">if </span>!text.as_str().as_bytes().contains(<span class="kw-2">&amp;</span><span class="string">b&#39;\r&#39;</span>) {
+        append_text(BorrowedText::Input(text.as_str()), span.range(), doc, state)<span class="question-mark">?</span>;
+        state.after_text = <span class="bool-val">true</span>;
+        <span class="kw">return </span><span class="prelude-val">Ok</span>(());
+    }
+
+    text_buffer.clear();
+
+    <span class="kw">let </span>count = text.as_str().chars().count();
+    <span class="kw">for </span>(i, c) <span class="kw">in </span>text.as_str().chars().enumerate() {
+        <span class="kw">for </span>b <span class="kw">in </span>CharToBytes::new(c) {
+            text_buffer.push_from_text(b, i + <span class="number">1 </span>== count);
+        }
+    }
+
+    <span class="kw">if </span>!text_buffer.is_empty() {
+        append_text(
+            BorrowedText::Temp(text_buffer.to_str()),
+            text.range(),
+            doc,
+            state,
+        )<span class="question-mark">?</span>;
+        state.after_text = <span class="bool-val">true</span>;
+        text_buffer.clear();
+    }
+
+    <span class="prelude-val">Ok</span>(())
+}
+
+<span class="kw">fn </span>append_text&lt;<span class="lifetime">&#39;input</span>&gt;(
+    text: BorrowedText&lt;<span class="lifetime">&#39;input</span>, <span class="lifetime">&#39;_</span>&gt;,
+    range: Range&lt;usize&gt;,
+    doc: <span class="kw-2">&amp;mut </span>Document&lt;<span class="lifetime">&#39;input</span>&gt;,
+    state: <span class="kw-2">&amp;mut </span>ParserState&lt;<span class="lifetime">&#39;input</span>&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+    <span class="kw">if </span>state.after_text {
         <span class="comment">// Prepend to a previous text node.
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(node) = doc.nodes.last_mut() {
             <span class="kw">if let </span>NodeKind::Text(<span class="kw-2">ref mut </span>prev_text) = node.kind {
@@ -2399,13 +2429,7 @@
         }
     } <span class="kw">else </span>{
         <span class="kw">let </span>text = text.to_storage();
-        doc.append(
-            parent_id,
-            NodeKind::Text(text),
-            range,
-            nodes_limit,
-            awaiting_subtree,
-        )<span class="question-mark">?</span>;
+        doc.append(NodeKind::Text(text), range, state)<span class="question-mark">?</span>;
     }
 
     <span class="prelude-val">Ok</span>(())
@@ -2418,34 +2442,35 @@
 }
 
 <span class="kw">fn </span>parse_next_chunk&lt;<span class="lifetime">&#39;a</span>&gt;(
-    s: <span class="kw-2">&amp;mut </span>Stream&lt;<span class="lifetime">&#39;a</span>&gt;,
+    stream: <span class="kw-2">&amp;mut </span>Stream&lt;<span class="lifetime">&#39;a</span>&gt;,
     entities: <span class="kw-2">&amp;</span>[Entity&lt;<span class="lifetime">&#39;a</span>&gt;],
 ) -&gt; <span class="prelude-ty">Result</span>&lt;NextChunk&lt;<span class="lifetime">&#39;a</span>&gt;, Error&gt; {
-    <span class="macro">debug_assert!</span>(!s.at_end());
+    <span class="macro">debug_assert!</span>(!stream.at_end());
 
     <span class="comment">// Safe, because we already checked that stream is not at the end.
     // But we have an additional `debug_assert` above just in case.
-    </span><span class="kw">let </span>c = s.curr_byte_unchecked();
+    </span><span class="kw">let </span>c = stream.curr_byte_unchecked();
 
     <span class="comment">// Check for character/entity references.
     </span><span class="kw">if </span>c == <span class="string">b&#39;&amp;&#39; </span>{
-        <span class="kw">let </span>start = s.pos();
-        <span class="kw">match </span>s.try_consume_reference() {
+        <span class="kw">let </span>start = stream.pos();
+        <span class="kw">match </span>stream.try_consume_reference() {
             <span class="prelude-val">Some</span>(Reference::Char(ch)) =&gt; <span class="prelude-val">Ok</span>(NextChunk::Char(ch)),
-            <span class="prelude-val">Some</span>(Reference::Entity(name)) =&gt; <span class="kw">match </span>entities.iter().find(|e| e.name == name) {
-                <span class="prelude-val">Some</span>(entity) =&gt; <span class="prelude-val">Ok</span>(NextChunk::Text(entity.value)),
-                <span class="prelude-val">None </span>=&gt; {
-                    <span class="kw">let </span>pos = s.gen_text_pos_from(start);
-                    <span class="prelude-val">Err</span>(Error::UnknownEntityReference(name.into(), pos))
-                }
-            },
+            <span class="prelude-val">Some</span>(Reference::Entity(name)) =&gt; entities
+                .iter()
+                .find(|e| e.name == name)
+                .map(|e| NextChunk::Text(e.value))
+                .ok_or_else(|| {
+                    <span class="kw">let </span>pos = stream.gen_text_pos_from(start);
+                    Error::UnknownEntityReference(name.into(), pos)
+                }),
             <span class="prelude-val">None </span>=&gt; {
-                <span class="kw">let </span>pos = s.gen_text_pos_from(start);
+                <span class="kw">let </span>pos = stream.gen_text_pos_from(start);
                 <span class="prelude-val">Err</span>(Error::MalformedEntityReference(pos))
             }
         }
     } <span class="kw">else </span>{
-        s.advance(<span class="number">1</span>);
+        stream.advance(<span class="number">1</span>);
         <span class="prelude-val">Ok</span>(NextChunk::Byte(c))
     }
 }
@@ -2489,27 +2514,29 @@
     loop_detector: <span class="kw-2">&amp;mut </span>LoopDetector,
     buffer: <span class="kw-2">&amp;mut </span>TextBuffer,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>s = Stream::from_substr(input, text.range());
-    <span class="kw">while </span>!s.at_end() {
+    <span class="kw">let </span><span class="kw-2">mut </span>stream = Stream::from_substr(input, text.range());
+    <span class="kw">while </span>!stream.at_end() {
         <span class="comment">// Safe, because we already checked that the stream is not at the end.
-        </span><span class="kw">let </span>c = s.curr_byte_unchecked();
+        </span><span class="kw">let </span>c = stream.curr_byte_unchecked();
 
         <span class="kw">if </span>c != <span class="string">b&#39;&amp;&#39; </span>{
-            s.advance(<span class="number">1</span>);
-            buffer.push_from_attr(c, s.curr_byte().ok());
+            stream.advance(<span class="number">1</span>);
+            buffer.push_from_attr(c, stream.curr_byte().ok());
             <span class="kw">continue</span>;
         }
 
         <span class="comment">// Check for character/entity references.
-        </span><span class="kw">let </span>start = s.pos();
-        <span class="kw">match </span>s.try_consume_reference() {
+        </span><span class="kw">let </span>start = stream.pos();
+        <span class="kw">match </span>stream.try_consume_reference() {
             <span class="prelude-val">Some</span>(Reference::Char(ch)) =&gt; {
                 <span class="kw">for </span>b <span class="kw">in </span>CharToBytes::new(ch) {
                     <span class="kw">if </span>loop_detector.depth &gt; <span class="number">0 </span>{
                         <span class="comment">// Escaped `&lt;` inside an ENTITY is an error.
                         // Escaped `&lt;` outside an ENTITY is ok.
                         </span><span class="kw">if </span>b == <span class="string">b&#39;&lt;&#39; </span>{
-                            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::InvalidAttributeValue(s.gen_text_pos_from(start)));
+                            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::InvalidAttributeValue(
+                                stream.gen_text_pos_from(start),
+                            ));
                         }
 
                         buffer.push_from_attr(b, <span class="prelude-val">None</span>);
@@ -2522,18 +2549,18 @@
             }
             <span class="prelude-val">Some</span>(Reference::Entity(name)) =&gt; <span class="kw">match </span>entities.iter().find(|e| e.name == name) {
                 <span class="prelude-val">Some</span>(entity) =&gt; {
-                    loop_detector.inc_references(<span class="kw-2">&amp;</span>s)<span class="question-mark">?</span>;
-                    loop_detector.inc_depth(<span class="kw-2">&amp;</span>s)<span class="question-mark">?</span>;
+                    loop_detector.inc_references(<span class="kw-2">&amp;</span>stream)<span class="question-mark">?</span>;
+                    loop_detector.inc_depth(<span class="kw-2">&amp;</span>stream)<span class="question-mark">?</span>;
                     _normalize_attribute(input, entity.value, entities, loop_detector, buffer)<span class="question-mark">?</span>;
                     loop_detector.dec_depth();
                 }
                 <span class="prelude-val">None </span>=&gt; {
-                    <span class="kw">let </span>pos = s.gen_text_pos_from(start);
+                    <span class="kw">let </span>pos = stream.gen_text_pos_from(start);
                     <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnknownEntityReference(name.into(), pos));
                 }
             },
             <span class="prelude-val">None </span>=&gt; {
-                <span class="kw">let </span>pos = s.gen_text_pos_from(start);
+                <span class="kw">let </span>pos = stream.gen_text_pos_from(start);
                 <span class="kw">return </span><span class="prelude-val">Err</span>(Error::MalformedEntityReference(pos));
             }
         }
@@ -2584,8 +2611,7 @@
     }
 }
 
-<span class="attr">#[inline]
-</span><span class="kw">fn </span>gen_qname_string(prefix: <span class="kw-2">&amp;</span>str, local: <span class="kw-2">&amp;</span>str) -&gt; String {
+<span class="kw">fn </span>gen_qname_string(prefix: <span class="kw-2">&amp;</span>str, local: <span class="kw-2">&amp;</span>str) -&gt; String {
     <span class="kw">if </span>prefix.is_empty() {
         local.to_string()
     } <span class="kw">else </span>{
@@ -2593,13 +2619,11 @@
     }
 }
 
-<span class="attr">#[inline]
-</span><span class="kw">fn </span>err_pos_from_span(input: <span class="kw-2">&amp;</span>str, text: StrSpan) -&gt; TextPos {
+<span class="kw">fn </span>err_pos_from_span(input: <span class="kw-2">&amp;</span>str, text: StrSpan) -&gt; TextPos {
     Stream::from_substr(input, text.range()).gen_text_pos()
 }
 
-<span class="attr">#[inline]
-</span><span class="kw">fn </span>err_pos_from_qname(input: <span class="kw-2">&amp;</span>str, prefix: StrSpan, local: StrSpan) -&gt; TextPos {
+<span class="kw">fn </span>err_pos_from_qname(input: <span class="kw-2">&amp;</span>str, prefix: StrSpan, local: StrSpan) -&gt; TextPos {
     <span class="kw">let </span>err_span = <span class="kw">if </span>prefix.is_empty() { local } <span class="kw">else </span>{ prefix };
     err_pos_from_span(input, err_span)
 }
@@ -2644,71 +2668,71 @@
     }
 
     <span class="kw">pub struct </span>TextBuffer {
-        buf: Vec&lt;u8&gt;,
+        buffer: Vec&lt;u8&gt;,
     }
 
     <span class="kw">impl </span>TextBuffer {
         <span class="attr">#[inline]
         </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
             TextBuffer {
-                buf: Vec::with_capacity(<span class="number">32</span>),
+                buffer: Vec::with_capacity(<span class="number">32</span>),
             }
         }
 
         <span class="attr">#[inline]
         </span><span class="kw">pub fn </span>push_raw(<span class="kw-2">&amp;mut </span><span class="self">self</span>, c: u8) {
-            <span class="self">self</span>.buf.push(c);
+            <span class="self">self</span>.buffer.push(c);
         }
 
-        <span class="kw">pub fn </span>push_from_attr(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>c: u8, c2: <span class="prelude-ty">Option</span>&lt;u8&gt;) {
+        <span class="kw">pub fn </span>push_from_attr(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>current: u8, next: <span class="prelude-ty">Option</span>&lt;u8&gt;) {
             <span class="comment">// \r in \r\n should be ignored.
-            </span><span class="kw">if </span>c == <span class="string">b&#39;\r&#39; </span>&amp;&amp; c2 == <span class="prelude-val">Some</span>(<span class="string">b&#39;\n&#39;</span>) {
+            </span><span class="kw">if </span>current == <span class="string">b&#39;\r&#39; </span>&amp;&amp; next == <span class="prelude-val">Some</span>(<span class="string">b&#39;\n&#39;</span>) {
                 <span class="kw">return</span>;
             }
 
             <span class="comment">// \n, \r and \t should be converted into spaces.
-            </span>c = <span class="kw">match </span>c {
+            </span>current = <span class="kw">match </span>current {
                 <span class="string">b&#39;\n&#39; </span>| <span class="string">b&#39;\r&#39; </span>| <span class="string">b&#39;\t&#39; </span>=&gt; <span class="string">b&#39; &#39;</span>,
-                <span class="kw">_ </span>=&gt; c,
+                <span class="kw">_ </span>=&gt; current,
             };
 
-            <span class="self">self</span>.buf.push(c);
+            <span class="self">self</span>.buffer.push(current);
         }
 
         <span class="comment">// Translate \r\n and any \r that is not followed by \n into a single \n character.
         //
         // https://www.w3.org/TR/xml/#sec-line-ends
         </span><span class="kw">pub fn </span>push_from_text(<span class="kw-2">&amp;mut </span><span class="self">self</span>, c: u8, at_end: bool) {
-            <span class="kw">if </span><span class="self">self</span>.buf.last() == <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">b&#39;\r&#39;</span>) {
-                <span class="kw">let </span>idx = <span class="self">self</span>.buf.len() - <span class="number">1</span>;
-                <span class="self">self</span>.buf[idx] = <span class="string">b&#39;\n&#39;</span>;
+            <span class="kw">if </span><span class="self">self</span>.buffer.last() == <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">b&#39;\r&#39;</span>) {
+                <span class="kw">let </span>idx = <span class="self">self</span>.buffer.len() - <span class="number">1</span>;
+                <span class="self">self</span>.buffer[idx] = <span class="string">b&#39;\n&#39;</span>;
 
                 <span class="kw">if </span>at_end &amp;&amp; c == <span class="string">b&#39;\r&#39; </span>{
-                    <span class="self">self</span>.buf.push(<span class="string">b&#39;\n&#39;</span>);
+                    <span class="self">self</span>.buffer.push(<span class="string">b&#39;\n&#39;</span>);
                 } <span class="kw">else if </span>c != <span class="string">b&#39;\n&#39; </span>{
-                    <span class="self">self</span>.buf.push(c);
+                    <span class="self">self</span>.buffer.push(c);
                 }
             } <span class="kw">else if </span>at_end &amp;&amp; c == <span class="string">b&#39;\r&#39; </span>{
-                <span class="self">self</span>.buf.push(<span class="string">b&#39;\n&#39;</span>);
+                <span class="self">self</span>.buffer.push(<span class="string">b&#39;\n&#39;</span>);
             } <span class="kw">else </span>{
-                <span class="self">self</span>.buf.push(c);
+                <span class="self">self</span>.buffer.push(c);
             }
         }
 
         <span class="attr">#[inline]
         </span><span class="kw">pub fn </span>clear(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-            <span class="self">self</span>.buf.clear();
+            <span class="self">self</span>.buffer.clear();
         }
 
         <span class="attr">#[inline]
         </span><span class="kw">pub fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-            <span class="self">self</span>.buf.is_empty()
+            <span class="self">self</span>.buffer.is_empty()
         }
 
         <span class="attr">#[inline]
         </span><span class="kw">pub fn </span>to_str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
             <span class="comment">// `unwrap` is safe, because buffer must contain a valid UTF-8 string.
-            </span>core::str::from_utf8(<span class="kw-2">&amp;</span><span class="self">self</span>.buf).unwrap()
+            </span>core::str::from_utf8(<span class="kw-2">&amp;</span><span class="self">self</span>.buffer).unwrap()
         }
     }
 }

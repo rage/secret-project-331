@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.7.0/src/shape.rs`."><title>shape.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../rustybuzz/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.10.0/src/shape.rs`."><title>shape.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../rustybuzz/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -534,9 +534,55 @@
 <a href="#534" id="534">534</a>
 <a href="#535" id="535">535</a>
 <a href="#536" id="536">536</a>
+<a href="#537" id="537">537</a>
+<a href="#538" id="538">538</a>
+<a href="#539" id="539">539</a>
+<a href="#540" id="540">540</a>
+<a href="#541" id="541">541</a>
+<a href="#542" id="542">542</a>
+<a href="#543" id="543">543</a>
+<a href="#544" id="544">544</a>
+<a href="#545" id="545">545</a>
+<a href="#546" id="546">546</a>
+<a href="#547" id="547">547</a>
+<a href="#548" id="548">548</a>
+<a href="#549" id="549">549</a>
+<a href="#550" id="550">550</a>
+<a href="#551" id="551">551</a>
+<a href="#552" id="552">552</a>
+<a href="#553" id="553">553</a>
+<a href="#554" id="554">554</a>
+<a href="#555" id="555">555</a>
+<a href="#556" id="556">556</a>
+<a href="#557" id="557">557</a>
+<a href="#558" id="558">558</a>
+<a href="#559" id="559">559</a>
+<a href="#560" id="560">560</a>
+<a href="#561" id="561">561</a>
+<a href="#562" id="562">562</a>
+<a href="#563" id="563">563</a>
+<a href="#564" id="564">564</a>
+<a href="#565" id="565">565</a>
+<a href="#566" id="566">566</a>
+<a href="#567" id="567">567</a>
+<a href="#568" id="568">568</a>
+<a href="#569" id="569">569</a>
+<a href="#570" id="570">570</a>
+<a href="#571" id="571">571</a>
+<a href="#572" id="572">572</a>
+<a href="#573" id="573">573</a>
+<a href="#574" id="574">574</a>
+<a href="#575" id="575">575</a>
+<a href="#576" id="576">576</a>
+<a href="#577" id="577">577</a>
+<a href="#578" id="578">578</a>
+<a href="#579" id="579">579</a>
+<a href="#580" id="580">580</a>
+<a href="#581" id="581">581</a>
+<a href="#582" id="582">582</a>
+<a href="#583" id="583">583</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>core::convert::TryFrom;
 
-<span class="kw">use crate</span>::{aat, ot, fallback, normalize, Direction, Face, Feature, GlyphBuffer, UnicodeBuffer};
 <span class="kw">use </span><span class="kw">crate</span>::buffer::{
     glyph_flag, Buffer, BufferClusterLevel, BufferFlags, BufferScratchFlags, GlyphInfo,
     GlyphPropsFlags,
@@ -544,6 +590,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::complex::ZeroWidthMarksMode;
 <span class="kw">use </span><span class="kw">crate</span>::plan::ShapePlan;
 <span class="kw">use </span><span class="kw">crate</span>::unicode::{CharExt, GeneralCategory};
+<span class="kw">use crate</span>::{aat, fallback, normalize, ot, Direction, Face, Feature, GlyphBuffer, UnicodeBuffer};
 
 <span class="doccomment">/// Shapes the buffer content using provided font and features.
 ///
@@ -690,11 +737,17 @@
     <span class="kw">let </span>len = ctx.buffer.len;
 
     <span class="kw">if </span>ctx.buffer.direction.is_horizontal() {
-        <span class="kw">for </span>(info, pos) <span class="kw">in </span>ctx.buffer.info[..len].iter().zip(<span class="kw-2">&amp;mut </span>ctx.buffer.pos[..len]) {
+        <span class="kw">for </span>(info, pos) <span class="kw">in </span>ctx.buffer.info[..len]
+            .iter()
+            .zip(<span class="kw-2">&amp;mut </span>ctx.buffer.pos[..len])
+        {
             pos.x_advance = ctx.face.glyph_h_advance(info.as_glyph());
         }
     } <span class="kw">else </span>{
-        <span class="kw">for </span>(info, pos) <span class="kw">in </span>ctx.buffer.info[..len].iter().zip(<span class="kw-2">&amp;mut </span>ctx.buffer.pos[..len]) {
+        <span class="kw">for </span>(info, pos) <span class="kw">in </span>ctx.buffer.info[..len]
+            .iter()
+            .zip(<span class="kw-2">&amp;mut </span>ctx.buffer.pos[..len])
+        {
             <span class="kw">let </span>glyph = info.as_glyph();
             pos.y_advance = ctx.face.glyph_v_advance(glyph);
             pos.x_offset -= ctx.face.glyph_h_origin(glyph);
@@ -702,7 +755,11 @@
         }
     }
 
-    <span class="kw">if </span>ctx.buffer.scratch_flags.contains(BufferScratchFlags::HAS_SPACE_FALLBACK) {
+    <span class="kw">if </span>ctx
+        .buffer
+        .scratch_flags
+        .contains(BufferScratchFlags::HAS_SPACE_FALLBACK)
+    {
         fallback::adjust_spaces(ctx.plan, ctx.face, ctx.buffer);
     }
 }
@@ -716,20 +773,24 @@
     //
     // Note: If fallback positioning happens, we don&#39;t care about
     // this as it will be overriden.
-    </span><span class="kw">let </span>adjust_offsets_when_zeroing = ctx.plan.adjust_mark_positioning_when_zeroing
-        &amp;&amp; ctx.buffer.direction.is_forward();
+    </span><span class="kw">let </span>adjust_offsets_when_zeroing =
+        ctx.plan.adjust_mark_positioning_when_zeroing &amp;&amp; ctx.buffer.direction.is_forward();
 
     <span class="comment">// We change glyph origin to what GPOS expects (horizontal), apply GPOS, change it back.
 
     </span>ot::position_start(ctx.face, ctx.buffer);
 
-    <span class="kw">if </span>ctx.plan.zero_marks &amp;&amp; ctx.plan.shaper.zero_width_marks == <span class="prelude-val">Some</span>(ZeroWidthMarksMode::ByGdefEarly) {
+    <span class="kw">if </span>ctx.plan.zero_marks
+        &amp;&amp; ctx.plan.shaper.zero_width_marks == <span class="prelude-val">Some</span>(ZeroWidthMarksMode::ByGdefEarly)
+    {
         zero_mark_widths_by_gdef(ctx.buffer, adjust_offsets_when_zeroing);
     }
 
     position_by_plan(ctx.plan, ctx.face, ctx.buffer);
 
-    <span class="kw">if </span>ctx.plan.zero_marks &amp;&amp; ctx.plan.shaper.zero_width_marks == <span class="prelude-val">Some</span>(ZeroWidthMarksMode::ByGdefLate) {
+    <span class="kw">if </span>ctx.plan.zero_marks
+        &amp;&amp; ctx.plan.shaper.zero_width_marks == <span class="prelude-val">Some</span>(ZeroWidthMarksMode::ByGdefLate)
+    {
         zero_mark_widths_by_gdef(ctx.buffer, adjust_offsets_when_zeroing);
     }
 
@@ -777,21 +838,32 @@
     <span class="kw">for </span>feature <span class="kw">in </span>ctx.user_features {
         <span class="kw">if </span>!feature.is_global() {
             <span class="kw">let </span>(mask, shift) = ctx.plan.ot_map.mask(feature.tag);
-            ctx.buffer.set_masks(feature.value &lt;&lt; shift, mask, feature.start, feature.end);
+            ctx.buffer
+                .set_masks(feature.value &lt;&lt; shift, mask, feature.start, feature.end);
         }
     }
 }
 
 <span class="kw">fn </span>setup_masks_fraction(ctx: <span class="kw-2">&amp;mut </span>ShapeContext) {
     <span class="kw">let </span>buffer = <span class="kw-2">&amp;mut </span>ctx.buffer;
-    <span class="kw">if </span>!buffer.scratch_flags.contains(BufferScratchFlags::HAS_NON_ASCII) || !ctx.plan.has_frac {
+    <span class="kw">if </span>!buffer
+        .scratch_flags
+        .contains(BufferScratchFlags::HAS_NON_ASCII)
+        || !ctx.plan.has_frac
+    {
         <span class="kw">return</span>;
     }
 
     <span class="kw">let </span>(pre_mask, post_mask) = <span class="kw">if </span>buffer.direction.is_forward() {
-        (ctx.plan.numr_mask | ctx.plan.frac_mask, ctx.plan.frac_mask | ctx.plan.dnom_mask)
+        (
+            ctx.plan.numr_mask | ctx.plan.frac_mask,
+            ctx.plan.frac_mask | ctx.plan.dnom_mask,
+        )
     } <span class="kw">else </span>{
-        (ctx.plan.frac_mask | ctx.plan.dnom_mask, ctx.plan.numr_mask | ctx.plan.frac_mask)
+        (
+            ctx.plan.frac_mask | ctx.plan.dnom_mask,
+            ctx.plan.numr_mask | ctx.plan.frac_mask,
+        )
     };
 
     <span class="kw">let </span>len = buffer.len;
@@ -800,12 +872,15 @@
         <span class="comment">// FRACTION SLASH
         </span><span class="kw">if </span>buffer.info[i].glyph_id == <span class="number">0x2044 </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>start = i;
-            <span class="kw">while </span>start &gt; <span class="number">0 </span>&amp;&amp; buffer.info[start - <span class="number">1</span>].general_category() == GeneralCategory::DecimalNumber {
+            <span class="kw">while </span>start &gt; <span class="number">0
+                </span>&amp;&amp; buffer.info[start - <span class="number">1</span>].general_category() == GeneralCategory::DecimalNumber
+            {
                 start -= <span class="number">1</span>;
             }
 
             <span class="kw">let </span><span class="kw-2">mut </span>end = i + <span class="number">1</span>;
-            <span class="kw">while </span>end &lt; len &amp;&amp; buffer.info[end].general_category() == GeneralCategory::DecimalNumber {
+            <span class="kw">while </span>end &lt; len &amp;&amp; buffer.info[end].general_category() == GeneralCategory::DecimalNumber
+            {
                 end += <span class="number">1</span>;
             }
 
@@ -817,7 +892,7 @@
 
             buffer.info[i].mask |= ctx.plan.frac_mask;
 
-            <span class="kw">for </span>info <span class="kw">in </span><span class="kw-2">&amp;mut </span>buffer.info[i+<span class="number">1</span>..end] {
+            <span class="kw">for </span>info <span class="kw">in </span><span class="kw-2">&amp;mut </span>buffer.info[i + <span class="number">1</span>..end] {
                 info.mask |= post_mask;
             }
 
@@ -879,7 +954,9 @@
 }
 
 <span class="kw">fn </span>insert_dotted_circle(buffer: <span class="kw-2">&amp;mut </span>Buffer, face: <span class="kw-2">&amp;</span>Face) {
-    <span class="kw">if </span>!buffer.flags.contains(BufferFlags::DO_NOT_INSERT_DOTTED_CIRCLE)
+    <span class="kw">if </span>!buffer
+        .flags
+        .contains(BufferFlags::DO_NOT_INSERT_DOTTED_CIRCLE)
         &amp;&amp; buffer.flags.contains(BufferFlags::BEGINNING_OF_TEXT)
         &amp;&amp; buffer.context_len[<span class="number">0</span>] == <span class="number">0
         </span>&amp;&amp; buffer.info[<span class="number">0</span>].is_unicode_mark()
@@ -889,28 +966,23 @@
             glyph_id: <span class="number">0x25CC</span>,
             mask: buffer.cur(<span class="number">0</span>).mask,
             cluster: buffer.cur(<span class="number">0</span>).cluster,
-            var1: <span class="number">0</span>,
-            var2: <span class="number">0</span>,
+            ..GlyphInfo::default()
         };
 
         info.init_unicode_props(<span class="kw-2">&amp;mut </span>buffer.scratch_flags);
         buffer.clear_output();
         buffer.output_info(info);
-
-        <span class="kw">while </span>buffer.idx &lt; buffer.len &amp;&amp; buffer.successful {
-            buffer.next_glyph();
-        }
-
         buffer.swap_buffers();
     }
 }
 
 <span class="kw">fn </span>form_clusters(buffer: <span class="kw-2">&amp;mut </span>Buffer) {
-    <span class="kw">if </span>buffer.scratch_flags.contains(BufferScratchFlags::HAS_NON_ASCII) {
+    <span class="kw">if </span>buffer
+        .scratch_flags
+        .contains(BufferScratchFlags::HAS_NON_ASCII)
+    {
         <span class="kw">if </span>buffer.cluster_level == BufferClusterLevel::MonotoneGraphemes {
-            <span class="macro">foreach_grapheme!</span>(buffer, start, end, {
-                buffer.merge_clusters(start, end)
-            });
+            <span class="macro">foreach_grapheme!</span>(buffer, start, end, { buffer.merge_clusters(start, end) });
         } <span class="kw">else </span>{
             <span class="macro">foreach_grapheme!</span>(buffer, start, end, {
                 buffer.unsafe_to_break(start, end);
@@ -921,7 +993,10 @@
 
 <span class="kw">fn </span>ensure_native_direction(buffer: <span class="kw-2">&amp;mut </span>Buffer) {
     <span class="kw">let </span>dir = buffer.direction;
-    <span class="kw">let </span>hor = buffer.script.and_then(Direction::from_script).unwrap_or_default();
+    <span class="kw">let </span>hor = buffer
+        .script
+        .and_then(Direction::from_script)
+        .unwrap_or_default();
 
     <span class="kw">if </span>(dir.is_horizontal() &amp;&amp; dir != hor &amp;&amp; hor != Direction::Invalid)
         || (dir.is_vertical() &amp;&amp; dir != Direction::TopToBottom)
@@ -1003,9 +1078,15 @@
 }
 
 <span class="kw">fn </span>zero_width_default_ignorables(buffer: <span class="kw-2">&amp;mut </span>Buffer) {
-    <span class="kw">if </span>buffer.scratch_flags.contains(BufferScratchFlags::HAS_DEFAULT_IGNORABLES)
-        &amp;&amp; !buffer.flags.contains(BufferFlags::PRESERVE_DEFAULT_IGNORABLES)
-        &amp;&amp; !buffer.flags.contains(BufferFlags::REMOVE_DEFAULT_IGNORABLES)
+    <span class="kw">if </span>buffer
+        .scratch_flags
+        .contains(BufferScratchFlags::HAS_DEFAULT_IGNORABLES)
+        &amp;&amp; !buffer
+            .flags
+            .contains(BufferFlags::PRESERVE_DEFAULT_IGNORABLES)
+        &amp;&amp; !buffer
+            .flags
+            .contains(BufferFlags::REMOVE_DEFAULT_IGNORABLES)
     {
         <span class="kw">let </span>len = buffer.len;
         <span class="kw">for </span>(info, pos) <span class="kw">in </span>buffer.info[..len].iter().zip(<span class="kw-2">&amp;mut </span>buffer.pos[..len]) {
@@ -1035,11 +1116,21 @@
 }
 
 <span class="kw">fn </span>hide_default_ignorables(buffer: <span class="kw-2">&amp;mut </span>Buffer, face: <span class="kw-2">&amp;</span>Face) {
-    <span class="kw">if </span>buffer.scratch_flags.contains(BufferScratchFlags::HAS_DEFAULT_IGNORABLES)
-        &amp;&amp; !buffer.flags.contains(BufferFlags::PRESERVE_DEFAULT_IGNORABLES)
+    <span class="kw">if </span>buffer
+        .scratch_flags
+        .contains(BufferScratchFlags::HAS_DEFAULT_IGNORABLES)
+        &amp;&amp; !buffer
+            .flags
+            .contains(BufferFlags::PRESERVE_DEFAULT_IGNORABLES)
     {
-        <span class="kw">if </span>!buffer.flags.contains(BufferFlags::REMOVE_DEFAULT_IGNORABLES) {
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(invisible) = buffer.invisible.or_else(|| face.glyph_index(u32::from(<span class="string">&#39; &#39;</span>))) {
+        <span class="kw">if </span>!buffer
+            .flags
+            .contains(BufferFlags::REMOVE_DEFAULT_IGNORABLES)
+        {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(invisible) = buffer
+                .invisible
+                .or_else(|| face.glyph_index(u32::from(<span class="string">&#39; &#39;</span>)))
+            {
                 <span class="kw">let </span>len = buffer.len;
                 <span class="kw">for </span>info <span class="kw">in </span><span class="kw-2">&amp;mut </span>buffer.info[..len] {
                     <span class="kw">if </span>info.is_default_ignorable() {
@@ -1057,7 +1148,10 @@
 <span class="kw">fn </span>propagate_flags(buffer: <span class="kw-2">&amp;mut </span>Buffer) {
     <span class="comment">// Propagate cluster-level glyph flags to be the same on all cluster glyphs.
     // Simplifies using them.
-    </span><span class="kw">if </span>buffer.scratch_flags.contains(BufferScratchFlags::HAS_UNSAFE_TO_BREAK) {
+    </span><span class="kw">if </span>buffer
+        .scratch_flags
+        .contains(BufferScratchFlags::HAS_UNSAFE_TO_BREAK)
+    {
         <span class="macro">foreach_cluster!</span>(buffer, start, end, {
             <span class="kw">for </span>info <span class="kw">in </span><span class="kw-2">&amp;</span>buffer.info[start..end] {
                 <span class="kw">if </span>info.mask &amp; glyph_flag::UNSAFE_TO_BREAK != <span class="number">0 </span>{

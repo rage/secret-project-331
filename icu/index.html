@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="`icu` is the main meta-crate of the `ICU4X` project."><title>icu - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="icu" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="logo-container" href="../icu/index.html"><img class="rust-logo" src="../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><h2></h2></nav><nav class="sidebar"><a class="logo-container" href="../icu/index.html"><img class="rust-logo" src="../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><h2 class="location"><a href="#">Crate icu</a></h2><div class="sidebar-elems"><ul class="block"><li class="version">Version 1.2.0</li><li><a id="all-types" href="all.html">All Items</a></li></ul><section><ul class="block"><li><a href="#modules">Modules</a></li></ul></section></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1>Crate <a class="mod" href="#">icu</a><button id="copy-path" title="Copy item path to clipboard"><img src="../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="src" href="../src/icu/lib.rs.html#5-185">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><code>icu</code> is the main meta-crate of the <code>ICU4X</code> project.</p>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="`icu` is the main meta-crate of the `ICU4X` project."><title>icu - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="icu" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="logo-container" href="../icu/index.html"><img class="rust-logo" src="../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><h2></h2></nav><nav class="sidebar"><a class="logo-container" href="../icu/index.html"><img class="rust-logo" src="../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><h2 class="location"><a href="#">Crate icu</a></h2><div class="sidebar-elems"><ul class="block"><li class="version">Version 1.3.2</li><li><a id="all-types" href="all.html">All Items</a></li></ul><section><ul class="block"><li><a href="#modules">Modules</a></li></ul></section></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1>Crate <a class="mod" href="#">icu</a><button id="copy-path" title="Copy item path to clipboard"><img src="../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="src" href="../src/icu/lib.rs.html#5-205">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><code>icu</code> is the main meta-crate of the <code>ICU4X</code> project.</p>
 <p>It provides a comprehensive selection of functionality found in
 <a href="http://icu.unicode.org/">International Components for Unicode</a>
 in their canonical configurations intended to enable software
@@ -10,76 +10,90 @@ it re-exports the relevant crates as modules.
 The exported crate corresponding to each module is also
 available in a stand-alone manner, i.e. <code>icu::list</code> as <code>icu_list</code>.</p>
 <h2 id="data-management"><a href="#data-management">Data Management</a></h2>
-<p>Most functionality relies on data which clients have to provide to the APIs.</p>
-<p><code>ICU4X</code> uses the concept of a <a href="../icu_provider/data_provider/trait.DataProvider.html" title="trait icu_provider::data_provider::DataProvider"><code>DataProvider</code></a> to separate data from logic.
-Data providers come in many different forms; the following providers are provided
-by <code>ICU4X</code> in separate crates:</p>
+<p>Most internationalization algorithms are data-driven based on surveys of locale experts.
+ICU4X offers multiple ways to manage locale data: many clients can start by using the
+extensive data compiled into the library, while users with additional requirements can
+provide data explicitly using <a href="../icu_provider/data_provider/trait.DataProvider.html" title="trait icu_provider::data_provider::DataProvider"><code>DataProvider</code></a>s.</p>
+<h3 id="compiled-data"><a href="#compiled-data">Compiled data</a></h3>
+<p>Compiled data is exposed through idiomatic Rust constructors like <code>new</code> or <code>try_new</code>:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>icu::datetime::DateTimeFormatter;
+<span class="kw">use </span>icu::locid::locale;
+
+<span class="kw">let </span>dtf = DateTimeFormatter::try_new(
+    <span class="kw-2">&amp;</span><span class="macro">locale!</span>(<span class="string">&quot;es-US&quot;</span>).into(),
+    Default::default(),
+)
+.expect(<span class="string">&quot;compiled data should include &#39;es-US&#39;&quot;</span>);</code></pre></div>
+<p>Clients using compiled data benefit from simple code and optimal zero-cost data loading. Additionally,
+ICU4X’s APIs are designed such that dead-code elimination can optimize away unused compiled data.</p>
+<p>By default, most of the data available in <a href="http://cldr.unicode.org/">CLDR</a> is included. Users can customize data by using
+the <code>icu4x-datagen</code> tool (with the <code>-⁠-format mod</code> flag) to, for example, select a smaller set of
+locales, and then compiling with the <code>ICU4X_DATA_DIR</code> variable.</p>
+<h3 id="explicit-data"><a href="#explicit-data">Explicit data</a></h3>
+<p>Powerful data management is possible with <a href="../icu_provider/data_provider/trait.DataProvider.html" title="trait icu_provider::data_provider::DataProvider"><code>DataProvider</code></a>s, which are passed to ICU4X APIs via
+special constructors:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>icu::datetime::DateTimeFormatter;
+<span class="kw">use </span>icu::locid::locale;
+<span class="kw">use </span>icu_provider_adapters::fallback::LocaleFallbackProvider;
+<span class="kw">use </span>icu_provider_blob::BlobDataProvider;
+
+<span class="kw">let </span>data: Box&lt;[u8]&gt; = <span class="macro">todo!</span>();
+
+<span class="kw">let </span>provider = BlobDataProvider::try_new_from_blob(data)
+    .expect(<span class="string">&quot;data should be valid&quot;</span>);
+
+<span class="kw">let </span>provider =
+    LocaleFallbackProvider::try_new_with_buffer_provider(provider)
+        .expect(<span class="string">&quot;provider should include fallback data&quot;</span>);
+
+<span class="kw">let </span>dtf = DateTimeFormatter::try_new_with_buffer_provider(
+    <span class="kw-2">&amp;</span>provider,
+    <span class="kw-2">&amp;</span><span class="macro">locale!</span>(<span class="string">&quot;es-US&quot;</span>).into(),
+    Default::default(),
+)
+.expect(<span class="string">&quot;data should include &#39;es-US&#39;, &#39;es&#39;, or &#39;und&#39;&quot;</span>);</code></pre></div>
+<p>Explicit data management can be used if the compiled-data constructors are too limiting. It allows:</p>
 <ul>
-<li><a href="https://docs.rs/icu_provider_blob/latest/icu_provider_blob/struct.BlobDataProvider.html"><code>BlobDataProvider</code></a>: uses an in-memory serde-serialized blob. This is the most flexible provider, and
-data can be updated at runtime.</li>
-<li><code>BakedDataProvider</code>: a code-generated provider that contains the data directly in Rust code. This is
-the most efficient provider as it’s serialization-free, and allows for compile-time optimizations.</li>
+<li>Accessing data without fallback</li>
+<li>Custom <a href="../icu_provider/data_provider/trait.DataProvider.html" title="trait icu_provider::data_provider::DataProvider"><code>DataProvider</code></a>s backed by sources like the operating system</li>
+<li>Lazily loading or updating data from I/O</li>
+<li>Composing data providers from different sources</li>
+<li>Manually including/excluding data</li>
+<li>… and more. See our <a href="https://github.com/unicode-org/icu4x/blob/main/docs/tutorials/data_provider.md#loading-additional-data-at-runtime">data management tutorial</a></li>
+</ul>
+<p>The following <a href="../icu_provider/data_provider/trait.DataProvider.html" title="trait icu_provider::data_provider::DataProvider"><code>DataProvider</code></a>s are available in separate crates:</p>
+<ul>
+<li><a href="https://docs.rs/icu_provider_blob/latest/icu_provider_blob/struct.BlobDataProvider.html"><code>BlobDataProvider</code></a>: deserializes data from an in-memory blob, which can be updated at runtime.</li>
+<li><code>BakedDataProvider</code>: a code-generated provider that contains the data directly in Rust code. This is the
+same provider that is used internally by compiled data.</li>
 <li><a href="https://docs.rs/icu_provider_fs/latest/icu_provider_fs/struct.FsDataProvider.html"><code>FsDataProvider</code></a>: uses a file system tree of Serde files. This is mostly useful for development and
 not recommended in production for performance reasons.</li>
-<li><a href="https://docs.rs/icu_provider_adapters/latest/icu_provider_adapters/"><code>icu_provider_adapters</code></a>: this crate contains APIs to combine providers or
-provide additional functionality such as locale fallback.</li>
+<li><a href="https://docs.rs/icu_provider_adapters/latest/icu_provider_adapters/"><code>icu_provider_adapters</code></a>: this crate contains provider adapters to combine providers,
+provide additional functionality such as locale fallback, and more.</li>
 </ul>
 <p>The data that is required by these providers (in <code>BakedDataProvider</code>’s case, the provider itself) can be
-generated and customized using the <a href="https://docs.rs/icu_datagen/latest/icu_datagen/"><code>icu_datagen</code></a> crate.</p>
-<p>The following example uses the <a href="https://docs.rs/icu_testdata/latest/icu_testdata/"><code>icu_testdata</code></a> crate, which contains prepackaged data providers
-for a small set of locales.</p>
-<h2 id="example"><a href="#example">Example</a></h2>
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>icu::calendar::DateTime;
-<span class="kw">use </span>icu::datetime::{options::length, DateTimeFormatter};
-<span class="kw">use </span>icu::locid::locale;
-<span class="kw">use </span>writeable::assert_writeable_eq;
-
-<span class="kw">let </span>options = length::Bag::from_date_time_style(
-    length::Date::Long,
-    length::Time::Medium,
-)
-.into();
-
-<span class="kw">let </span>dtf = DateTimeFormatter::try_new_unstable(
-    <span class="kw-2">&amp;</span>icu_testdata::unstable(),
-    <span class="kw-2">&amp;</span><span class="macro">locale!</span>(<span class="string">&quot;es&quot;</span>).into(),
-    options,
-)
-.expect(<span class="string">&quot;Failed to create DateTimeFormatter instance.&quot;</span>);
-
-<span class="kw">let </span>date = DateTime::try_new_iso_datetime(<span class="number">2020</span>, <span class="number">9</span>, <span class="number">12</span>, <span class="number">12</span>, <span class="number">35</span>, <span class="number">0</span>)
-    .expect(<span class="string">&quot;Failed to parse date.&quot;</span>);
-<span class="kw">let </span>date = date.to_any();
-
-<span class="kw">let </span>formatted_date = dtf.format(<span class="kw-2">&amp;</span>date).expect(<span class="string">&quot;Formatting failed&quot;</span>);
-<span class="macro">assert_writeable_eq!</span>(formatted_date, <span class="string">&quot;12 de septiembre de 2020, 12:35:00&quot;</span>);
-
-<span class="kw">let </span>formatted_date_string =
-    dtf.format_to_string(<span class="kw-2">&amp;</span>date).expect(<span class="string">&quot;Formatting failed&quot;</span>);
-<span class="macro">assert_eq!</span>(formatted_date_string, <span class="string">&quot;12 de septiembre de 2020, 12:35:00&quot;</span>);</code></pre></div>
+generated and customized using the <a href="https://docs.rs/icu_datagen/latest/icu_datagen/"><code>icu4x-datagen</code></a> tool.</p>
 <h2 id="features"><a href="#features">Features</a></h2>
 <p>ICU4X components share a set of common Cargo features that control whether core pieces of
 functionality are compiled. These features are:</p>
 <ul>
-<li><code>std</code>: Whether to include <code>std</code> support. Without this Cargo feature, <code>icu</code> is <code>#[no_std]</code>-compatible</li>
-<li><code>serde</code>: Whether to include <code>serde::Deserialize</code> implementations for data structs, such as <a href="decimal/provider/struct.DecimalSymbolsV1.html" title="struct icu::decimal::provider::DecimalSymbolsV1"><code>SymbolsV1</code></a>,
-and <code>serde::{Serialize, Deserialize}</code> implementations for core library types, such as <a href="locid/struct.Locale.html" title="struct icu::locid::Locale"><code>Locale</code></a>. These are
-required with <code>serde</code>-backed providers like <a href="https://docs.rs/icu_provider_blob/latest/icu_provider_blob/struct.BlobDataProvider.html"><code>BlobDataProvider</code></a><sup id="fnref1"><a href="#fn1">1</a></sup>.</li>
+<li><code>compiled_data</code> (default): Whether to include compiled data. Without this flag, only constructors with
+explicit <code>provider</code> arguments are available.</li>
+<li><code>std</code>: Whether to include <code>std</code> support. Without this Cargo feature, <code>icu</code> is <code>#[no_std]</code>-compatible.</li>
+<li><code>sync</code>: makes most ICU4X objects implement <code>Send + Sync</code>. Has a small performance impact when used with non-static data.</li>
+<li><code>logging</code>: Enables logging through the <code>log</code> crate.</li>
+<li><code>serde</code>: Activates <code>serde</code> implementations for core library types, such as <a href="locid/struct.Locale.html" title="struct icu::locid::Locale"><code>Locale</code></a>, as well
+as <code>*_with_buffer_provider</code> constructors for explicit data management.</li>
 <li><code>experimental</code>: Whether to enable experimental preview features. Modules enabled with
 this feature may not be production-ready and could change at any time.</li>
 </ul>
 <p>The following Cargo features are only available on the individual crates, but not on this meta-crate:</p>
 <ul>
-<li><code>datagen</code>: Whether to implement <code>serde::Serialize</code> and functionality that is only required during data generation.</li>
+<li><code>datagen</code>: Whether to implement functionality that is only required during data generation.</li>
 <li><code>bench</code>: Whether to enable exhaustive benchmarks. This can be enabled on individual crates
 when running <code>cargo bench</code>.</li>
 </ul>
-<p>There are additional features that, when enabled on specific crates, enable functionality across ICU4X:</p>
-<ul>
-<li><code>icu_provider/sync</code>: makes <a href="../icu_provider/response/struct.DataPayload.html" title="struct icu_provider::response::DataPayload"><code>DataPayload</code></a> implement <code>Send + Sync</code>, which in turn
-makes most ICU4X objects also implement <code>Send + Sync</code>.</li>
-<li><code>icu_provider/deserialize_*</code>: enables ICU4X buffer providers to read various different
-serialization formats. See <a href="../icu_provider/buf/trait.BufferProvider.html" title="trait icu_provider::buf::BufferProvider"><code>BufferProvider</code></a> for details.</li>
-</ul>
-<div class="footnotes"><hr><ol><li id="fn1"><p>If using blob data, you need to enable one of the deserialization Cargo features on the <code>icu_provider</code> crate, as noted above.&nbsp;<a href="#fnref1">↩</a></p></li></ol></div></div></details><h2 id="modules" class="small-section-header"><a href="#modules">Modules</a></h2><ul class="item-table"><li><div class="item-name"><a class="mod" href="calendar/index.html" title="mod icu::calendar">calendar</a></div><div class="desc docblock-short">Types for dealing with dates, times, and custom calendars.</div></li><li><div class="item-name"><a class="mod" href="collator/index.html" title="mod icu::collator">collator</a></div><div class="desc docblock-short">Comparing strings according to language-dependent conventions.</div></li><li><div class="item-name"><a class="mod" href="collections/index.html" title="mod icu::collections">collections</a></div><div class="desc docblock-short">Efficient collections for Unicode data.</div></li><li><div class="item-name"><a class="mod" href="datetime/index.html" title="mod icu::datetime">datetime</a></div><div class="desc docblock-short">Formatting date and time.</div></li><li><div class="item-name"><a class="mod" href="decimal/index.html" title="mod icu::decimal">decimal</a></div><div class="desc docblock-short">Formatting basic decimal numbers.</div></li><li><div class="item-name"><a class="mod" href="list/index.html" title="mod icu::list">list</a></div><div class="desc docblock-short">Formatting lists in a locale-sensitive way.</div></li><li><div class="item-name"><a class="mod" href="locid/index.html" title="mod icu::locid">locid</a></div><div class="desc docblock-short">Parsing, manipulating, and serializing Unicode Language and Locale Identifiers.</div></li><li><div class="item-name"><a class="mod" href="locid_transform/index.html" title="mod icu::locid_transform">locid_transform</a></div><div class="desc docblock-short">Canonicalization of locale identifiers based on <a href="http://cldr.unicode.org/"><code>CLDR</code></a> data.</div></li><li><div class="item-name"><a class="mod" href="normalizer/index.html" title="mod icu::normalizer">normalizer</a></div><div class="desc docblock-short">Normalizing text into Unicode Normalization Forms.</div></li><li><div class="item-name"><a class="mod" href="plurals/index.html" title="mod icu::plurals">plurals</a></div><div class="desc docblock-short">Determine the plural category appropriate for a given number in a given language.</div></li><li><div class="item-name"><a class="mod" href="properties/index.html" title="mod icu::properties">properties</a></div><div class="desc docblock-short">Definitions of <a href="https://unicode-org.github.io/icu/userguide/strings/properties.html">Unicode Properties</a> and APIs for
+</div></details><h2 id="modules" class="small-section-header"><a href="#modules">Modules</a></h2><ul class="item-table"><li><div class="item-name"><a class="mod" href="calendar/index.html" title="mod icu::calendar">calendar</a></div><div class="desc docblock-short">Types for dealing with dates, times, and custom calendars.</div></li><li><div class="item-name"><a class="mod" href="casemap/index.html" title="mod icu::casemap">casemap</a></div><div class="desc docblock-short">Case mapping for Unicode characters and strings.</div></li><li><div class="item-name"><a class="mod" href="collator/index.html" title="mod icu::collator">collator</a></div><div class="desc docblock-short">Comparing strings according to language-dependent conventions.</div></li><li><div class="item-name"><a class="mod" href="collections/index.html" title="mod icu::collections">collections</a></div><div class="desc docblock-short">Efficient collections for Unicode data.</div></li><li><div class="item-name"><a class="mod" href="datetime/index.html" title="mod icu::datetime">datetime</a></div><div class="desc docblock-short">Formatting date and time.</div></li><li><div class="item-name"><a class="mod" href="decimal/index.html" title="mod icu::decimal">decimal</a></div><div class="desc docblock-short">Formatting basic decimal numbers.</div></li><li><div class="item-name"><a class="mod" href="list/index.html" title="mod icu::list">list</a></div><div class="desc docblock-short">Formatting lists in a locale-sensitive way.</div></li><li><div class="item-name"><a class="mod" href="locid/index.html" title="mod icu::locid">locid</a></div><div class="desc docblock-short">Parsing, manipulating, and serializing Unicode Language and Locale Identifiers.</div></li><li><div class="item-name"><a class="mod" href="locid_transform/index.html" title="mod icu::locid_transform">locid_transform</a></div><div class="desc docblock-short">Canonicalization of locale identifiers based on <a href="http://cldr.unicode.org/"><code>CLDR</code></a> data.</div></li><li><div class="item-name"><a class="mod" href="normalizer/index.html" title="mod icu::normalizer">normalizer</a></div><div class="desc docblock-short">Normalizing text into Unicode Normalization Forms.</div></li><li><div class="item-name"><a class="mod" href="plurals/index.html" title="mod icu::plurals">plurals</a></div><div class="desc docblock-short">Determine the plural category appropriate for a given number in a given language.</div></li><li><div class="item-name"><a class="mod" href="properties/index.html" title="mod icu::properties">properties</a></div><div class="desc docblock-short">Definitions of <a href="https://unicode-org.github.io/icu/userguide/strings/properties.html">Unicode Properties</a> and APIs for
 retrieving property data in an appropriate data structure.</div></li><li><div class="item-name"><a class="mod" href="segmenter/index.html" title="mod icu::segmenter">segmenter</a></div><div class="desc docblock-short">Segment strings by lines, graphemes, words, and sentences.</div></li><li><div class="item-name"><a class="mod" href="timezone/index.html" title="mod icu::timezone">timezone</a></div><div class="desc docblock-short">Types for resolving and manipulating time zones.</div></li></ul></section></div></main></body></html>

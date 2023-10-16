@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.7.0/src/complex/universal_machine.rs`."><title>universal_machine.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../rustybuzz/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.10.0/src/complex/universal_machine.rs`."><title>universal_machine.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../rustybuzz/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -394,450 +394,129 @@
 <a href="#394" id="394">394</a>
 <a href="#395" id="395">395</a>
 <a href="#396" id="396">396</a>
-<a href="#397" id="397">397</a>
-<a href="#398" id="398">398</a>
-<a href="#399" id="399">399</a>
-<a href="#400" id="400">400</a>
-<a href="#401" id="401">401</a>
-<a href="#402" id="402">402</a>
-<a href="#403" id="403">403</a>
-<a href="#404" id="404">404</a>
-<a href="#405" id="405">405</a>
-<a href="#406" id="406">406</a>
-<a href="#407" id="407">407</a>
-<a href="#408" id="408">408</a>
-<a href="#409" id="409">409</a>
-<a href="#410" id="410">410</a>
-<a href="#411" id="411">411</a>
-<a href="#412" id="412">412</a>
-<a href="#413" id="413">413</a>
-<a href="#414" id="414">414</a>
-<a href="#415" id="415">415</a>
-<a href="#416" id="416">416</a>
-<a href="#417" id="417">417</a>
-<a href="#418" id="418">418</a>
-<a href="#419" id="419">419</a>
-<a href="#420" id="420">420</a>
-<a href="#421" id="421">421</a>
-<a href="#422" id="422">422</a>
-<a href="#423" id="423">423</a>
-<a href="#424" id="424">424</a>
-<a href="#425" id="425">425</a>
-<a href="#426" id="426">426</a>
-<a href="#427" id="427">427</a>
-<a href="#428" id="428">428</a>
-<a href="#429" id="429">429</a>
-<a href="#430" id="430">430</a>
-<a href="#431" id="431">431</a>
-<a href="#432" id="432">432</a>
-<a href="#433" id="433">433</a>
-<a href="#434" id="434">434</a>
-<a href="#435" id="435">435</a>
-<a href="#436" id="436">436</a>
-<a href="#437" id="437">437</a>
-<a href="#438" id="438">438</a>
-<a href="#439" id="439">439</a>
-<a href="#440" id="440">440</a>
-<a href="#441" id="441">441</a>
-<a href="#442" id="442">442</a>
-<a href="#443" id="443">443</a>
-<a href="#444" id="444">444</a>
-<a href="#445" id="445">445</a>
-<a href="#446" id="446">446</a>
-<a href="#447" id="447">447</a>
-<a href="#448" id="448">448</a>
-<a href="#449" id="449">449</a>
-<a href="#450" id="450">450</a>
-<a href="#451" id="451">451</a>
-<a href="#452" id="452">452</a>
-<a href="#453" id="453">453</a>
-<a href="#454" id="454">454</a>
-<a href="#455" id="455">455</a>
-<a href="#456" id="456">456</a>
-<a href="#457" id="457">457</a>
-<a href="#458" id="458">458</a>
-<a href="#459" id="459">459</a>
-<a href="#460" id="460">460</a>
-<a href="#461" id="461">461</a>
-<a href="#462" id="462">462</a>
-<a href="#463" id="463">463</a>
-<a href="#464" id="464">464</a>
-<a href="#465" id="465">465</a>
-<a href="#466" id="466">466</a>
-<a href="#467" id="467">467</a>
-<a href="#468" id="468">468</a>
-<a href="#469" id="469">469</a>
-<a href="#470" id="470">470</a>
-<a href="#471" id="471">471</a>
-<a href="#472" id="472">472</a>
-<a href="#473" id="473">473</a>
-<a href="#474" id="474">474</a>
-<a href="#475" id="475">475</a>
-<a href="#476" id="476">476</a>
-<a href="#477" id="477">477</a>
-<a href="#478" id="478">478</a>
-<a href="#479" id="479">479</a>
-<a href="#480" id="480">480</a>
-<a href="#481" id="481">481</a>
-<a href="#482" id="482">482</a>
-<a href="#483" id="483">483</a>
-<a href="#484" id="484">484</a>
-<a href="#485" id="485">485</a>
-<a href="#486" id="486">486</a>
-<a href="#487" id="487">487</a>
-<a href="#488" id="488">488</a>
-<a href="#489" id="489">489</a>
-<a href="#490" id="490">490</a>
-<a href="#491" id="491">491</a>
-<a href="#492" id="492">492</a>
-<a href="#493" id="493">493</a>
-<a href="#494" id="494">494</a>
-<a href="#495" id="495">495</a>
-<a href="#496" id="496">496</a>
-<a href="#497" id="497">497</a>
-<a href="#498" id="498">498</a>
-<a href="#499" id="499">499</a>
-<a href="#500" id="500">500</a>
-<a href="#501" id="501">501</a>
-<a href="#502" id="502">502</a>
-<a href="#503" id="503">503</a>
-<a href="#504" id="504">504</a>
-<a href="#505" id="505">505</a>
-<a href="#506" id="506">506</a>
-<a href="#507" id="507">507</a>
-<a href="#508" id="508">508</a>
-<a href="#509" id="509">509</a>
-<a href="#510" id="510">510</a>
-<a href="#511" id="511">511</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::buffer::Buffer;
+</pre></div><pre class="rust"><code><span class="comment">// This file is autogenerated. Do not edit it!
+//
+// See docs/ragel.md for details.
 
-<span class="kw">const </span>MACHINE_TRANS_KEYS: <span class="kw-2">&amp;</span>[u8] = <span class="kw-2">&amp;</span>[
-    <span class="number">12</span>, <span class="number">48</span>, <span class="number">1</span>, <span class="number">15</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">12</span>, <span class="number">48</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">48</span>, <span class="number">21</span>, <span class="number">21</span>, <span class="number">11</span>, <span class="number">48</span>,
-    <span class="number">11</span>, <span class="number">48</span>, <span class="number">1</span>, <span class="number">15</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">11</span>, <span class="number">48</span>, <span class="number">22</span>, <span class="number">48</span>, <span class="number">23</span>, <span class="number">48</span>, <span class="number">24</span>, <span class="number">47</span>, <span class="number">25</span>, <span class="number">47</span>,
-    <span class="number">26</span>, <span class="number">47</span>, <span class="number">45</span>, <span class="number">46</span>, <span class="number">46</span>, <span class="number">46</span>, <span class="number">24</span>, <span class="number">48</span>, <span class="number">24</span>, <span class="number">48</span>, <span class="number">24</span>, <span class="number">48</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">24</span>, <span class="number">48</span>,
-    <span class="number">23</span>, <span class="number">48</span>, <span class="number">23</span>, <span class="number">48</span>, <span class="number">23</span>, <span class="number">48</span>, <span class="number">22</span>, <span class="number">48</span>, <span class="number">22</span>, <span class="number">48</span>, <span class="number">22</span>, <span class="number">48</span>, <span class="number">22</span>, <span class="number">48</span>, <span class="number">11</span>, <span class="number">48</span>,
-    <span class="number">1</span>, <span class="number">48</span>, <span class="number">11</span>, <span class="number">48</span>, <span class="number">13</span>, <span class="number">21</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">13</span>, <span class="number">13</span>, <span class="number">11</span>, <span class="number">48</span>, <span class="number">11</span>, <span class="number">48</span>, <span class="number">41</span>, <span class="number">42</span>,
-    <span class="number">42</span>, <span class="number">42</span>, <span class="number">11</span>, <span class="number">48</span>, <span class="number">11</span>, <span class="number">48</span>, <span class="number">22</span>, <span class="number">48</span>, <span class="number">23</span>, <span class="number">48</span>, <span class="number">24</span>, <span class="number">47</span>, <span class="number">25</span>, <span class="number">47</span>, <span class="number">26</span>, <span class="number">47</span>,
-    <span class="number">45</span>, <span class="number">46</span>, <span class="number">46</span>, <span class="number">46</span>, <span class="number">24</span>, <span class="number">48</span>, <span class="number">24</span>, <span class="number">48</span>, <span class="number">24</span>, <span class="number">48</span>, <span class="number">24</span>, <span class="number">48</span>, <span class="number">23</span>, <span class="number">48</span>, <span class="number">23</span>, <span class="number">48</span>,
-    <span class="number">23</span>, <span class="number">48</span>, <span class="number">22</span>, <span class="number">48</span>, <span class="number">22</span>, <span class="number">48</span>, <span class="number">22</span>, <span class="number">48</span>, <span class="number">22</span>, <span class="number">48</span>, <span class="number">11</span>, <span class="number">48</span>, <span class="number">1</span>, <span class="number">48</span>, <span class="number">1</span>, <span class="number">15</span>,
-    <span class="number">4</span>, <span class="number">4</span>, <span class="number">13</span>, <span class="number">21</span>, <span class="number">13</span>, <span class="number">13</span>, <span class="number">12</span>, <span class="number">48</span>, <span class="number">1</span>, <span class="number">48</span>, <span class="number">11</span>, <span class="number">48</span>, <span class="number">41</span>, <span class="number">42</span>, <span class="number">42</span>, <span class="number">42</span>,
-    <span class="number">21</span>, <span class="number">42</span>, <span class="number">1</span>, <span class="number">5</span>, <span class="number">0
-</span>];
+</span><span class="attr">#![allow(
+    dead_code,
+    non_upper_case_globals,
+    unused_assignments,
+    unused_parens,
+    while_true,
+    clippy::assign_op_pattern,
+    clippy::collapsible_if,
+    clippy::comparison_chain,
+    clippy::double_parens,
+    clippy::unnecessary_cast,
+    clippy::single_match,
+    clippy::never_loop
+)]
 
-<span class="kw">const </span>MACHINE_KEY_SPANS: <span class="kw-2">&amp;</span>[u8] = <span class="kw-2">&amp;</span>[
-    <span class="number">37</span>, <span class="number">15</span>, <span class="number">1</span>, <span class="number">37</span>, <span class="number">1</span>, <span class="number">49</span>, <span class="number">1</span>, <span class="number">38</span>,
-    <span class="number">38</span>, <span class="number">15</span>, <span class="number">1</span>, <span class="number">38</span>, <span class="number">27</span>, <span class="number">26</span>, <span class="number">24</span>, <span class="number">23</span>,
-    <span class="number">22</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">25</span>, <span class="number">25</span>, <span class="number">25</span>, <span class="number">1</span>, <span class="number">25</span>,
-    <span class="number">26</span>, <span class="number">26</span>, <span class="number">26</span>, <span class="number">27</span>, <span class="number">27</span>, <span class="number">27</span>, <span class="number">27</span>, <span class="number">38</span>,
-    <span class="number">48</span>, <span class="number">38</span>, <span class="number">9</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">2</span>,
-    <span class="number">1</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">27</span>, <span class="number">26</span>, <span class="number">24</span>, <span class="number">23</span>, <span class="number">22</span>,
-    <span class="number">2</span>, <span class="number">1</span>, <span class="number">25</span>, <span class="number">25</span>, <span class="number">25</span>, <span class="number">25</span>, <span class="number">26</span>, <span class="number">26</span>,
-    <span class="number">26</span>, <span class="number">27</span>, <span class="number">27</span>, <span class="number">27</span>, <span class="number">27</span>, <span class="number">38</span>, <span class="number">48</span>, <span class="number">15</span>,
-    <span class="number">1</span>, <span class="number">9</span>, <span class="number">1</span>, <span class="number">37</span>, <span class="number">48</span>, <span class="number">38</span>, <span class="number">2</span>, <span class="number">1</span>,
-    <span class="number">22</span>, <span class="number">5
-</span>];
+</span><span class="kw">use </span><span class="kw">crate</span>::buffer::Buffer;
+<span class="kw">use </span><span class="kw">crate</span>::complex::machine_cursor::MachineCursor;
+<span class="kw">use </span><span class="kw">crate</span>::complex::universal::category;
+<span class="kw">use </span><span class="kw">crate</span>::GlyphInfo;
+<span class="kw">use </span>core::cell::Cell;
 
-<span class="kw">const </span>MACHINE_INDEX_OFFSETS: <span class="kw-2">&amp;</span>[u16] = <span class="kw-2">&amp;</span>[
-    <span class="number">0</span>, <span class="number">38</span>, <span class="number">54</span>, <span class="number">56</span>, <span class="number">94</span>, <span class="number">96</span>, <span class="number">146</span>, <span class="number">148</span>,
-    <span class="number">187</span>, <span class="number">226</span>, <span class="number">242</span>, <span class="number">244</span>, <span class="number">283</span>, <span class="number">311</span>, <span class="number">338</span>, <span class="number">363</span>,
-    <span class="number">387</span>, <span class="number">410</span>, <span class="number">413</span>, <span class="number">415</span>, <span class="number">441</span>, <span class="number">467</span>, <span class="number">493</span>, <span class="number">495</span>,
-    <span class="number">521</span>, <span class="number">548</span>, <span class="number">575</span>, <span class="number">602</span>, <span class="number">630</span>, <span class="number">658</span>, <span class="number">686</span>, <span class="number">714</span>,
-    <span class="number">753</span>, <span class="number">802</span>, <span class="number">841</span>, <span class="number">851</span>, <span class="number">853</span>, <span class="number">855</span>, <span class="number">894</span>, <span class="number">933</span>,
-    <span class="number">936</span>, <span class="number">938</span>, <span class="number">977</span>, <span class="number">1016</span>, <span class="number">1044</span>, <span class="number">1071</span>, <span class="number">1096</span>, <span class="number">1120</span>,
-    <span class="number">1143</span>, <span class="number">1146</span>, <span class="number">1148</span>, <span class="number">1174</span>, <span class="number">1200</span>, <span class="number">1226</span>, <span class="number">1252</span>, <span class="number">1279</span>,
-    <span class="number">1306</span>, <span class="number">1333</span>, <span class="number">1361</span>, <span class="number">1389</span>, <span class="number">1417</span>, <span class="number">1445</span>, <span class="number">1484</span>, <span class="number">1533</span>,
-    <span class="number">1549</span>, <span class="number">1551</span>, <span class="number">1561</span>, <span class="number">1563</span>, <span class="number">1601</span>, <span class="number">1650</span>, <span class="number">1689</span>, <span class="number">1692</span>,
-    <span class="number">1694</span>, <span class="number">1717
-</span>];
-
-<span class="kw">const </span>MACHINE_INDICIES: <span class="kw-2">&amp;</span>[u8] = <span class="kw-2">&amp;</span>[
-    <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">3</span>, <span class="number">2</span>,
-    <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>,
-    <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">2</span>,
-    <span class="number">6</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">5</span>,
-    <span class="number">5</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">5</span>,
-    <span class="number">5</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">5</span>,
-    <span class="number">5</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">5</span>,
-    <span class="number">6</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">5</span>,
-    <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>, <span class="number">8</span>, <span class="number">11</span>, <span class="number">12</span>, <span class="number">10</span>, <span class="number">10</span>,
-    <span class="number">10</span>, <span class="number">10</span>, <span class="number">10</span>, <span class="number">3</span>, <span class="number">13</span>, <span class="number">14</span>, <span class="number">10</span>, <span class="number">15</span>,
-    <span class="number">8</span>, <span class="number">8</span>, <span class="number">16</span>, <span class="number">17</span>, <span class="number">10</span>, <span class="number">10</span>, <span class="number">18</span>, <span class="number">19</span>,
-    <span class="number">20</span>, <span class="number">21</span>, <span class="number">22</span>, <span class="number">23</span>, <span class="number">24</span>, <span class="number">18</span>, <span class="number">25</span>, <span class="number">26</span>,
-    <span class="number">27</span>, <span class="number">28</span>, <span class="number">29</span>, <span class="number">30</span>, <span class="number">10</span>, <span class="number">31</span>, <span class="number">32</span>, <span class="number">33</span>,
-    <span class="number">10</span>, <span class="number">34</span>, <span class="number">35</span>, <span class="number">36</span>, <span class="number">37</span>, <span class="number">38</span>, <span class="number">39</span>, <span class="number">40</span>,
-    <span class="number">13</span>, <span class="number">10</span>, <span class="number">42</span>, <span class="number">41</span>, <span class="number">44</span>, <span class="number">1</span>, <span class="number">43</span>, <span class="number">43</span>,
-    <span class="number">45</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">46</span>, <span class="number">47</span>,
-    <span class="number">48</span>, <span class="number">49</span>, <span class="number">50</span>, <span class="number">51</span>, <span class="number">52</span>, <span class="number">53</span>, <span class="number">47</span>, <span class="number">54</span>,
-    <span class="number">46</span>, <span class="number">55</span>, <span class="number">56</span>, <span class="number">57</span>, <span class="number">58</span>, <span class="number">43</span>, <span class="number">59</span>, <span class="number">60</span>,
-    <span class="number">61</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">62</span>, <span class="number">63</span>, <span class="number">64</span>,
-    <span class="number">65</span>, <span class="number">1</span>, <span class="number">43</span>, <span class="number">44</span>, <span class="number">1</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">45</span>,
-    <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">66</span>, <span class="number">47</span>, <span class="number">48</span>,
-    <span class="number">49</span>, <span class="number">50</span>, <span class="number">51</span>, <span class="number">52</span>, <span class="number">53</span>, <span class="number">47</span>, <span class="number">54</span>, <span class="number">55</span>,
-    <span class="number">55</span>, <span class="number">56</span>, <span class="number">57</span>, <span class="number">58</span>, <span class="number">43</span>, <span class="number">59</span>, <span class="number">60</span>, <span class="number">61</span>,
-    <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">62</span>, <span class="number">63</span>, <span class="number">64</span>, <span class="number">65</span>,
-    <span class="number">1</span>, <span class="number">43</span>, <span class="number">44</span>, <span class="number">67</span>, <span class="number">67</span>, <span class="number">67</span>, <span class="number">67</span>, <span class="number">67</span>,
-    <span class="number">67</span>, <span class="number">67</span>, <span class="number">67</span>, <span class="number">67</span>, <span class="number">67</span>, <span class="number">67</span>, <span class="number">67</span>, <span class="number">67</span>,
-    <span class="number">68</span>, <span class="number">67</span>, <span class="number">44</span>, <span class="number">67</span>, <span class="number">44</span>, <span class="number">1</span>, <span class="number">43</span>, <span class="number">43</span>,
-    <span class="number">45</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">47</span>,
-    <span class="number">48</span>, <span class="number">49</span>, <span class="number">50</span>, <span class="number">51</span>, <span class="number">52</span>, <span class="number">53</span>, <span class="number">47</span>, <span class="number">54</span>,
-    <span class="number">55</span>, <span class="number">55</span>, <span class="number">56</span>, <span class="number">57</span>, <span class="number">58</span>, <span class="number">43</span>, <span class="number">59</span>, <span class="number">60</span>,
-    <span class="number">61</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">62</span>, <span class="number">63</span>, <span class="number">64</span>,
-    <span class="number">65</span>, <span class="number">1</span>, <span class="number">43</span>, <span class="number">47</span>, <span class="number">48</span>, <span class="number">49</span>, <span class="number">50</span>, <span class="number">51</span>,
-    <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">56</span>, <span class="number">57</span>,
-    <span class="number">58</span>, <span class="number">43</span>, <span class="number">59</span>, <span class="number">60</span>, <span class="number">61</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>,
-    <span class="number">43</span>, <span class="number">48</span>, <span class="number">63</span>, <span class="number">64</span>, <span class="number">65</span>, <span class="number">69</span>, <span class="number">43</span>, <span class="number">48</span>,
-    <span class="number">49</span>, <span class="number">50</span>, <span class="number">51</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>,
-    <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">59</span>, <span class="number">60</span>, <span class="number">61</span>,
-    <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">63</span>, <span class="number">64</span>, <span class="number">65</span>,
-    <span class="number">69</span>, <span class="number">43</span>, <span class="number">49</span>, <span class="number">50</span>, <span class="number">51</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>,
-    <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>,
-    <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">63</span>,
-    <span class="number">64</span>, <span class="number">65</span>, <span class="number">43</span>, <span class="number">50</span>, <span class="number">51</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>,
-    <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>,
-    <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">63</span>,
-    <span class="number">64</span>, <span class="number">65</span>, <span class="number">43</span>, <span class="number">51</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>,
-    <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>,
-    <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">63</span>, <span class="number">64</span>,
-    <span class="number">65</span>, <span class="number">43</span>, <span class="number">63</span>, <span class="number">64</span>, <span class="number">43</span>, <span class="number">64</span>, <span class="number">43</span>, <span class="number">49</span>,
-    <span class="number">50</span>, <span class="number">51</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>,
-    <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">59</span>, <span class="number">60</span>, <span class="number">61</span>, <span class="number">43</span>,
-    <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">63</span>, <span class="number">64</span>, <span class="number">65</span>, <span class="number">69</span>,
-    <span class="number">43</span>, <span class="number">49</span>, <span class="number">50</span>, <span class="number">51</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>,
-    <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">60</span>,
-    <span class="number">61</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">63</span>, <span class="number">64</span>,
-    <span class="number">65</span>, <span class="number">69</span>, <span class="number">43</span>, <span class="number">49</span>, <span class="number">50</span>, <span class="number">51</span>, <span class="number">43</span>, <span class="number">43</span>,
-    <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>,
-    <span class="number">43</span>, <span class="number">43</span>, <span class="number">61</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>,
-    <span class="number">63</span>, <span class="number">64</span>, <span class="number">65</span>, <span class="number">69</span>, <span class="number">43</span>, <span class="number">71</span>, <span class="number">70</span>, <span class="number">49</span>,
-    <span class="number">50</span>, <span class="number">51</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>,
-    <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>,
-    <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">63</span>, <span class="number">64</span>, <span class="number">65</span>, <span class="number">69</span>,
-    <span class="number">43</span>, <span class="number">48</span>, <span class="number">49</span>, <span class="number">50</span>, <span class="number">51</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>,
-    <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">56</span>, <span class="number">57</span>, <span class="number">58</span>, <span class="number">43</span>, <span class="number">59</span>,
-    <span class="number">60</span>, <span class="number">61</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">48</span>, <span class="number">63</span>,
-    <span class="number">64</span>, <span class="number">65</span>, <span class="number">69</span>, <span class="number">43</span>, <span class="number">48</span>, <span class="number">49</span>, <span class="number">50</span>, <span class="number">51</span>,
-    <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">57</span>,
-    <span class="number">58</span>, <span class="number">43</span>, <span class="number">59</span>, <span class="number">60</span>, <span class="number">61</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>,
-    <span class="number">43</span>, <span class="number">48</span>, <span class="number">63</span>, <span class="number">64</span>, <span class="number">65</span>, <span class="number">69</span>, <span class="number">43</span>, <span class="number">48</span>,
-    <span class="number">49</span>, <span class="number">50</span>, <span class="number">51</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>,
-    <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">58</span>, <span class="number">43</span>, <span class="number">59</span>, <span class="number">60</span>, <span class="number">61</span>,
-    <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">48</span>, <span class="number">63</span>, <span class="number">64</span>, <span class="number">65</span>,
-    <span class="number">69</span>, <span class="number">43</span>, <span class="number">47</span>, <span class="number">48</span>, <span class="number">49</span>, <span class="number">50</span>, <span class="number">51</span>, <span class="number">43</span>,
-    <span class="number">53</span>, <span class="number">47</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">56</span>, <span class="number">57</span>, <span class="number">58</span>,
-    <span class="number">43</span>, <span class="number">59</span>, <span class="number">60</span>, <span class="number">61</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>,
-    <span class="number">48</span>, <span class="number">63</span>, <span class="number">64</span>, <span class="number">65</span>, <span class="number">69</span>, <span class="number">43</span>, <span class="number">47</span>, <span class="number">48</span>,
-    <span class="number">49</span>, <span class="number">50</span>, <span class="number">51</span>, <span class="number">43</span>, <span class="number">72</span>, <span class="number">47</span>, <span class="number">43</span>, <span class="number">43</span>,
-    <span class="number">43</span>, <span class="number">56</span>, <span class="number">57</span>, <span class="number">58</span>, <span class="number">43</span>, <span class="number">59</span>, <span class="number">60</span>, <span class="number">61</span>,
-    <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">48</span>, <span class="number">63</span>, <span class="number">64</span>, <span class="number">65</span>,
-    <span class="number">69</span>, <span class="number">43</span>, <span class="number">47</span>, <span class="number">48</span>, <span class="number">49</span>, <span class="number">50</span>, <span class="number">51</span>, <span class="number">43</span>,
-    <span class="number">43</span>, <span class="number">47</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">56</span>, <span class="number">57</span>, <span class="number">58</span>,
-    <span class="number">43</span>, <span class="number">59</span>, <span class="number">60</span>, <span class="number">61</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>,
-    <span class="number">48</span>, <span class="number">63</span>, <span class="number">64</span>, <span class="number">65</span>, <span class="number">69</span>, <span class="number">43</span>, <span class="number">47</span>, <span class="number">48</span>,
-    <span class="number">49</span>, <span class="number">50</span>, <span class="number">51</span>, <span class="number">52</span>, <span class="number">53</span>, <span class="number">47</span>, <span class="number">43</span>, <span class="number">43</span>,
-    <span class="number">43</span>, <span class="number">56</span>, <span class="number">57</span>, <span class="number">58</span>, <span class="number">43</span>, <span class="number">59</span>, <span class="number">60</span>, <span class="number">61</span>,
-    <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">48</span>, <span class="number">63</span>, <span class="number">64</span>, <span class="number">65</span>,
-    <span class="number">69</span>, <span class="number">43</span>, <span class="number">44</span>, <span class="number">1</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">45</span>, <span class="number">43</span>,
-    <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">47</span>, <span class="number">48</span>, <span class="number">49</span>,
-    <span class="number">50</span>, <span class="number">51</span>, <span class="number">52</span>, <span class="number">53</span>, <span class="number">47</span>, <span class="number">54</span>, <span class="number">43</span>, <span class="number">55</span>,
-    <span class="number">56</span>, <span class="number">57</span>, <span class="number">58</span>, <span class="number">43</span>, <span class="number">59</span>, <span class="number">60</span>, <span class="number">61</span>, <span class="number">43</span>,
-    <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">62</span>, <span class="number">63</span>, <span class="number">64</span>, <span class="number">65</span>, <span class="number">1</span>,
-    <span class="number">43</span>, <span class="number">44</span>, <span class="number">67</span>, <span class="number">67</span>, <span class="number">67</span>, <span class="number">67</span>, <span class="number">67</span>, <span class="number">67</span>,
-    <span class="number">67</span>, <span class="number">67</span>, <span class="number">67</span>, <span class="number">67</span>, <span class="number">67</span>, <span class="number">67</span>, <span class="number">67</span>, <span class="number">68</span>,
-    <span class="number">67</span>, <span class="number">67</span>, <span class="number">67</span>, <span class="number">67</span>, <span class="number">67</span>, <span class="number">67</span>, <span class="number">67</span>, <span class="number">48</span>,
-    <span class="number">49</span>, <span class="number">50</span>, <span class="number">51</span>, <span class="number">67</span>, <span class="number">67</span>, <span class="number">67</span>, <span class="number">67</span>, <span class="number">67</span>,
-    <span class="number">67</span>, <span class="number">67</span>, <span class="number">67</span>, <span class="number">67</span>, <span class="number">67</span>, <span class="number">59</span>, <span class="number">60</span>, <span class="number">61</span>,
-    <span class="number">67</span>, <span class="number">67</span>, <span class="number">67</span>, <span class="number">67</span>, <span class="number">67</span>, <span class="number">63</span>, <span class="number">64</span>, <span class="number">65</span>,
-    <span class="number">69</span>, <span class="number">67</span>, <span class="number">44</span>, <span class="number">1</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">45</span>, <span class="number">43</span>,
-    <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">47</span>, <span class="number">48</span>, <span class="number">49</span>,
-    <span class="number">50</span>, <span class="number">51</span>, <span class="number">52</span>, <span class="number">53</span>, <span class="number">47</span>, <span class="number">54</span>, <span class="number">46</span>, <span class="number">55</span>,
-    <span class="number">56</span>, <span class="number">57</span>, <span class="number">58</span>, <span class="number">43</span>, <span class="number">59</span>, <span class="number">60</span>, <span class="number">61</span>, <span class="number">43</span>,
-    <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">62</span>, <span class="number">63</span>, <span class="number">64</span>, <span class="number">65</span>, <span class="number">1</span>,
-    <span class="number">43</span>, <span class="number">74</span>, <span class="number">73</span>, <span class="number">73</span>, <span class="number">73</span>, <span class="number">73</span>, <span class="number">73</span>, <span class="number">73</span>,
-    <span class="number">73</span>, <span class="number">75</span>, <span class="number">73</span>, <span class="number">11</span>, <span class="number">76</span>, <span class="number">74</span>, <span class="number">73</span>, <span class="number">44</span>,
-    <span class="number">1</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">45</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>,
-    <span class="number">43</span>, <span class="number">77</span>, <span class="number">47</span>, <span class="number">48</span>, <span class="number">49</span>, <span class="number">50</span>, <span class="number">51</span>, <span class="number">52</span>,
-    <span class="number">53</span>, <span class="number">47</span>, <span class="number">54</span>, <span class="number">46</span>, <span class="number">55</span>, <span class="number">56</span>, <span class="number">57</span>, <span class="number">58</span>,
-    <span class="number">43</span>, <span class="number">59</span>, <span class="number">60</span>, <span class="number">61</span>, <span class="number">43</span>, <span class="number">78</span>, <span class="number">79</span>, <span class="number">43</span>,
-    <span class="number">62</span>, <span class="number">63</span>, <span class="number">64</span>, <span class="number">65</span>, <span class="number">1</span>, <span class="number">43</span>, <span class="number">44</span>, <span class="number">1</span>,
-    <span class="number">43</span>, <span class="number">43</span>, <span class="number">45</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>, <span class="number">43</span>,
-    <span class="number">43</span>, <span class="number">47</span>, <span class="number">48</span>, <span class="number">49</span>, <span class="number">50</span>, <span class="number">51</span>, <span class="number">52</span>, <span class="number">53</span>,
-    <span class="number">47</span>, <span class="number">54</span>, <span class="number">46</span>, <span class="number">55</span>, <span class="number">56</span>, <span class="number">57</span>, <span class="number">58</span>, <span class="number">43</span>,
-    <span class="number">59</span>, <span class="number">60</span>, <span class="number">61</span>, <span class="number">43</span>, <span class="number">78</span>, <span class="number">79</span>, <span class="number">43</span>, <span class="number">62</span>,
-    <span class="number">63</span>, <span class="number">64</span>, <span class="number">65</span>, <span class="number">1</span>, <span class="number">43</span>, <span class="number">78</span>, <span class="number">79</span>, <span class="number">80</span>,
-    <span class="number">79</span>, <span class="number">80</span>, <span class="number">3</span>, <span class="number">6</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">82</span>, <span class="number">81</span>,
-    <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">83</span>, <span class="number">18</span>, <span class="number">19</span>, <span class="number">20</span>,
-    <span class="number">21</span>, <span class="number">22</span>, <span class="number">23</span>, <span class="number">24</span>, <span class="number">18</span>, <span class="number">25</span>, <span class="number">27</span>, <span class="number">27</span>,
-    <span class="number">28</span>, <span class="number">29</span>, <span class="number">30</span>, <span class="number">81</span>, <span class="number">31</span>, <span class="number">32</span>, <span class="number">33</span>, <span class="number">81</span>,
-    <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">37</span>, <span class="number">38</span>, <span class="number">39</span>, <span class="number">40</span>, <span class="number">6</span>,
-    <span class="number">81</span>, <span class="number">3</span>, <span class="number">6</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">82</span>, <span class="number">81</span>, <span class="number">81</span>,
-    <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">18</span>, <span class="number">19</span>, <span class="number">20</span>, <span class="number">21</span>,
-    <span class="number">22</span>, <span class="number">23</span>, <span class="number">24</span>, <span class="number">18</span>, <span class="number">25</span>, <span class="number">27</span>, <span class="number">27</span>, <span class="number">28</span>,
-    <span class="number">29</span>, <span class="number">30</span>, <span class="number">81</span>, <span class="number">31</span>, <span class="number">32</span>, <span class="number">33</span>, <span class="number">81</span>, <span class="number">81</span>,
-    <span class="number">81</span>, <span class="number">81</span>, <span class="number">37</span>, <span class="number">38</span>, <span class="number">39</span>, <span class="number">40</span>, <span class="number">6</span>, <span class="number">81</span>,
-    <span class="number">18</span>, <span class="number">19</span>, <span class="number">20</span>, <span class="number">21</span>, <span class="number">22</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>,
-    <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">28</span>, <span class="number">29</span>, <span class="number">30</span>, <span class="number">81</span>, <span class="number">31</span>,
-    <span class="number">32</span>, <span class="number">33</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">19</span>, <span class="number">38</span>,
-    <span class="number">39</span>, <span class="number">40</span>, <span class="number">84</span>, <span class="number">81</span>, <span class="number">19</span>, <span class="number">20</span>, <span class="number">21</span>, <span class="number">22</span>,
-    <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>,
-    <span class="number">81</span>, <span class="number">81</span>, <span class="number">31</span>, <span class="number">32</span>, <span class="number">33</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>,
-    <span class="number">81</span>, <span class="number">81</span>, <span class="number">38</span>, <span class="number">39</span>, <span class="number">40</span>, <span class="number">84</span>, <span class="number">81</span>, <span class="number">20</span>,
-    <span class="number">21</span>, <span class="number">22</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>,
-    <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>,
-    <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">38</span>, <span class="number">39</span>, <span class="number">40</span>, <span class="number">81</span>,
-    <span class="number">21</span>, <span class="number">22</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>,
-    <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>,
-    <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">38</span>, <span class="number">39</span>, <span class="number">40</span>, <span class="number">81</span>,
-    <span class="number">22</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>,
-    <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>,
-    <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">38</span>, <span class="number">39</span>, <span class="number">40</span>, <span class="number">81</span>, <span class="number">38</span>,
-    <span class="number">39</span>, <span class="number">81</span>, <span class="number">39</span>, <span class="number">81</span>, <span class="number">20</span>, <span class="number">21</span>, <span class="number">22</span>, <span class="number">81</span>,
-    <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>,
-    <span class="number">81</span>, <span class="number">31</span>, <span class="number">32</span>, <span class="number">33</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>,
-    <span class="number">81</span>, <span class="number">38</span>, <span class="number">39</span>, <span class="number">40</span>, <span class="number">84</span>, <span class="number">81</span>, <span class="number">20</span>, <span class="number">21</span>,
-    <span class="number">22</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>,
-    <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">32</span>, <span class="number">33</span>, <span class="number">81</span>, <span class="number">81</span>,
-    <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">38</span>, <span class="number">39</span>, <span class="number">40</span>, <span class="number">84</span>, <span class="number">81</span>,
-    <span class="number">20</span>, <span class="number">21</span>, <span class="number">22</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>,
-    <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">33</span>,
-    <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">38</span>, <span class="number">39</span>, <span class="number">40</span>,
-    <span class="number">84</span>, <span class="number">81</span>, <span class="number">20</span>, <span class="number">21</span>, <span class="number">22</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>,
-    <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>,
-    <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">38</span>,
-    <span class="number">39</span>, <span class="number">40</span>, <span class="number">84</span>, <span class="number">81</span>, <span class="number">19</span>, <span class="number">20</span>, <span class="number">21</span>, <span class="number">22</span>,
-    <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">28</span>, <span class="number">29</span>,
-    <span class="number">30</span>, <span class="number">81</span>, <span class="number">31</span>, <span class="number">32</span>, <span class="number">33</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>,
-    <span class="number">81</span>, <span class="number">19</span>, <span class="number">38</span>, <span class="number">39</span>, <span class="number">40</span>, <span class="number">84</span>, <span class="number">81</span>, <span class="number">19</span>,
-    <span class="number">20</span>, <span class="number">21</span>, <span class="number">22</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>,
-    <span class="number">81</span>, <span class="number">81</span>, <span class="number">29</span>, <span class="number">30</span>, <span class="number">81</span>, <span class="number">31</span>, <span class="number">32</span>, <span class="number">33</span>,
-    <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">19</span>, <span class="number">38</span>, <span class="number">39</span>, <span class="number">40</span>,
-    <span class="number">84</span>, <span class="number">81</span>, <span class="number">19</span>, <span class="number">20</span>, <span class="number">21</span>, <span class="number">22</span>, <span class="number">81</span>, <span class="number">81</span>,
-    <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">30</span>, <span class="number">81</span>,
-    <span class="number">31</span>, <span class="number">32</span>, <span class="number">33</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">19</span>,
-    <span class="number">38</span>, <span class="number">39</span>, <span class="number">40</span>, <span class="number">84</span>, <span class="number">81</span>, <span class="number">18</span>, <span class="number">19</span>, <span class="number">20</span>,
-    <span class="number">21</span>, <span class="number">22</span>, <span class="number">81</span>, <span class="number">24</span>, <span class="number">18</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>,
-    <span class="number">28</span>, <span class="number">29</span>, <span class="number">30</span>, <span class="number">81</span>, <span class="number">31</span>, <span class="number">32</span>, <span class="number">33</span>, <span class="number">81</span>,
-    <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">19</span>, <span class="number">38</span>, <span class="number">39</span>, <span class="number">40</span>, <span class="number">84</span>,
-    <span class="number">81</span>, <span class="number">18</span>, <span class="number">19</span>, <span class="number">20</span>, <span class="number">21</span>, <span class="number">22</span>, <span class="number">81</span>, <span class="number">85</span>,
-    <span class="number">18</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">28</span>, <span class="number">29</span>, <span class="number">30</span>, <span class="number">81</span>,
-    <span class="number">31</span>, <span class="number">32</span>, <span class="number">33</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">19</span>,
-    <span class="number">38</span>, <span class="number">39</span>, <span class="number">40</span>, <span class="number">84</span>, <span class="number">81</span>, <span class="number">18</span>, <span class="number">19</span>, <span class="number">20</span>,
-    <span class="number">21</span>, <span class="number">22</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">18</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>,
-    <span class="number">28</span>, <span class="number">29</span>, <span class="number">30</span>, <span class="number">81</span>, <span class="number">31</span>, <span class="number">32</span>, <span class="number">33</span>, <span class="number">81</span>,
-    <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">19</span>, <span class="number">38</span>, <span class="number">39</span>, <span class="number">40</span>, <span class="number">84</span>,
-    <span class="number">81</span>, <span class="number">18</span>, <span class="number">19</span>, <span class="number">20</span>, <span class="number">21</span>, <span class="number">22</span>, <span class="number">23</span>, <span class="number">24</span>,
-    <span class="number">18</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">28</span>, <span class="number">29</span>, <span class="number">30</span>, <span class="number">81</span>,
-    <span class="number">31</span>, <span class="number">32</span>, <span class="number">33</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">19</span>,
-    <span class="number">38</span>, <span class="number">39</span>, <span class="number">40</span>, <span class="number">84</span>, <span class="number">81</span>, <span class="number">3</span>, <span class="number">6</span>, <span class="number">81</span>,
-    <span class="number">81</span>, <span class="number">82</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>,
-    <span class="number">18</span>, <span class="number">19</span>, <span class="number">20</span>, <span class="number">21</span>, <span class="number">22</span>, <span class="number">23</span>, <span class="number">24</span>, <span class="number">18</span>,
-    <span class="number">25</span>, <span class="number">81</span>, <span class="number">27</span>, <span class="number">28</span>, <span class="number">29</span>, <span class="number">30</span>, <span class="number">81</span>, <span class="number">31</span>,
-    <span class="number">32</span>, <span class="number">33</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">37</span>, <span class="number">38</span>,
-    <span class="number">39</span>, <span class="number">40</span>, <span class="number">6</span>, <span class="number">81</span>, <span class="number">3</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>,
-    <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>,
-    <span class="number">81</span>, <span class="number">81</span>, <span class="number">4</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>,
-    <span class="number">81</span>, <span class="number">81</span>, <span class="number">19</span>, <span class="number">20</span>, <span class="number">21</span>, <span class="number">22</span>, <span class="number">81</span>, <span class="number">81</span>,
-    <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>,
-    <span class="number">31</span>, <span class="number">32</span>, <span class="number">33</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>,
-    <span class="number">38</span>, <span class="number">39</span>, <span class="number">40</span>, <span class="number">84</span>, <span class="number">81</span>, <span class="number">3</span>, <span class="number">86</span>, <span class="number">86</span>,
-    <span class="number">86</span>, <span class="number">86</span>, <span class="number">86</span>, <span class="number">86</span>, <span class="number">86</span>, <span class="number">86</span>, <span class="number">86</span>, <span class="number">86</span>,
-    <span class="number">86</span>, <span class="number">86</span>, <span class="number">86</span>, <span class="number">4</span>, <span class="number">86</span>, <span class="number">87</span>, <span class="number">81</span>, <span class="number">14</span>,
-    <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">88</span>,
-    <span class="number">81</span>, <span class="number">14</span>, <span class="number">81</span>, <span class="number">6</span>, <span class="number">86</span>, <span class="number">86</span>, <span class="number">86</span>, <span class="number">86</span>,
-    <span class="number">86</span>, <span class="number">86</span>, <span class="number">86</span>, <span class="number">86</span>, <span class="number">86</span>, <span class="number">86</span>, <span class="number">86</span>, <span class="number">86</span>,
-    <span class="number">86</span>, <span class="number">86</span>, <span class="number">86</span>, <span class="number">86</span>, <span class="number">86</span>, <span class="number">86</span>, <span class="number">86</span>, <span class="number">86</span>,
-    <span class="number">86</span>, <span class="number">86</span>, <span class="number">86</span>, <span class="number">86</span>, <span class="number">86</span>, <span class="number">86</span>, <span class="number">86</span>, <span class="number">86</span>,
-    <span class="number">86</span>, <span class="number">86</span>, <span class="number">86</span>, <span class="number">6</span>, <span class="number">86</span>, <span class="number">86</span>, <span class="number">86</span>, <span class="number">6</span>,
-    <span class="number">86</span>, <span class="number">9</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">9</span>, <span class="number">81</span>, <span class="number">81</span>,
-    <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">3</span>, <span class="number">6</span>, <span class="number">14</span>, <span class="number">81</span>, <span class="number">82</span>,
-    <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">18</span>, <span class="number">19</span>,
-    <span class="number">20</span>, <span class="number">21</span>, <span class="number">22</span>, <span class="number">23</span>, <span class="number">24</span>, <span class="number">18</span>, <span class="number">25</span>, <span class="number">26</span>,
-    <span class="number">27</span>, <span class="number">28</span>, <span class="number">29</span>, <span class="number">30</span>, <span class="number">81</span>, <span class="number">31</span>, <span class="number">32</span>, <span class="number">33</span>,
-    <span class="number">81</span>, <span class="number">34</span>, <span class="number">35</span>, <span class="number">81</span>, <span class="number">37</span>, <span class="number">38</span>, <span class="number">39</span>, <span class="number">40</span>,
-    <span class="number">6</span>, <span class="number">81</span>, <span class="number">3</span>, <span class="number">6</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">82</span>, <span class="number">81</span>,
-    <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">18</span>, <span class="number">19</span>, <span class="number">20</span>,
-    <span class="number">21</span>, <span class="number">22</span>, <span class="number">23</span>, <span class="number">24</span>, <span class="number">18</span>, <span class="number">25</span>, <span class="number">26</span>, <span class="number">27</span>,
-    <span class="number">28</span>, <span class="number">29</span>, <span class="number">30</span>, <span class="number">81</span>, <span class="number">31</span>, <span class="number">32</span>, <span class="number">33</span>, <span class="number">81</span>,
-    <span class="number">81</span>, <span class="number">81</span>, <span class="number">81</span>, <span class="number">37</span>, <span class="number">38</span>, <span class="number">39</span>, <span class="number">40</span>, <span class="number">6</span>,
-    <span class="number">81</span>, <span class="number">34</span>, <span class="number">35</span>, <span class="number">81</span>, <span class="number">35</span>, <span class="number">81</span>, <span class="number">78</span>, <span class="number">80</span>,
-    <span class="number">80</span>, <span class="number">80</span>, <span class="number">80</span>, <span class="number">80</span>, <span class="number">80</span>, <span class="number">80</span>, <span class="number">80</span>, <span class="number">80</span>,
-    <span class="number">80</span>, <span class="number">80</span>, <span class="number">80</span>, <span class="number">80</span>, <span class="number">80</span>, <span class="number">80</span>, <span class="number">80</span>, <span class="number">80</span>,
-    <span class="number">80</span>, <span class="number">80</span>, <span class="number">78</span>, <span class="number">79</span>, <span class="number">80</span>, <span class="number">9</span>, <span class="number">86</span>, <span class="number">86</span>,
-    <span class="number">86</span>, <span class="number">9</span>, <span class="number">86</span>, <span class="number">0
-</span>];
-
-<span class="kw">const </span>MACHINE_TRANS_TARGS: <span class="kw-2">&amp;</span>[u8] = <span class="kw-2">&amp;</span>[
-    <span class="number">5</span>, <span class="number">9</span>, <span class="number">5</span>, <span class="number">41</span>, <span class="number">2</span>, <span class="number">5</span>, <span class="number">1</span>, <span class="number">53</span>,
-    <span class="number">6</span>, <span class="number">7</span>, <span class="number">5</span>, <span class="number">34</span>, <span class="number">37</span>, <span class="number">63</span>, <span class="number">64</span>, <span class="number">67</span>,
-    <span class="number">68</span>, <span class="number">72</span>, <span class="number">43</span>, <span class="number">44</span>, <span class="number">45</span>, <span class="number">46</span>, <span class="number">47</span>, <span class="number">57</span>,
-    <span class="number">58</span>, <span class="number">60</span>, <span class="number">69</span>, <span class="number">61</span>, <span class="number">54</span>, <span class="number">55</span>, <span class="number">56</span>, <span class="number">50</span>,
-    <span class="number">51</span>, <span class="number">52</span>, <span class="number">70</span>, <span class="number">71</span>, <span class="number">73</span>, <span class="number">62</span>, <span class="number">48</span>, <span class="number">49</span>,
-    <span class="number">5</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">8</span>, <span class="number">0</span>, <span class="number">33</span>, <span class="number">12</span>,
-    <span class="number">13</span>, <span class="number">14</span>, <span class="number">15</span>, <span class="number">16</span>, <span class="number">27</span>, <span class="number">28</span>, <span class="number">30</span>, <span class="number">31</span>,
-    <span class="number">24</span>, <span class="number">25</span>, <span class="number">26</span>, <span class="number">19</span>, <span class="number">20</span>, <span class="number">21</span>, <span class="number">32</span>, <span class="number">17</span>,
-    <span class="number">18</span>, <span class="number">5</span>, <span class="number">11</span>, <span class="number">5</span>, <span class="number">10</span>, <span class="number">22</span>, <span class="number">5</span>, <span class="number">23</span>,
-    <span class="number">29</span>, <span class="number">5</span>, <span class="number">35</span>, <span class="number">36</span>, <span class="number">5</span>, <span class="number">38</span>, <span class="number">39</span>, <span class="number">40</span>,
-    <span class="number">5</span>, <span class="number">5</span>, <span class="number">3</span>, <span class="number">42</span>, <span class="number">4</span>, <span class="number">59</span>, <span class="number">5</span>, <span class="number">65</span>,
-    <span class="number">66
-</span>];
-
-<span class="kw">const </span>MACHINE_TRANS_ACTIONS: <span class="kw-2">&amp;</span>[u8] = <span class="kw-2">&amp;</span>[
-    <span class="number">1</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">0</span>, <span class="number">4</span>, <span class="number">0</span>, <span class="number">5</span>,
-    <span class="number">0</span>, <span class="number">5</span>, <span class="number">8</span>, <span class="number">0</span>, <span class="number">5</span>, <span class="number">9</span>, <span class="number">0</span>, <span class="number">9</span>,
-    <span class="number">3</span>, <span class="number">0</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">5</span>,
-    <span class="number">5</span>, <span class="number">5</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">5</span>,
-    <span class="number">5</span>, <span class="number">5</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">3</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">10</span>, <span class="number">11</span>, <span class="number">12</span>, <span class="number">13</span>, <span class="number">5</span>, <span class="number">0</span>, <span class="number">5</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">5</span>,
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">14</span>, <span class="number">5</span>, <span class="number">15</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">16</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">17</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">18</span>, <span class="number">5</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">19</span>, <span class="number">20</span>, <span class="number">0</span>, <span class="number">3</span>, <span class="number">0</span>, <span class="number">5</span>, <span class="number">21</span>, <span class="number">0</span>,
-    <span class="number">0
-</span>];
-
-<span class="kw">const </span>MACHINE_TO_STATE_ACTIONS: <span class="kw-2">&amp;</span>[u8] = <span class="kw-2">&amp;</span>[
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">6</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">0
-</span>];
-
-<span class="kw">const </span>MACHINE_FROM_STATE_ACTIONS: <span class="kw-2">&amp;</span>[u8] = <span class="kw-2">&amp;</span>[
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">7</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-    <span class="number">0</span>, <span class="number">0
-</span>];
-
-<span class="kw">const </span>MACHINE_EOF_TRANS: <span class="kw-2">&amp;</span>[u8] = <span class="kw-2">&amp;</span>[
-    <span class="number">1</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">6</span>, <span class="number">6</span>, <span class="number">0</span>, <span class="number">42</span>, <span class="number">44</span>,
-    <span class="number">44</span>, <span class="number">68</span>, <span class="number">68</span>, <span class="number">44</span>, <span class="number">44</span>, <span class="number">44</span>, <span class="number">44</span>, <span class="number">44</span>,
-    <span class="number">44</span>, <span class="number">44</span>, <span class="number">44</span>, <span class="number">44</span>, <span class="number">44</span>, <span class="number">44</span>, <span class="number">71</span>, <span class="number">44</span>,
-    <span class="number">44</span>, <span class="number">44</span>, <span class="number">44</span>, <span class="number">44</span>, <span class="number">44</span>, <span class="number">44</span>, <span class="number">44</span>, <span class="number">44</span>,
-    <span class="number">68</span>, <span class="number">44</span>, <span class="number">74</span>, <span class="number">77</span>, <span class="number">74</span>, <span class="number">44</span>, <span class="number">44</span>, <span class="number">81</span>,
-    <span class="number">81</span>, <span class="number">82</span>, <span class="number">82</span>, <span class="number">82</span>, <span class="number">82</span>, <span class="number">82</span>, <span class="number">82</span>, <span class="number">82</span>,
-    <span class="number">82</span>, <span class="number">82</span>, <span class="number">82</span>, <span class="number">82</span>, <span class="number">82</span>, <span class="number">82</span>, <span class="number">82</span>, <span class="number">82</span>,
-    <span class="number">82</span>, <span class="number">82</span>, <span class="number">82</span>, <span class="number">82</span>, <span class="number">82</span>, <span class="number">82</span>, <span class="number">82</span>, <span class="number">87</span>,
-    <span class="number">82</span>, <span class="number">82</span>, <span class="number">82</span>, <span class="number">87</span>, <span class="number">82</span>, <span class="number">82</span>, <span class="number">82</span>, <span class="number">82</span>,
-    <span class="number">81</span>, <span class="number">87
-</span>];
-
+<span class="kw">static </span>_use_syllable_machine_trans_keys: [u8; <span class="number">126</span>] = [
+    <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">37</span>, <span class="number">5</span>, <span class="number">34</span>, <span class="number">5</span>, <span class="number">34</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">10</span>, <span class="number">34</span>, <span class="number">11</span>, <span class="number">34</span>, <span class="number">12</span>, <span class="number">33</span>, <span class="number">13</span>, <span class="number">33</span>, <span class="number">14</span>, <span class="number">33</span>, <span class="number">31</span>, <span class="number">32</span>, <span class="number">32</span>, <span class="number">32</span>,
+    <span class="number">12</span>, <span class="number">34</span>, <span class="number">12</span>, <span class="number">34</span>, <span class="number">12</span>, <span class="number">34</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">12</span>, <span class="number">34</span>, <span class="number">11</span>, <span class="number">34</span>, <span class="number">11</span>, <span class="number">34</span>, <span class="number">11</span>, <span class="number">34</span>, <span class="number">10</span>, <span class="number">34</span>, <span class="number">10</span>, <span class="number">34</span>, <span class="number">10</span>, <span class="number">34</span>, <span class="number">5</span>, <span class="number">34</span>, <span class="number">1</span>,
+    <span class="number">34</span>, <span class="number">7</span>, <span class="number">7</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">34</span>, <span class="number">27</span>, <span class="number">28</span>, <span class="number">28</span>, <span class="number">28</span>, <span class="number">5</span>, <span class="number">34</span>, <span class="number">10</span>, <span class="number">34</span>, <span class="number">11</span>, <span class="number">34</span>, <span class="number">12</span>, <span class="number">33</span>, <span class="number">13</span>, <span class="number">33</span>, <span class="number">14</span>, <span class="number">33</span>, <span class="number">31</span>, <span class="number">32</span>,
+    <span class="number">32</span>, <span class="number">32</span>, <span class="number">12</span>, <span class="number">34</span>, <span class="number">12</span>, <span class="number">34</span>, <span class="number">12</span>, <span class="number">34</span>, <span class="number">12</span>, <span class="number">34</span>, <span class="number">11</span>, <span class="number">34</span>, <span class="number">11</span>, <span class="number">34</span>, <span class="number">11</span>, <span class="number">34</span>, <span class="number">10</span>, <span class="number">34</span>, <span class="number">10</span>, <span class="number">34</span>, <span class="number">10</span>, <span class="number">34</span>, <span class="number">5</span>, <span class="number">34</span>,
+    <span class="number">1</span>, <span class="number">34</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">7</span>, <span class="number">7</span>, <span class="number">1</span>, <span class="number">34</span>, <span class="number">5</span>, <span class="number">34</span>, <span class="number">27</span>, <span class="number">28</span>, <span class="number">28</span>, <span class="number">28</span>, <span class="number">1</span>, <span class="number">4</span>, <span class="number">36</span>, <span class="number">38</span>, <span class="number">35</span>, <span class="number">38</span>, <span class="number">35</span>, <span class="number">37</span>, <span class="number">0</span>, <span class="number">0</span>,
+];
+<span class="kw">static </span>_use_syllable_machine_char_class: [i8; <span class="number">55</span>] = [
+    <span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">10</span>, <span class="number">11</span>, <span class="number">12</span>, <span class="number">13</span>, <span class="number">14</span>, <span class="number">15</span>, <span class="number">16</span>,
+    <span class="number">17</span>, <span class="number">18</span>, <span class="number">19</span>, <span class="number">20</span>, <span class="number">21</span>, <span class="number">22</span>, <span class="number">23</span>, <span class="number">2</span>, <span class="number">24</span>, <span class="number">25</span>, <span class="number">26</span>, <span class="number">2</span>, <span class="number">27</span>, <span class="number">28</span>, <span class="number">29</span>, <span class="number">30</span>, <span class="number">31</span>, <span class="number">32</span>, <span class="number">33</span>, <span class="number">34</span>, <span class="number">35</span>, <span class="number">36</span>, <span class="number">37</span>, <span class="number">38</span>,
+    <span class="number">0</span>, <span class="number">0</span>,
+];
+<span class="kw">static </span>_use_syllable_machine_index_offsets: [i16; <span class="number">64</span>] = [
+    <span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">40</span>, <span class="number">70</span>, <span class="number">100</span>, <span class="number">101</span>, <span class="number">126</span>, <span class="number">150</span>, <span class="number">172</span>, <span class="number">193</span>, <span class="number">213</span>, <span class="number">215</span>, <span class="number">216</span>, <span class="number">239</span>, <span class="number">262</span>, <span class="number">285</span>, <span class="number">286</span>, <span class="number">309</span>, <span class="number">333</span>,
+    <span class="number">357</span>, <span class="number">381</span>, <span class="number">406</span>, <span class="number">431</span>, <span class="number">456</span>, <span class="number">486</span>, <span class="number">520</span>, <span class="number">521</span>, <span class="number">522</span>, <span class="number">552</span>, <span class="number">554</span>, <span class="number">555</span>, <span class="number">585</span>, <span class="number">610</span>, <span class="number">634</span>, <span class="number">656</span>, <span class="number">677</span>, <span class="number">697</span>, <span class="number">699</span>,
+    <span class="number">700</span>, <span class="number">723</span>, <span class="number">746</span>, <span class="number">769</span>, <span class="number">792</span>, <span class="number">816</span>, <span class="number">840</span>, <span class="number">864</span>, <span class="number">889</span>, <span class="number">914</span>, <span class="number">939</span>, <span class="number">969</span>, <span class="number">1003</span>, <span class="number">1004</span>, <span class="number">1005</span>, <span class="number">1006</span>, <span class="number">1040</span>, <span class="number">1070</span>,
+    <span class="number">1072</span>, <span class="number">1073</span>, <span class="number">1077</span>, <span class="number">1080</span>, <span class="number">1084</span>, <span class="number">0</span>, <span class="number">0</span>,
+];
+<span class="kw">static </span>_use_syllable_machine_indices: [i8; <span class="number">1089</span>] = [
+    <span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">1</span>, <span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>, <span class="number">12</span>, <span class="number">13</span>, <span class="number">14</span>, <span class="number">15</span>, <span class="number">16</span>, <span class="number">17</span>, <span class="number">18</span>, <span class="number">19</span>, <span class="number">13</span>, <span class="number">20</span>, <span class="number">21</span>, <span class="number">22</span>, <span class="number">23</span>, <span class="number">24</span>, <span class="number">25</span>,
+    <span class="number">26</span>, <span class="number">27</span>, <span class="number">28</span>, <span class="number">29</span>, <span class="number">30</span>, <span class="number">31</span>, <span class="number">32</span>, <span class="number">33</span>, <span class="number">34</span>, <span class="number">35</span>, <span class="number">9</span>, <span class="number">36</span>, <span class="number">6</span>, <span class="number">37</span>, <span class="number">39</span>, <span class="number">40</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">41</span>, <span class="number">42</span>, <span class="number">43</span>, <span class="number">44</span>, <span class="number">45</span>,
+    <span class="number">46</span>, <span class="number">47</span>, <span class="number">41</span>, <span class="number">48</span>, <span class="number">5</span>, <span class="number">49</span>, <span class="number">50</span>, <span class="number">51</span>, <span class="number">52</span>, <span class="number">53</span>, <span class="number">54</span>, <span class="number">55</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">56</span>, <span class="number">57</span>, <span class="number">58</span>, <span class="number">59</span>, <span class="number">40</span>, <span class="number">39</span>, <span class="number">40</span>, <span class="number">38</span>, <span class="number">38</span>,
+    <span class="number">38</span>, <span class="number">41</span>, <span class="number">42</span>, <span class="number">43</span>, <span class="number">44</span>, <span class="number">45</span>, <span class="number">46</span>, <span class="number">47</span>, <span class="number">41</span>, <span class="number">48</span>, <span class="number">49</span>, <span class="number">49</span>, <span class="number">50</span>, <span class="number">51</span>, <span class="number">52</span>, <span class="number">53</span>, <span class="number">54</span>, <span class="number">55</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">56</span>, <span class="number">57</span>, <span class="number">58</span>,
+    <span class="number">59</span>, <span class="number">40</span>, <span class="number">39</span>, <span class="number">41</span>, <span class="number">42</span>, <span class="number">43</span>, <span class="number">44</span>, <span class="number">45</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">50</span>, <span class="number">51</span>, <span class="number">52</span>, <span class="number">53</span>, <span class="number">54</span>, <span class="number">55</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">42</span>,
+    <span class="number">57</span>, <span class="number">58</span>, <span class="number">59</span>, <span class="number">61</span>, <span class="number">42</span>, <span class="number">43</span>, <span class="number">44</span>, <span class="number">45</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">53</span>, <span class="number">54</span>, <span class="number">55</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>,
+    <span class="number">57</span>, <span class="number">58</span>, <span class="number">59</span>, <span class="number">61</span>, <span class="number">43</span>, <span class="number">44</span>, <span class="number">45</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">57</span>,
+    <span class="number">58</span>, <span class="number">59</span>, <span class="number">44</span>, <span class="number">45</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">57</span>, <span class="number">58</span>, <span class="number">59</span>, <span class="number">45</span>,
+    <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">57</span>, <span class="number">58</span>, <span class="number">59</span>, <span class="number">57</span>, <span class="number">58</span>, <span class="number">58</span>, <span class="number">43</span>, <span class="number">44</span>,
+    <span class="number">45</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">53</span>, <span class="number">54</span>, <span class="number">55</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">57</span>, <span class="number">58</span>, <span class="number">59</span>, <span class="number">61</span>, <span class="number">43</span>, <span class="number">44</span>, <span class="number">45</span>,
+    <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">54</span>, <span class="number">55</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">57</span>, <span class="number">58</span>, <span class="number">59</span>, <span class="number">61</span>, <span class="number">43</span>, <span class="number">44</span>, <span class="number">45</span>, <span class="number">38</span>,
+    <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">55</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">57</span>, <span class="number">58</span>, <span class="number">59</span>, <span class="number">61</span>, <span class="number">63</span>, <span class="number">43</span>, <span class="number">44</span>, <span class="number">45</span>, <span class="number">38</span>,
+    <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">57</span>, <span class="number">58</span>, <span class="number">59</span>, <span class="number">61</span>, <span class="number">42</span>, <span class="number">43</span>, <span class="number">44</span>, <span class="number">45</span>, <span class="number">38</span>,
+    <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">50</span>, <span class="number">51</span>, <span class="number">52</span>, <span class="number">53</span>, <span class="number">54</span>, <span class="number">55</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">42</span>, <span class="number">57</span>, <span class="number">58</span>, <span class="number">59</span>, <span class="number">61</span>, <span class="number">42</span>, <span class="number">43</span>, <span class="number">44</span>, <span class="number">45</span>, <span class="number">38</span>,
+    <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">51</span>, <span class="number">52</span>, <span class="number">53</span>, <span class="number">54</span>, <span class="number">55</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">42</span>, <span class="number">57</span>, <span class="number">58</span>, <span class="number">59</span>, <span class="number">61</span>, <span class="number">42</span>, <span class="number">43</span>, <span class="number">44</span>, <span class="number">45</span>, <span class="number">38</span>,
+    <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">52</span>, <span class="number">53</span>, <span class="number">54</span>, <span class="number">55</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">42</span>, <span class="number">57</span>, <span class="number">58</span>, <span class="number">59</span>, <span class="number">61</span>, <span class="number">41</span>, <span class="number">42</span>, <span class="number">43</span>, <span class="number">44</span>, <span class="number">45</span>,
+    <span class="number">38</span>, <span class="number">47</span>, <span class="number">41</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">50</span>, <span class="number">51</span>, <span class="number">52</span>, <span class="number">53</span>, <span class="number">54</span>, <span class="number">55</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">42</span>, <span class="number">57</span>, <span class="number">58</span>, <span class="number">59</span>, <span class="number">61</span>, <span class="number">41</span>, <span class="number">42</span>, <span class="number">43</span>, <span class="number">44</span>,
+    <span class="number">45</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">41</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">50</span>, <span class="number">51</span>, <span class="number">52</span>, <span class="number">53</span>, <span class="number">54</span>, <span class="number">55</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">42</span>, <span class="number">57</span>, <span class="number">58</span>, <span class="number">59</span>, <span class="number">61</span>, <span class="number">41</span>, <span class="number">42</span>, <span class="number">43</span>,
+    <span class="number">44</span>, <span class="number">45</span>, <span class="number">46</span>, <span class="number">47</span>, <span class="number">41</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">50</span>, <span class="number">51</span>, <span class="number">52</span>, <span class="number">53</span>, <span class="number">54</span>, <span class="number">55</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">42</span>, <span class="number">57</span>, <span class="number">58</span>, <span class="number">59</span>, <span class="number">61</span>, <span class="number">39</span>, <span class="number">40</span>,
+    <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">41</span>, <span class="number">42</span>, <span class="number">43</span>, <span class="number">44</span>, <span class="number">45</span>, <span class="number">46</span>, <span class="number">47</span>, <span class="number">41</span>, <span class="number">48</span>, <span class="number">38</span>, <span class="number">49</span>, <span class="number">50</span>, <span class="number">51</span>, <span class="number">52</span>, <span class="number">53</span>, <span class="number">54</span>, <span class="number">55</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">56</span>,
+    <span class="number">57</span>, <span class="number">58</span>, <span class="number">59</span>, <span class="number">40</span>, <span class="number">39</span>, <span class="number">60</span>, <span class="number">60</span>, <span class="number">60</span>, <span class="number">60</span>, <span class="number">60</span>, <span class="number">60</span>, <span class="number">60</span>, <span class="number">60</span>, <span class="number">60</span>, <span class="number">42</span>, <span class="number">43</span>, <span class="number">44</span>, <span class="number">45</span>, <span class="number">60</span>, <span class="number">60</span>, <span class="number">60</span>, <span class="number">60</span>, <span class="number">60</span>, <span class="number">60</span>,
+    <span class="number">60</span>, <span class="number">60</span>, <span class="number">60</span>, <span class="number">53</span>, <span class="number">54</span>, <span class="number">55</span>, <span class="number">60</span>, <span class="number">60</span>, <span class="number">60</span>, <span class="number">60</span>, <span class="number">57</span>, <span class="number">58</span>, <span class="number">59</span>, <span class="number">61</span>, <span class="number">65</span>, <span class="number">7</span>, <span class="number">39</span>, <span class="number">40</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">41</span>, <span class="number">42</span>, <span class="number">43</span>,
+    <span class="number">44</span>, <span class="number">45</span>, <span class="number">46</span>, <span class="number">47</span>, <span class="number">41</span>, <span class="number">48</span>, <span class="number">5</span>, <span class="number">49</span>, <span class="number">50</span>, <span class="number">51</span>, <span class="number">52</span>, <span class="number">53</span>, <span class="number">54</span>, <span class="number">55</span>, <span class="number">12</span>, <span class="number">67</span>, <span class="number">38</span>, <span class="number">56</span>, <span class="number">57</span>, <span class="number">58</span>, <span class="number">59</span>, <span class="number">40</span>, <span class="number">12</span>, <span class="number">67</span>,
+    <span class="number">67</span>, <span class="number">1</span>, <span class="number">70</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">13</span>, <span class="number">14</span>, <span class="number">15</span>, <span class="number">16</span>, <span class="number">17</span>, <span class="number">18</span>, <span class="number">19</span>, <span class="number">13</span>, <span class="number">20</span>, <span class="number">22</span>, <span class="number">22</span>, <span class="number">23</span>, <span class="number">24</span>, <span class="number">25</span>, <span class="number">26</span>, <span class="number">27</span>, <span class="number">28</span>, <span class="number">69</span>,
+    <span class="number">69</span>, <span class="number">69</span>, <span class="number">32</span>, <span class="number">33</span>, <span class="number">34</span>, <span class="number">35</span>, <span class="number">70</span>, <span class="number">13</span>, <span class="number">14</span>, <span class="number">15</span>, <span class="number">16</span>, <span class="number">17</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">23</span>, <span class="number">24</span>, <span class="number">25</span>, <span class="number">26</span>, <span class="number">27</span>, <span class="number">28</span>,
+    <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">14</span>, <span class="number">33</span>, <span class="number">34</span>, <span class="number">35</span>, <span class="number">71</span>, <span class="number">14</span>, <span class="number">15</span>, <span class="number">16</span>, <span class="number">17</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">26</span>, <span class="number">27</span>, <span class="number">28</span>,
+    <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">33</span>, <span class="number">34</span>, <span class="number">35</span>, <span class="number">71</span>, <span class="number">15</span>, <span class="number">16</span>, <span class="number">17</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>,
+    <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">33</span>, <span class="number">34</span>, <span class="number">35</span>, <span class="number">16</span>, <span class="number">17</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>,
+    <span class="number">33</span>, <span class="number">34</span>, <span class="number">35</span>, <span class="number">17</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">33</span>, <span class="number">34</span>, <span class="number">35</span>, <span class="number">33</span>,
+    <span class="number">34</span>, <span class="number">34</span>, <span class="number">15</span>, <span class="number">16</span>, <span class="number">17</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">26</span>, <span class="number">27</span>, <span class="number">28</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">33</span>, <span class="number">34</span>, <span class="number">35</span>,
+    <span class="number">71</span>, <span class="number">15</span>, <span class="number">16</span>, <span class="number">17</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">27</span>, <span class="number">28</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">33</span>, <span class="number">34</span>, <span class="number">35</span>, <span class="number">71</span>,
+    <span class="number">15</span>, <span class="number">16</span>, <span class="number">17</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">28</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">33</span>, <span class="number">34</span>, <span class="number">35</span>, <span class="number">71</span>, <span class="number">15</span>,
+    <span class="number">16</span>, <span class="number">17</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">33</span>, <span class="number">34</span>, <span class="number">35</span>, <span class="number">71</span>, <span class="number">14</span>, <span class="number">15</span>,
+    <span class="number">16</span>, <span class="number">17</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">23</span>, <span class="number">24</span>, <span class="number">25</span>, <span class="number">26</span>, <span class="number">27</span>, <span class="number">28</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">14</span>, <span class="number">33</span>, <span class="number">34</span>, <span class="number">35</span>, <span class="number">71</span>, <span class="number">14</span>, <span class="number">15</span>,
+    <span class="number">16</span>, <span class="number">17</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">24</span>, <span class="number">25</span>, <span class="number">26</span>, <span class="number">27</span>, <span class="number">28</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">14</span>, <span class="number">33</span>, <span class="number">34</span>, <span class="number">35</span>, <span class="number">71</span>, <span class="number">14</span>, <span class="number">15</span>,
+    <span class="number">16</span>, <span class="number">17</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">25</span>, <span class="number">26</span>, <span class="number">27</span>, <span class="number">28</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">14</span>, <span class="number">33</span>, <span class="number">34</span>, <span class="number">35</span>, <span class="number">71</span>, <span class="number">13</span>, <span class="number">14</span>,
+    <span class="number">15</span>, <span class="number">16</span>, <span class="number">17</span>, <span class="number">69</span>, <span class="number">19</span>, <span class="number">13</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">23</span>, <span class="number">24</span>, <span class="number">25</span>, <span class="number">26</span>, <span class="number">27</span>, <span class="number">28</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">14</span>, <span class="number">33</span>, <span class="number">34</span>, <span class="number">35</span>, <span class="number">71</span>, <span class="number">13</span>,
+    <span class="number">14</span>, <span class="number">15</span>, <span class="number">16</span>, <span class="number">17</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">13</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">23</span>, <span class="number">24</span>, <span class="number">25</span>, <span class="number">26</span>, <span class="number">27</span>, <span class="number">28</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">14</span>, <span class="number">33</span>, <span class="number">34</span>, <span class="number">35</span>, <span class="number">71</span>,
+    <span class="number">13</span>, <span class="number">14</span>, <span class="number">15</span>, <span class="number">16</span>, <span class="number">17</span>, <span class="number">18</span>, <span class="number">19</span>, <span class="number">13</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">23</span>, <span class="number">24</span>, <span class="number">25</span>, <span class="number">26</span>, <span class="number">27</span>, <span class="number">28</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">14</span>, <span class="number">33</span>, <span class="number">34</span>, <span class="number">35</span>,
+    <span class="number">71</span>, <span class="number">1</span>, <span class="number">70</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">13</span>, <span class="number">14</span>, <span class="number">15</span>, <span class="number">16</span>, <span class="number">17</span>, <span class="number">18</span>, <span class="number">19</span>, <span class="number">13</span>, <span class="number">20</span>, <span class="number">69</span>, <span class="number">22</span>, <span class="number">23</span>, <span class="number">24</span>, <span class="number">25</span>, <span class="number">26</span>, <span class="number">27</span>, <span class="number">28</span>, <span class="number">69</span>,
+    <span class="number">69</span>, <span class="number">69</span>, <span class="number">32</span>, <span class="number">33</span>, <span class="number">34</span>, <span class="number">35</span>, <span class="number">70</span>, <span class="number">1</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">14</span>, <span class="number">15</span>, <span class="number">16</span>, <span class="number">17</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>,
+    <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">26</span>, <span class="number">27</span>, <span class="number">28</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">33</span>, <span class="number">34</span>, <span class="number">35</span>, <span class="number">71</span>, <span class="number">1</span>, <span class="number">73</span>, <span class="number">10</span>, <span class="number">5</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">5</span>, <span class="number">1</span>,
+    <span class="number">70</span>, <span class="number">10</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">13</span>, <span class="number">14</span>, <span class="number">15</span>, <span class="number">16</span>, <span class="number">17</span>, <span class="number">18</span>, <span class="number">19</span>, <span class="number">13</span>, <span class="number">20</span>, <span class="number">21</span>, <span class="number">22</span>, <span class="number">23</span>, <span class="number">24</span>, <span class="number">25</span>, <span class="number">26</span>, <span class="number">27</span>, <span class="number">28</span>, <span class="number">29</span>, <span class="number">30</span>, <span class="number">69</span>,
+    <span class="number">32</span>, <span class="number">33</span>, <span class="number">34</span>, <span class="number">35</span>, <span class="number">70</span>, <span class="number">1</span>, <span class="number">70</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">13</span>, <span class="number">14</span>, <span class="number">15</span>, <span class="number">16</span>, <span class="number">17</span>, <span class="number">18</span>, <span class="number">19</span>, <span class="number">13</span>, <span class="number">20</span>, <span class="number">21</span>, <span class="number">22</span>, <span class="number">23</span>, <span class="number">24</span>, <span class="number">25</span>,
+    <span class="number">26</span>, <span class="number">27</span>, <span class="number">28</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">32</span>, <span class="number">33</span>, <span class="number">34</span>, <span class="number">35</span>, <span class="number">70</span>, <span class="number">29</span>, <span class="number">30</span>, <span class="number">30</span>, <span class="number">5</span>, <span class="number">72</span>, <span class="number">72</span>, <span class="number">5</span>, <span class="number">75</span>, <span class="number">74</span>, <span class="number">36</span>, <span class="number">36</span>, <span class="number">75</span>, <span class="number">74</span>,
+    <span class="number">75</span>, <span class="number">36</span>, <span class="number">74</span>, <span class="number">37</span>, <span class="number">0</span>, <span class="number">0</span>,
+];
+<span class="kw">static </span>_use_syllable_machine_index_defaults: [i8; <span class="number">64</span>] = [
+    <span class="number">0</span>, <span class="number">0</span>, <span class="number">6</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">60</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">62</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>, <span class="number">38</span>,
+    <span class="number">38</span>, <span class="number">60</span>, <span class="number">64</span>, <span class="number">66</span>, <span class="number">38</span>, <span class="number">68</span>, <span class="number">68</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>,
+    <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">72</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">72</span>, <span class="number">74</span>, <span class="number">74</span>, <span class="number">74</span>, <span class="number">0</span>, <span class="number">0</span>,
+];
+<span class="kw">static </span>_use_syllable_machine_cond_targs: [i8; <span class="number">78</span>] = [
+    <span class="number">2</span>, <span class="number">31</span>, <span class="number">42</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">26</span>, <span class="number">28</span>, <span class="number">51</span>, <span class="number">52</span>, <span class="number">54</span>, <span class="number">29</span>, <span class="number">32</span>, <span class="number">33</span>, <span class="number">34</span>, <span class="number">35</span>, <span class="number">36</span>, <span class="number">46</span>, <span class="number">47</span>, <span class="number">48</span>, <span class="number">55</span>, <span class="number">49</span>, <span class="number">43</span>, <span class="number">44</span>,
+    <span class="number">45</span>, <span class="number">39</span>, <span class="number">40</span>, <span class="number">41</span>, <span class="number">56</span>, <span class="number">57</span>, <span class="number">58</span>, <span class="number">50</span>, <span class="number">37</span>, <span class="number">38</span>, <span class="number">2</span>, <span class="number">59</span>, <span class="number">61</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>, <span class="number">21</span>, <span class="number">22</span>, <span class="number">23</span>, <span class="number">24</span>, <span class="number">18</span>,
+    <span class="number">19</span>, <span class="number">20</span>, <span class="number">13</span>, <span class="number">14</span>, <span class="number">15</span>, <span class="number">25</span>, <span class="number">11</span>, <span class="number">12</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">16</span>, <span class="number">2</span>, <span class="number">17</span>, <span class="number">2</span>, <span class="number">27</span>, <span class="number">2</span>, <span class="number">30</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">53</span>, <span class="number">2</span>, <span class="number">60</span>, <span class="number">0</span>, <span class="number">0</span>,
+];
+<span class="kw">static </span>_use_syllable_machine_cond_actions: [i8; <span class="number">78</span>] = [
+    <span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="number">5</span>, <span class="number">0</span>, <span class="number">6</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
+    <span class="number">2</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">7</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">8</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">9</span>, <span class="number">10</span>, <span class="number">0</span>, <span class="number">11</span>,
+    <span class="number">0</span>, <span class="number">12</span>, <span class="number">0</span>, <span class="number">13</span>, <span class="number">0</span>, <span class="number">14</span>, <span class="number">15</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">16</span>, <span class="number">0</span>, <span class="number">17</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
+];
+<span class="kw">static </span>_use_syllable_machine_to_state_actions: [i8; <span class="number">64</span>] = [
+    <span class="number">0</span>, <span class="number">0</span>, <span class="number">3</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
+    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
+];
+<span class="kw">static </span>_use_syllable_machine_from_state_actions: [i8; <span class="number">64</span>] = [
+    <span class="number">0</span>, <span class="number">0</span>, <span class="number">4</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
+    <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
+];
+<span class="kw">static </span>_use_syllable_machine_eof_trans: [i8; <span class="number">64</span>] = [
+    <span class="number">1</span>, <span class="number">1</span>, <span class="number">4</span>, <span class="number">39</span>, <span class="number">39</span>, <span class="number">61</span>, <span class="number">39</span>, <span class="number">39</span>, <span class="number">39</span>, <span class="number">39</span>, <span class="number">39</span>, <span class="number">39</span>, <span class="number">39</span>, <span class="number">39</span>, <span class="number">39</span>, <span class="number">39</span>, <span class="number">63</span>, <span class="number">39</span>, <span class="number">39</span>, <span class="number">39</span>, <span class="number">39</span>, <span class="number">39</span>, <span class="number">39</span>, <span class="number">39</span>,
+    <span class="number">39</span>, <span class="number">61</span>, <span class="number">65</span>, <span class="number">67</span>, <span class="number">39</span>, <span class="number">69</span>, <span class="number">69</span>, <span class="number">70</span>, <span class="number">70</span>, <span class="number">70</span>, <span class="number">70</span>, <span class="number">70</span>, <span class="number">70</span>, <span class="number">70</span>, <span class="number">70</span>, <span class="number">70</span>, <span class="number">70</span>, <span class="number">70</span>, <span class="number">70</span>, <span class="number">70</span>, <span class="number">70</span>, <span class="number">70</span>, <span class="number">70</span>, <span class="number">70</span>,
+    <span class="number">70</span>, <span class="number">70</span>, <span class="number">70</span>, <span class="number">73</span>, <span class="number">70</span>, <span class="number">70</span>, <span class="number">70</span>, <span class="number">70</span>, <span class="number">70</span>, <span class="number">70</span>, <span class="number">73</span>, <span class="number">75</span>, <span class="number">75</span>, <span class="number">75</span>, <span class="number">0</span>, <span class="number">0</span>,
+];
+<span class="kw">static </span>use_syllable_machine_start: i32 = <span class="number">2</span>;
+<span class="kw">static </span>use_syllable_machine_first_final: i32 = <span class="number">2</span>;
+<span class="kw">static </span>use_syllable_machine_error: i32 = -<span class="number">1</span>;
+<span class="kw">static </span>use_syllable_machine_en_main: i32 = <span class="number">2</span>;
 <span class="attr">#[derive(Clone, Copy)]
 </span><span class="kw">pub enum </span>SyllableType {
     IndependentCluster,
@@ -847,158 +526,228 @@
     NumberJoinerTerminatedCluster,
     NumeralCluster,
     SymbolCluster,
+    HieroglyphCluster,
     BrokenCluster,
     NonCluster,
 }
 
 <span class="kw">pub fn </span>find_syllables(buffer: <span class="kw-2">&amp;mut </span>Buffer) {
-    <span class="kw">let </span><span class="kw-2">mut </span>cs = <span class="number">5usize</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>ts = <span class="number">0</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>te = <span class="number">0</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>act = <span class="number">0</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>p = <span class="number">0</span>;
-    <span class="kw">let </span>pe = buffer.len;
-    <span class="kw">let </span>eof = buffer.len;
+    <span class="kw">let </span><span class="kw-2">mut </span>cs = <span class="number">0</span>;
+    <span class="kw">let </span>infos = Cell::as_slice_of_cells(Cell::from_mut(<span class="kw-2">&amp;mut </span>buffer.info));
+    <span class="kw">let </span>p0 = MachineCursor::new(infos, included);
+    <span class="kw">let </span><span class="kw-2">mut </span>p = p0;
+    <span class="kw">let </span><span class="kw-2">mut </span>ts = p0;
+    <span class="kw">let </span><span class="kw-2">mut </span>te = p0;
+    <span class="kw">let </span>pe = p.end();
+    <span class="kw">let </span>eof = p.end();
     <span class="kw">let </span><span class="kw-2">mut </span>syllable_serial = <span class="number">1u8</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>reset = <span class="bool-val">true</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>slen;
-    <span class="kw">let </span><span class="kw-2">mut </span>trans = <span class="number">0</span>;
-    <span class="kw">if </span>p == pe {
-        <span class="kw">if </span>MACHINE_EOF_TRANS[cs] &gt; <span class="number">0 </span>{
-            trans = (MACHINE_EOF_TRANS[cs] - <span class="number">1</span>) <span class="kw">as </span>usize;
-        }
+
+    <span class="comment">// Please manually replace assignments of 0 to p, ts, and te
+    // to use p0 instead
+
+    </span><span class="macro">macro_rules! </span>found_syllable {
+        (<span class="macro-nonterminal">$kind</span>:expr) =&gt; {{
+            found_syllable(ts.index(), te.index(), <span class="kw-2">&amp;mut </span>syllable_serial, <span class="macro-nonterminal">$kind</span>, infos);
+        }};
     }
 
-    <span class="kw">loop </span>{
-        <span class="kw">if </span>reset {
-            <span class="kw">if </span>MACHINE_FROM_STATE_ACTIONS[cs] == <span class="number">7 </span>{
-                ts = p;
-            }
+    {
+        cs = (use_syllable_machine_start) <span class="kw">as </span>i32;
+        ts = p0;
+        te = p0;
+    }
 
-            slen = MACHINE_KEY_SPANS[cs] <span class="kw">as </span>usize;
-            <span class="kw">let </span>cs_idx = ((cs <span class="kw">as </span>i32) &lt;&lt; <span class="number">1</span>) <span class="kw">as </span>usize;
-            <span class="kw">let </span>i = <span class="kw">if </span>slen &gt; <span class="number">0 </span>&amp;&amp;
-                MACHINE_TRANS_KEYS[cs_idx] &lt;= buffer.info[p].indic_category() <span class="kw">as </span>u8 &amp;&amp;
-                buffer.info[p].indic_category() <span class="kw">as </span>u8 &lt;= MACHINE_TRANS_KEYS[cs_idx + <span class="number">1</span>]
-            {
-                (buffer.info[p].indic_category() <span class="kw">as </span>u8 - MACHINE_TRANS_KEYS[cs_idx]) <span class="kw">as </span>usize
-            } <span class="kw">else </span>{
-                slen
-            };
-            trans = MACHINE_INDICIES[MACHINE_INDEX_OFFSETS[cs] <span class="kw">as </span>usize + i] <span class="kw">as </span>usize;
-        }
-        reset = <span class="bool-val">true</span>;
+    {
+        <span class="kw">let </span><span class="kw-2">mut </span>_trans = <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>_keys: i32 = <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>_inds: i32 = <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>_ic = <span class="number">0</span>;
+        <span class="lifetime">&#39;_resume</span>: <span class="kw">while </span>(p != pe || p == eof) {
+            <span class="lifetime">&#39;_again</span>: <span class="kw">while </span>(<span class="bool-val">true</span>) {
+                <span class="kw">match </span>(_use_syllable_machine_from_state_actions[(cs) <span class="kw">as </span>usize]) {
+                    <span class="number">4 </span>=&gt; {
+                        ts = p;
+                    }
 
-        cs = MACHINE_TRANS_TARGS[trans] <span class="kw">as </span>usize;
-
-        <span class="kw">if </span>MACHINE_TRANS_ACTIONS[trans] != <span class="number">0 </span>{
-            <span class="kw">match </span>MACHINE_TRANS_ACTIONS[trans] {
-                <span class="number">5 </span>=&gt; {
-                    te = p + <span class="number">1</span>;
+                    <span class="kw">_ </span>=&gt; {}
                 }
-                <span class="number">12 </span>=&gt; {
-                    te = p + <span class="number">1</span>;
-                    found_syllable(ts, te, <span class="kw-2">&amp;mut </span>syllable_serial, SyllableType::IndependentCluster, buffer);
-                }
-                <span class="number">14 </span>=&gt; {
-                    te = p + <span class="number">1</span>;
-                    found_syllable(ts, te, <span class="kw-2">&amp;mut </span>syllable_serial, SyllableType::StandardCluster, buffer);
-                }
-                <span class="number">10 </span>=&gt; {
-                    te = p + <span class="number">1</span>;
-                    found_syllable(ts, te, <span class="kw-2">&amp;mut </span>syllable_serial, SyllableType::BrokenCluster, buffer);
-                }
-                <span class="number">8 </span>=&gt; {
-                    te = p + <span class="number">1</span>;
-                    found_syllable(ts, te, <span class="kw-2">&amp;mut </span>syllable_serial, SyllableType::NonCluster, buffer);
-                }
-                <span class="number">11 </span>=&gt; {
-                    te = p;
-                    p -= <span class="number">1</span>;
-                    found_syllable(ts, te, <span class="kw-2">&amp;mut </span>syllable_serial, SyllableType::IndependentCluster, buffer);
-                }
-                <span class="number">15 </span>=&gt; {
-                    te = p;
-                    p -= <span class="number">1</span>;
-                    found_syllable(ts, te, <span class="kw-2">&amp;mut </span>syllable_serial, SyllableType::ViramaTerminatedCluster, buffer);
-                }
-                <span class="number">16 </span>=&gt; {
-                    te = p;
-                    p -= <span class="number">1</span>;
-                    found_syllable(ts, te, <span class="kw-2">&amp;mut </span>syllable_serial, SyllableType::SakotTerminatedCluster, buffer);
-                }
-                <span class="number">13 </span>=&gt; {
-                    te = p;
-                    p -= <span class="number">1</span>;
-                    found_syllable(ts, te, <span class="kw-2">&amp;mut </span>syllable_serial, SyllableType::StandardCluster, buffer);
-                }
-                <span class="number">18 </span>=&gt; {
-                    te = p;
-                    p -= <span class="number">1</span>;
-                    found_syllable(ts, te, <span class="kw-2">&amp;mut </span>syllable_serial, SyllableType::NumberJoinerTerminatedCluster, buffer);
-                }
-                <span class="number">17 </span>=&gt; {
-                    te = p;
-                    p -= <span class="number">1</span>;
-                    found_syllable(ts, te, <span class="kw-2">&amp;mut </span>syllable_serial, SyllableType::NumeralCluster, buffer);
-                }
-                <span class="number">19 </span>=&gt; {
-                    te = p;
-                    p -= <span class="number">1</span>;
-                    found_syllable(ts, te, <span class="kw-2">&amp;mut </span>syllable_serial, SyllableType::SymbolCluster, buffer);
-                }
-                <span class="number">20 </span>=&gt; {
-                    te = p;
-                    p -= <span class="number">1</span>;
-                    found_syllable(ts, te, <span class="kw-2">&amp;mut </span>syllable_serial, SyllableType::BrokenCluster, buffer);
-                }
-                <span class="number">1 </span>=&gt; {
-                    p = te - <span class="number">1</span>;
-                    found_syllable(ts, te, <span class="kw-2">&amp;mut </span>syllable_serial, SyllableType::StandardCluster, buffer);
-                }
-                <span class="number">2 </span>=&gt; {
-                    <span class="kw">match </span>act {
-                        <span class="number">8 </span>=&gt; {
-                            p = te - <span class="number">1</span>;
-                            found_syllable(ts, te, <span class="kw-2">&amp;mut </span>syllable_serial, SyllableType::BrokenCluster, buffer);
+                <span class="kw">if </span>(p == eof) {
+                    {
+                        <span class="kw">if </span>(_use_syllable_machine_eof_trans[(cs) <span class="kw">as </span>usize] &gt; <span class="number">0</span>) {
+                            {
+                                _trans =
+                                    (_use_syllable_machine_eof_trans[(cs) <span class="kw">as </span>usize]) <span class="kw">as </span>u32 - <span class="number">1</span>;
+                            }
                         }
-                        <span class="number">9 </span>=&gt; {
-                            p = te - <span class="number">1</span>;
-                            found_syllable(ts, te, <span class="kw-2">&amp;mut </span>syllable_serial, SyllableType::NonCluster, buffer);
+                    }
+                } <span class="kw">else </span>{
+                    {
+                        _keys = (cs &lt;&lt; <span class="number">1</span>) <span class="kw">as </span>i32;
+                        _inds = (_use_syllable_machine_index_offsets[(cs) <span class="kw">as </span>usize]) <span class="kw">as </span>i32;
+                        <span class="kw">if </span>((infos[p.index()].get().use_category() <span class="kw">as </span>u8) &lt;= <span class="number">52</span>) {
+                            {
+                                _ic = (_use_syllable_machine_char_class[((infos[p.index()]
+                                    .get()
+                                    .use_category()
+                                    <span class="kw">as </span>u8)
+                                    <span class="kw">as </span>i32
+                                    - <span class="number">0</span>)
+                                    <span class="kw">as </span>usize]) <span class="kw">as </span>i32;
+                                <span class="kw">if </span>(_ic
+                                    &lt;= (_use_syllable_machine_trans_keys[(_keys + <span class="number">1</span>) <span class="kw">as </span>usize])
+                                        <span class="kw">as </span>i32
+                                    &amp;&amp; _ic
+                                        &gt;= (_use_syllable_machine_trans_keys[(_keys) <span class="kw">as </span>usize])
+                                            <span class="kw">as </span>i32)
+                                {
+                                    _trans = (_use_syllable_machine_indices[(_inds
+                                        + (_ic
+                                            - (_use_syllable_machine_trans_keys[(_keys) <span class="kw">as </span>usize])
+                                                <span class="kw">as </span>i32)
+                                            <span class="kw">as </span>i32)
+                                        <span class="kw">as </span>usize])
+                                        <span class="kw">as </span>u32;
+                                } <span class="kw">else </span>{
+                                    _trans = (_use_syllable_machine_index_defaults[(cs) <span class="kw">as </span>usize])
+                                        <span class="kw">as </span>u32;
+                                }
+                            }
+                        } <span class="kw">else </span>{
+                            {
+                                _trans =
+                                    (_use_syllable_machine_index_defaults[(cs) <span class="kw">as </span>usize]) <span class="kw">as </span>u32;
+                            }
                         }
-                        <span class="kw">_ </span>=&gt; {}
                     }
                 }
-                <span class="number">3 </span>=&gt; {
-                    te = p + <span class="number">1</span>;
-                    act = <span class="number">8</span>;
+                cs = (_use_syllable_machine_cond_targs[(_trans) <span class="kw">as </span>usize]) <span class="kw">as </span>i32;
+                <span class="kw">if </span>(_use_syllable_machine_cond_actions[(_trans) <span class="kw">as </span>usize] != <span class="number">0</span>) {
+                    {
+                        <span class="kw">match </span>(_use_syllable_machine_cond_actions[(_trans) <span class="kw">as </span>usize]) {
+                            <span class="number">2 </span>=&gt; {
+                                te = p + <span class="number">1</span>;
+                            }
+                            <span class="number">5 </span>=&gt; {
+                                te = p + <span class="number">1</span>;
+                                {
+                                    <span class="macro">found_syllable!</span>(SyllableType::IndependentCluster);
+                                }
+                            }
+                            <span class="number">9 </span>=&gt; {
+                                te = p + <span class="number">1</span>;
+                                {
+                                    <span class="macro">found_syllable!</span>(SyllableType::StandardCluster);
+                                }
+                            }
+                            <span class="number">7 </span>=&gt; {
+                                te = p + <span class="number">1</span>;
+                                {
+                                    <span class="macro">found_syllable!</span>(SyllableType::BrokenCluster);
+                                }
+                            }
+                            <span class="number">6 </span>=&gt; {
+                                te = p + <span class="number">1</span>;
+                                {
+                                    <span class="macro">found_syllable!</span>(SyllableType::NonCluster);
+                                }
+                            }
+                            <span class="number">10 </span>=&gt; {
+                                te = p;
+                                p = p - <span class="number">1</span>;
+                                {
+                                    <span class="macro">found_syllable!</span>(SyllableType::ViramaTerminatedCluster);
+                                }
+                            }
+                            <span class="number">11 </span>=&gt; {
+                                te = p;
+                                p = p - <span class="number">1</span>;
+                                {
+                                    <span class="macro">found_syllable!</span>(SyllableType::SakotTerminatedCluster);
+                                }
+                            }
+                            <span class="number">8 </span>=&gt; {
+                                te = p;
+                                p = p - <span class="number">1</span>;
+                                {
+                                    <span class="macro">found_syllable!</span>(SyllableType::StandardCluster);
+                                }
+                            }
+                            <span class="number">13 </span>=&gt; {
+                                te = p;
+                                p = p - <span class="number">1</span>;
+                                {
+                                    <span class="macro">found_syllable!</span>(SyllableType::NumberJoinerTerminatedCluster);
+                                }
+                            }
+                            <span class="number">12 </span>=&gt; {
+                                te = p;
+                                p = p - <span class="number">1</span>;
+                                {
+                                    <span class="macro">found_syllable!</span>(SyllableType::NumeralCluster);
+                                }
+                            }
+                            <span class="number">14 </span>=&gt; {
+                                te = p;
+                                p = p - <span class="number">1</span>;
+                                {
+                                    <span class="macro">found_syllable!</span>(SyllableType::SymbolCluster);
+                                }
+                            }
+                            <span class="number">17 </span>=&gt; {
+                                te = p;
+                                p = p - <span class="number">1</span>;
+                                {
+                                    <span class="macro">found_syllable!</span>(SyllableType::HieroglyphCluster);
+                                }
+                            }
+                            <span class="number">15 </span>=&gt; {
+                                te = p;
+                                p = p - <span class="number">1</span>;
+                                {
+                                    <span class="macro">found_syllable!</span>(SyllableType::BrokenCluster);
+                                }
+                            }
+                            <span class="number">16 </span>=&gt; {
+                                te = p;
+                                p = p - <span class="number">1</span>;
+                                {
+                                    <span class="macro">found_syllable!</span>(SyllableType::NonCluster);
+                                }
+                            }
+                            <span class="number">1 </span>=&gt; {
+                                p = (te) - <span class="number">1</span>;
+                                {
+                                    <span class="macro">found_syllable!</span>(SyllableType::BrokenCluster);
+                                }
+                            }
+
+                            <span class="kw">_ </span>=&gt; {}
+                        }
+                    }
                 }
-                <span class="number">9 </span>=&gt; {
-                    te = p + <span class="number">1</span>;
-                    act = <span class="number">9</span>;
+                <span class="kw">break </span><span class="lifetime">&#39;_again</span>;
+            }
+            <span class="kw">if </span>(p == eof) {
+                {
+                    <span class="kw">if </span>(cs &gt;= <span class="number">2</span>) {
+                        <span class="kw">break </span><span class="lifetime">&#39;_resume</span>;
+                    }
                 }
-                <span class="kw">_ </span>=&gt; {}
+            } <span class="kw">else </span>{
+                {
+                    <span class="kw">match </span>(_use_syllable_machine_to_state_actions[(cs) <span class="kw">as </span>usize]) {
+                        <span class="number">3 </span>=&gt; {
+                            ts = p0;
+                        }
+
+                        <span class="kw">_ </span>=&gt; {}
+                    }
+                    p += <span class="number">1</span>;
+                    <span class="kw">continue </span><span class="lifetime">&#39;_resume</span>;
+                }
             }
+            <span class="kw">break </span><span class="lifetime">&#39;_resume</span>;
         }
-
-        <span class="kw">if </span>MACHINE_TO_STATE_ACTIONS[cs] == <span class="number">6 </span>{
-            ts = <span class="number">0</span>;
-        }
-
-        p += <span class="number">1</span>;
-        <span class="kw">if </span>p != pe {
-            <span class="kw">continue</span>;
-        }
-
-        <span class="kw">if </span>p == eof {
-            <span class="kw">if </span>MACHINE_EOF_TRANS[cs] &gt; <span class="number">0 </span>{
-                trans = (MACHINE_EOF_TRANS[cs] - <span class="number">1</span>) <span class="kw">as </span>usize;
-                reset = <span class="bool-val">false</span>;
-                <span class="kw">continue</span>;
-            }
-        }
-
-        <span class="kw">break</span>;
     }
 }
 
@@ -1008,10 +757,12 @@
     end: usize,
     syllable_serial: <span class="kw-2">&amp;mut </span>u8,
     kind: SyllableType,
-    buffer: <span class="kw-2">&amp;mut </span>Buffer,
+    buffer: <span class="kw-2">&amp;</span>[Cell&lt;GlyphInfo&gt;],
 ) {
     <span class="kw">for </span>i <span class="kw">in </span>start..end {
-        buffer.info[i].set_syllable((<span class="kw-2">*</span>syllable_serial &lt;&lt; <span class="number">4</span>) | kind <span class="kw">as </span>u8);
+        <span class="kw">let </span><span class="kw-2">mut </span>glyph = buffer[i].get();
+        glyph.set_syllable((<span class="kw-2">*</span>syllable_serial &lt;&lt; <span class="number">4</span>) | kind <span class="kw">as </span>u8);
+        buffer[i].set(glyph);
     }
 
     <span class="kw-2">*</span>syllable_serial += <span class="number">1</span>;
@@ -1020,4 +771,23 @@
         <span class="kw-2">*</span>syllable_serial = <span class="number">1</span>;
     }
 }
+
+<span class="kw">fn </span>not_standard_default_ignorable(i: <span class="kw-2">&amp;</span>GlyphInfo) -&gt; bool {
+    !(<span class="macro">matches!</span>(i.use_category(), category::O | category::RSV) &amp;&amp; i.is_default_ignorable())
+}
+
+<span class="kw">fn </span>included(infos: <span class="kw-2">&amp;</span>[Cell&lt;GlyphInfo&gt;], i: usize) -&gt; bool {
+    <span class="kw">let </span>glyph = infos[i].get();
+    <span class="kw">if </span>!not_standard_default_ignorable(<span class="kw-2">&amp;</span>glyph) {
+        <span class="kw">return </span><span class="bool-val">false</span>;
+    }
+    <span class="kw">if </span>glyph.use_category() == category::ZWNJ {
+        <span class="kw">for </span>glyph2 <span class="kw">in </span><span class="kw-2">&amp;</span>infos[i + <span class="number">1</span>..] {
+            <span class="kw">if </span>not_standard_default_ignorable(<span class="kw-2">&amp;</span>glyph2.get()) {
+                <span class="kw">return </span>!glyph2.get().is_unicode_mark();
+            }
+        }
+    }
+    <span class="bool-val">true
+</span>}
 </code></pre></div></section></main></body></html>

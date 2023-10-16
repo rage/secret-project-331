@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tokio-util-0.7.8/src/sync/mpsc.rs`."><title>mpsc.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tokio_util" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../tokio_util/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tokio-util-0.7.9/src/sync/mpsc.rs`."><title>mpsc.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tokio_util" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../tokio_util/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -282,6 +282,47 @@
 <a href="#282" id="282">282</a>
 <a href="#283" id="283">283</a>
 <a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>futures_sink::Sink;
 <span class="kw">use </span>std::pin::Pin;
 <span class="kw">use </span>std::task::{Context, Poll};
@@ -328,7 +369,7 @@
 </span><span class="kw">pub struct </span>PollSender&lt;T&gt; {
     sender: <span class="prelude-ty">Option</span>&lt;Sender&lt;T&gt;&gt;,
     state: State&lt;T&gt;,
-    acquire: ReusableBoxFuture&lt;<span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span>&lt;OwnedPermit&lt;T&gt;, PollSendError&lt;T&gt;&gt;&gt;,
+    acquire: PollSenderFuture&lt;T&gt;,
 }
 
 <span class="comment">// Creates a future for acquiring a permit from the underlying channel.  This is used to ensure
@@ -348,13 +389,56 @@
     }
 }
 
-<span class="kw">impl</span>&lt;T: Send + <span class="lifetime">&#39;static</span>&gt; PollSender&lt;T&gt; {
+<span class="kw">type </span>InnerFuture&lt;<span class="lifetime">&#39;a</span>, T&gt; = ReusableBoxFuture&lt;<span class="lifetime">&#39;a</span>, <span class="prelude-ty">Result</span>&lt;OwnedPermit&lt;T&gt;, PollSendError&lt;T&gt;&gt;&gt;;
+
+<span class="attr">#[derive(Debug)]
+</span><span class="comment">// TODO: This should be replace with a type_alias_impl_trait to eliminate `&#39;static` and all the transmutes
+</span><span class="kw">struct </span>PollSenderFuture&lt;T&gt;(InnerFuture&lt;<span class="lifetime">&#39;static</span>, T&gt;);
+
+<span class="kw">impl</span>&lt;T&gt; PollSenderFuture&lt;T&gt; {
+    <span class="doccomment">/// Create with an empty inner future with no `Send` bound.
+    </span><span class="kw">fn </span>empty() -&gt; <span class="self">Self </span>{
+        <span class="comment">// We don&#39;t use `make_acquire_future` here because our relaxed bounds on `T` are not
+        // compatible with the transitive bounds required by `Sender&lt;T&gt;`.
+        </span><span class="self">Self</span>(ReusableBoxFuture::new(<span class="kw">async </span>{ <span class="macro">unreachable!</span>() }))
+    }
+}
+
+<span class="kw">impl</span>&lt;T: Send&gt; PollSenderFuture&lt;T&gt; {
+    <span class="doccomment">/// Create with an empty inner future.
+    </span><span class="kw">fn </span>new() -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>v = InnerFuture::new(make_acquire_future(<span class="prelude-val">None</span>));
+        <span class="comment">// This is safe because `make_acquire_future(None)` is actually `&#39;static`
+        </span><span class="self">Self</span>(<span class="kw">unsafe </span>{ mem::transmute::&lt;InnerFuture&lt;<span class="lifetime">&#39;_</span>, T&gt;, InnerFuture&lt;<span class="lifetime">&#39;static</span>, T&gt;&gt;(v) })
+    }
+
+    <span class="doccomment">/// Poll the inner future.
+    </span><span class="kw">fn </span>poll(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;OwnedPermit&lt;T&gt;, PollSendError&lt;T&gt;&gt;&gt; {
+        <span class="self">self</span>.<span class="number">0</span>.poll(cx)
+    }
+
+    <span class="doccomment">/// Replace the inner future.
+    </span><span class="kw">fn </span>set(<span class="kw-2">&amp;mut </span><span class="self">self</span>, sender: <span class="prelude-ty">Option</span>&lt;Sender&lt;T&gt;&gt;) {
+        <span class="kw">let </span>inner: <span class="kw-2">*mut </span>InnerFuture&lt;<span class="lifetime">&#39;static</span>, T&gt; = <span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0</span>;
+        <span class="kw">let </span>inner: <span class="kw-2">*mut </span>InnerFuture&lt;<span class="lifetime">&#39;_</span>, T&gt; = inner.cast();
+        <span class="comment">// SAFETY: The `make_acquire_future(sender)` future must not exist after the type `T`
+        // becomes invalid, and this casts away the type-level lifetime check for that. However, the
+        // inner future is never moved out of this `PollSenderFuture&lt;T&gt;`, so the future will not
+        // live longer than the `PollSenderFuture&lt;T&gt;` lives. A `PollSenderFuture&lt;T&gt;` is guaranteed
+        // to not exist after the type `T` becomes invalid, because it is annotated with a `T`, so
+        // this is ok.
+        </span><span class="kw">let </span>inner = <span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span>inner };
+        inner.set(make_acquire_future(sender));
+    }
+}
+
+<span class="kw">impl</span>&lt;T: Send&gt; PollSender&lt;T&gt; {
     <span class="doccomment">/// Creates a new `PollSender`.
     </span><span class="kw">pub fn </span>new(sender: Sender&lt;T&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             sender: <span class="prelude-val">Some</span>(sender.clone()),
             state: State::Idle(sender),
-            acquire: ReusableBoxFuture::new(make_acquire_future(<span class="prelude-val">None</span>)),
+            acquire: PollSenderFuture::new(),
         }
     }
 
@@ -381,7 +465,7 @@
                 State::Idle(sender) =&gt; {
                     <span class="comment">// Start trying to acquire a permit to reserve a slot for our send, and
                     // immediately loop back around to poll it the first time.
-                    </span><span class="self">self</span>.acquire.set(make_acquire_future(<span class="prelude-val">Some</span>(sender)));
+                    </span><span class="self">self</span>.acquire.set(<span class="prelude-val">Some</span>(sender));
                     (<span class="prelude-val">None</span>, State::Acquiring)
                 }
                 State::Acquiring =&gt; <span class="kw">match </span><span class="self">self</span>.acquire.poll(cx) {
@@ -478,7 +562,7 @@
         </span><span class="kw">match </span><span class="self">self</span>.state {
             State::Idle(<span class="kw">_</span>) =&gt; <span class="self">self</span>.state = State::Closed,
             State::Acquiring =&gt; {
-                <span class="self">self</span>.acquire.set(make_acquire_future(<span class="prelude-val">None</span>));
+                <span class="self">self</span>.acquire.set(<span class="prelude-val">None</span>);
                 <span class="self">self</span>.state = State::Closed;
             }
             <span class="kw">_ </span>=&gt; {}
@@ -499,7 +583,7 @@
             <span class="comment">// We&#39;re currently trying to reserve a slot to send into.
             </span>State::Acquiring =&gt; {
                 <span class="comment">// Replacing the future drops the in-flight one.
-                </span><span class="self">self</span>.acquire.set(make_acquire_future(<span class="prelude-val">None</span>));
+                </span><span class="self">self</span>.acquire.set(<span class="prelude-val">None</span>);
 
                 <span class="comment">// If we haven&#39;t closed yet, we have to clone our stored sender since we have no way
                 // to get it back from the acquire future we just dropped.
@@ -539,9 +623,7 @@
         <span class="self">Self </span>{
             sender,
             state,
-            <span class="comment">// We don&#39;t use `make_acquire_future` here because our relaxed bounds on `T` are not
-            // compatible with the transitive bounds required by `Sender&lt;T&gt;`.
-            </span>acquire: ReusableBoxFuture::new(<span class="kw">async </span>{ <span class="macro">unreachable!</span>() }),
+            acquire: PollSenderFuture::empty(),
         }
     }
 }

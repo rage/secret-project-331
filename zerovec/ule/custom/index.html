@@ -110,8 +110,8 @@ to enable human-readable serialization and deserialization.</p>
 }
 
 <span class="kw">fn </span>main() {
-    <span class="kw">let </span><span class="kw-2">mut </span>foos = <span class="macro">vec!</span>[Foo {field1: <span class="string">&#39;u&#39;</span>, field2: <span class="number">983</span>, field3: ZeroVec::alloc_from_slice(<span class="kw-2">&amp;</span>[<span class="number">1212</span>,<span class="number">2309</span>,<span class="number">500</span>,<span class="number">7000</span>])},
-                        Foo {field1: <span class="string">&#39;l&#39;</span>, field2: <span class="number">1010</span>, field3: ZeroVec::alloc_from_slice(<span class="kw-2">&amp;</span>[<span class="number">1932</span>, <span class="number">0</span>, <span class="number">8888</span>, <span class="number">91237</span>])}];
+    <span class="kw">let </span><span class="kw-2">mut </span>foos = [Foo {field1: <span class="string">&#39;u&#39;</span>, field2: <span class="number">983</span>, field3: ZeroVec::alloc_from_slice(<span class="kw-2">&amp;</span>[<span class="number">1212</span>,<span class="number">2309</span>,<span class="number">500</span>,<span class="number">7000</span>])},
+                    Foo {field1: <span class="string">&#39;l&#39;</span>, field2: <span class="number">1010</span>, field3: ZeroVec::alloc_from_slice(<span class="kw-2">&amp;</span>[<span class="number">1932</span>, <span class="number">0</span>, <span class="number">8888</span>, <span class="number">91237</span>])}];
 
     <span class="kw">let </span>vzv = VarZeroVec::&lt;<span class="kw">_</span>&gt;::from(<span class="kw-2">&amp;</span>foos);
 

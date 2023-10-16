@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.7.0/src/complex/khmer.rs`."><title>khmer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../rustybuzz/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.10.0/src/complex/khmer.rs`."><title>khmer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../rustybuzz/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -316,56 +316,15 @@
 <a href="#316" id="316">316</a>
 <a href="#317" id="317">317</a>
 <a href="#318" id="318">318</a>
-<a href="#319" id="319">319</a>
-<a href="#320" id="320">320</a>
-<a href="#321" id="321">321</a>
-<a href="#322" id="322">322</a>
-<a href="#323" id="323">323</a>
-<a href="#324" id="324">324</a>
-<a href="#325" id="325">325</a>
-<a href="#326" id="326">326</a>
-<a href="#327" id="327">327</a>
-<a href="#328" id="328">328</a>
-<a href="#329" id="329">329</a>
-<a href="#330" id="330">330</a>
-<a href="#331" id="331">331</a>
-<a href="#332" id="332">332</a>
-<a href="#333" id="333">333</a>
-<a href="#334" id="334">334</a>
-<a href="#335" id="335">335</a>
-<a href="#336" id="336">336</a>
-<a href="#337" id="337">337</a>
-<a href="#338" id="338">338</a>
-<a href="#339" id="339">339</a>
-<a href="#340" id="340">340</a>
-<a href="#341" id="341">341</a>
-<a href="#342" id="342">342</a>
-<a href="#343" id="343">343</a>
-<a href="#344" id="344">344</a>
-<a href="#345" id="345">345</a>
-<a href="#346" id="346">346</a>
-<a href="#347" id="347">347</a>
-<a href="#348" id="348">348</a>
-<a href="#349" id="349">349</a>
-<a href="#350" id="350">350</a>
-<a href="#351" id="351">351</a>
-<a href="#352" id="352">352</a>
-<a href="#353" id="353">353</a>
-<a href="#354" id="354">354</a>
-<a href="#355" id="355">355</a>
-<a href="#356" id="356">356</a>
-<a href="#357" id="357">357</a>
-<a href="#358" id="358">358</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>alloc::boxed::Box;
 
-<span class="kw">use crate</span>::{Tag, Mask, Face, GlyphInfo};
-<span class="kw">use </span><span class="kw">crate</span>::buffer::{Buffer, BufferFlags};
+<span class="kw">use </span><span class="kw">super</span>::indic::{category, position};
+<span class="kw">use super</span>::<span class="kw-2">*</span>;
+<span class="kw">use </span><span class="kw">crate</span>::buffer::Buffer;
 <span class="kw">use </span><span class="kw">crate</span>::ot::{feature, FeatureFlags};
 <span class="kw">use </span><span class="kw">crate</span>::plan::{ShapePlan, ShapePlanner};
 <span class="kw">use </span><span class="kw">crate</span>::unicode::{CharExt, GeneralCategoryExt};
-<span class="kw">use </span><span class="kw">super</span>::indic::{category, position};
-<span class="kw">use super</span>::<span class="kw-2">*</span>;
-
+<span class="kw">use crate</span>::{Face, GlyphInfo, Mask, Tag};
 
 <span class="kw">pub const </span>KHMER_SHAPER: ComplexShaper = ComplexShaper {
     collect_features: <span class="prelude-val">Some</span>(collect_features),
@@ -383,7 +342,6 @@
     fallback_position: <span class="bool-val">false</span>,
 };
 
-
 <span class="kw">const </span>KHMER_FEATURES: <span class="kw-2">&amp;</span>[(Tag, FeatureFlags)] = <span class="kw-2">&amp;</span>[
     <span class="comment">// Basic features.
     // These features are applied in order, one at a time, after reordering.
@@ -391,13 +349,28 @@
     (feature::BELOW_BASE_FORMS, FeatureFlags::MANUAL_JOINERS),
     (feature::ABOVE_BASE_FORMS, FeatureFlags::MANUAL_JOINERS),
     (feature::POST_BASE_FORMS, FeatureFlags::MANUAL_JOINERS),
-    (feature::CONJUNCT_FORM_AFTER_RO, FeatureFlags::MANUAL_JOINERS),
+    (
+        feature::CONJUNCT_FORM_AFTER_RO,
+        FeatureFlags::MANUAL_JOINERS,
+    ),
     <span class="comment">// Other features.
     // These features are applied all at once after clearing syllables.
-    </span>(feature::PRE_BASE_SUBSTITUTIONS, FeatureFlags::GLOBAL_MANUAL_JOINERS),
-    (feature::ABOVE_BASE_SUBSTITUTIONS, FeatureFlags::GLOBAL_MANUAL_JOINERS),
-    (feature::BELOW_BASE_SUBSTITUTIONS, FeatureFlags::GLOBAL_MANUAL_JOINERS),
-    (feature::POST_BASE_SUBSTITUTIONS, FeatureFlags::GLOBAL_MANUAL_JOINERS),
+    </span>(
+        feature::PRE_BASE_SUBSTITUTIONS,
+        FeatureFlags::GLOBAL_MANUAL_JOINERS,
+    ),
+    (
+        feature::ABOVE_BASE_SUBSTITUTIONS,
+        FeatureFlags::GLOBAL_MANUAL_JOINERS,
+    ),
+    (
+        feature::BELOW_BASE_SUBSTITUTIONS,
+        FeatureFlags::GLOBAL_MANUAL_JOINERS,
+    ),
+    (
+        feature::POST_BASE_SUBSTITUTIONS,
+        FeatureFlags::GLOBAL_MANUAL_JOINERS,
+    ),
 ];
 
 <span class="comment">// Must be in the same order as the KHMER_FEATURES array.
@@ -458,9 +431,7 @@
             }
         }
 
-        KhmerShapePlan {
-            mask_array,
-        }
+        KhmerShapePlan { mask_array }
     }
 }
 
@@ -478,14 +449,22 @@
     //   U+1789,U+17D2,U+1789,U+17BC
     //
     // https://github.com/harfbuzz/harfbuzz/issues/974
-    </span>planner.ot_map.enable_feature(feature::LOCALIZED_FORMS, FeatureFlags::empty(), <span class="number">1</span>);
-    planner.ot_map.enable_feature(feature::GLYPH_COMPOSITION_DECOMPOSITION, FeatureFlags::empty(), <span class="number">1</span>);
+    </span>planner
+        .ot_map
+        .enable_feature(feature::LOCALIZED_FORMS, FeatureFlags::empty(), <span class="number">1</span>);
+    planner.ot_map.enable_feature(
+        feature::GLYPH_COMPOSITION_DECOMPOSITION,
+        FeatureFlags::empty(),
+        <span class="number">1</span>,
+    );
 
     <span class="kw">for </span>feature <span class="kw">in </span>KHMER_FEATURES.iter().take(<span class="number">5</span>) {
         planner.ot_map.add_feature(feature.<span class="number">0</span>, feature.<span class="number">1</span>, <span class="number">1</span>);
     }
 
-    planner.ot_map.add_gsub_pause(<span class="prelude-val">Some</span>(<span class="kw">crate</span>::ot::clear_syllables));
+    planner
+        .ot_map
+        .add_gsub_pause(<span class="prelude-val">Some</span>(<span class="kw">crate</span>::ot::clear_syllables));
 
     <span class="kw">for </span>feature <span class="kw">in </span>KHMER_FEATURES.iter().skip(<span class="number">5</span>) {
         planner.ot_map.add_feature(feature.<span class="number">0</span>, feature.<span class="number">1</span>, <span class="number">1</span>);
@@ -505,7 +484,15 @@
 }
 
 <span class="kw">fn </span>reorder(plan: <span class="kw-2">&amp;</span>ShapePlan, face: <span class="kw-2">&amp;</span>Face, buffer: <span class="kw-2">&amp;mut </span>Buffer) {
-    insert_dotted_circles(face, buffer);
+    <span class="kw">use </span><span class="kw">super</span>::khmer_machine::SyllableType;
+
+    syllabic::insert_dotted_circles(
+        face,
+        buffer,
+        SyllableType::BrokenCluster <span class="kw">as </span>u8,
+        category::DOTTED_CIRCLE,
+        <span class="prelude-val">Some</span>(category::REPHA),
+    );
 
     <span class="kw">let </span>khmer_plan = plan.data::&lt;KhmerShapePlan&gt;();
 
@@ -518,72 +505,7 @@
     }
 }
 
-<span class="kw">fn </span>insert_dotted_circles(face: <span class="kw-2">&amp;</span>Face, buffer: <span class="kw-2">&amp;mut </span>Buffer) {
-    <span class="kw">use </span><span class="kw">super</span>::khmer_machine::SyllableType;
-
-    <span class="kw">if </span>buffer.flags.contains(BufferFlags::DO_NOT_INSERT_DOTTED_CIRCLE) {
-        <span class="kw">return</span>;
-    }
-
-    <span class="comment">// Note: This loop is extra overhead, but should not be measurable.
-    // TODO Use a buffer scratch flag to remove the loop.
-    </span><span class="kw">let </span>has_broken_syllables = buffer.info_slice().iter()
-        .any(|info| info.syllable() &amp; <span class="number">0x0F </span>== SyllableType::BrokenCluster <span class="kw">as </span>u8);
-
-    <span class="kw">if </span>!has_broken_syllables {
-        <span class="kw">return</span>;
-    }
-
-    <span class="kw">let </span>dottedcircle_glyph = <span class="kw">match </span>face.glyph_index(<span class="number">0x25CC</span>) {
-        <span class="prelude-val">Some</span>(g) =&gt; g.<span class="number">0 </span><span class="kw">as </span>u32,
-        <span class="prelude-val">None </span>=&gt; <span class="kw">return</span>,
-    };
-
-    <span class="kw">let </span><span class="kw-2">mut </span>dottedcircle = GlyphInfo {
-        glyph_id: <span class="number">0x25CC</span>,
-        ..GlyphInfo::default()
-    };
-    dottedcircle.set_khmer_properties();
-    dottedcircle.glyph_id = dottedcircle_glyph;
-
-    buffer.clear_output();
-
-    buffer.idx = <span class="number">0</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>last_syllable = <span class="number">0</span>;
-    <span class="kw">while </span>buffer.idx &lt; buffer.len {
-        <span class="kw">let </span>syllable = buffer.cur(<span class="number">0</span>).syllable();
-        <span class="kw">let </span>syllable_type = syllable &amp; <span class="number">0x0F</span>;
-        <span class="kw">if </span>last_syllable != syllable &amp;&amp; syllable_type == SyllableType::BrokenCluster <span class="kw">as </span>u8 {
-            last_syllable = syllable;
-
-            <span class="kw">let </span><span class="kw-2">mut </span>ginfo = dottedcircle;
-            ginfo.cluster = buffer.cur(<span class="number">0</span>).cluster;
-            ginfo.mask = buffer.cur(<span class="number">0</span>).mask;
-            ginfo.set_syllable(buffer.cur(<span class="number">0</span>).syllable());
-
-            <span class="comment">// Insert dottedcircle after possible Repha.
-            </span><span class="kw">while </span>buffer.idx &lt; buffer.len &amp;&amp;
-                last_syllable == buffer.cur(<span class="number">0</span>).syllable() &amp;&amp;
-                buffer.cur(<span class="number">0</span>).indic_category() == category::REPHA
-            {
-                buffer.next_glyph();
-            }
-
-            buffer.output_info(ginfo);
-        } <span class="kw">else </span>{
-            buffer.next_glyph();
-        }
-    }
-
-    buffer.swap_buffers();
-}
-
-<span class="kw">fn </span>reorder_syllable(
-    khmer_plan: <span class="kw-2">&amp;</span>KhmerShapePlan,
-    start: usize,
-    end: usize,
-    buffer: <span class="kw-2">&amp;mut </span>Buffer,
-) {
+<span class="kw">fn </span>reorder_syllable(khmer_plan: <span class="kw-2">&amp;</span>KhmerShapePlan, start: usize, end: usize, buffer: <span class="kw-2">&amp;mut </span>Buffer) {
     <span class="kw">use </span><span class="kw">super</span>::khmer_machine::SyllableType;
 
     <span class="kw">let </span>syllable_type = <span class="kw">match </span>buffer.info[start].syllable() &amp; <span class="number">0x0F </span>{
@@ -612,16 +534,16 @@
     <span class="comment">// Setup masks.
     </span>{
         <span class="comment">// Post-base
-        </span><span class="kw">let </span>mask = plan.mask_array[khmer_feature::BLWF] |
-            plan.mask_array[khmer_feature::ABVF] |
-            plan.mask_array[khmer_feature::PSTF];
-        <span class="kw">for </span>info <span class="kw">in </span><span class="kw-2">&amp;mut </span>buffer.info[start+<span class="number">1</span>..end] {
+        </span><span class="kw">let </span>mask = plan.mask_array[khmer_feature::BLWF]
+            | plan.mask_array[khmer_feature::ABVF]
+            | plan.mask_array[khmer_feature::PSTF];
+        <span class="kw">for </span>info <span class="kw">in </span><span class="kw-2">&amp;mut </span>buffer.info[start + <span class="number">1</span>..end] {
             info.mask |= mask;
         }
     }
 
     <span class="kw">let </span><span class="kw-2">mut </span>num_coengs = <span class="number">0</span>;
-    <span class="kw">for </span>i <span class="kw">in </span>start+<span class="number">1</span>..end {
+    <span class="kw">for </span>i <span class="kw">in </span>start + <span class="number">1</span>..end {
         <span class="comment">// When a COENG + (Cons | IndV) combination are found (and subscript count
         // is less than two) the character combination is handled according to the
         // subscript type of the character following the COENG.
@@ -643,7 +565,7 @@
                 </span>buffer.merge_clusters(start, i + <span class="number">2</span>);
                 <span class="kw">let </span>t0 = buffer.info[i];
                 <span class="kw">let </span>t1 = buffer.info[i + <span class="number">1</span>];
-                <span class="kw">for </span>k <span class="kw">in </span>(<span class="number">0</span>..i-start).rev() {
+                <span class="kw">for </span>k <span class="kw">in </span>(<span class="number">0</span>..i - start).rev() {
                     buffer.info[k + start + <span class="number">2</span>] = buffer.info[k + start];
                 }
 
@@ -656,7 +578,7 @@
                 // U+1784,U+17D2,U+179A,U+17D2,U+1782
                 // U+1784,U+17D2,U+1782,U+17D2,U+179A
                 </span><span class="kw">if </span>plan.mask_array[khmer_feature::CFAR] != <span class="number">0 </span>{
-                    <span class="kw">for </span>j <span class="kw">in </span>i+<span class="number">2</span>..end {
+                    <span class="kw">for </span>j <span class="kw">in </span>i + <span class="number">2</span>..end {
                         buffer.info[j].mask |= plan.mask_array[khmer_feature::CFAR];
                     }
                 }
@@ -669,7 +591,7 @@
             // Move to the start.
             </span>buffer.merge_clusters(start, i + <span class="number">1</span>);
             <span class="kw">let </span>t = buffer.info[i];
-            <span class="kw">for </span>k <span class="kw">in </span>(<span class="number">0</span>..i-start).rev() {
+            <span class="kw">for </span>k <span class="kw">in </span>(<span class="number">0</span>..i - start).rev() {
                 buffer.info[k + start + <span class="number">1</span>] = buffer.info[k + start];
             }
             buffer.info[start] = t;
@@ -681,7 +603,9 @@
     <span class="comment">// Khmer spec has &#39;clig&#39; as part of required shaping features:
     // &quot;Apply feature &#39;clig&#39; to form ligatures that are desired for
     // typographical correctness.&quot;, hence in overrides...
-    </span>planner.ot_map.enable_feature(feature::CONTEXTUAL_LIGATURES, FeatureFlags::empty(), <span class="number">1</span>);
+    </span>planner
+        .ot_map
+        .enable_feature(feature::CONTEXTUAL_LIGATURES, FeatureFlags::empty(), <span class="number">1</span>);
 
     planner.ot_map.disable_feature(feature::STANDARD_LIGATURES);
 }
@@ -689,12 +613,8 @@
 <span class="kw">fn </span>decompose(<span class="kw">_</span>: <span class="kw-2">&amp;</span>ShapeNormalizeContext, ab: char) -&gt; <span class="prelude-ty">Option</span>&lt;(char, char)&gt; {
     <span class="comment">// Decompose split matras that don&#39;t have Unicode decompositions.
     </span><span class="kw">match </span>ab {
-        <span class="string">&#39;\u{17BE}&#39; </span>|
-        <span class="string">&#39;\u{17BF}&#39; </span>|
-        <span class="string">&#39;\u{17C0}&#39; </span>|
-        <span class="string">&#39;\u{17C4}&#39; </span>|
-        <span class="string">&#39;\u{17C5}&#39; </span>=&gt; <span class="prelude-val">Some</span>((<span class="string">&#39;\u{17C1}&#39;</span>, ab)),
-        <span class="kw">_ </span>=&gt; <span class="kw">crate</span>::unicode::decompose(ab)
+        <span class="string">&#39;\u{17BE}&#39; </span>| <span class="string">&#39;\u{17BF}&#39; </span>| <span class="string">&#39;\u{17C0}&#39; </span>| <span class="string">&#39;\u{17C4}&#39; </span>| <span class="string">&#39;\u{17C5}&#39; </span>=&gt; <span class="prelude-val">Some</span>((<span class="string">&#39;\u{17C1}&#39;</span>, ab)),
+        <span class="kw">_ </span>=&gt; <span class="kw">crate</span>::unicode::decompose(ab),
     }
 }
 

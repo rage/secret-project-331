@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["arithmetic_persian_from_fixed","fixed_from_arithmetic_persian"]};

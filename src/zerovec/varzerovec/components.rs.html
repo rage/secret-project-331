@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerovec-0.9.4/src/varzerovec/components.rs`."><title>components.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zerovec" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../zerovec/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerovec-0.10.0/src/varzerovec/components.rs`."><title>components.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zerovec" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../zerovec/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -572,11 +572,6 @@
 <a href="#572" id="572">572</a>
 <a href="#573" id="573">573</a>
 <a href="#574" id="574">574</a>
-<a href="#575" id="575">575</a>
-<a href="#576" id="576">576</a>
-<a href="#577" id="577">577</a>
-<a href="#578" id="578">578</a>
-<a href="#579" id="579">579</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
@@ -632,7 +627,7 @@
 /// Will have a smaller data size, but it&#39;s more likely for larger arrays
 /// to be unrepresentable (and error on construction)
 ///
-/// This is the default index size used by all [`VarZeroVec`](super::VarZeroVec) tyoes.
+/// This is the default index size used by all [`VarZeroVec`](super::VarZeroVec) types.
 </span><span class="attr">#[derive(Copy, Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[allow(clippy::exhaustive_structs)] </span><span class="comment">// marker
 </span><span class="kw">pub struct </span>Index16;
@@ -707,14 +702,8 @@
 </span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: <span class="question-mark">?</span>Sized, F&gt; Copy <span class="kw">for </span>VarZeroVecComponents&lt;<span class="lifetime">&#39;a</span>, T, F&gt; {}
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: <span class="question-mark">?</span>Sized, F&gt; Clone <span class="kw">for </span>VarZeroVecComponents&lt;<span class="lifetime">&#39;a</span>, T, F&gt; {
     <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
-        VarZeroVecComponents {
-            len: <span class="self">self</span>.len,
-            indices: <span class="self">self</span>.indices,
-            things: <span class="self">self</span>.things,
-            entire_slice: <span class="self">self</span>.entire_slice,
-            marker: PhantomData,
-        }
-    }
+        <span class="kw-2">*</span><span class="self">self
+    </span>}
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: VarULE + <span class="question-mark">?</span>Sized, F&gt; Default <span class="kw">for </span>VarZeroVecComponents&lt;<span class="lifetime">&#39;a</span>, T, F&gt; {
@@ -740,14 +729,15 @@
     <span class="doccomment">/// Construct a new VarZeroVecComponents, checking invariants about the overall buffer size:
     ///
     /// - There must be either zero or at least four bytes (if four, this is the &quot;length&quot; parsed as a usize)
-    /// - There must be at least `4*length + 4` bytes total, to form the the array `indices` of indices
+    /// - There must be at least `4*length + 4` bytes total, to form the array `indices` of indices
     /// - `indices[i]..indices[i+1]` must index into a valid section of
     ///   `things`, such that it parses to a `T::VarULE`
     /// - `indices[len - 1]..things.len()` must index into a valid section of
     ///   `things`, such that it parses to a `T::VarULE`
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>parse_byte_slice(slice: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ZeroVecError&gt; {
-        <span class="kw">if </span>slice.is_empty() {
+        <span class="comment">// The empty VZV is special-cased to the empty slice
+        </span><span class="kw">if </span>slice.is_empty() {
             <span class="kw">return </span><span class="prelude-val">Ok</span>(VarZeroVecComponents {
                 len: <span class="number">0</span>,
                 indices: <span class="kw-2">&amp;</span>[],
@@ -798,7 +788,8 @@
     /// The bytes must have previously successfully run through
     /// [`VarZeroVecComponents::parse_byte_slice()`]
     </span><span class="kw">pub unsafe fn </span>from_bytes_unchecked(slice: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; <span class="self">Self </span>{
-        <span class="kw">if </span>slice.is_empty() {
+        <span class="comment">// The empty VZV is special-cased to the empty slice
+        </span><span class="kw">if </span>slice.is_empty() {
             <span class="kw">return </span>VarZeroVecComponents {
                 len: <span class="number">0</span>,
                 indices: <span class="kw-2">&amp;</span>[],
@@ -948,7 +939,7 @@
                     .copied()
                     .map(F::rawbytes_to_usize)
                     .skip(<span class="number">1</span>)
-                    .chain(core::iter::once(<span class="self">self</span>.things.len())),
+                    .chain([<span class="self">self</span>.things.len()]),
             )
             .map(<span class="kw">move </span>|(start, end)| <span class="kw">unsafe </span>{ <span class="self">self</span>.things.get_unchecked(start..end) })
             .map(|bytes| <span class="kw">unsafe </span>{ T::from_byte_slice_unchecked(bytes) })
@@ -1064,12 +1055,13 @@
 }
 
 <span class="doccomment">/// Collects the bytes for a VarZeroSlice into a Vec.
-</span><span class="kw">pub fn </span>get_serializable_bytes&lt;T, A, F&gt;(elements: <span class="kw-2">&amp;</span>[A]) -&gt; <span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt;
+</span><span class="kw">pub fn </span>get_serializable_bytes_non_empty&lt;T, A, F&gt;(elements: <span class="kw-2">&amp;</span>[A]) -&gt; <span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt;
 <span class="kw">where
     </span>T: VarULE + <span class="question-mark">?</span>Sized,
     A: EncodeAsVarULE&lt;T&gt;,
     F: VarZeroVecFormat,
 {
+    <span class="macro">debug_assert!</span>(!elements.is_empty());
     <span class="kw">let </span>len = compute_serializable_len::&lt;T, A, F&gt;(elements)<span class="question-mark">?</span>;
     <span class="macro">debug_assert!</span>(len &gt;= LENGTH_WIDTH <span class="kw">as </span>u32);
     <span class="kw">let </span><span class="kw-2">mut </span>output: Vec&lt;u8&gt; = <span class="macro">alloc::vec!</span>[<span class="number">0</span>; len <span class="kw">as </span>usize];
@@ -1145,9 +1137,7 @@
     <span class="kw">let </span>data_len: u32 = elements
         .iter()
         .map(|v| u32::try_from(v.encode_var_ule_len()).ok())
-        .fold(<span class="prelude-val">Some</span>(<span class="number">0u32</span>), |s, v| {
-            s.and_then(|s| v.and_then(|v| s.checked_add(v)))
-        })<span class="question-mark">?</span>;
+        .try_fold(<span class="number">0u32</span>, |s, v| s.checked_add(v<span class="question-mark">?</span>))<span class="question-mark">?</span>;
     <span class="kw">let </span>ret = idx_len.checked_add(data_len);
     <span class="kw">if let </span><span class="prelude-val">Some</span>(r) = ret {
         <span class="kw">if </span>r &gt;= F::MAX_VALUE {

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.7.0/src/complex/thai.rs`."><title>thai.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../rustybuzz/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.10.0/src/complex/thai.rs`."><title>thai.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../rustybuzz/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -379,13 +379,55 @@
 <a href="#379" id="379">379</a>
 <a href="#380" id="380">380</a>
 <a href="#381" id="381">381</a>
-</pre></div><pre class="rust"><code><span class="kw">use crate</span>::{script, Face};
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
+<a href="#406" id="406">406</a>
+<a href="#407" id="407">407</a>
+<a href="#408" id="408">408</a>
+<a href="#409" id="409">409</a>
+<a href="#410" id="410">410</a>
+<a href="#411" id="411">411</a>
+<a href="#412" id="412">412</a>
+<a href="#413" id="413">413</a>
+<a href="#414" id="414">414</a>
+<a href="#415" id="415">415</a>
+<a href="#416" id="416">416</a>
+<a href="#417" id="417">417</a>
+<a href="#418" id="418">418</a>
+<a href="#419" id="419">419</a>
+<a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+</pre></div><pre class="rust"><code><span class="kw">use super</span>::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::buffer::{Buffer, BufferClusterLevel};
 <span class="kw">use </span><span class="kw">crate</span>::ot::TableIndex;
 <span class="kw">use </span><span class="kw">crate</span>::plan::ShapePlan;
 <span class="kw">use </span><span class="kw">crate</span>::unicode::GeneralCategory;
-<span class="kw">use super</span>::<span class="kw-2">*</span>;
-
+<span class="kw">use crate</span>::{script, Face};
 
 <span class="kw">pub const </span>THAI_SHAPER: ComplexShaper = ComplexShaper {
     collect_features: <span class="prelude-val">None</span>,
@@ -402,7 +444,6 @@
     zero_width_marks: <span class="prelude-val">Some</span>(ZeroWidthMarksMode::ByGdefLate),
     fallback_position: <span class="bool-val">false</span>,
 };
-
 
 <span class="attr">#[derive(Clone, Copy, PartialEq)]
 </span><span class="kw">enum </span>Consonant {
@@ -462,7 +503,11 @@
 
 <span class="kw">impl </span>PuaMapping {
     <span class="kw">const fn </span>new(u: u32, win_pua: u32, mac_pua: u32) -&gt; <span class="self">Self </span>{
-        PuaMapping { u, win_pua, mac_pua }
+        PuaMapping {
+            u,
+            win_pua,
+            mac_pua,
+        }
     }
 }
 
@@ -475,7 +520,7 @@
     </span>PuaMapping::new(<span class="number">0x0E38</span>, <span class="number">0xF718</span>, <span class="number">0xF89B</span>), <span class="comment">// SARA U
     </span>PuaMapping::new(<span class="number">0x0E39</span>, <span class="number">0xF719</span>, <span class="number">0xF89C</span>), <span class="comment">// SARA UU
     </span>PuaMapping::new(<span class="number">0x0E3A</span>, <span class="number">0xF71A</span>, <span class="number">0xF89D</span>), <span class="comment">// PHINTHU
-    </span>PuaMapping::new(<span class="number">0x0000</span>, <span class="number">0x0000</span>, <span class="number">0x0000</span>)
+    </span>PuaMapping::new(<span class="number">0x0000</span>, <span class="number">0x0000</span>, <span class="number">0x0000</span>),
 ];
 
 <span class="kw">const </span>SDL_MAPPINGS: <span class="kw-2">&amp;</span>[PuaMapping] = <span class="kw-2">&amp;</span>[
@@ -484,7 +529,7 @@
     </span>PuaMapping::new(<span class="number">0x0E4A</span>, <span class="number">0xF707</span>, <span class="number">0xF892</span>), <span class="comment">// MAI TRI
     </span>PuaMapping::new(<span class="number">0x0E4B</span>, <span class="number">0xF708</span>, <span class="number">0xF895</span>), <span class="comment">// MAI CHATTAWA
     </span>PuaMapping::new(<span class="number">0x0E4C</span>, <span class="number">0xF709</span>, <span class="number">0xF898</span>), <span class="comment">// THANTHAKHAT
-    </span>PuaMapping::new(<span class="number">0x0000</span>, <span class="number">0x0000</span>, <span class="number">0x0000</span>)
+    </span>PuaMapping::new(<span class="number">0x0000</span>, <span class="number">0x0000</span>, <span class="number">0x0000</span>),
 ];
 
 <span class="kw">const </span>SL_MAPPINGS: <span class="kw-2">&amp;</span>[PuaMapping] = <span class="kw-2">&amp;</span>[
@@ -500,13 +545,13 @@
     </span>PuaMapping::new(<span class="number">0x0E37</span>, <span class="number">0xF704</span>, <span class="number">0xF888</span>), <span class="comment">// SARA UEE
     </span>PuaMapping::new(<span class="number">0x0E47</span>, <span class="number">0xF712</span>, <span class="number">0xF889</span>), <span class="comment">// MAITAIKHU
     </span>PuaMapping::new(<span class="number">0x0E4D</span>, <span class="number">0xF711</span>, <span class="number">0xF899</span>), <span class="comment">// NIKHAHIT
-    </span>PuaMapping::new(<span class="number">0x0000</span>, <span class="number">0x0000</span>, <span class="number">0x0000</span>)
+    </span>PuaMapping::new(<span class="number">0x0000</span>, <span class="number">0x0000</span>, <span class="number">0x0000</span>),
 ];
 
 <span class="kw">const </span>RD_MAPPINGS: <span class="kw-2">&amp;</span>[PuaMapping] = <span class="kw-2">&amp;</span>[
     PuaMapping::new(<span class="number">0x0E0D</span>, <span class="number">0xF70F</span>, <span class="number">0xF89A</span>), <span class="comment">// YO YING
     </span>PuaMapping::new(<span class="number">0x0E10</span>, <span class="number">0xF700</span>, <span class="number">0xF89E</span>), <span class="comment">// THO THAN
-    </span>PuaMapping::new(<span class="number">0x0000</span>, <span class="number">0x0000</span>, <span class="number">0x0000</span>)
+    </span>PuaMapping::new(<span class="number">0x0000</span>, <span class="number">0x0000</span>, <span class="number">0x0000</span>),
 ];
 
 <span class="kw">fn </span>pua_shape(u: u32, action: Action, face: <span class="kw-2">&amp;</span>Face) -&gt; u32 {
@@ -568,10 +613,30 @@
 
 <span class="kw">const </span>ABOVE_STATE_MACHINE: <span class="kw-2">&amp;</span>[[ASME; <span class="number">3</span>]] = <span class="kw-2">&amp;</span>[
     <span class="comment">//        AV                                      BV                                      T
-    /* T0 */ </span>[ASME::new(Action::NOP, AboveState::T3), ASME::new(Action::NOP, AboveState::T0), ASME::new(Action::SD,  AboveState::T3)],
-    <span class="comment">/* T1 */ </span>[ASME::new(Action::SL,  AboveState::T2), ASME::new(Action::NOP, AboveState::T1), ASME::new(Action::SDL, AboveState::T2)],
-    <span class="comment">/* T2 */ </span>[ASME::new(Action::NOP, AboveState::T3), ASME::new(Action::NOP, AboveState::T2), ASME::new(Action::SL,  AboveState::T3)],
-    <span class="comment">/* T3 */ </span>[ASME::new(Action::NOP, AboveState::T3), ASME::new(Action::NOP, AboveState::T3), ASME::new(Action::NOP, AboveState::T3)],
+    /* T0 */
+    </span>[
+        ASME::new(Action::NOP, AboveState::T3),
+        ASME::new(Action::NOP, AboveState::T0),
+        ASME::new(Action::SD, AboveState::T3),
+    ],
+    <span class="comment">/* T1 */
+    </span>[
+        ASME::new(Action::SL, AboveState::T2),
+        ASME::new(Action::NOP, AboveState::T1),
+        ASME::new(Action::SDL, AboveState::T2),
+    ],
+    <span class="comment">/* T2 */
+    </span>[
+        ASME::new(Action::NOP, AboveState::T3),
+        ASME::new(Action::NOP, AboveState::T2),
+        ASME::new(Action::SL, AboveState::T3),
+    ],
+    <span class="comment">/* T3 */
+    </span>[
+        ASME::new(Action::NOP, AboveState::T3),
+        ASME::new(Action::NOP, AboveState::T3),
+        ASME::new(Action::NOP, AboveState::T3),
+    ],
 ];
 
 <span class="attr">#[derive(Clone, Copy)]
@@ -608,9 +673,24 @@
 
 <span class="kw">const </span>BELOW_STATE_MACHINE: <span class="kw-2">&amp;</span>[[BSME; <span class="number">3</span>]] = <span class="kw-2">&amp;</span>[
     <span class="comment">//        AV                                      BV                                      T
-    /* B0 */ </span>[BSME::new(Action::NOP, BelowState::B0), BSME::new(Action::NOP, BelowState::B2), BSME::new(Action::NOP, BelowState::B0)],
-    <span class="comment">/* B1 */ </span>[BSME::new(Action::NOP, BelowState::B1), BSME::new(Action::RD, BelowState::B2),  BSME::new(Action::NOP, BelowState::B1)],
-    <span class="comment">/* B2 */ </span>[BSME::new(Action::NOP, BelowState::B2), BSME::new(Action::SD, BelowState::B2),  BSME::new(Action::NOP, BelowState::B2)],
+    /* B0 */
+    </span>[
+        BSME::new(Action::NOP, BelowState::B0),
+        BSME::new(Action::NOP, BelowState::B2),
+        BSME::new(Action::NOP, BelowState::B0),
+    ],
+    <span class="comment">/* B1 */
+    </span>[
+        BSME::new(Action::NOP, BelowState::B1),
+        BSME::new(Action::RD, BelowState::B2),
+        BSME::new(Action::NOP, BelowState::B1),
+    ],
+    <span class="comment">/* B2 */
+    </span>[
+        BSME::new(Action::NOP, BelowState::B2),
+        BSME::new(Action::SD, BelowState::B2),
+        BSME::new(Action::NOP, BelowState::B2),
+    ],
 ];
 
 <span class="kw">fn </span>do_pua_shaping(face: <span class="kw-2">&amp;</span>Face, buffer: <span class="kw-2">&amp;mut </span>Buffer) {
@@ -651,11 +731,7 @@
 }
 
 <span class="comment">// TODO: more tests
-</span><span class="kw">fn </span>preprocess_text(
-    plan: <span class="kw-2">&amp;</span>ShapePlan,
-    face: <span class="kw-2">&amp;</span>Face,
-    buffer: <span class="kw-2">&amp;mut </span>Buffer,
-) {
+</span><span class="kw">fn </span>preprocess_text(plan: <span class="kw-2">&amp;</span>ShapePlan, face: <span class="kw-2">&amp;</span>Face, buffer: <span class="kw-2">&amp;mut </span>Buffer) {
     <span class="comment">// This function implements the shaping logic documented here:
     //
     //   https://linux.thai.net/~thep/th-otf/shaping.html
@@ -701,10 +777,20 @@
 
     // We only get one script at a time, so a script-agnostic implementation
     // is adequate here.
-    </span><span class="attr">#[inline] </span><span class="kw">fn </span>is_sara_am(u: u32) -&gt; bool { (u &amp; !<span class="number">0x0080</span>) == <span class="number">0x0E33 </span>}
-    <span class="attr">#[inline] </span><span class="kw">fn </span>nikhahit_from_sara_am(u: u32) -&gt; u32 { u - <span class="number">0x0E33 </span>+ <span class="number">0x0E4D </span>}
-    <span class="attr">#[inline] </span><span class="kw">fn </span>sara_aa_from_sara_am(u: u32) -&gt; u32 { u - <span class="number">1 </span>}
-    <span class="attr">#[inline] </span><span class="kw">fn </span>is_tone_mark(u: u32) -&gt; bool {
+    </span><span class="attr">#[inline]
+    </span><span class="kw">fn </span>is_sara_am(u: u32) -&gt; bool {
+        (u &amp; !<span class="number">0x0080</span>) == <span class="number">0x0E33
+    </span>}
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>nikhahit_from_sara_am(u: u32) -&gt; u32 {
+        u - <span class="number">0x0E33 </span>+ <span class="number">0x0E4D
+    </span>}
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>sara_aa_from_sara_am(u: u32) -&gt; u32 {
+        u - <span class="number">1
+    </span>}
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>is_tone_mark(u: u32) -&gt; bool {
         <span class="kw">let </span>u = u &amp; !<span class="number">0x0080</span>;
         <span class="macro">matches!</span>(u, <span class="number">0x0E34</span>..=<span class="number">0x0E37 </span>| <span class="number">0x0E47</span>..=<span class="number">0x0E4E </span>| <span class="number">0x0E31</span>..=<span class="number">0x0E31</span>)
     }

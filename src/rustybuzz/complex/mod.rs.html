@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.7.0/src/complex/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../rustybuzz/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.10.0/src/complex/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../rustybuzz/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -357,21 +357,21 @@
 <a href="#357" id="357">357</a>
 <a href="#358" id="358">358</a>
 <a href="#359" id="359">359</a>
-<a href="#360" id="360">360</a>
-<a href="#361" id="361">361</a>
 </pre></div><pre class="rust"><code><span class="kw">pub mod </span>arabic;
+<span class="kw">mod </span>arabic_table;
 <span class="kw">pub mod </span>hangul;
 <span class="kw">pub mod </span>hebrew;
 <span class="kw">pub mod </span>indic;
-<span class="kw">pub mod </span>khmer;
-<span class="kw">pub mod </span>myanmar;
-<span class="kw">pub mod </span>thai;
-<span class="kw">pub mod </span>universal;
-<span class="kw">mod </span>arabic_table;
 <span class="kw">mod </span>indic_machine;
 <span class="kw">mod </span>indic_table;
+<span class="kw">pub mod </span>khmer;
 <span class="kw">mod </span>khmer_machine;
+<span class="kw">mod </span>machine_cursor;
+<span class="kw">pub mod </span>myanmar;
 <span class="kw">mod </span>myanmar_machine;
+<span class="kw">mod </span>syllabic;
+<span class="kw">pub mod </span>thai;
+<span class="kw">pub mod </span>universal;
 <span class="kw">mod </span>universal_machine;
 <span class="kw">mod </span>universal_table;
 <span class="kw">mod </span>vowel_constraints;
@@ -379,11 +379,11 @@
 <span class="kw">use </span>alloc::boxed::Box;
 <span class="kw">use </span>core::any::Any;
 
-<span class="kw">use crate</span>::{script, Direction, Face, Script, Tag};
 <span class="kw">use </span><span class="kw">crate</span>::buffer::Buffer;
 <span class="kw">use </span><span class="kw">crate</span>::common::TagExt;
-<span class="kw">use </span><span class="kw">crate</span>::normalize::{ShapeNormalizeContext, ShapeNormalizationMode};
+<span class="kw">use </span><span class="kw">crate</span>::normalize::{ShapeNormalizationMode, ShapeNormalizeContext};
 <span class="kw">use </span><span class="kw">crate</span>::plan::{ShapePlan, ShapePlanner};
+<span class="kw">use crate</span>::{script, Direction, Face, Script, Tag};
 
 <span class="kw">pub const </span>MAX_COMBINING_MARKS: usize = <span class="number">32</span>;
 
@@ -488,26 +488,7 @@
         </span>script::ARABIC
 
         <span class="comment">// Unicode-3.0 additions
-        </span>| script::MONGOLIAN
-        | script::SYRIAC
-
-        <span class="comment">// Unicode-5.0 additions
-        </span>| script::NKO
-        | script::PHAGS_PA
-
-        <span class="comment">// Unicode-6.0 additions
-        </span>| script::MANDAIC
-
-        <span class="comment">// Unicode-7.0 additions
-        </span>| script::MANICHAEAN
-        | script::PSALTER_PAHLAVI
-
-        <span class="comment">// Unicode-9.0 additions
-        </span>| script::ADLAM
-
-        <span class="comment">// Unicode-11.0 additions
-        </span>| script::HANIFI_ROHINGYA
-        | script::SOGDIAN =&gt; {
+        </span>| script::SYRIAC =&gt; {
             <span class="comment">// For Arabic script, use the Arabic shaper even if no OT script tag was found.
             // This is because we do fallback shaping for Arabic script (and not others).
             // But note that Arabic shaping is applicable only to horizontal layout; for
@@ -588,8 +569,8 @@
         </span>script::TIBETAN
 
         <span class="comment">// Unicode-3.0 additions
-        // | script::MONGOLIAN
-        // | script::SINHALA
+        </span>| script::MONGOLIAN
+        <span class="comment">// | script::SINHALA
 
         // Unicode-3.2 additions
         </span>| script::BUHID
@@ -609,10 +590,10 @@
 
         <span class="comment">// Unicode-5.0 additions
         </span>| script::BALINESE
-        <span class="comment">// | script::NKO
-        // | script::PHAGS_PA
+        | script::NKO
+        | script::PHAGS_PA
 
-        // Unicode-5.1 additions
+        <span class="comment">// Unicode-5.1 additions
         </span>| script::CHAM
         | script::KAYAH_LI
         | script::LEPCHA
@@ -631,10 +612,11 @@
         <span class="comment">// Unicode-6.0 additions
         </span>| script::BATAK
         | script::BRAHMI
-        <span class="comment">// | script::MANDAIC
+        | script::MANDAIC
 
-        // Unicode-6.1 additions
+        <span class="comment">// Unicode-6.1 additions
         </span>| script::CHAKMA
+        | script::MIAO
         | script::SHARADA
         | script::TAKRI
 
@@ -644,19 +626,20 @@
         | script::KHOJKI
         | script::KHUDAWADI
         | script::MAHAJANI
-        <span class="comment">// | script::MANICHAEAN
-        </span>| script::MODI
+        | script::MANICHAEAN
+        | script::MODI
         | script::PAHAWH_HMONG
-        <span class="comment">// | script::PSALTER_PAHLAVI
-        </span>| script::SIDDHAM
+        | script::PSALTER_PAHLAVI
+        | script::SIDDHAM
         | script::TIRHUTA
 
         <span class="comment">// Unicode-8.0 additions
         </span>| script::AHOM
+        | script::MULTANI
 
         <span class="comment">// Unicode-9.0 additions
-        // | script::ADLAM
-        </span>| script::BHAIKSUKI
+        </span>| script::ADLAM
+        | script::BHAIKSUKI
         | script::MARCHEN
         | script::NEWA
 
@@ -668,12 +651,17 @@
         <span class="comment">// Unicode-11.0 additions
         </span>| script::DOGRA
         | script::GUNJALA_GONDI
-        <span class="comment">// | script::HANIFI_ROHINGYA
-        </span>| script::MAKASAR
-        <span class="comment">// | script::SOGDIAN
+        | script::HANIFI_ROHINGYA
+        | script::MAKASAR
+        | script::MEDEFAIDRIN
+        | script::OLD_SOGDIAN
+        | script::SOGDIAN
 
-        // Unicode-12.0 additions
-        </span>| script::NANDINAGARI
+        <span class="comment">// Unicode-12.0 additions
+        </span>| script::ELYMAIC
+        | script::NANDINAGARI
+        | script::NYIAKENG_PUACHUE_HMONG
+        | script::WANCHO
 
         <span class="comment">// Unicode-13.0 additions
         </span>| script::CHORASMIAN
@@ -703,7 +691,11 @@
 
 <span class="attr">#[inline]
 </span><span class="kw">pub fn </span>rb_flag_unsafe(x: u32) -&gt; u32 {
-    <span class="kw">if </span>x &lt; <span class="number">32 </span>{ <span class="number">1 </span>&lt;&lt; x } <span class="kw">else </span>{ <span class="number">0 </span>}
+    <span class="kw">if </span>x &lt; <span class="number">32 </span>{
+        <span class="number">1 </span>&lt;&lt; x
+    } <span class="kw">else </span>{
+        <span class="number">0
+    </span>}
 }
 
 <span class="attr">#[inline]
@@ -718,6 +710,10 @@
 
 <span class="attr">#[inline]
 </span><span class="kw">pub fn </span>rb_flag64_unsafe(x: u32) -&gt; u64 {
-    <span class="kw">if </span>x &lt; <span class="number">64 </span>{ <span class="number">1 </span>&lt;&lt; (x <span class="kw">as </span>u64) } <span class="kw">else </span>{ <span class="number">0 </span>}
+    <span class="kw">if </span>x &lt; <span class="number">64 </span>{
+        <span class="number">1 </span>&lt;&lt; (x <span class="kw">as </span>u64)
+    } <span class="kw">else </span>{
+        <span class="number">0
+    </span>}
 }
 </code></pre></div></section></main></body></html>

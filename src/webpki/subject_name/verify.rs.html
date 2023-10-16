@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-webpki-0.101.4/src/subject_name/verify.rs`."><title>verify.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="webpki" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../webpki/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-webpki-0.101.6/src/subject_name/verify.rs`."><title>verify.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="webpki" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../webpki/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -423,39 +423,6 @@
 <a href="#423" id="423">423</a>
 <a href="#424" id="424">424</a>
 <a href="#425" id="425">425</a>
-<a href="#426" id="426">426</a>
-<a href="#427" id="427">427</a>
-<a href="#428" id="428">428</a>
-<a href="#429" id="429">429</a>
-<a href="#430" id="430">430</a>
-<a href="#431" id="431">431</a>
-<a href="#432" id="432">432</a>
-<a href="#433" id="433">433</a>
-<a href="#434" id="434">434</a>
-<a href="#435" id="435">435</a>
-<a href="#436" id="436">436</a>
-<a href="#437" id="437">437</a>
-<a href="#438" id="438">438</a>
-<a href="#439" id="439">439</a>
-<a href="#440" id="440">440</a>
-<a href="#441" id="441">441</a>
-<a href="#442" id="442">442</a>
-<a href="#443" id="443">443</a>
-<a href="#444" id="444">444</a>
-<a href="#445" id="445">445</a>
-<a href="#446" id="446">446</a>
-<a href="#447" id="447">447</a>
-<a href="#448" id="448">448</a>
-<a href="#449" id="449">449</a>
-<a href="#450" id="450">450</a>
-<a href="#451" id="451">451</a>
-<a href="#452" id="452">452</a>
-<a href="#453" id="453">453</a>
-<a href="#454" id="454">454</a>
-<a href="#455" id="455">455</a>
-<a href="#456" id="456">456</a>
-<a href="#457" id="457">457</a>
-<a href="#458" id="458">458</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright 2015 Brian Smith.
 //
 // Permission to use, copy, modify, and/or distribute this software for any
@@ -477,7 +444,9 @@
 };
 <span class="kw">use crate</span>::{
     cert::{Cert, EndEntityOrCa},
-    der, Error,
+    der,
+    verify_cert::Budget,
+    Error,
 };
 <span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
 </span><span class="kw">use </span>{
@@ -494,7 +463,6 @@
     iterate_names(
         <span class="prelude-val">Some</span>(cert.subject),
         cert.subject_alt_name,
-        SubjectCommonNameContents::Ignore,
         <span class="prelude-val">Err</span>(Error::CertNotValidForName),
         <span class="kw-2">&amp;mut </span>|name| {
             <span class="kw">if let </span>GeneralName::DnsName(presented_id) = name {
@@ -528,7 +496,6 @@
         // only against Subject Alternative Names.
         </span><span class="prelude-val">None</span>,
         cert.inner().subject_alt_name,
-        SubjectCommonNameContents::Ignore,
         <span class="prelude-val">Err</span>(Error::CertNotValidForName),
         <span class="kw-2">&amp;mut </span>|name| {
             <span class="kw">if let </span>GeneralName::IpAddress(presented_id) = name {
@@ -546,7 +513,7 @@
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>check_name_constraints(
     input: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>untrusted::Reader&gt;,
     subordinate_certs: <span class="kw-2">&amp;</span>Cert,
-    subject_common_name_contents: SubjectCommonNameContents,
+    budget: <span class="kw-2">&amp;mut </span>Budget,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
     <span class="kw">let </span>input = <span class="kw">match </span>input {
         <span class="prelude-val">Some</span>(input) =&gt; input,
@@ -573,13 +540,13 @@
         iterate_names(
             <span class="prelude-val">Some</span>(child.subject),
             child.subject_alt_name,
-            subject_common_name_contents,
             <span class="prelude-val">Ok</span>(()),
             <span class="kw-2">&amp;mut </span>|name| {
                 check_presented_id_conforms_to_constraints(
                     name,
                     permitted_subtrees,
                     excluded_subtrees,
+                    budget,
                 )
             },
         )<span class="question-mark">?</span>;
@@ -599,11 +566,13 @@
     name: GeneralName,
     permitted_subtrees: <span class="prelude-ty">Option</span>&lt;untrusted::Input&gt;,
     excluded_subtrees: <span class="prelude-ty">Option</span>&lt;untrusted::Input&gt;,
+    budget: <span class="kw-2">&amp;mut </span>Budget,
 ) -&gt; NameIteration {
     <span class="kw">match </span>check_presented_id_conforms_to_constraints_in_subtree(
         name,
         Subtrees::PermittedSubtrees,
         permitted_subtrees,
+        budget,
     ) {
         stop @ NameIteration::Stop(..) =&gt; {
             <span class="kw">return </span>stop;
@@ -615,6 +584,7 @@
         name,
         Subtrees::ExcludedSubtrees,
         excluded_subtrees,
+        budget,
     )
 }
 
@@ -628,6 +598,7 @@
     name: GeneralName,
     subtrees: Subtrees,
     constraints: <span class="prelude-ty">Option</span>&lt;untrusted::Input&gt;,
+    budget: <span class="kw-2">&amp;mut </span>Budget,
 ) -&gt; NameIteration {
     <span class="kw">let </span><span class="kw-2">mut </span>constraints = <span class="kw">match </span>constraints {
         <span class="prelude-val">Some</span>(constraints) =&gt; untrusted::Reader::new(constraints),
@@ -640,6 +611,10 @@
     <span class="kw">let </span><span class="kw-2">mut </span>has_permitted_subtrees_mismatch = <span class="bool-val">false</span>;
 
     <span class="kw">while </span>!constraints.at_end() {
+        <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = budget.consume_name_constraint_comparison() {
+            <span class="kw">return </span>NameIteration::Stop(<span class="prelude-val">Err</span>(e));
+        }
+
         <span class="comment">// http://tools.ietf.org/html/rfc5280#section-4.2.1.10: &quot;Within this
         // profile, the minimum and maximum fields are not used with any name
         // forms, thus, the minimum MUST be zero, and maximum MUST be absent.&quot;
@@ -756,16 +731,9 @@
     Stop(<span class="prelude-ty">Result</span>&lt;(), Error&gt;),
 }
 
-<span class="attr">#[derive(Clone, Copy)]
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>SubjectCommonNameContents {
-    DnsName,
-    Ignore,
-}
-
 <span class="kw">fn </span>iterate_names&lt;<span class="lifetime">&#39;names</span>&gt;(
     subject: <span class="prelude-ty">Option</span>&lt;untrusted::Input&lt;<span class="lifetime">&#39;names</span>&gt;&gt;,
     subject_alt_name: <span class="prelude-ty">Option</span>&lt;untrusted::Input&lt;<span class="lifetime">&#39;names</span>&gt;&gt;,
-    subject_common_name_contents: SubjectCommonNameContents,
     result_if_never_stopped_early: <span class="prelude-ty">Result</span>&lt;(), Error&gt;,
     f: <span class="kw-2">&amp;mut </span><span class="kw">impl </span>FnMut(GeneralName&lt;<span class="lifetime">&#39;names</span>&gt;) -&gt; NameIteration,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
@@ -795,20 +763,7 @@
         };
     }
 
-    <span class="kw">if let </span>(SubjectCommonNameContents::DnsName, <span class="prelude-val">Some</span>(subject)) =
-        (subject_common_name_contents, subject)
-    {
-        <span class="kw">match </span>common_name(subject) {
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(cn)) =&gt; <span class="kw">match </span>f(GeneralName::DnsName(cn)) {
-                NameIteration::Stop(result) =&gt; result,
-                NameIteration::KeepGoing =&gt; result_if_never_stopped_early,
-            },
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) =&gt; result_if_never_stopped_early,
-            <span class="prelude-val">Err</span>(err) =&gt; <span class="prelude-val">Err</span>(err),
-        }
-    } <span class="kw">else </span>{
-        result_if_never_stopped_early
-    }
+    result_if_never_stopped_early
 }
 
 <span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
@@ -821,7 +776,6 @@
     iterate_names(
         <span class="prelude-val">Some</span>(cert.subject),
         cert.subject_alt_name,
-        SubjectCommonNameContents::DnsName,
         <span class="prelude-val">Ok</span>(()),
         <span class="kw-2">&amp;mut </span>|name| {
             <span class="kw">if let </span>GeneralName::DnsName(presented_id) = name {
@@ -893,25 +847,5 @@
             <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error::BadDer),
         })
     }
-}
-
-<span class="kw">static </span>COMMON_NAME: untrusted::Input = untrusted::Input::from(<span class="kw-2">&amp;</span>[<span class="number">85</span>, <span class="number">4</span>, <span class="number">3</span>]);
-
-<span class="kw">fn </span>common_name(input: untrusted::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;untrusted::Input&gt;, Error&gt; {
-    <span class="kw">let </span>inner = <span class="kw-2">&amp;mut </span>untrusted::Reader::new(input);
-    der::nested(inner, der::Tag::Set, Error::BadDer, |tagged| {
-        der::nested(tagged, der::Tag::Sequence, Error::BadDer, |tagged| {
-            <span class="kw">while </span>!tagged.at_end() {
-                <span class="kw">let </span>name_oid = der::expect_tag_and_get_value(tagged, der::Tag::OID)<span class="question-mark">?</span>;
-                <span class="kw">if </span>name_oid == COMMON_NAME {
-                    <span class="kw">return </span>der::expect_tag_and_get_value(tagged, der::Tag::UTF8String).map(<span class="prelude-val">Some</span>);
-                } <span class="kw">else </span>{
-                    <span class="comment">// discard unused name value
-                    </span>der::read_tag_and_get_value(tagged)<span class="question-mark">?</span>;
-                }
-            }
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
-        })
-    })
 }
 </code></pre></div></section></main></body></html>

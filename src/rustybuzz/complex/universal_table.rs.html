@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.7.0/src/complex/universal_table.rs`."><title>universal_table.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../rustybuzz/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.10.0/src/complex/universal_table.rs`."><title>universal_table.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../rustybuzz/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -681,11 +681,306 @@
 <a href="#681" id="681">681</a>
 <a href="#682" id="682">682</a>
 <a href="#683" id="683">683</a>
+<a href="#684" id="684">684</a>
+<a href="#685" id="685">685</a>
+<a href="#686" id="686">686</a>
+<a href="#687" id="687">687</a>
+<a href="#688" id="688">688</a>
+<a href="#689" id="689">689</a>
+<a href="#690" id="690">690</a>
+<a href="#691" id="691">691</a>
+<a href="#692" id="692">692</a>
+<a href="#693" id="693">693</a>
+<a href="#694" id="694">694</a>
+<a href="#695" id="695">695</a>
+<a href="#696" id="696">696</a>
+<a href="#697" id="697">697</a>
+<a href="#698" id="698">698</a>
+<a href="#699" id="699">699</a>
+<a href="#700" id="700">700</a>
+<a href="#701" id="701">701</a>
+<a href="#702" id="702">702</a>
+<a href="#703" id="703">703</a>
+<a href="#704" id="704">704</a>
+<a href="#705" id="705">705</a>
+<a href="#706" id="706">706</a>
+<a href="#707" id="707">707</a>
+<a href="#708" id="708">708</a>
+<a href="#709" id="709">709</a>
+<a href="#710" id="710">710</a>
+<a href="#711" id="711">711</a>
+<a href="#712" id="712">712</a>
+<a href="#713" id="713">713</a>
+<a href="#714" id="714">714</a>
+<a href="#715" id="715">715</a>
+<a href="#716" id="716">716</a>
+<a href="#717" id="717">717</a>
+<a href="#718" id="718">718</a>
+<a href="#719" id="719">719</a>
+<a href="#720" id="720">720</a>
+<a href="#721" id="721">721</a>
+<a href="#722" id="722">722</a>
+<a href="#723" id="723">723</a>
+<a href="#724" id="724">724</a>
+<a href="#725" id="725">725</a>
+<a href="#726" id="726">726</a>
+<a href="#727" id="727">727</a>
+<a href="#728" id="728">728</a>
+<a href="#729" id="729">729</a>
+<a href="#730" id="730">730</a>
+<a href="#731" id="731">731</a>
+<a href="#732" id="732">732</a>
+<a href="#733" id="733">733</a>
+<a href="#734" id="734">734</a>
+<a href="#735" id="735">735</a>
+<a href="#736" id="736">736</a>
+<a href="#737" id="737">737</a>
+<a href="#738" id="738">738</a>
+<a href="#739" id="739">739</a>
+<a href="#740" id="740">740</a>
+<a href="#741" id="741">741</a>
+<a href="#742" id="742">742</a>
+<a href="#743" id="743">743</a>
+<a href="#744" id="744">744</a>
+<a href="#745" id="745">745</a>
+<a href="#746" id="746">746</a>
+<a href="#747" id="747">747</a>
+<a href="#748" id="748">748</a>
+<a href="#749" id="749">749</a>
+<a href="#750" id="750">750</a>
+<a href="#751" id="751">751</a>
+<a href="#752" id="752">752</a>
+<a href="#753" id="753">753</a>
+<a href="#754" id="754">754</a>
+<a href="#755" id="755">755</a>
+<a href="#756" id="756">756</a>
+<a href="#757" id="757">757</a>
+<a href="#758" id="758">758</a>
+<a href="#759" id="759">759</a>
+<a href="#760" id="760">760</a>
+<a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
+<a href="#763" id="763">763</a>
+<a href="#764" id="764">764</a>
+<a href="#765" id="765">765</a>
+<a href="#766" id="766">766</a>
+<a href="#767" id="767">767</a>
+<a href="#768" id="768">768</a>
+<a href="#769" id="769">769</a>
+<a href="#770" id="770">770</a>
+<a href="#771" id="771">771</a>
+<a href="#772" id="772">772</a>
+<a href="#773" id="773">773</a>
+<a href="#774" id="774">774</a>
+<a href="#775" id="775">775</a>
+<a href="#776" id="776">776</a>
+<a href="#777" id="777">777</a>
+<a href="#778" id="778">778</a>
+<a href="#779" id="779">779</a>
+<a href="#780" id="780">780</a>
+<a href="#781" id="781">781</a>
+<a href="#782" id="782">782</a>
+<a href="#783" id="783">783</a>
+<a href="#784" id="784">784</a>
+<a href="#785" id="785">785</a>
+<a href="#786" id="786">786</a>
+<a href="#787" id="787">787</a>
+<a href="#788" id="788">788</a>
+<a href="#789" id="789">789</a>
+<a href="#790" id="790">790</a>
+<a href="#791" id="791">791</a>
+<a href="#792" id="792">792</a>
+<a href="#793" id="793">793</a>
+<a href="#794" id="794">794</a>
+<a href="#795" id="795">795</a>
+<a href="#796" id="796">796</a>
+<a href="#797" id="797">797</a>
+<a href="#798" id="798">798</a>
+<a href="#799" id="799">799</a>
+<a href="#800" id="800">800</a>
+<a href="#801" id="801">801</a>
+<a href="#802" id="802">802</a>
+<a href="#803" id="803">803</a>
+<a href="#804" id="804">804</a>
+<a href="#805" id="805">805</a>
+<a href="#806" id="806">806</a>
+<a href="#807" id="807">807</a>
+<a href="#808" id="808">808</a>
+<a href="#809" id="809">809</a>
+<a href="#810" id="810">810</a>
+<a href="#811" id="811">811</a>
+<a href="#812" id="812">812</a>
+<a href="#813" id="813">813</a>
+<a href="#814" id="814">814</a>
+<a href="#815" id="815">815</a>
+<a href="#816" id="816">816</a>
+<a href="#817" id="817">817</a>
+<a href="#818" id="818">818</a>
+<a href="#819" id="819">819</a>
+<a href="#820" id="820">820</a>
+<a href="#821" id="821">821</a>
+<a href="#822" id="822">822</a>
+<a href="#823" id="823">823</a>
+<a href="#824" id="824">824</a>
+<a href="#825" id="825">825</a>
+<a href="#826" id="826">826</a>
+<a href="#827" id="827">827</a>
+<a href="#828" id="828">828</a>
+<a href="#829" id="829">829</a>
+<a href="#830" id="830">830</a>
+<a href="#831" id="831">831</a>
+<a href="#832" id="832">832</a>
+<a href="#833" id="833">833</a>
+<a href="#834" id="834">834</a>
+<a href="#835" id="835">835</a>
+<a href="#836" id="836">836</a>
+<a href="#837" id="837">837</a>
+<a href="#838" id="838">838</a>
+<a href="#839" id="839">839</a>
+<a href="#840" id="840">840</a>
+<a href="#841" id="841">841</a>
+<a href="#842" id="842">842</a>
+<a href="#843" id="843">843</a>
+<a href="#844" id="844">844</a>
+<a href="#845" id="845">845</a>
+<a href="#846" id="846">846</a>
+<a href="#847" id="847">847</a>
+<a href="#848" id="848">848</a>
+<a href="#849" id="849">849</a>
+<a href="#850" id="850">850</a>
+<a href="#851" id="851">851</a>
+<a href="#852" id="852">852</a>
+<a href="#853" id="853">853</a>
+<a href="#854" id="854">854</a>
+<a href="#855" id="855">855</a>
+<a href="#856" id="856">856</a>
+<a href="#857" id="857">857</a>
+<a href="#858" id="858">858</a>
+<a href="#859" id="859">859</a>
+<a href="#860" id="860">860</a>
+<a href="#861" id="861">861</a>
+<a href="#862" id="862">862</a>
+<a href="#863" id="863">863</a>
+<a href="#864" id="864">864</a>
+<a href="#865" id="865">865</a>
+<a href="#866" id="866">866</a>
+<a href="#867" id="867">867</a>
+<a href="#868" id="868">868</a>
+<a href="#869" id="869">869</a>
+<a href="#870" id="870">870</a>
+<a href="#871" id="871">871</a>
+<a href="#872" id="872">872</a>
+<a href="#873" id="873">873</a>
+<a href="#874" id="874">874</a>
+<a href="#875" id="875">875</a>
+<a href="#876" id="876">876</a>
+<a href="#877" id="877">877</a>
+<a href="#878" id="878">878</a>
+<a href="#879" id="879">879</a>
+<a href="#880" id="880">880</a>
+<a href="#881" id="881">881</a>
+<a href="#882" id="882">882</a>
+<a href="#883" id="883">883</a>
+<a href="#884" id="884">884</a>
+<a href="#885" id="885">885</a>
+<a href="#886" id="886">886</a>
+<a href="#887" id="887">887</a>
+<a href="#888" id="888">888</a>
+<a href="#889" id="889">889</a>
+<a href="#890" id="890">890</a>
+<a href="#891" id="891">891</a>
+<a href="#892" id="892">892</a>
+<a href="#893" id="893">893</a>
+<a href="#894" id="894">894</a>
+<a href="#895" id="895">895</a>
+<a href="#896" id="896">896</a>
+<a href="#897" id="897">897</a>
+<a href="#898" id="898">898</a>
+<a href="#899" id="899">899</a>
+<a href="#900" id="900">900</a>
+<a href="#901" id="901">901</a>
+<a href="#902" id="902">902</a>
+<a href="#903" id="903">903</a>
+<a href="#904" id="904">904</a>
+<a href="#905" id="905">905</a>
+<a href="#906" id="906">906</a>
+<a href="#907" id="907">907</a>
+<a href="#908" id="908">908</a>
+<a href="#909" id="909">909</a>
+<a href="#910" id="910">910</a>
+<a href="#911" id="911">911</a>
+<a href="#912" id="912">912</a>
+<a href="#913" id="913">913</a>
+<a href="#914" id="914">914</a>
+<a href="#915" id="915">915</a>
+<a href="#916" id="916">916</a>
+<a href="#917" id="917">917</a>
+<a href="#918" id="918">918</a>
+<a href="#919" id="919">919</a>
+<a href="#920" id="920">920</a>
+<a href="#921" id="921">921</a>
+<a href="#922" id="922">922</a>
+<a href="#923" id="923">923</a>
+<a href="#924" id="924">924</a>
+<a href="#925" id="925">925</a>
+<a href="#926" id="926">926</a>
+<a href="#927" id="927">927</a>
+<a href="#928" id="928">928</a>
+<a href="#929" id="929">929</a>
+<a href="#930" id="930">930</a>
+<a href="#931" id="931">931</a>
+<a href="#932" id="932">932</a>
+<a href="#933" id="933">933</a>
+<a href="#934" id="934">934</a>
+<a href="#935" id="935">935</a>
+<a href="#936" id="936">936</a>
+<a href="#937" id="937">937</a>
+<a href="#938" id="938">938</a>
+<a href="#939" id="939">939</a>
+<a href="#940" id="940">940</a>
+<a href="#941" id="941">941</a>
+<a href="#942" id="942">942</a>
+<a href="#943" id="943">943</a>
+<a href="#944" id="944">944</a>
+<a href="#945" id="945">945</a>
+<a href="#946" id="946">946</a>
+<a href="#947" id="947">947</a>
+<a href="#948" id="948">948</a>
+<a href="#949" id="949">949</a>
+<a href="#950" id="950">950</a>
+<a href="#951" id="951">951</a>
+<a href="#952" id="952">952</a>
+<a href="#953" id="953">953</a>
+<a href="#954" id="954">954</a>
+<a href="#955" id="955">955</a>
+<a href="#956" id="956">956</a>
+<a href="#957" id="957">957</a>
+<a href="#958" id="958">958</a>
+<a href="#959" id="959">959</a>
+<a href="#960" id="960">960</a>
+<a href="#961" id="961">961</a>
+<a href="#962" id="962">962</a>
+<a href="#963" id="963">963</a>
+<a href="#964" id="964">964</a>
+<a href="#965" id="965">965</a>
+<a href="#966" id="966">966</a>
+<a href="#967" id="967">967</a>
+<a href="#968" id="968">968</a>
+<a href="#969" id="969">969</a>
+<a href="#970" id="970">970</a>
+<a href="#971" id="971">971</a>
+<a href="#972" id="972">972</a>
+<a href="#973" id="973">973</a>
+<a href="#974" id="974">974</a>
+<a href="#975" id="975">975</a>
+<a href="#976" id="976">976</a>
+<a href="#977" id="977">977</a>
 </pre></div><pre class="rust"><code><span class="comment">// WARNING: this file was generated by ../scripts/gen-universal-table.py
 
-</span><span class="kw">use </span><span class="kw">super</span>::universal::{Category, category::<span class="kw-2">*</span>};
+</span><span class="kw">use </span><span class="kw">super</span>::universal::{category::<span class="kw-2">*</span>, Category};
 
-<span class="kw">const </span>USE_TABLE: <span class="kw-2">&amp;</span>[Category] = <span class="kw-2">&amp;</span>[
+<span class="attr">#[rustfmt::skip]
+</span><span class="kw">const </span>USE_TABLE: <span class="kw-2">&amp;</span>[Category] = <span class="kw-2">&amp;</span>[
 
 
   <span class="comment">/* Basic Latin */
@@ -699,8 +994,20 @@
   <span class="comment">/* 00C0 */     </span>O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,
   <span class="comment">/* 00D0 */     </span>O,     O,     O,     O,     O,     O,     O,    GB,
 
-  <span class="comment">/* Combining Diacritical Marks */
-                                                                         </span>O,     O,     O,     O,     O,     O,     O,   CGJ,
+  <span class="comment">/* Arabic */
+
+  /* 0640 */     </span>B,     O,     O,     O,     O,     O,     O,     O,
+
+  <span class="comment">/* NKo */
+                                                                         </span>O,     O,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 07D0 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 07E0 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B, VMABV, VMABV, VMABV, VMABV, VMABV,
+  <span class="comment">/* 07F0 */ </span>VMABV, VMABV, VMABV, VMABV,     O,     O,     O,     O,     O,     O,     B,     O,     O, VMABV,     O,     O,
+
+  <span class="comment">/* Mandaic */
+
+  /* 0840 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 0850 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B, CMBLW, CMBLW, CMBLW,     O,     O,     O,     O,
 
   <span class="comment">/* Devanagari */
 
@@ -719,7 +1026,7 @@
   <span class="comment">/* 0990 */     </span>B,     O,     O,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
   <span class="comment">/* 09A0 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     O,     B,     B,     B,     B,     B,     B,
   <span class="comment">/* 09B0 */     </span>B,     O,     B,     O,     O,     O,     B,     B,     B,     B,     O,     O, CMBLW,     B,  VPST,  VPRE,
-  <span class="comment">/* 09C0 */  </span>VPST,  VBLW,  VBLW,  VBLW,  VBLW,     O,     O,  VPRE,  VPRE,     O,     O,  VPST,  VPST,     H,   IND,     O,
+  <span class="comment">/* 09C0 */  </span>VPST,  VBLW,  VBLW,  VBLW,  VBLW,     O,     O,  VPRE,  VPRE,     O,     O,  VPRE,  VPRE,     H,     O,     O,
   <span class="comment">/* 09D0 */     </span>O,     O,     O,     O,     O,     O,     O,  VPST,     O,     O,     O,     O,     B,     B,     O,     B,
   <span class="comment">/* 09E0 */     </span>B,     B,  VBLW,  VBLW,     O,     O,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
   <span class="comment">/* 09F0 */     </span>B,     B,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     B,     O, FMABV,     O,
@@ -752,18 +1059,18 @@
   <span class="comment">/* 0B10 */     </span>B,     O,     O,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
   <span class="comment">/* 0B20 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     O,     B,     B,     B,     B,     B,     B,
   <span class="comment">/* 0B30 */     </span>B,     O,     B,     B,     O,     B,     B,     B,     B,     B,     O,     O, CMBLW,     B,  VPST,  VABV,
-  <span class="comment">/* 0B40 */  </span>VPST,  VBLW,  VBLW,  VBLW,  VBLW,     O,     O,  VPRE,  VPST,     O,     O,  VPST,  VPST,     H,     O,     O,
-  <span class="comment">/* 0B50 */     </span>O,     O,     O,     O,     O,     O,  VABV,  VABV,     O,     O,     O,     O,     B,     B,     O,     B,
+  <span class="comment">/* 0B40 */  </span>VPST,  VBLW,  VBLW,  VBLW,  VBLW,     O,     O,  VPRE,  VPRE,     O,     O,  VPRE,  VPRE,     H,     O,     O,
+  <span class="comment">/* 0B50 */     </span>O,     O,     O,     O,     O,  VABV,  VABV,  VABV,     O,     O,     O,     O,     B,     B,     O,     B,
   <span class="comment">/* 0B60 */     </span>B,     B,  VBLW,  VBLW,     O,     O,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
   <span class="comment">/* 0B70 */     </span>O,     B,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,
 
   <span class="comment">/* Tamil */
 
-  /* 0B80 */     </span>O,     O, VMABV,   IND,     O,     B,     B,     B,     B,     B,     B,     O,     O,     O,     B,     B,
+  /* 0B80 */     </span>O,     O, VMABV,     O,     O,     B,     B,     B,     B,     B,     B,     O,     O,     O,     B,     B,
   <span class="comment">/* 0B90 */     </span>B,     O,     B,     B,     B,     B,     O,     O,     O,     B,     B,     O,     B,     O,     B,     B,
   <span class="comment">/* 0BA0 */     </span>O,     O,     O,     B,     B,     O,     O,     O,     B,     B,     B,     O,     O,     O,     B,     B,
   <span class="comment">/* 0BB0 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     O,     O,     O,     O,  VPST,  VPST,
-  <span class="comment">/* 0BC0 */  </span>VABV,  VPST,  VPST,     O,     O,     O,  VPRE,  VPRE,  VPRE,     O,  VPST,  VPST,  VPST,     H,     O,     O,
+  <span class="comment">/* 0BC0 */  </span>VABV,  VPST,  VPST,     O,     O,     O,  VPRE,  VPRE,  VPRE,     O,  VPRE,  VPRE,  VPRE,     H,     O,     O,
   <span class="comment">/* 0BD0 */     </span>O,     O,     O,     O,     O,     O,     O,  VPST,     O,     O,     O,     O,     O,     O,     O,     O,
   <span class="comment">/* 0BE0 */     </span>O,     O,     O,     O,     O,     O,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
   <span class="comment">/* 0BF0 */     </span>O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,
@@ -792,39 +1099,41 @@
 
   <span class="comment">/* Malayalam */
 
-  /* 0D00 */ </span>VMABV, VMABV, VMPST, VMPST,     O,     B,     B,     B,     B,     B,     B,     B,     B,     O,     B,     B,
+  /* 0D00 */ </span>VMABV, VMABV, VMPST, VMPST,     B,     B,     B,     B,     B,     B,     B,     B,     B,     O,     B,     B,
   <span class="comment">/* 0D10 */     </span>B,     O,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
   <span class="comment">/* 0D20 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
   <span class="comment">/* 0D30 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,  VABV,  VABV,     B,  VPST,  VPST,
-  <span class="comment">/* 0D40 */  </span>VPST,  VPST,  VPST,  VBLW,  VBLW,     O,  VPRE,  VPRE,  VPRE,     O,  VPST,  VPST,  VPST,     H,     R,     O,
-  <span class="comment">/* 0D50 */     </span>O,     O,     O,     O,   IND,   IND,   IND,  VPST,     O,     O,     O,     O,     O,     O,     O,     B,
+  <span class="comment">/* 0D40 */  </span>VPST,  VPST,  VPST,  VBLW,  VBLW,     O,  VPRE,  VPRE,  VPRE,     O,  VPRE,  VPRE,  VPRE,     H,     R,     O,
+  <span class="comment">/* 0D50 */     </span>O,     O,     O,     O,     O,     O,     O,  VPST,     O,     O,     O,     O,     O,     O,     O,     B,
   <span class="comment">/* 0D60 */     </span>B,     B,  VBLW,  VBLW,     O,     O,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
-  <span class="comment">/* 0D70 */     </span>O,     O,     O,     O,     O,     O,     O,     O,     O,     O,   IND,   IND,   IND,   IND,   IND,   IND,
+  <span class="comment">/* 0D70 */     </span>O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,
 
   <span class="comment">/* Sinhala */
 
-  /* 0D80 */     </span>O,     O, VMPST, VMPST,     O,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  /* 0D80 */     </span>O, VMABV, VMPST, VMPST,     O,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
   <span class="comment">/* 0D90 */     </span>B,     B,     B,     B,     B,     B,     B,     O,     O,     O,     B,     B,     B,     B,     B,     B,
   <span class="comment">/* 0DA0 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
   <span class="comment">/* 0DB0 */     </span>B,     B,     O,     B,     B,     B,     B,     B,     B,     B,     B,     B,     O,     B,     O,     O,
   <span class="comment">/* 0DC0 */     </span>B,     B,     B,     B,     B,     B,     B,     O,     O,     O,     H,     O,     O,     O,     O,  VPST,
-  <span class="comment">/* 0DD0 */  </span>VPST,  VPST,  VABV,  VABV,  VBLW,     O,  VBLW,     O,  VPST,  VPRE,  VPST,  VPRE,  VPST,  VPST,  VPST,  VPST,
+  <span class="comment">/* 0DD0 */  </span>VPST,  VPST,  VABV,  VABV,  VBLW,     O,  VBLW,     O,  VPST,  VPRE,  VPRE,  VPRE,  VPRE,  VPRE,  VPRE,  VPST,
   <span class="comment">/* 0DE0 */     </span>O,     O,     O,     O,     O,     O,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
   <span class="comment">/* 0DF0 */     </span>O,     O,  VPST,  VPST,     O,     O,     O,     O,
 
   <span class="comment">/* Tibetan */
-                                                                      </span>VBLW,  VBLW,     O,     O,     O,     O,     O,     O,
+
+  /* 0F00 */     </span>B,     B,     O,     O,     B,     B,     B,     O,     O,     O,     O,     O,     O,     O,     O,     O,
+  <span class="comment">/* 0F10 */     </span>O,     O,     O,     O,     O,     O,     O,     O,  VBLW,  VBLW,     O,     O,     O,     O,     O,     O,
   <span class="comment">/* 0F20 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
-  <span class="comment">/* 0F30 */     </span>B,     B,     B,     B,     O, FMBLW,     O, FMBLW,     O, CMABV,     O,     O,     O,     O,  VPST,  VPRE,
+  <span class="comment">/* 0F30 */     </span>B,     B,     B,     B,     O,  FBLW,     O,  FBLW,     O, CMABV,     O,     O,     O,     O,  VPST,  VPRE,
   <span class="comment">/* 0F40 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     O,     B,     B,     B,     B,     B,     B,     B,
   <span class="comment">/* 0F50 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
   <span class="comment">/* 0F60 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     O,     O,     O,
-  <span class="comment">/* 0F70 */     </span>O,  VBLW,  VBLW,  VABV,  VBLW,  VBLW,  VABV,  VABV,  VABV,  VABV,  VBLW,  VBLW,  VBLW,  VBLW, VMABV, VMPST,
-  <span class="comment">/* 0F80 */  </span>VBLW,  VABV, VMABV, VMABV,  VBLW,   IND, VMABV, VMABV,     B,     B,     B,     B,     B,   SUB,   SUB,   SUB,
+  <span class="comment">/* 0F70 */     </span>O, CMBLW,  VBLW,  VABV,  VABV,  VBLW,  VABV,  VABV,  VABV,  VABV,  VBLW,  VBLW,  VBLW,  VBLW, VMABV,     O,
+  <span class="comment">/* 0F80 */  </span>VBLW,  VABV, VMABV, VMABV,  VBLW,     O, VMABV, VMABV,     B,     B,     B,     B,     B,   SUB,   SUB,   SUB,
   <span class="comment">/* 0F90 */   </span>SUB,   SUB,   SUB,   SUB,   SUB,   SUB,   SUB,   SUB,     O,   SUB,   SUB,   SUB,   SUB,   SUB,   SUB,   SUB,
   <span class="comment">/* 0FA0 */   </span>SUB,   SUB,   SUB,   SUB,   SUB,   SUB,   SUB,   SUB,   SUB,   SUB,   SUB,   SUB,   SUB,   SUB,   SUB,   SUB,
   <span class="comment">/* 0FB0 */   </span>SUB,   SUB,   SUB,   SUB,   SUB,   SUB,   SUB,   SUB,   SUB,   SUB,   SUB,   SUB,   SUB,     O,     O,     O,
-  <span class="comment">/* 0FC0 */     </span>O,     O,     O,     O,     O,     O, FMBLW,     O,
+  <span class="comment">/* 0FC0 */     </span>O,     O,     O,     O,     O,     O,  FBLW,     O,
 
   <span class="comment">/* Myanmar */
 
@@ -864,17 +1173,32 @@
   /* 1780 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
   <span class="comment">/* 1790 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
   <span class="comment">/* 17A0 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
-  <span class="comment">/* 17B0 */     </span>B,     B,     B,     B,     O,     O,  VPST,  VABV,  VABV,  VABV,  VABV,  VBLW,  VBLW,  VBLW,  VPST,  VPST,
-  <span class="comment">/* 17C0 */  </span>VPST,  VPRE,  VPRE,  VPRE,  VPST,  VPST, VMABV, VMPST,  VPST, VMABV, VMABV, FMABV,  FABV, CMABV, FMABV, FMABV,
+  <span class="comment">/* 17B0 */     </span>B,     B,     B,     B,     O,     O,  VPST,  VABV,  VABV,  VABV,  VABV,  VBLW,  VBLW,  VBLW,  VPRE,  VPRE,
+  <span class="comment">/* 17C0 */  </span>VPRE,  VPRE,  VPRE,  VPRE,  VPRE,  VPRE, VMABV, VMPST,  VPST, VMABV, VMABV, FMABV,  FABV, CMABV, FMABV, VMABV,
   <span class="comment">/* 17D0 */ </span>FMABV,  VABV,     H, FMABV,     O,     O,     O,     O,     O,     O,     O,     O,     B, FMABV,     O,     O,
   <span class="comment">/* 17E0 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     O,     O,     O,     O,     O,     O,
+  <span class="comment">/* 17F0 */     </span>O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,
+
+  <span class="comment">/* Mongolian */
+
+  /* 1800 */     </span>B,     O,     O,     O,     O,     O,     O,     B,     O,     O,     B,     O,     O,     O,     O,     O,
+  <span class="comment">/* 1810 */     </span>O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,
+  <span class="comment">/* 1820 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 1830 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 1840 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 1850 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 1860 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 1870 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     O,     O,     O,     O,     O,     O,     O,
+  <span class="comment">/* 1880 */    </span>GB,    GB,    GB,    GB,    GB, CMABV, CMABV,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 1890 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 18A0 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B, CMBLW,     B,     O,     O,     O,     O,     O,
 
   <span class="comment">/* Limbu */
 
   /* 1900 */    </span>GB,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
   <span class="comment">/* 1910 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     O,
   <span class="comment">/* 1920 */  </span>VABV,  VABV,  VBLW,  VPST,  VPST,  VABV,  VABV,  VABV,  VABV,   SUB,   SUB,   SUB,     O,     O,     O,     O,
-  <span class="comment">/* 1930 */  </span>FPST,  FPST, VMBLW,  FPST,  FPST,  FPST,  FPST,  FPST,  FPST,  FBLW,  VABV, FMBLW,     O,     O,     O,     O,
+  <span class="comment">/* 1930 */  </span>FPST,  FPST, VMBLW,  FPST,  FPST,  FPST,  FPST,  FPST,  FPST,  FBLW, VMABV, FMBLW,     O,     O,     O,     O,
   <span class="comment">/* 1940 */     </span>O,     O,     O,     O,     O,     O,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
 
   <span class="comment">/* Tai Le */
@@ -897,7 +1221,7 @@
   <span class="comment">/* Buginese */
 
   /* 1A00 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
-  <span class="comment">/* 1A10 */     </span>B,     B,     B,     B,     B,     B,     B,  VABV,  VBLW,  VPRE,  VPST,  VABV,     O,     O,     O,     O,
+  <span class="comment">/* 1A10 */     </span>B,     B,     B,     B,     B,     B,     B,  VABV,  VABV,  VPRE,  VPST,  VABV,     O,     O,     O,     O,
 
   <span class="comment">/* Tai Tham */
 
@@ -906,7 +1230,7 @@
   <span class="comment">/* 1A40 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
   <span class="comment">/* 1A50 */     </span>B,     B,     B,     B,     B,  MPRE,  MBLW,   SUB,  FABV,  FABV,  MABV,   SUB,   SUB,   SUB,   SUB,     O,
   <span class="comment">/* 1A60 */    </span>SK,  VPST,  VABV,  VPST,  VPST,  VABV,  VABV,  VABV,  VABV,  VBLW,  VBLW,  VABV,  VBLW,  VPST,  VPRE,  VPRE,
-  <span class="comment">/* 1A70 */  </span>VPRE,  VPRE,  VPRE,  VABV, VMABV, VMABV, VMABV, VMABV, VMABV, VMABV,  VABV, FMABV, FMABV,     O,     O, FMBLW,
+  <span class="comment">/* 1A70 */  </span>VPRE,  VPRE,  VPRE,  VABV, VMABV, VMABV, VMABV, VMABV, VMABV, VMABV,  VABV, VMABV, VMABV,     O,     O, VMBLW,
   <span class="comment">/* 1A80 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     O,     O,     O,     O,     O,     O,
   <span class="comment">/* 1A90 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     O,     O,     O,     O,     O,     O,
 
@@ -916,7 +1240,7 @@
   <span class="comment">/* 1B10 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
   <span class="comment">/* 1B20 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
   <span class="comment">/* 1B30 */     </span>B,     B,     B,     B, CMABV,  VPST,  VABV,  VABV,  VBLW,  VBLW,  VBLW,  VBLW,  VABV,  VABV,  VPRE,  VPRE,
-  <span class="comment">/* 1B40 */  </span>VPST,  VPST,  VABV,  VABV,     H,     B,     B,     B,     B,     B,     B,     B,     O,     O,     O,     O,
+  <span class="comment">/* 1B40 */  </span>VPRE,  VPRE,  VABV,  VABV,     H,     B,     B,     B,     B,     B,     B,     B,     O,     O,     O,     O,
   <span class="comment">/* 1B50 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     O,    GB,    GB,     O,     O,    GB,
   <span class="comment">/* 1B60 */     </span>O,     S,    GB,     S,     S,     S,     S,     S,    GB,     S,     S, SMABV, SMBLW, SMABV, SMABV, SMABV,
   <span class="comment">/* 1B70 */ </span>SMABV, SMABV, SMABV, SMABV,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,
@@ -947,15 +1271,14 @@
 
   /* 1CD0 */ </span>VMABV, VMABV, VMABV,     O, VMBLW, VMBLW, VMBLW, VMBLW, VMBLW, VMBLW, VMABV, VMABV, VMBLW, VMBLW, VMBLW, VMBLW,
   <span class="comment">/* 1CE0 */ </span>VMABV, VMPST, VMBLW, VMBLW, VMBLW, VMBLW, VMBLW, VMBLW, VMBLW,     O,     O,     O,     O, VMBLW,     O,     O,
-  <span class="comment">/* 1CF0 */     </span>O,     O,   IND,   IND, VMABV,    CS,    CS, VMPST, VMABV, VMABV,    GB,     O,     O,     O,     O,     O,
+  <span class="comment">/* 1CF0 */     </span>O,     O,     O,     O, VMABV,    CS,    CS, VMPST, VMABV, VMABV,    GB,     O,     O,     O,     O,     O,
 
   <span class="comment">/* Combining Diacritical Marks Supplement */
                                                                          </span>O,     O,     O, FMABV,     O,     O,     O,     O,
 
   <span class="comment">/* General Punctuation */
-                                                                         </span>O,     O,     O,     O,  ZWNJ,   ZWJ,     O,     O,
+                                                                         </span>O,     O,     O,     O,  ZWNJ,     O,     O,     O,
   <span class="comment">/* 2010 */    </span>GB,    GB,    GB,    GB,    GB,     O,     O,     O,
-  <span class="comment">/* 2060 */    </span>WJ,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,
 
   <span class="comment">/* Superscripts and Subscripts */
 
@@ -967,13 +1290,21 @@
   /* 20F0 */ </span>VMABV,     O,     O,     O,     O,     O,     O,     O,
 
   <span class="comment">/* Geometric Shapes */
-                                                                         </span>O,     O,     O,     O,    GB,     O,     O,     O,
+                                                                         </span>O,     O,     O,     O,     B,     O,     O,     O,
+
+  <span class="comment">/* Tifinagh */
+
+  /* 2D30 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 2D40 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 2D50 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 2D60 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     O,     O,     O,     O,     O,     O,     O,     B,
+  <span class="comment">/* 2D70 */     </span>O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     H,
 
   <span class="comment">/* Syloti Nagri */
 
   /* A800 */     </span>B,     B,  VABV,     B,     B,     B,     H,     B,     B,     B,     B, VMABV,     B,     B,     B,     B,
   <span class="comment">/* A810 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
-  <span class="comment">/* A820 */     </span>B,     B,     B,  VPST,  VPST,  VBLW,  VABV,  VPST,     O,     O,     O,     O,     O,     O,     O,     O,
+  <span class="comment">/* A820 */     </span>B,     B,     B,  VPST,  VPST,  VBLW,  VABV,  VPST,     O,     O,     O,     O,  VBLW,     O,     O,     O,
   <span class="comment">/* A830 */     </span>O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,
 
   <span class="comment">/* Phags-pa */
@@ -1030,7 +1361,7 @@
   /* AA00 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
   <span class="comment">/* AA10 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
   <span class="comment">/* AA20 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B, VMABV,  VABV,  VABV,  VABV,  VBLW,  VABV,  VPRE,
-  <span class="comment">/* AA30 */  </span>VPRE,  VABV,  VBLW,  MPST,  MPRE,  MBLW,  MBLW,     O,     O,     O,     O,     O,     O,     O,     O,     O,
+  <span class="comment">/* AA30 */  </span>VPRE,  VABV,  VBLW,  MPST,  MPRE,  MABV,  MBLW,     O,     O,     O,     O,     O,     O,     O,     O,     O,
   <span class="comment">/* AA40 */     </span>B,     B,     B,  FABV,     B,     B,     B,     B,     B,     B,     B,     B,  FABV,  FPST,     O,     O,
   <span class="comment">/* AA50 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     O,     O,     O,     O,     O,     O,
 
@@ -1060,17 +1391,53 @@
   <span class="comment">/* ABE0 */     </span>B,     B,     B,  VPST,  VPST,  VABV,  VPST,  VPST,  VBLW,  VPST,  VPST,     O, VMPST,  VBLW,     O,     O,
   <span class="comment">/* ABF0 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     O,     O,     O,     O,     O,     O,
 
-  <span class="comment">/* Variation Selectors */
-
-  /* FE00 */    </span>VS,    VS,    VS,    VS,    VS,    VS,    VS,    VS,    VS,    VS,    VS,    VS,    VS,    VS,    VS,    VS,
-
   <span class="comment">/* Kharoshthi */
 
-  /* 10A00 */     </span>B,  VBLW,  VBLW,  VBLW,     O,  VABV,  VBLW,     O,     O,     O,     O,     O,  VBLW,  VBLW, VMBLW, VMABV,
+  /* 10A00 */     </span>B,  VBLW,  VBLW,  VBLW,     O,  VABV,  VBLW,     O,     O,     O,     O,     O,  VPST, VMBLW, VMBLW, VMABV,
   <span class="comment">/* 10A10 */     </span>B,     B,     B,     B,     O,     B,     B,     B,     O,     B,     B,     B,     B,     B,     B,     B,
   <span class="comment">/* 10A20 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
   <span class="comment">/* 10A30 */     </span>B,     B,     B,     B,     B,     B,     O,     O, CMABV, CMBLW, CMBLW,     O,     O,     O,     O,     H,
   <span class="comment">/* 10A40 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     O,     O,     O,     O,     O,     O,     O,
+
+  <span class="comment">/* Manichaean */
+
+  /* 10AC0 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     O,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 10AD0 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 10AE0 */     </span>B,     B,     B,     B,     B, CMBLW, CMBLW,     O,
+
+  <span class="comment">/* Psalter Pahlavi */
+
+  /* 10B80 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 10B90 */     </span>B,     B,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,
+  <span class="comment">/* 10BA0 */     </span>O,     O,     O,     O,     O,     O,     O,     O,     O,     B,     B,     B,     B,     B,     B,     O,
+
+  <span class="comment">/* Hanifi Rohingya */
+
+  /* 10D00 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 10D10 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 10D20 */     </span>B,     B,     B,     B, VMABV, VMABV, VMABV, CMABV,     O,     O,     O,     O,     O,     O,     O,     O,
+  <span class="comment">/* 10D30 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     O,     O,     O,     O,     O,     O,
+
+  <span class="comment">/* Yezidi */
+
+  /* 10E80 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 10E90 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 10EA0 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     O,  VABV,  VABV,     O,     O,     O,
+  <span class="comment">/* 10EB0 */     </span>B,     B,     O,     O,     O,     O,     O,     O,
+
+  <span class="comment">/* Sogdian */
+
+  /* 10F30 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 10F40 */     </span>B,     B,     B,     B,     B,     B, VMBLW, VMBLW, VMBLW, VMBLW, VMBLW, VMBLW, VMBLW, VMBLW, VMBLW, VMBLW,
+  <span class="comment">/* 10F50 */ </span>VMBLW,     B,     B,     B,     B,     O,     O,     O,
+
+  <span class="comment">/* Chorasmian */
+
+  /* 10FB0 */     </span>B,     O,     B,     B,     B,     B,     B,     O,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 10FC0 */     </span>O,     B,     B,     B,     B,     O,     O,     O,     O,     B,     B,     B,     O,     O,     O,     O,
+  <span class="comment">/* 10FD0 */     </span>O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,
+  <span class="comment">/* 10FE0 */     </span>O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,
+  <span class="comment">/* 10FF0 */     </span>O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,
 
   <span class="comment">/* Brahmi */
 
@@ -1095,8 +1462,8 @@
   /* 11100 */ </span>VMABV, VMABV, VMABV,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
   <span class="comment">/* 11110 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
   <span class="comment">/* 11120 */     </span>B,     B,     B,     B,     B,     B,     B,  VBLW,  VBLW,  VBLW,  VABV,  VABV,  VPRE,  VBLW,  VABV,  VABV,
-  <span class="comment">/* 11130 */  </span>VBLW,  VABV,  VABV,     H, CMBLW,     O,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
-  <span class="comment">/* 11140 */     </span>O,     O,     O,     O,     B,  VPST,  VPST,     O,     O,     O,     O,     O,     O,     O,     O,     O,
+  <span class="comment">/* 11130 */  </span>VBLW,  VABV,  VABV,     H, CMABV,     O,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 11140 */     </span>O,     O,     O,     O,     B,  VPST,  VPST,     B,     O,     O,     O,     O,     O,     O,     O,     O,
 
   <span class="comment">/* Mahajani */
 
@@ -1110,8 +1477,8 @@
   <span class="comment">/* 11190 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
   <span class="comment">/* 111A0 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
   <span class="comment">/* 111B0 */     </span>B,     B,     B,  VPST,  VPRE,  VPST,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VABV,  VABV,  VABV,  VABV,
-  <span class="comment">/* 111C0 */     </span>H,     B,     R,     R,     O,     O,     O,     O,    GB, FMBLW, CMBLW,  VABV,  VBLW,     O,     O,     O,
-  <span class="comment">/* 111D0 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     O,     O,     O,     O,     O,     O,
+  <span class="comment">/* 111C0 */     </span>H,     B,     R,     R,     O,     O,     O,     O,    GB, FMBLW, CMBLW,  VABV,  VBLW,     O,  VPRE, VMABV,
+  <span class="comment">/* 111D0 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     O,     O,     O,     O,     O,
 
   <span class="comment">/* Sinhala Archaic Numbers */
 
@@ -1145,7 +1512,7 @@
   <span class="comment">/* 11310 */     </span>B,     O,     O,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
   <span class="comment">/* 11320 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     O,     B,     B,     B,     B,     B,     B,
   <span class="comment">/* 11330 */     </span>B,     O,     B,     B,     O,     B,     B,     B,     B,     B,     O, CMBLW, CMBLW,     B,  VPST,  VPST,
-  <span class="comment">/* 11340 */  </span>VABV,  VPST,  VPST,  VPST,  VPST,     O,     O,  VPRE,  VPRE,     O,     O,  VPST,  VPST,   HVM,     O,     O,
+  <span class="comment">/* 11340 */  </span>VABV,  VPST,  VPST,  VPST,  VPST,     O,     O,  VPRE,  VPRE,     O,     O,  VPRE,  VPRE,   HVM,     O,     O,
   <span class="comment">/* 11350 */     </span>O,     O,     O,     O,     O,     O,     O,  VPST,     O,     O,     O,     O,     O,     O,     B,     B,
   <span class="comment">/* 11360 */     </span>B,     B,  VPST,  VPST,     O,     O, VMABV, VMABV, VMABV, VMABV, VMABV, VMABV, VMABV,     O,     O,     O,
   <span class="comment">/* 11370 */ </span>VMABV, VMABV, VMABV, VMABV, VMABV,     O,     O,     O,
@@ -1158,7 +1525,7 @@
   <span class="comment">/* 11430 */     </span>B,     B,     B,     B,     B,  VPST,  VPRE,  VPST,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VABV,  VABV,
   <span class="comment">/* 11440 */  </span>VPST,  VPST,     H, VMABV, VMABV, VMPST, CMBLW,     B,     O,     O,     O,     O,     O,     O,     O,     O,
   <span class="comment">/* 11450 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     O,     O,     O,     O, FMABV,     B,
-  <span class="comment">/* 11460 */     </span>O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,
+  <span class="comment">/* 11460 */    </span>CS,    CS,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,
   <span class="comment">/* 11470 */     </span>O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,
 
   <span class="comment">/* Tirhuta */
@@ -1166,7 +1533,7 @@
   /* 11480 */     </span>O,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
   <span class="comment">/* 11490 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
   <span class="comment">/* 114A0 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
-  <span class="comment">/* 114B0 */  </span>VPST,  VPRE,  VPST,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VPRE,  VABV,  VPST,  VPST,  VPST,  VPST, VMABV,
+  <span class="comment">/* 114B0 */  </span>VPST,  VPRE,  VPST,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VPRE,  VABV,  VPRE,  VPRE,  VPST,  VPRE, VMABV,
   <span class="comment">/* 114C0 */ </span>VMABV, VMABV,     H, CMBLW,     B,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,
   <span class="comment">/* 114D0 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     O,     O,     O,     O,     O,     O,
 
@@ -1175,7 +1542,7 @@
   /* 11580 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
   <span class="comment">/* 11590 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
   <span class="comment">/* 115A0 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,  VPST,
-  <span class="comment">/* 115B0 */  </span>VPRE,  VPST,  VBLW,  VBLW,  VBLW,  VBLW,     O,     O,  VPRE,  VPST,  VPST,  VPST, VMABV, VMABV, VMPST,     H,
+  <span class="comment">/* 115B0 */  </span>VPRE,  VPST,  VBLW,  VBLW,  VBLW,  VBLW,     O,     O,  VPRE,  VPRE,  VPRE,  VPRE, VMABV, VMABV, VMPST,     H,
   <span class="comment">/* 115C0 */ </span>CMBLW,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,
   <span class="comment">/* 115D0 */     </span>O,     O,     O,     O,     O,     O,     O,     O,     B,     B,     B,     B,  VBLW,  VBLW,     O,     O,
   <span class="comment">/* 115E0 */     </span>O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,
@@ -1216,6 +1583,15 @@
   <span class="comment">/* 11810 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
   <span class="comment">/* 11820 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,  VPST,  VPRE,  VPST,  VBLW,
   <span class="comment">/* 11830 */  </span>VBLW,  VBLW,  VBLW,  VABV,  VABV,  VABV,  VABV, VMABV, VMPST,     H, CMBLW,     O,     O,     O,     O,     O,
+
+  <span class="comment">/* Dives Akuru */
+
+  /* 11900 */     </span>B,     B,     B,     B,     B,     B,     B,     O,     O,     B,     O,     O,     B,     B,     B,     B,
+  <span class="comment">/* 11910 */     </span>B,     B,     B,     B,     O,     B,     B,     O,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 11920 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 11930 */  </span>VPST,  VPST,  VPST,  VPST,  VPST,  VPRE,     O,  VPRE,  VPRE,     O,     O, VMABV, VMABV,  VPST,     H,     R,
+  <span class="comment">/* 11940 */  </span>MPST,     R,  MPST, CMBLW,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,     O,
+  <span class="comment">/* 11950 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     O,     O,     O,     O,     O,     O,
 
   <span class="comment">/* Nandinagari */
 
@@ -1282,50 +1658,238 @@
   /* 11EE0 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
   <span class="comment">/* 11EF0 */     </span>B,     B,    GB,  VABV,  VBLW,  VPRE,  VPST,     O,
 
+  <span class="comment">/* Egyptian Hieroglyphs */
+
+  /* 13000 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13010 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13020 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13030 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13040 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13050 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13060 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13070 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13080 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13090 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 130A0 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 130B0 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 130C0 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 130D0 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 130E0 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 130F0 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13100 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13110 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13120 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13130 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13140 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13150 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13160 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13170 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13180 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13190 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 131A0 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 131B0 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 131C0 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 131D0 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 131E0 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 131F0 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13200 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13210 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13220 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13230 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13240 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13250 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13260 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13270 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13280 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13290 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 132A0 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 132B0 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 132C0 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 132D0 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 132E0 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 132F0 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13300 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13310 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13320 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13330 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13340 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13350 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13360 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13370 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13380 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13390 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 133A0 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 133B0 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 133C0 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 133D0 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 133E0 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 133F0 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13400 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13410 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,
+  <span class="comment">/* 13420 */     </span>G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     G,     O,
+
+  <span class="comment">/* Egyptian Hieroglyph Format Controls */
+
+  /* 13430 */     </span>J,     J,     J,     J,     J,     J,     J,    SB,    SE,     O,     O,     O,     O,     O,     O,     O,
+
+  <span class="comment">/* Pahawh Hmong */
+
+  /* 16B00 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 16B10 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 16B20 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 16B30 */ </span>VMABV, VMABV, VMABV, VMABV, VMABV, VMABV, VMABV,     O,
+
+  <span class="comment">/* Miao */
+
+  /* 16F00 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 16F10 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 16F20 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 16F30 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 16F40 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     O,     O,     O,     O, CMBLW,
+  <span class="comment">/* 16F50 */     </span>O,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,
+  <span class="comment">/* 16F60 */  </span>VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,
+  <span class="comment">/* 16F70 */  </span>VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,
+  <span class="comment">/* 16F80 */  </span>VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,  VBLW,     O,     O,     O,     O,     O,     O,     O, VMBLW,
+  <span class="comment">/* 16F90 */ </span>VMBLW, VMBLW, VMBLW,     O,     O,     O,     O,     O,
+
+  <span class="comment">/* Ideographic Symbols and Punctuation */
+
+  /* 16FE0 */     </span>O,     O,     O,     O,     B,     O,     O,     O,
+
+  <span class="comment">/* Khitan Small Script */
+
+  /* 18B00 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 18B10 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 18B20 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 18B30 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 18B40 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 18B50 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 18B60 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 18B70 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 18B80 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 18B90 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 18BA0 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 18BB0 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 18BC0 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 18BD0 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 18BE0 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 18BF0 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 18C00 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 18C10 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 18C20 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 18C30 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 18C40 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 18C50 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 18C60 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 18C70 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 18C80 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 18C90 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 18CA0 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 18CB0 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 18CC0 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 18CD0 */     </span>B,     B,     B,     B,     B,     B,     O,     O,
+
+  <span class="comment">/* Duployan */
+
+  /* 1BC00 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 1BC10 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 1BC20 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 1BC30 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 1BC40 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 1BC50 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 1BC60 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     O,     O,     O,     O,     O,
+  <span class="comment">/* 1BC70 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     O,     O,     O,
+  <span class="comment">/* 1BC80 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     O,     O,     O,     O,     O,     O,     O,
+  <span class="comment">/* 1BC90 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     O,     O,     O, CMBLW, CMBLW,     O,
+
+  <span class="comment">/* Nyiakeng Puachue Hmong */
+
+  /* 1E100 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 1E110 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 1E120 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     O,     O,     O,
+  <span class="comment">/* 1E130 */ </span>VMABV, VMABV, VMABV, VMABV, VMABV, VMABV, VMABV,     B,     B,     B,     B,     B,     B,     B,     O,     O,
+  <span class="comment">/* 1E140 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     O,     O,     O,     O,     B,     B,
+
+  <span class="comment">/* Wancho */
+
+  /* 1E2C0 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 1E2D0 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 1E2E0 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B, VMABV, VMABV, VMABV, VMABV,
+  <span class="comment">/* 1E2F0 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     O,     O,     O,     O,     O,     O,
+
+  <span class="comment">/* Adlam */
+
+  /* 1E900 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 1E910 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 1E920 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 1E930 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     B,
+  <span class="comment">/* 1E940 */     </span>B,     B,     B,     B, CMABV, CMABV, CMABV, CMABV, CMABV, CMABV, CMABV,     B,     O,     O,     O,     O,
+  <span class="comment">/* 1E950 */     </span>B,     B,     B,     B,     B,     B,     B,     B,     B,     B,     O,     O,     O,     O,     O,     O,
+
 ];
 
 <span class="kw">const </span>USE_OFFSET_0X0028: usize = <span class="number">0</span>;
 <span class="kw">const </span>USE_OFFSET_0X00A0: usize = <span class="number">24</span>;
-<span class="kw">const </span>USE_OFFSET_0X0348: usize = <span class="number">80</span>;
-<span class="kw">const </span>USE_OFFSET_0X0900: usize = <span class="number">88</span>;
-<span class="kw">const </span>USE_OFFSET_0X0F18: usize = <span class="number">1360</span>;
-<span class="kw">const </span>USE_OFFSET_0X1000: usize = <span class="number">1536</span>;
-<span class="kw">const </span>USE_OFFSET_0X1700: usize = <span class="number">1696</span>;
-<span class="kw">const </span>USE_OFFSET_0X1900: usize = <span class="number">1936</span>;
-<span class="kw">const </span>USE_OFFSET_0X1B00: usize = <span class="number">2352</span>;
-<span class="kw">const </span>USE_OFFSET_0X1CD0: usize = <span class="number">2688</span>;
-<span class="kw">const </span>USE_OFFSET_0X1DF8: usize = <span class="number">2736</span>;
-<span class="kw">const </span>USE_OFFSET_0X2008: usize = <span class="number">2744</span>;
-<span class="kw">const </span>USE_OFFSET_0X2060: usize = <span class="number">2760</span>;
-<span class="kw">const </span>USE_OFFSET_0X20F0: usize = <span class="number">2800</span>;
-<span class="kw">const </span>USE_OFFSET_0X25C8: usize = <span class="number">2808</span>;
-<span class="kw">const </span>USE_OFFSET_0XA800: usize = <span class="number">2816</span>;
-<span class="kw">const </span>USE_OFFSET_0XABC0: usize = <span class="number">3576</span>;
-<span class="kw">const </span>USE_OFFSET_0XFE00: usize = <span class="number">3640</span>;
-<span class="kw">const </span>USE_OFFSET_0X10A00: usize = <span class="number">3656</span>;
-<span class="kw">const </span>USE_OFFSET_0X11000: usize = <span class="number">3736</span>;
-<span class="kw">const </span>USE_OFFSET_0X11100: usize = <span class="number">3928</span>;
-<span class="kw">const </span>USE_OFFSET_0X11280: usize = <span class="number">4248</span>;
-<span class="kw">const </span>USE_OFFSET_0X11400: usize = <span class="number">4496</span>;
-<span class="kw">const </span>USE_OFFSET_0X11580: usize = <span class="number">4720</span>;
-<span class="kw">const </span>USE_OFFSET_0X11800: usize = <span class="number">5168</span>;
-<span class="kw">const </span>USE_OFFSET_0X119A0: usize = <span class="number">5232</span>;
-<span class="kw">const </span>USE_OFFSET_0X11C00: usize = <span class="number">5488</span>;
-<span class="kw">const </span>USE_OFFSET_0X11D00: usize = <span class="number">5672</span>;
-<span class="kw">const </span>USE_OFFSET_0X11EE0: usize = <span class="number">5848</span>;
+<span class="kw">const </span>USE_OFFSET_0X0640: usize = <span class="number">80</span>;
+<span class="kw">const </span>USE_OFFSET_0X07C8: usize = <span class="number">88</span>;
+<span class="kw">const </span>USE_OFFSET_0X0840: usize = <span class="number">144</span>;
+<span class="kw">const </span>USE_OFFSET_0X0900: usize = <span class="number">176</span>;
+<span class="kw">const </span>USE_OFFSET_0X0F00: usize = <span class="number">1448</span>;
+<span class="kw">const </span>USE_OFFSET_0X1000: usize = <span class="number">1648</span>;
+<span class="kw">const </span>USE_OFFSET_0X1700: usize = <span class="number">1808</span>;
+<span class="kw">const </span>USE_OFFSET_0X1900: usize = <span class="number">2240</span>;
+<span class="kw">const </span>USE_OFFSET_0X1B00: usize = <span class="number">2656</span>;
+<span class="kw">const </span>USE_OFFSET_0X1CD0: usize = <span class="number">2992</span>;
+<span class="kw">const </span>USE_OFFSET_0X1DF8: usize = <span class="number">3040</span>;
+<span class="kw">const </span>USE_OFFSET_0X2008: usize = <span class="number">3048</span>;
+<span class="kw">const </span>USE_OFFSET_0X2070: usize = <span class="number">3064</span>;
+<span class="kw">const </span>USE_OFFSET_0X20F0: usize = <span class="number">3088</span>;
+<span class="kw">const </span>USE_OFFSET_0X25C8: usize = <span class="number">3096</span>;
+<span class="kw">const </span>USE_OFFSET_0X2D30: usize = <span class="number">3104</span>;
+<span class="kw">const </span>USE_OFFSET_0XA800: usize = <span class="number">3184</span>;
+<span class="kw">const </span>USE_OFFSET_0XABC0: usize = <span class="number">3944</span>;
+<span class="kw">const </span>USE_OFFSET_0X10A00: usize = <span class="number">4008</span>;
+<span class="kw">const </span>USE_OFFSET_0X10AC0: usize = <span class="number">4088</span>;
+<span class="kw">const </span>USE_OFFSET_0X10B80: usize = <span class="number">4128</span>;
+<span class="kw">const </span>USE_OFFSET_0X10D00: usize = <span class="number">4176</span>;
+<span class="kw">const </span>USE_OFFSET_0X10E80: usize = <span class="number">4240</span>;
+<span class="kw">const </span>USE_OFFSET_0X10F30: usize = <span class="number">4296</span>;
+<span class="kw">const </span>USE_OFFSET_0X10FB0: usize = <span class="number">4336</span>;
+<span class="kw">const </span>USE_OFFSET_0X11100: usize = <span class="number">4608</span>;
+<span class="kw">const </span>USE_OFFSET_0X11280: usize = <span class="number">4928</span>;
+<span class="kw">const </span>USE_OFFSET_0X11400: usize = <span class="number">5176</span>;
+<span class="kw">const </span>USE_OFFSET_0X11580: usize = <span class="number">5400</span>;
+<span class="kw">const </span>USE_OFFSET_0X11800: usize = <span class="number">5848</span>;
+<span class="kw">const </span>USE_OFFSET_0X11900: usize = <span class="number">5912</span>;
+<span class="kw">const </span>USE_OFFSET_0X119A0: usize = <span class="number">6008</span>;
+<span class="kw">const </span>USE_OFFSET_0X11C00: usize = <span class="number">6264</span>;
+<span class="kw">const </span>USE_OFFSET_0X11D00: usize = <span class="number">6448</span>;
+<span class="kw">const </span>USE_OFFSET_0X11EE0: usize = <span class="number">6624</span>;
+<span class="kw">const </span>USE_OFFSET_0X13000: usize = <span class="number">6648</span>;
+<span class="kw">const </span>USE_OFFSET_0X16B00: usize = <span class="number">7736</span>;
+<span class="kw">const </span>USE_OFFSET_0X16F00: usize = <span class="number">7792</span>;
+<span class="kw">const </span>USE_OFFSET_0X16FE0: usize = <span class="number">7944</span>;
+<span class="kw">const </span>USE_OFFSET_0X18B00: usize = <span class="number">7952</span>;
+<span class="kw">const </span>USE_OFFSET_0X1BC00: usize = <span class="number">8424</span>;
+<span class="kw">const </span>USE_OFFSET_0X1E100: usize = <span class="number">8584</span>;
+<span class="kw">const </span>USE_OFFSET_0X1E2C0: usize = <span class="number">8664</span>;
+<span class="kw">const </span>USE_OFFSET_0X1E900: usize = <span class="number">8728</span>;
 
-<span class="kw">pub fn </span>get_category(u: u32) -&gt; Category {
+<span class="attr">#[rustfmt::skip]
+</span><span class="kw">pub fn </span>get_category(u: u32) -&gt; Category {
     <span class="kw">match </span>u &gt;&gt; <span class="number">12 </span>{
         <span class="number">0x0 </span>=&gt; {
             <span class="kw">if </span>(<span class="number">0x0028</span>..=<span class="number">0x003F</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x0028 </span>+ USE_OFFSET_0X0028]; }
             <span class="kw">if </span>(<span class="number">0x00A0</span>..=<span class="number">0x00D7</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x00A0 </span>+ USE_OFFSET_0X00A0]; }
-            <span class="kw">if </span>(<span class="number">0x0348</span>..=<span class="number">0x034F</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x0348 </span>+ USE_OFFSET_0X0348]; }
+            <span class="kw">if </span>(<span class="number">0x0640</span>..=<span class="number">0x0647</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x0640 </span>+ USE_OFFSET_0X0640]; }
+            <span class="kw">if </span>(<span class="number">0x07C8</span>..=<span class="number">0x07FF</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x07C8 </span>+ USE_OFFSET_0X07C8]; }
+            <span class="kw">if </span>(<span class="number">0x0840</span>..=<span class="number">0x085F</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x0840 </span>+ USE_OFFSET_0X0840]; }
             <span class="kw">if </span>(<span class="number">0x0900</span>..=<span class="number">0x0DF7</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x0900 </span>+ USE_OFFSET_0X0900]; }
-            <span class="kw">if </span>(<span class="number">0x0F18</span>..=<span class="number">0x0FC7</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x0F18 </span>+ USE_OFFSET_0X0F18]; }
+            <span class="kw">if </span>(<span class="number">0x0F00</span>..=<span class="number">0x0FC7</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x0F00 </span>+ USE_OFFSET_0X0F00]; }
         }
         <span class="number">0x1 </span>=&gt; {
             <span class="kw">if </span>(<span class="number">0x1000</span>..=<span class="number">0x109F</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x1000 </span>+ USE_OFFSET_0X1000]; }
-            <span class="kw">if </span>(<span class="number">0x1700</span>..=<span class="number">0x17EF</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x1700 </span>+ USE_OFFSET_0X1700]; }
+            <span class="kw">if </span>(<span class="number">0x1700</span>..=<span class="number">0x18AF</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x1700 </span>+ USE_OFFSET_0X1700]; }
             <span class="kw">if </span>(<span class="number">0x1900</span>..=<span class="number">0x1A9F</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x1900 </span>+ USE_OFFSET_0X1900]; }
             <span class="kw">if </span>(<span class="number">0x1B00</span>..=<span class="number">0x1C4F</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x1B00 </span>+ USE_OFFSET_0X1B00]; }
             <span class="kw">if </span>(<span class="number">0x1CD0</span>..=<span class="number">0x1CFF</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x1CD0 </span>+ USE_OFFSET_0X1CD0]; }
@@ -1333,31 +1897,55 @@
         }
         <span class="number">0x2 </span>=&gt; {
             <span class="kw">if </span>(<span class="number">0x2008</span>..=<span class="number">0x2017</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x2008 </span>+ USE_OFFSET_0X2008]; }
-            <span class="kw">if </span>(<span class="number">0x2060</span>..=<span class="number">0x2087</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x2060 </span>+ USE_OFFSET_0X2060]; }
+            <span class="kw">if </span>(<span class="number">0x2070</span>..=<span class="number">0x2087</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x2070 </span>+ USE_OFFSET_0X2070]; }
             <span class="kw">if </span>(<span class="number">0x20F0</span>..=<span class="number">0x20F7</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x20F0 </span>+ USE_OFFSET_0X20F0]; }
             <span class="kw">if </span>(<span class="number">0x25C8</span>..=<span class="number">0x25CF</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x25C8 </span>+ USE_OFFSET_0X25C8]; }
+            <span class="kw">if </span>(<span class="number">0x2D30</span>..=<span class="number">0x2D7F</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x2D30 </span>+ USE_OFFSET_0X2D30]; }
         }
         <span class="number">0xA </span>=&gt; {
             <span class="kw">if </span>(<span class="number">0xA800</span>..=<span class="number">0xAAF7</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0xA800 </span>+ USE_OFFSET_0XA800]; }
             <span class="kw">if </span>(<span class="number">0xABC0</span>..=<span class="number">0xABFF</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0xABC0 </span>+ USE_OFFSET_0XABC0]; }
         }
-        <span class="number">0xF </span>=&gt; {
-            <span class="kw">if </span>(<span class="number">0xFE00</span>..=<span class="number">0xFE0F</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0xFE00 </span>+ USE_OFFSET_0XFE00]; }
-        }
         <span class="number">0x10 </span>=&gt; {
             <span class="kw">if </span>(<span class="number">0x10A00</span>..=<span class="number">0x10A4F</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x10A00 </span>+ USE_OFFSET_0X10A00]; }
+            <span class="kw">if </span>(<span class="number">0x10AC0</span>..=<span class="number">0x10AE7</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x10AC0 </span>+ USE_OFFSET_0X10AC0]; }
+            <span class="kw">if </span>(<span class="number">0x10B80</span>..=<span class="number">0x10BAF</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x10B80 </span>+ USE_OFFSET_0X10B80]; }
+            <span class="kw">if </span>(<span class="number">0x10D00</span>..=<span class="number">0x10D3F</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x10D00 </span>+ USE_OFFSET_0X10D00]; }
+            <span class="kw">if </span>(<span class="number">0x10E80</span>..=<span class="number">0x10EB7</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x10E80 </span>+ USE_OFFSET_0X10E80]; }
+            <span class="kw">if </span>(<span class="number">0x10F30</span>..=<span class="number">0x10F57</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x10F30 </span>+ USE_OFFSET_0X10F30]; }
+            <span class="kw">if </span>(<span class="number">0x10FB0</span>..=<span class="number">0x110BF</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x10FB0 </span>+ USE_OFFSET_0X10FB0]; }
         }
         <span class="number">0x11 </span>=&gt; {
-            <span class="kw">if </span>(<span class="number">0x11000</span>..=<span class="number">0x110BF</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x11000 </span>+ USE_OFFSET_0X11000]; }
+            <span class="kw">if </span>(<span class="number">0x10FB0</span>..=<span class="number">0x110BF</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x10FB0 </span>+ USE_OFFSET_0X10FB0]; }
             <span class="kw">if </span>(<span class="number">0x11100</span>..=<span class="number">0x1123F</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x11100 </span>+ USE_OFFSET_0X11100]; }
             <span class="kw">if </span>(<span class="number">0x11280</span>..=<span class="number">0x11377</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x11280 </span>+ USE_OFFSET_0X11280]; }
             <span class="kw">if </span>(<span class="number">0x11400</span>..=<span class="number">0x114DF</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x11400 </span>+ USE_OFFSET_0X11400]; }
             <span class="kw">if </span>(<span class="number">0x11580</span>..=<span class="number">0x1173F</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x11580 </span>+ USE_OFFSET_0X11580]; }
             <span class="kw">if </span>(<span class="number">0x11800</span>..=<span class="number">0x1183F</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x11800 </span>+ USE_OFFSET_0X11800]; }
+            <span class="kw">if </span>(<span class="number">0x11900</span>..=<span class="number">0x1195F</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x11900 </span>+ USE_OFFSET_0X11900]; }
             <span class="kw">if </span>(<span class="number">0x119A0</span>..=<span class="number">0x11A9F</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x119A0 </span>+ USE_OFFSET_0X119A0]; }
             <span class="kw">if </span>(<span class="number">0x11C00</span>..=<span class="number">0x11CB7</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x11C00 </span>+ USE_OFFSET_0X11C00]; }
             <span class="kw">if </span>(<span class="number">0x11D00</span>..=<span class="number">0x11DAF</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x11D00 </span>+ USE_OFFSET_0X11D00]; }
             <span class="kw">if </span>(<span class="number">0x11EE0</span>..=<span class="number">0x11EF7</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x11EE0 </span>+ USE_OFFSET_0X11EE0]; }
+        }
+        <span class="number">0x13 </span>=&gt; {
+            <span class="kw">if </span>(<span class="number">0x13000</span>..=<span class="number">0x1343F</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x13000 </span>+ USE_OFFSET_0X13000]; }
+        }
+        <span class="number">0x16 </span>=&gt; {
+            <span class="kw">if </span>(<span class="number">0x16B00</span>..=<span class="number">0x16B37</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x16B00 </span>+ USE_OFFSET_0X16B00]; }
+            <span class="kw">if </span>(<span class="number">0x16F00</span>..=<span class="number">0x16F97</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x16F00 </span>+ USE_OFFSET_0X16F00]; }
+            <span class="kw">if </span>(<span class="number">0x16FE0</span>..=<span class="number">0x16FE7</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x16FE0 </span>+ USE_OFFSET_0X16FE0]; }
+        }
+        <span class="number">0x18 </span>=&gt; {
+            <span class="kw">if </span>(<span class="number">0x18B00</span>..=<span class="number">0x18CD7</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x18B00 </span>+ USE_OFFSET_0X18B00]; }
+        }
+        <span class="number">0x1B </span>=&gt; {
+            <span class="kw">if </span>(<span class="number">0x1BC00</span>..=<span class="number">0x1BC9F</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x1BC00 </span>+ USE_OFFSET_0X1BC00]; }
+        }
+        <span class="number">0x1E </span>=&gt; {
+            <span class="kw">if </span>(<span class="number">0x1E100</span>..=<span class="number">0x1E14F</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x1E100 </span>+ USE_OFFSET_0X1E100]; }
+            <span class="kw">if </span>(<span class="number">0x1E2C0</span>..=<span class="number">0x1E2FF</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x1E2C0 </span>+ USE_OFFSET_0X1E2C0]; }
+            <span class="kw">if </span>(<span class="number">0x1E900</span>..=<span class="number">0x1E95F</span>).contains(<span class="kw-2">&amp;</span>u) { <span class="kw">return </span>USE_TABLE[u <span class="kw">as </span>usize - <span class="number">0x1E900 </span>+ USE_OFFSET_0X1E900]; }
         }
         <span class="kw">_ </span>=&gt; {}
     }

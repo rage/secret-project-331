@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["ethiopian_from_fixed","fixed_from_ethiopian"]};

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_properties-1.2.0/src/provider/names.rs`."><title>names.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_properties" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../icu_properties/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_properties-1.3.2/src/provider/names.rs`."><title>names.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_properties" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../icu_properties/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -256,6 +256,25 @@
 <a href="#256" id="256">256</a>
 <a href="#257" id="257">257</a>
 <a href="#258" id="258">258</a>
+<a href="#259" id="259">259</a>
+<a href="#260" id="260">260</a>
+<a href="#261" id="261">261</a>
+<a href="#262" id="262">262</a>
+<a href="#263" id="263">263</a>
+<a href="#264" id="264">264</a>
+<a href="#265" id="265">265</a>
+<a href="#266" id="266">266</a>
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
@@ -272,14 +291,14 @@
 
 </span><span class="kw">use </span>alloc::boxed::Box;
 <span class="kw">use </span>core::cmp::Ordering;
-<span class="kw">use </span>core::fmt;
 
 <span class="kw">use </span>core::str;
 
 <span class="kw">use </span>icu_provider::prelude::<span class="kw-2">*</span>;
 
 <span class="kw">use </span>tinystr::TinyStr4;
-<span class="kw">use </span>zerovec::{maps::ZeroMapKV, ule::VarULE, VarZeroSlice, VarZeroVec, ZeroMap, ZeroVec};
+<span class="kw">use </span>zerovec::ule::{UnvalidatedStr, VarULE};
+<span class="kw">use </span>zerovec::{maps::ZeroMapKV, VarZeroSlice, VarZeroVec, ZeroMap, ZeroVec};
 
 <span class="doccomment">/// This is a property name that can be &quot;loose matched&quot; as according to
 /// [PropertyValueAliases.txt](https://www.unicode.org/Public/UCD/latest/ucd/PropertyValueAliases.txt)
@@ -297,48 +316,62 @@
 /// including in SemVer minor releases. While the serde representation of data structs is guaranteed
 /// to be stable, their Rust representation might not be. Use with caution.
 /// &lt;/div&gt;
+///
+/// # Examples
+///
+/// Using a [`NormalizedPropertyNameStr`] as the key of a [`ZeroMap`]:
+///
+/// ```
+/// use icu_properties::provider::names::NormalizedPropertyNameStr;
+/// use zerovec::ZeroMap;
+///
+/// let map: ZeroMap&lt;NormalizedPropertyNameStr, usize&gt; = [
+///     (NormalizedPropertyNameStr::from_str(&quot;A_BC&quot;), 11),
+///     (NormalizedPropertyNameStr::from_str(&quot;dEf&quot;), 22),
+///     (NormalizedPropertyNameStr::from_str(&quot;G_H-I&quot;), 33),
+/// ]
+/// .into_iter()
+/// .collect();
+///
+/// let key_approx = NormalizedPropertyNameStr::from_str(&quot;AB-C&quot;);
+/// let key_exact = NormalizedPropertyNameStr::from_str(&quot;A_BC&quot;);
+///
+/// // Strict lookup:
+/// assert_eq!(None, map.get_copied(key_approx));
+/// assert_eq!(Some(11), map.get_copied(key_exact));
+///
+/// // Loose lookup:
+/// assert_eq!(Some(11), map.get_copied_by(|u| u.cmp_loose(key_approx)));
+/// assert_eq!(Some(11), map.get_copied_by(|u| u.cmp_loose(key_exact)));
+/// ```
 </span><span class="attr">#[derive(PartialEq, Eq)] </span><span class="comment">// VarULE wants these to be byte equality
-</span><span class="attr">#[derive(VarULE)]
+</span><span class="attr">#[derive(Debug, VarULE)]
+#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Serialize))]
 #[repr(transparent)]
-</span><span class="kw">pub struct </span>NormalizedPropertyNameStr([u8]);
+</span><span class="kw">pub struct </span>NormalizedPropertyNameStr(UnvalidatedStr);
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;datagen&quot;</span>)]
-</span><span class="kw">impl </span>serde::Serialize <span class="kw">for </span>NormalizedPropertyNameStr {
-    <span class="kw">fn </span>serialize&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt;
-    <span class="kw">where
-        </span>S: serde::Serializer,
-    {
-        <span class="kw">use </span>serde::ser::Error;
-        <span class="kw">if </span>serializer.is_human_readable() {
-            <span class="kw">let </span>s = str::from_utf8(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>)
-                .map_err(|<span class="kw">_</span>| S::Error::custom(<span class="string">&quot;Attempted to datagen invalid string property&quot;</span>))<span class="question-mark">?</span>;
-            serializer.serialize_str(s)
-        } <span class="kw">else </span>{
-            serializer.serialize_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>)
-        }
-    }
-}
-
-<span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+<span class="doccomment">/// This impl requires enabling the optional `serde` Cargo feature of the `icu_properties` crate
+</span><span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
 </span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; serde::Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>Box&lt;NormalizedPropertyNameStr&gt; {
     <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
     <span class="kw">where
         </span>D: serde::Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
     {
-        <span class="kw">use </span>alloc::borrow::Cow;
-        <span class="kw">let </span>s; <span class="comment">// lifetime lengthening
-        </span><span class="kw">let </span>b;
-        <span class="comment">// Can be improved with https://github.com/unicode-org/icu4x/issues/2310
-        // the allocations here are fine, in normal ICU4X code they&#39;ll only get hit
-        // during human-readable deserialization
-        </span><span class="kw">let </span>bytes = <span class="kw">if </span>deserializer.is_human_readable() {
-            s = &lt;Cow&lt;str&gt;&gt;::deserialize(deserializer)<span class="question-mark">?</span>;
-            s.as_bytes()
-        } <span class="kw">else </span>{
-            b = &lt;Cow&lt;[u8]&gt;&gt;::deserialize(deserializer)<span class="question-mark">?</span>;
-            <span class="kw-2">&amp;</span>b
-        };
-        <span class="prelude-val">Ok</span>(NormalizedPropertyNameStr::boxed_from_bytes(bytes))
+        &lt;Box&lt;UnvalidatedStr&gt;&gt;::deserialize(deserializer).map(NormalizedPropertyNameStr::cast_box)
+    }
+}
+
+<span class="doccomment">/// This impl requires enabling the optional `serde` Cargo feature of the `icu_properties` crate
+</span><span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>, <span class="lifetime">&#39;a</span>&gt; serde::Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>NormalizedPropertyNameStr
+<span class="kw">where
+    </span><span class="lifetime">&#39;de</span>: <span class="lifetime">&#39;a</span>,
+{
+    <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
+    <span class="kw">where
+        </span>D: serde::Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
+    {
+        &lt;<span class="kw-2">&amp;</span>UnvalidatedStr&gt;::deserialize(deserializer).map(NormalizedPropertyNameStr::cast_ref)
     }
 }
 
@@ -358,7 +391,7 @@
 }
 
 <span class="doccomment">/// Normalize a character based on the &quot;loose matching&quot; described in PropertyValueAliases.txt,
-/// returning None for skippable characters
+/// returning `None` for skippable characters
 ///
 /// ICU has [code for this][1] (and [during property lookup][2]) which we emulate.
 /// In particular, ICU only does normalization within ASCII, which makes sense since character names
@@ -392,30 +425,34 @@
     }
 }
 
-<span class="kw">impl </span>fmt::Debug <span class="kw">for </span>NormalizedPropertyNameStr {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="kw">if let </span><span class="prelude-val">Ok</span>(s) = str::from_utf8(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>) {
-            f.write_str(s)
-        } <span class="kw">else </span>{
-            f.write_str(<span class="string">&quot;(invalid utf8)&quot;</span>)
-        }
-    }
-}
-
 <span class="kw">impl </span>NormalizedPropertyNameStr {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>cmp_loose(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; Ordering {
+    <span class="doccomment">/// Perform the loose comparison as defined in [`NormalizedPropertyNameStr`].
+    </span><span class="kw">pub fn </span>cmp_loose(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; Ordering {
         <span class="kw">let </span>self_iter = <span class="self">self</span>.<span class="number">0</span>.iter().copied().filter_map(normalize_char);
         <span class="kw">let </span>other_iter = other.<span class="number">0</span>.iter().copied().filter_map(normalize_char);
         self_iter.cmp(other_iter)
     }
-    <span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
-    </span><span class="doccomment">/// Get a `Box&lt;NormalizedPropertyName&gt;` from a byte slice
-    </span><span class="kw">pub fn </span>boxed_from_bytes(b: <span class="kw-2">&amp;</span>[u8]) -&gt; Box&lt;<span class="self">Self</span>&gt; {
-        <span class="attr">#[allow(clippy::expect_used)] </span><span class="comment">// Self has no invariants
-        // can be cleaned up with https://github.com/unicode-org/icu4x/issues/2310
-        </span><span class="kw">let </span>this = <span class="self">Self</span>::parse_byte_slice(b).expect(<span class="string">&quot;NormalizedPropertyName has no invariants&quot;</span>);
 
-        zerovec::ule::encode_varule_to_box(<span class="kw-2">&amp;</span>this)
+    <span class="doccomment">/// Convert a string reference to a [`NormalizedPropertyNameStr`].
+    </span><span class="kw">pub const fn </span>from_str(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw-2">&amp;</span><span class="self">Self </span>{
+        <span class="self">Self</span>::cast_ref(UnvalidatedStr::from_str(s))
+    }
+
+    <span class="doccomment">/// Convert a [`UnvalidatedStr`] reference to a [`NormalizedPropertyNameStr`] reference.
+    </span><span class="kw">pub const fn </span>cast_ref(value: <span class="kw-2">&amp;</span>UnvalidatedStr) -&gt; <span class="kw-2">&amp;</span><span class="self">Self </span>{
+        <span class="comment">// Safety: repr(transparent)
+        </span><span class="kw">unsafe </span>{ core::mem::transmute(value) }
+    }
+
+    <span class="doccomment">/// Convert a [`UnvalidatedStr`] box to a [`NormalizedPropertyNameStr`] box.
+    </span><span class="kw">pub const fn </span>cast_box(value: Box&lt;UnvalidatedStr&gt;) -&gt; Box&lt;<span class="self">Self</span>&gt; {
+        <span class="comment">// Safety: repr(transparent)
+        </span><span class="kw">unsafe </span>{ core::mem::transmute(value) }
+    }
+
+    <span class="doccomment">/// Get a [`NormalizedPropertyNameStr`] box from a byte slice.
+    </span><span class="kw">pub fn </span>boxed_from_bytes(b: <span class="kw-2">&amp;</span>[u8]) -&gt; Box&lt;<span class="self">Self</span>&gt; {
+        <span class="self">Self</span>::cast_box(UnvalidatedStr::from_boxed_bytes(b.into()))
     }
 }
 
@@ -426,11 +463,12 @@
 /// including in SemVer minor releases. While the serde representation of data structs is guaranteed
 /// to be stable, their Rust representation might not be. Use with caution.
 /// &lt;/div&gt;
-</span><span class="attr">#[derive(Debug, Clone)]
+</span><span class="attr">#[derive(Debug, Clone, PartialEq)]
 #[icu_provider::data_struct(marker(
     GeneralCategoryMaskNameToValueV1Marker,
-    <span class="string">&quot;propnames/from/gcm@1&quot;
-</span>))]
+    <span class="string">&quot;propnames/from/gcm@1&quot;</span>,
+    singleton,
+))]
 #[cfg_attr(
     feature = <span class="string">&quot;datagen&quot;</span>, 
     derive(serde::Serialize, databake::Bake),
@@ -452,7 +490,7 @@
 /// including in SemVer minor releases. While the serde representation of data structs is guaranteed
 /// to be stable, their Rust representation might not be. Use with caution.
 /// &lt;/div&gt;
-</span><span class="attr">#[derive(Debug, Clone)]
+</span><span class="attr">#[derive(Debug, Clone, PartialEq)]
 #[icu_provider::data_struct]
 #[cfg_attr(
     feature = <span class="string">&quot;datagen&quot;</span>, 
@@ -475,7 +513,7 @@
 /// including in SemVer minor releases. While the serde representation of data structs is guaranteed
 /// to be stable, their Rust representation might not be. Use with caution.
 /// &lt;/div&gt;
-</span><span class="attr">#[derive(Debug, Clone)]
+</span><span class="attr">#[derive(Debug, Clone, PartialEq)]
 #[icu_provider::data_struct]
 #[cfg_attr(
     feature = <span class="string">&quot;datagen&quot;</span>, 
@@ -499,7 +537,7 @@
 /// including in SemVer minor releases. While the serde representation of data structs is guaranteed
 /// to be stable, their Rust representation might not be. Use with caution.
 /// &lt;/div&gt;
-</span><span class="attr">#[derive(Debug, Clone)]
+</span><span class="attr">#[derive(Debug, Clone, PartialEq)]
 #[icu_provider::data_struct]
 #[cfg_attr(
     feature = <span class="string">&quot;datagen&quot;</span>, 

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.7.0/src/complex/indic.rs`."><title>indic.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../rustybuzz/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.10.0/src/complex/indic.rs`."><title>indic.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../rustybuzz/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -2013,6 +2013,136 @@
 <a href="#2013" id="2013">2013</a>
 <a href="#2014" id="2014">2014</a>
 <a href="#2015" id="2015">2015</a>
+<a href="#2016" id="2016">2016</a>
+<a href="#2017" id="2017">2017</a>
+<a href="#2018" id="2018">2018</a>
+<a href="#2019" id="2019">2019</a>
+<a href="#2020" id="2020">2020</a>
+<a href="#2021" id="2021">2021</a>
+<a href="#2022" id="2022">2022</a>
+<a href="#2023" id="2023">2023</a>
+<a href="#2024" id="2024">2024</a>
+<a href="#2025" id="2025">2025</a>
+<a href="#2026" id="2026">2026</a>
+<a href="#2027" id="2027">2027</a>
+<a href="#2028" id="2028">2028</a>
+<a href="#2029" id="2029">2029</a>
+<a href="#2030" id="2030">2030</a>
+<a href="#2031" id="2031">2031</a>
+<a href="#2032" id="2032">2032</a>
+<a href="#2033" id="2033">2033</a>
+<a href="#2034" id="2034">2034</a>
+<a href="#2035" id="2035">2035</a>
+<a href="#2036" id="2036">2036</a>
+<a href="#2037" id="2037">2037</a>
+<a href="#2038" id="2038">2038</a>
+<a href="#2039" id="2039">2039</a>
+<a href="#2040" id="2040">2040</a>
+<a href="#2041" id="2041">2041</a>
+<a href="#2042" id="2042">2042</a>
+<a href="#2043" id="2043">2043</a>
+<a href="#2044" id="2044">2044</a>
+<a href="#2045" id="2045">2045</a>
+<a href="#2046" id="2046">2046</a>
+<a href="#2047" id="2047">2047</a>
+<a href="#2048" id="2048">2048</a>
+<a href="#2049" id="2049">2049</a>
+<a href="#2050" id="2050">2050</a>
+<a href="#2051" id="2051">2051</a>
+<a href="#2052" id="2052">2052</a>
+<a href="#2053" id="2053">2053</a>
+<a href="#2054" id="2054">2054</a>
+<a href="#2055" id="2055">2055</a>
+<a href="#2056" id="2056">2056</a>
+<a href="#2057" id="2057">2057</a>
+<a href="#2058" id="2058">2058</a>
+<a href="#2059" id="2059">2059</a>
+<a href="#2060" id="2060">2060</a>
+<a href="#2061" id="2061">2061</a>
+<a href="#2062" id="2062">2062</a>
+<a href="#2063" id="2063">2063</a>
+<a href="#2064" id="2064">2064</a>
+<a href="#2065" id="2065">2065</a>
+<a href="#2066" id="2066">2066</a>
+<a href="#2067" id="2067">2067</a>
+<a href="#2068" id="2068">2068</a>
+<a href="#2069" id="2069">2069</a>
+<a href="#2070" id="2070">2070</a>
+<a href="#2071" id="2071">2071</a>
+<a href="#2072" id="2072">2072</a>
+<a href="#2073" id="2073">2073</a>
+<a href="#2074" id="2074">2074</a>
+<a href="#2075" id="2075">2075</a>
+<a href="#2076" id="2076">2076</a>
+<a href="#2077" id="2077">2077</a>
+<a href="#2078" id="2078">2078</a>
+<a href="#2079" id="2079">2079</a>
+<a href="#2080" id="2080">2080</a>
+<a href="#2081" id="2081">2081</a>
+<a href="#2082" id="2082">2082</a>
+<a href="#2083" id="2083">2083</a>
+<a href="#2084" id="2084">2084</a>
+<a href="#2085" id="2085">2085</a>
+<a href="#2086" id="2086">2086</a>
+<a href="#2087" id="2087">2087</a>
+<a href="#2088" id="2088">2088</a>
+<a href="#2089" id="2089">2089</a>
+<a href="#2090" id="2090">2090</a>
+<a href="#2091" id="2091">2091</a>
+<a href="#2092" id="2092">2092</a>
+<a href="#2093" id="2093">2093</a>
+<a href="#2094" id="2094">2094</a>
+<a href="#2095" id="2095">2095</a>
+<a href="#2096" id="2096">2096</a>
+<a href="#2097" id="2097">2097</a>
+<a href="#2098" id="2098">2098</a>
+<a href="#2099" id="2099">2099</a>
+<a href="#2100" id="2100">2100</a>
+<a href="#2101" id="2101">2101</a>
+<a href="#2102" id="2102">2102</a>
+<a href="#2103" id="2103">2103</a>
+<a href="#2104" id="2104">2104</a>
+<a href="#2105" id="2105">2105</a>
+<a href="#2106" id="2106">2106</a>
+<a href="#2107" id="2107">2107</a>
+<a href="#2108" id="2108">2108</a>
+<a href="#2109" id="2109">2109</a>
+<a href="#2110" id="2110">2110</a>
+<a href="#2111" id="2111">2111</a>
+<a href="#2112" id="2112">2112</a>
+<a href="#2113" id="2113">2113</a>
+<a href="#2114" id="2114">2114</a>
+<a href="#2115" id="2115">2115</a>
+<a href="#2116" id="2116">2116</a>
+<a href="#2117" id="2117">2117</a>
+<a href="#2118" id="2118">2118</a>
+<a href="#2119" id="2119">2119</a>
+<a href="#2120" id="2120">2120</a>
+<a href="#2121" id="2121">2121</a>
+<a href="#2122" id="2122">2122</a>
+<a href="#2123" id="2123">2123</a>
+<a href="#2124" id="2124">2124</a>
+<a href="#2125" id="2125">2125</a>
+<a href="#2126" id="2126">2126</a>
+<a href="#2127" id="2127">2127</a>
+<a href="#2128" id="2128">2128</a>
+<a href="#2129" id="2129">2129</a>
+<a href="#2130" id="2130">2130</a>
+<a href="#2131" id="2131">2131</a>
+<a href="#2132" id="2132">2132</a>
+<a href="#2133" id="2133">2133</a>
+<a href="#2134" id="2134">2134</a>
+<a href="#2135" id="2135">2135</a>
+<a href="#2136" id="2136">2136</a>
+<a href="#2137" id="2137">2137</a>
+<a href="#2138" id="2138">2138</a>
+<a href="#2139" id="2139">2139</a>
+<a href="#2140" id="2140">2140</a>
+<a href="#2141" id="2141">2141</a>
+<a href="#2142" id="2142">2142</a>
+<a href="#2143" id="2143">2143</a>
+<a href="#2144" id="2144">2144</a>
+<a href="#2145" id="2145">2145</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>alloc::boxed::Box;
 <span class="kw">use </span>core::cmp;
 <span class="kw">use </span>core::convert::TryFrom;
@@ -2020,14 +2150,15 @@
 
 <span class="kw">use </span>ttf_parser::GlyphId;
 
-<span class="kw">use crate</span>::{script, Tag, Script, Mask, Face, GlyphInfo};
-<span class="kw">use </span><span class="kw">crate</span>::buffer::{Buffer, BufferFlags};
-<span class="kw">use </span><span class="kw">crate</span>::ot::{feature, FeatureFlags, LayoutTable, Map, TableIndex, WouldApply, WouldApplyContext};
-<span class="kw">use </span><span class="kw">crate</span>::plan::{ShapePlan, ShapePlanner};
-<span class="kw">use </span><span class="kw">crate</span>::normalize::ShapeNormalizationMode;
-<span class="kw">use </span><span class="kw">crate</span>::unicode::{CharExt, GeneralCategoryExt, hb_gc};
 <span class="kw">use super</span>::<span class="kw-2">*</span>;
-
+<span class="kw">use </span><span class="kw">crate</span>::buffer::Buffer;
+<span class="kw">use </span><span class="kw">crate</span>::normalize::ShapeNormalizationMode;
+<span class="kw">use </span><span class="kw">crate</span>::ot::{
+    feature, FeatureFlags, LayoutTable, Map, TableIndex, WouldApply, WouldApplyContext,
+};
+<span class="kw">use </span><span class="kw">crate</span>::plan::{ShapePlan, ShapePlanner};
+<span class="kw">use </span><span class="kw">crate</span>::unicode::{hb_gc, CharExt, GeneralCategoryExt};
+<span class="kw">use crate</span>::{script, Face, GlyphInfo, Mask, Script, Tag};
 
 <span class="kw">pub const </span>INDIC_SHAPER: ComplexShaper = ComplexShaper {
     collect_features: <span class="prelude-val">Some</span>(collect_features),
@@ -2044,7 +2175,6 @@
     zero_width_marks: <span class="prelude-val">None</span>,
     fallback_position: <span class="bool-val">false</span>,
 };
-
 
 <span class="kw">pub type </span>Category = u8;
 <span class="kw">pub mod </span>category {
@@ -2080,8 +2210,8 @@
     <span class="kw">pub const </span>V_PRE: u8 = <span class="number">28</span>;
     <span class="kw">pub const </span>V_PST: u8 = <span class="number">29</span>;
     <span class="kw">pub const </span>VS: u8 = <span class="number">30</span>; <span class="comment">// Variation selectors
-    </span><span class="kw">pub const </span>P: u8 = <span class="number">31</span>;  <span class="comment">// Punctuation
-    </span><span class="kw">pub const </span>D: u8 = <span class="number">32</span>;  <span class="comment">// Digits except zero
+    </span><span class="kw">pub const </span>P: u8 = <span class="number">31</span>; <span class="comment">// Punctuation
+    </span><span class="kw">pub const </span>D: u8 = <span class="number">32</span>; <span class="comment">// Digits except zero
 </span>}
 
 <span class="kw">pub type </span>Position = u8;
@@ -2185,10 +2315,22 @@
     // Default Bengali font in Windows for example has intermixed
     // lookups for init,pres,abvs,blws features.
     </span>(feature::INITIAL_FORMS, FeatureFlags::MANUAL_JOINERS),
-    (feature::PRE_BASE_SUBSTITUTIONS, FeatureFlags::GLOBAL_MANUAL_JOINERS),
-    (feature::ABOVE_BASE_SUBSTITUTIONS, FeatureFlags::GLOBAL_MANUAL_JOINERS),
-    (feature::BELOW_BASE_SUBSTITUTIONS, FeatureFlags::GLOBAL_MANUAL_JOINERS),
-    (feature::POST_BASE_SUBSTITUTIONS, FeatureFlags::GLOBAL_MANUAL_JOINERS),
+    (
+        feature::PRE_BASE_SUBSTITUTIONS,
+        FeatureFlags::GLOBAL_MANUAL_JOINERS,
+    ),
+    (
+        feature::ABOVE_BASE_SUBSTITUTIONS,
+        FeatureFlags::GLOBAL_MANUAL_JOINERS,
+    ),
+    (
+        feature::BELOW_BASE_SUBSTITUTIONS,
+        FeatureFlags::GLOBAL_MANUAL_JOINERS,
+    ),
+    (
+        feature::POST_BASE_SUBSTITUTIONS,
+        FeatureFlags::GLOBAL_MANUAL_JOINERS,
+    ),
     (feature::HALANT_FORMS, FeatureFlags::GLOBAL_MANUAL_JOINERS),
 ];
 
@@ -2224,15 +2366,13 @@
 // We treat Vowels and placeholders as if they were consonants.  This is safe because Vowels
 // cannot happen in a consonant syllable.  The plus side however is, we can call the
 // consonant syllable logic from the vowel syllable function and get it all right!
-</span><span class="kw">const </span>CONSONANT_FLAGS: u32 =
-    category_flag(category::C) |
-    category_flag(category::CS) |
-    category_flag(category::RA) |
-    MEDIAL_FLAGS |
-    category_flag(category::V) |
-    category_flag(category::PLACEHOLDER) |
-    category_flag(category::DOTTED_CIRCLE)
-;
+</span><span class="kw">const </span>CONSONANT_FLAGS: u32 = category_flag(category::C)
+    | category_flag(category::CS)
+    | category_flag(category::RA)
+    | MEDIAL_FLAGS
+    | category_flag(category::V)
+    | category_flag(category::PLACEHOLDER)
+    | category_flag(category::DOTTED_CIRCLE);
 <span class="kw">const </span>JOINER_FLAGS: u32 = category_flag(category::ZWJ) | category_flag(category::ZWNJ);
 
 <span class="comment">// This is a hack for now.  We should move this data into the main Indic table.
@@ -2248,10 +2388,7 @@
     </span><span class="number">0x0C30</span>, <span class="comment">// Telugu. Reph formed only with ZWJ
     </span><span class="number">0x0CB0</span>, <span class="comment">// Kannada
     </span><span class="number">0x0D30</span>, <span class="comment">// Malayalam. No Reph, Logical Repha
-
     </span><span class="number">0x0DBB</span>, <span class="comment">// Sinhala. Reph formed only with ZWJ
-
-    </span><span class="number">0x179A</span>, <span class="comment">// Khmer
 </span>];
 
 <span class="attr">#[derive(Clone, Copy, PartialEq)]
@@ -2322,51 +2459,105 @@
 
 <span class="kw">const </span>INDIC_CONFIGS: <span class="kw-2">&amp;</span>[IndicConfig] = <span class="kw-2">&amp;</span>[
     IndicConfig::new(
-        <span class="prelude-val">None</span>, <span class="bool-val">false</span>, <span class="number">0</span>, BasePosition::Last,
-        RephPosition::BeforePost, RephMode::Implicit, BlwfMode::PreAndPost
+        <span class="prelude-val">None</span>,
+        <span class="bool-val">false</span>,
+        <span class="number">0</span>,
+        BasePosition::Last,
+        RephPosition::BeforePost,
+        RephMode::Implicit,
+        BlwfMode::PreAndPost,
     ),
     IndicConfig::new(
-        <span class="prelude-val">Some</span>(script::DEVANAGARI), <span class="bool-val">true</span>, <span class="number">0x094D</span>, BasePosition::Last,
-        RephPosition::BeforePost, RephMode::Implicit, BlwfMode::PreAndPost
+        <span class="prelude-val">Some</span>(script::DEVANAGARI),
+        <span class="bool-val">true</span>,
+        <span class="number">0x094D</span>,
+        BasePosition::Last,
+        RephPosition::BeforePost,
+        RephMode::Implicit,
+        BlwfMode::PreAndPost,
     ),
     IndicConfig::new(
-        <span class="prelude-val">Some</span>(script::BENGALI), <span class="bool-val">true</span>, <span class="number">0x09CD</span>, BasePosition::Last,
-        RephPosition::AfterSub, RephMode::Implicit, BlwfMode::PreAndPost
+        <span class="prelude-val">Some</span>(script::BENGALI),
+        <span class="bool-val">true</span>,
+        <span class="number">0x09CD</span>,
+        BasePosition::Last,
+        RephPosition::AfterSub,
+        RephMode::Implicit,
+        BlwfMode::PreAndPost,
     ),
     IndicConfig::new(
-        <span class="prelude-val">Some</span>(script::GURMUKHI), <span class="bool-val">true</span>, <span class="number">0x0A4D</span>, BasePosition::Last,
-        RephPosition::BeforeSub, RephMode::Implicit, BlwfMode::PreAndPost
+        <span class="prelude-val">Some</span>(script::GURMUKHI),
+        <span class="bool-val">true</span>,
+        <span class="number">0x0A4D</span>,
+        BasePosition::Last,
+        RephPosition::BeforeSub,
+        RephMode::Implicit,
+        BlwfMode::PreAndPost,
     ),
     IndicConfig::new(
-        <span class="prelude-val">Some</span>(script::GUJARATI), <span class="bool-val">true</span>, <span class="number">0x0ACD</span>, BasePosition::Last,
-        RephPosition::BeforePost, RephMode::Implicit, BlwfMode::PreAndPost
+        <span class="prelude-val">Some</span>(script::GUJARATI),
+        <span class="bool-val">true</span>,
+        <span class="number">0x0ACD</span>,
+        BasePosition::Last,
+        RephPosition::BeforePost,
+        RephMode::Implicit,
+        BlwfMode::PreAndPost,
     ),
     IndicConfig::new(
-        <span class="prelude-val">Some</span>(script::ORIYA), <span class="bool-val">true</span>, <span class="number">0x0B4D</span>, BasePosition::Last,
-        RephPosition::AfterMain, RephMode::Implicit, BlwfMode::PreAndPost
+        <span class="prelude-val">Some</span>(script::ORIYA),
+        <span class="bool-val">true</span>,
+        <span class="number">0x0B4D</span>,
+        BasePosition::Last,
+        RephPosition::AfterMain,
+        RephMode::Implicit,
+        BlwfMode::PreAndPost,
     ),
     IndicConfig::new(
-        <span class="prelude-val">Some</span>(script::TAMIL), <span class="bool-val">true</span>, <span class="number">0x0BCD</span>, BasePosition::Last,
-        RephPosition::AfterPost, RephMode::Implicit, BlwfMode::PreAndPost
+        <span class="prelude-val">Some</span>(script::TAMIL),
+        <span class="bool-val">true</span>,
+        <span class="number">0x0BCD</span>,
+        BasePosition::Last,
+        RephPosition::AfterPost,
+        RephMode::Implicit,
+        BlwfMode::PreAndPost,
     ),
     IndicConfig::new(
-        <span class="prelude-val">Some</span>(script::TELUGU), <span class="bool-val">true</span>, <span class="number">0x0C4D</span>, BasePosition::Last,
-        RephPosition::AfterPost, RephMode::Explicit, BlwfMode::PostOnly
+        <span class="prelude-val">Some</span>(script::TELUGU),
+        <span class="bool-val">true</span>,
+        <span class="number">0x0C4D</span>,
+        BasePosition::Last,
+        RephPosition::AfterPost,
+        RephMode::Explicit,
+        BlwfMode::PostOnly,
     ),
     IndicConfig::new(
-        <span class="prelude-val">Some</span>(script::KANNADA), <span class="bool-val">true</span>, <span class="number">0x0CCD</span>, BasePosition::Last,
-        RephPosition::AfterPost, RephMode::Implicit, BlwfMode::PostOnly
+        <span class="prelude-val">Some</span>(script::KANNADA),
+        <span class="bool-val">true</span>,
+        <span class="number">0x0CCD</span>,
+        BasePosition::Last,
+        RephPosition::AfterPost,
+        RephMode::Implicit,
+        BlwfMode::PostOnly,
     ),
     IndicConfig::new(
-        <span class="prelude-val">Some</span>(script::MALAYALAM), <span class="bool-val">true</span>, <span class="number">0x0D4D</span>, BasePosition::Last,
-        RephPosition::AfterMain, RephMode::LogRepha, BlwfMode::PreAndPost
+        <span class="prelude-val">Some</span>(script::MALAYALAM),
+        <span class="bool-val">true</span>,
+        <span class="number">0x0D4D</span>,
+        BasePosition::Last,
+        RephPosition::AfterMain,
+        RephMode::LogRepha,
+        BlwfMode::PreAndPost,
     ),
     IndicConfig::new(
-        <span class="prelude-val">Some</span>(script::SINHALA), <span class="bool-val">false</span>, <span class="number">0x0DCA</span>, BasePosition::LastSinhala,
-        RephPosition::AfterPost, RephMode::Explicit, BlwfMode::PreAndPost
+        <span class="prelude-val">Some</span>(script::SINHALA),
+        <span class="bool-val">false</span>,
+        <span class="number">0x0DCA</span>,
+        BasePosition::LastSinhala,
+        RephPosition::AfterPost,
+        RephMode::Explicit,
+        BlwfMode::PreAndPost,
     ),
 ];
-
 
 <span class="kw">struct </span>IndicWouldSubstituteFeature {
     lookups: Range&lt;usize&gt;,
@@ -2387,8 +2578,12 @@
     <span class="kw">pub fn </span>would_substitute(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map, face: <span class="kw-2">&amp;</span>Face, glyphs: <span class="kw-2">&amp;</span>[GlyphId]) -&gt; bool {
         <span class="kw">for </span>index <span class="kw">in </span><span class="self">self</span>.lookups.clone() {
             <span class="kw">let </span>lookup = map.lookup(TableIndex::GSUB, index);
-            <span class="kw">let </span>ctx = WouldApplyContext { glyphs, zero_context: <span class="self">self</span>.zero_context };
-            <span class="kw">if </span>face.gsub
+            <span class="kw">let </span>ctx = WouldApplyContext {
+                glyphs,
+                zero_context: <span class="self">self</span>.zero_context,
+            };
+            <span class="kw">if </span>face
+                .gsub
                 .as_ref()
                 .and_then(|table| table.get_lookup(lookup.index))
                 .map_or(<span class="bool-val">false</span>, |lookup| lookup.would_apply(<span class="kw-2">&amp;</span>ctx))
@@ -2400,7 +2595,6 @@
         <span class="bool-val">false
     </span>}
 }
-
 
 <span class="kw">struct </span>IndicShapePlan {
     config: IndicConfig,
@@ -2424,7 +2618,9 @@
         };
 
         <span class="kw">let </span>is_old_spec = config.has_old_spec
-            &amp;&amp; plan.ot_map.chosen_script(TableIndex::GSUB)
+            &amp;&amp; plan
+                .ot_map
+                .chosen_script(TableIndex::GSUB)
                 .map_or(<span class="bool-val">false</span>, |tag| tag.to_bytes()[<span class="number">3</span>] != <span class="string">b&#39;2&#39;</span>);
 
         <span class="comment">// Use zero-context would_substitute() matching for new-spec of the main
@@ -2459,35 +2655,46 @@
             is_old_spec,
             <span class="comment">// virama_glyph,
             </span>rphf: IndicWouldSubstituteFeature::new(<span class="kw-2">&amp;</span>plan.ot_map, feature::REPH_FORMS, zero_context),
-            pref: IndicWouldSubstituteFeature::new(<span class="kw-2">&amp;</span>plan.ot_map, feature::PRE_BASE_FORMS, zero_context),
-            blwf: IndicWouldSubstituteFeature::new(<span class="kw-2">&amp;</span>plan.ot_map, feature::BELOW_BASE_FORMS, zero_context),
-            pstf: IndicWouldSubstituteFeature::new(<span class="kw-2">&amp;</span>plan.ot_map, feature::POST_BASE_FORMS, zero_context),
-            vatu: IndicWouldSubstituteFeature::new(<span class="kw-2">&amp;</span>plan.ot_map, feature::VATTU_VARIANTS, zero_context),
+            pref: IndicWouldSubstituteFeature::new(
+                <span class="kw-2">&amp;</span>plan.ot_map,
+                feature::PRE_BASE_FORMS,
+                zero_context,
+            ),
+            blwf: IndicWouldSubstituteFeature::new(
+                <span class="kw-2">&amp;</span>plan.ot_map,
+                feature::BELOW_BASE_FORMS,
+                zero_context,
+            ),
+            pstf: IndicWouldSubstituteFeature::new(
+                <span class="kw-2">&amp;</span>plan.ot_map,
+                feature::POST_BASE_FORMS,
+                zero_context,
+            ),
+            vatu: IndicWouldSubstituteFeature::new(
+                <span class="kw-2">&amp;</span>plan.ot_map,
+                feature::VATTU_VARIANTS,
+                zero_context,
+            ),
             mask_array,
         }
     }
 }
 
-
 <span class="kw">impl </span>GlyphInfo {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>indic_category(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Category {
-        <span class="kw">let </span>v: <span class="kw-2">&amp;</span>[u8; <span class="number">4</span>] = bytemuck::cast_ref(<span class="kw-2">&amp;</span><span class="self">self</span>.var2);
-        v[<span class="number">2</span>]
+        <span class="self">self</span>.complex_var_u8_category()
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>set_indic_category(<span class="kw-2">&amp;mut </span><span class="self">self</span>, c: Category) {
-        <span class="kw">let </span>v: <span class="kw-2">&amp;mut </span>[u8; <span class="number">4</span>] = bytemuck::cast_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>.var2);
-        v[<span class="number">2</span>] = c;
+        <span class="self">self</span>.set_complex_var_u8_category(c)
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>indic_position(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Position {
-        <span class="kw">let </span>v: <span class="kw-2">&amp;</span>[u8; <span class="number">4</span>] = bytemuck::cast_ref(<span class="kw-2">&amp;</span><span class="self">self</span>.var2);
-        v[<span class="number">3</span>]
+        <span class="self">self</span>.complex_var_u8_auxiliary()
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>set_indic_position(<span class="kw-2">&amp;mut </span><span class="self">self</span>, c: Position) {
-        <span class="kw">let </span>v: <span class="kw-2">&amp;mut </span>[u8; <span class="number">4</span>] = bytemuck::cast_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>.var2);
-        v[<span class="number">3</span>] = c;
+        <span class="self">self</span>.set_complex_var_u8_auxiliary(c)
     }
 
     <span class="kw">fn </span>is_one_of(<span class="kw-2">&amp;</span><span class="self">self</span>, flags: u32) -&gt; bool {
@@ -2532,13 +2739,18 @@
             <span class="comment">// The following take marks in standalone clusters, similar to Avagraha.
             </span><span class="number">0xA8F2</span>..=<span class="number">0xA8F7 </span>| <span class="number">0x1CE9</span>..=<span class="number">0x1CEC </span>| <span class="number">0x1CEE</span>..=<span class="number">0x1CF1 </span>=&gt; cat = category::SYMBOL,
             <span class="comment">// https://github.com/harfbuzz/harfbuzz/issues/524
-            </span><span class="number">0x0A51 </span>=&gt; { cat = category::M; pos = position::BELOW_C; }
+            </span><span class="number">0x0A51 </span>=&gt; {
+                cat = category::M;
+                pos = position::BELOW_C;
+            }
             <span class="comment">// According to ScriptExtensions.txt, these Grantha marks may also be used in Tamil,
             // so the Indic shaper needs to know their categories.
             </span><span class="number">0x11301 </span>| <span class="number">0x11303 </span>=&gt; cat = category::SM,
             <span class="number">0x1133B </span>| <span class="number">0x1133C </span>=&gt; cat = category::N,
             <span class="comment">// https://github.com/harfbuzz/harfbuzz/issues/552
             </span><span class="number">0x0AFB </span>=&gt; cat = category::N,
+            <span class="comment">// https://github.com/harfbuzz/harfbuzz/issues/2849
+            </span><span class="number">0x0B55 </span>=&gt; cat = category::N,
             <span class="comment">// https://github.com/harfbuzz/harfbuzz/issues/538
             </span><span class="number">0x0980 </span>=&gt; cat = category::PLACEHOLDER,
             <span class="comment">// https://github.com/harfbuzz/harfbuzz/issues/1613
@@ -2559,10 +2771,11 @@
             }
         } <span class="kw">else if </span>cat == category::M {
             pos = matra_position_indic(u, pos);
-        } <span class="kw">else if </span>(rb_flag_unsafe(cat <span class="kw">as </span>u32) &amp;
-            (category_flag(category::SM) |
-                category_flag(category::A) |
-                category_flag(category::SYMBOL))) != <span class="number">0
+        } <span class="kw">else if </span>(rb_flag_unsafe(cat <span class="kw">as </span>u32)
+            &amp; (category_flag(category::SM)
+                | category_flag(category::A)
+                | category_flag(category::SYMBOL)))
+            != <span class="number">0
         </span>{
             pos = position::SMVD;
         }
@@ -2577,15 +2790,20 @@
     }
 }
 
-
 <span class="kw">fn </span>collect_features(planner: <span class="kw-2">&amp;mut </span>ShapePlanner) {
     <span class="comment">// Do this before any lookups have been applied.
     </span>planner.ot_map.add_gsub_pause(<span class="prelude-val">Some</span>(setup_syllables));
 
-    planner.ot_map.enable_feature(feature::LOCALIZED_FORMS, FeatureFlags::empty(), <span class="number">1</span>);
+    planner
+        .ot_map
+        .enable_feature(feature::LOCALIZED_FORMS, FeatureFlags::empty(), <span class="number">1</span>);
     <span class="comment">// The Indic specs do not require ccmp, but we apply it here since if
     // there is a use of it, it&#39;s typically at the beginning.
-    </span>planner.ot_map.enable_feature(feature::GLYPH_COMPOSITION_DECOMPOSITION, FeatureFlags::empty(), <span class="number">1</span>);
+    </span>planner.ot_map.enable_feature(
+        feature::GLYPH_COMPOSITION_DECOMPOSITION,
+        FeatureFlags::empty(),
+        <span class="number">1</span>,
+    );
 
     planner.ot_map.add_gsub_pause(<span class="prelude-val">Some</span>(initial_reordering));
 
@@ -2600,10 +2818,16 @@
         planner.ot_map.add_feature(feature.<span class="number">0</span>, feature.<span class="number">1</span>, <span class="number">1</span>);
     }
 
-    planner.ot_map.enable_feature(feature::CONTEXTUAL_ALTERNATES, FeatureFlags::empty(), <span class="number">1</span>);
-    planner.ot_map.enable_feature(feature::CONTEXTUAL_LIGATURES, FeatureFlags::empty(), <span class="number">1</span>);
+    planner
+        .ot_map
+        .enable_feature(feature::CONTEXTUAL_ALTERNATES, FeatureFlags::empty(), <span class="number">1</span>);
+    planner
+        .ot_map
+        .enable_feature(feature::CONTEXTUAL_LIGATURES, FeatureFlags::empty(), <span class="number">1</span>);
 
-    planner.ot_map.add_gsub_pause(<span class="prelude-val">Some</span>(<span class="kw">crate</span>::ot::clear_syllables));
+    planner
+        .ot_map
+        .add_gsub_pause(<span class="prelude-val">Some</span>(<span class="kw">crate</span>::ot::clear_syllables));
 }
 
 <span class="kw">fn </span>override_features(planner: <span class="kw-2">&amp;mut </span>ShapePlanner) {
@@ -2653,7 +2877,9 @@
         </span><span class="kw">let </span><span class="kw-2">mut </span>ok = <span class="bool-val">false</span>;
         <span class="kw">if let </span><span class="prelude-val">Some</span>(g) = ctx.face.glyph_index(u32::from(ab)) {
             <span class="kw">let </span>indic_plan = ctx.plan.data::&lt;IndicShapePlan&gt;();
-            ok = indic_plan.pstf.would_substitute(<span class="kw-2">&amp;</span>ctx.plan.ot_map, ctx.face, <span class="kw-2">&amp;</span>[g]);
+            ok = indic_plan
+                .pstf
+                .would_substitute(<span class="kw-2">&amp;</span>ctx.plan.ot_map, ctx.face, <span class="kw-2">&amp;</span>[g]);
         }
 
         <span class="kw">if </span>ok {
@@ -2700,10 +2926,18 @@
 }
 
 <span class="kw">fn </span>initial_reordering(plan: <span class="kw-2">&amp;</span>ShapePlan, face: <span class="kw-2">&amp;</span>Face, buffer: <span class="kw-2">&amp;mut </span>Buffer) {
+    <span class="kw">use </span><span class="kw">super</span>::indic_machine::SyllableType;
+
     <span class="kw">let </span>indic_plan = plan.data::&lt;IndicShapePlan&gt;();
 
     update_consonant_positions(plan, indic_plan, face, buffer);
-    insert_dotted_circles(face, buffer);
+    syllabic::insert_dotted_circles(
+        face,
+        buffer,
+        SyllableType::BrokenCluster <span class="kw">as </span>u8,
+        category::DOTTED_CIRCLE,
+        <span class="prelude-val">Some</span>(category::REPHA),
+    );
 
     <span class="kw">let </span><span class="kw-2">mut </span>start = <span class="number">0</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>end = buffer.next_syllable(<span class="number">0</span>);
@@ -2733,8 +2967,9 @@
         <span class="kw">for </span>info <span class="kw">in </span>buffer.info_slice_mut() {
             <span class="kw">if </span>info.indic_position() == position::BASE_C {
                 <span class="kw">let </span>consonant = info.as_glyph();
-                info.set_indic_position(
-                    consonant_position_from_face(plan, indic_plan, face, consonant, virama));
+                info.set_indic_position(consonant_position_from_face(
+                    plan, indic_plan, face, consonant, virama,
+                ));
             }
         }
     }
@@ -2761,87 +2996,43 @@
     // Vatu is done as well, for:
     // https://github.com/harfbuzz/harfbuzz/issues/1587
 
-    </span><span class="kw">if  </span>indic_plan.blwf.would_substitute(<span class="kw-2">&amp;</span>plan.ot_map, face, <span class="kw-2">&amp;</span>[virama, consonant]) ||
-        indic_plan.blwf.would_substitute(<span class="kw-2">&amp;</span>plan.ot_map, face, <span class="kw-2">&amp;</span>[consonant, virama]) ||
-        indic_plan.vatu.would_substitute(<span class="kw-2">&amp;</span>plan.ot_map, face, <span class="kw-2">&amp;</span>[virama, consonant]) ||
-        indic_plan.vatu.would_substitute(<span class="kw-2">&amp;</span>plan.ot_map, face, <span class="kw-2">&amp;</span>[consonant, virama])
+    </span><span class="kw">if </span>indic_plan
+        .blwf
+        .would_substitute(<span class="kw-2">&amp;</span>plan.ot_map, face, <span class="kw-2">&amp;</span>[virama, consonant])
+        || indic_plan
+            .blwf
+            .would_substitute(<span class="kw-2">&amp;</span>plan.ot_map, face, <span class="kw-2">&amp;</span>[consonant, virama])
+        || indic_plan
+            .vatu
+            .would_substitute(<span class="kw-2">&amp;</span>plan.ot_map, face, <span class="kw-2">&amp;</span>[virama, consonant])
+        || indic_plan
+            .vatu
+            .would_substitute(<span class="kw-2">&amp;</span>plan.ot_map, face, <span class="kw-2">&amp;</span>[consonant, virama])
     {
         <span class="kw">return </span>position::BELOW_C;
     }
 
-    <span class="kw">if </span>indic_plan.pstf.would_substitute(<span class="kw-2">&amp;</span>plan.ot_map, face, <span class="kw-2">&amp;</span>[virama, consonant]) ||
-       indic_plan.pstf.would_substitute(<span class="kw-2">&amp;</span>plan.ot_map, face, <span class="kw-2">&amp;</span>[consonant, virama])
+    <span class="kw">if </span>indic_plan
+        .pstf
+        .would_substitute(<span class="kw-2">&amp;</span>plan.ot_map, face, <span class="kw-2">&amp;</span>[virama, consonant])
+        || indic_plan
+            .pstf
+            .would_substitute(<span class="kw-2">&amp;</span>plan.ot_map, face, <span class="kw-2">&amp;</span>[consonant, virama])
     {
         <span class="kw">return </span>position::POST_C;
     }
 
-    <span class="kw">if </span>indic_plan.pref.would_substitute(<span class="kw-2">&amp;</span>plan.ot_map, face, <span class="kw-2">&amp;</span>[virama, consonant]) ||
-       indic_plan.pref.would_substitute(<span class="kw-2">&amp;</span>plan.ot_map, face, <span class="kw-2">&amp;</span>[consonant, virama])
+    <span class="kw">if </span>indic_plan
+        .pref
+        .would_substitute(<span class="kw-2">&amp;</span>plan.ot_map, face, <span class="kw-2">&amp;</span>[virama, consonant])
+        || indic_plan
+            .pref
+            .would_substitute(<span class="kw-2">&amp;</span>plan.ot_map, face, <span class="kw-2">&amp;</span>[consonant, virama])
     {
         <span class="kw">return </span>position::POST_C;
     }
 
     position::BASE_C
-}
-
-<span class="kw">fn </span>insert_dotted_circles(face: <span class="kw-2">&amp;</span>Face, buffer: <span class="kw-2">&amp;mut </span>Buffer) {
-    <span class="kw">use </span><span class="kw">super</span>::indic_machine::SyllableType;
-
-    <span class="kw">if </span>buffer.flags.contains(BufferFlags::DO_NOT_INSERT_DOTTED_CIRCLE) {
-        <span class="kw">return</span>;
-    }
-
-    <span class="comment">// Note: This loop is extra overhead, but should not be measurable.
-    // TODO Use a buffer scratch flag to remove the loop.
-    </span><span class="kw">let </span>has_broken_syllables = buffer.info_slice().iter()
-        .any(|info| info.syllable() &amp; <span class="number">0x0F </span>== SyllableType::BrokenCluster <span class="kw">as </span>u8);
-
-    <span class="kw">if </span>!has_broken_syllables {
-        <span class="kw">return</span>;
-    }
-
-    <span class="kw">let </span>dottedcircle_glyph = <span class="kw">match </span>face.glyph_index(<span class="number">0x25CC</span>) {
-        <span class="prelude-val">Some</span>(g) =&gt; g.<span class="number">0 </span><span class="kw">as </span>u32,
-        <span class="prelude-val">None </span>=&gt; <span class="kw">return</span>,
-    };
-
-    <span class="kw">let </span><span class="kw-2">mut </span>dottedcircle = GlyphInfo {
-        glyph_id: <span class="number">0x25CC</span>,
-        ..GlyphInfo::default()
-    };
-    dottedcircle.set_indic_properties();
-    dottedcircle.glyph_id = dottedcircle_glyph;
-
-    buffer.clear_output();
-
-    buffer.idx = <span class="number">0</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>last_syllable = <span class="number">0</span>;
-    <span class="kw">while </span>buffer.idx &lt; buffer.len {
-        <span class="kw">let </span>syllable = buffer.cur(<span class="number">0</span>).syllable();
-        <span class="kw">let </span>syllable_type = syllable &amp; <span class="number">0x0F</span>;
-        <span class="kw">if </span>last_syllable != syllable &amp;&amp; syllable_type == SyllableType::BrokenCluster <span class="kw">as </span>u8 {
-            last_syllable = syllable;
-
-            <span class="kw">let </span><span class="kw-2">mut </span>ginfo = dottedcircle;
-            ginfo.cluster = buffer.cur(<span class="number">0</span>).cluster;
-            ginfo.mask = buffer.cur(<span class="number">0</span>).mask;
-            ginfo.set_syllable(buffer.cur(<span class="number">0</span>).syllable());
-
-            <span class="comment">// Insert dottedcircle after possible Repha.
-            </span><span class="kw">while </span>buffer.idx &lt; buffer.len &amp;&amp;
-                last_syllable == buffer.cur(<span class="number">0</span>).syllable() &amp;&amp;
-                buffer.cur(<span class="number">0</span>).indic_category() == category::REPHA
-            {
-                buffer.next_glyph();
-            }
-
-            buffer.output_info(ginfo);
-        } <span class="kw">else </span>{
-            buffer.next_glyph();
-        }
-    }
-
-    buffer.swap_buffers();
 }
 
 <span class="kw">fn </span>initial_reordering_syllable(
@@ -2890,11 +3081,11 @@
     <span class="comment">// https://github.com/harfbuzz/harfbuzz/issues/435#issuecomment-335560167
     // For compatibility with legacy usage in Kannada,
     // Ra+h+ZWJ must behave like Ra+ZWJ+h...
-    </span><span class="kw">if </span>buffer.script == <span class="prelude-val">Some</span>(script::KANNADA) &amp;&amp;
-        start + <span class="number">3 </span>&lt;= end &amp;&amp;
-        buffer.info[start].is_one_of(category_flag(category::RA)) &amp;&amp;
-        buffer.info[start + <span class="number">1</span>].is_one_of(category_flag(category::H)) &amp;&amp;
-        buffer.info[start + <span class="number">2</span>].is_one_of(category_flag(category::ZWJ))
+    </span><span class="kw">if </span>buffer.script == <span class="prelude-val">Some</span>(script::KANNADA)
+        &amp;&amp; start + <span class="number">3 </span>&lt;= end
+        &amp;&amp; buffer.info[start].is_one_of(category_flag(category::RA))
+        &amp;&amp; buffer.info[start + <span class="number">1</span>].is_one_of(category_flag(category::H))
+        &amp;&amp; buffer.info[start + <span class="number">2</span>].is_one_of(category_flag(category::ZWJ))
     {
         buffer.merge_clusters(start + <span class="number">1</span>, start + <span class="number">3</span>);
         buffer.info.swap(start + <span class="number">1</span>, start + <span class="number">2</span>);
@@ -2921,10 +3112,12 @@
         //    and has more than one consonant, Ra is excluded from candidates for
         //    base consonants.
         </span><span class="kw">let </span><span class="kw-2">mut </span>limit = start;
-        <span class="kw">if </span>indic_plan.mask_array[indic_feature::RPHF] != <span class="number">0 </span>&amp;&amp;
-            start + <span class="number">3 </span>&lt;= end &amp;&amp;
-            ((indic_plan.config.reph_mode == RephMode::Implicit &amp;&amp; !buffer.info[start + <span class="number">2</span>].is_joiner()) ||
-                (indic_plan.config.reph_mode == RephMode::Explicit &amp;&amp; buffer.info[start + <span class="number">2</span>].indic_category() == category::ZWJ))
+        <span class="kw">if </span>indic_plan.mask_array[indic_feature::RPHF] != <span class="number">0
+            </span>&amp;&amp; start + <span class="number">3 </span>&lt;= end
+            &amp;&amp; ((indic_plan.config.reph_mode == RephMode::Implicit
+                &amp;&amp; !buffer.info[start + <span class="number">2</span>].is_joiner())
+                || (indic_plan.config.reph_mode == RephMode::Explicit
+                    &amp;&amp; buffer.info[start + <span class="number">2</span>].indic_category() == category::ZWJ))
         {
             <span class="comment">// See if it matches the &#39;rphf&#39; feature.
             </span><span class="kw">let </span>glyphs = <span class="kw-2">&amp;</span>[
@@ -2934,11 +3127,13 @@
                     buffer.info[start + <span class="number">2</span>].as_glyph()
                 } <span class="kw">else </span>{
                     GlyphId(<span class="number">0</span>)
-                }
+                },
             ];
-            <span class="kw">if </span>indic_plan.rphf.would_substitute(<span class="kw-2">&amp;</span>plan.ot_map, face, <span class="kw-2">&amp;</span>glyphs[<span class="number">0</span>..<span class="number">2</span>]) ||
-                (indic_plan.config.reph_mode == RephMode::Explicit &amp;&amp;
-                    indic_plan.rphf.would_substitute(<span class="kw-2">&amp;</span>plan.ot_map, face, glyphs))
+            <span class="kw">if </span>indic_plan
+                .rphf
+                .would_substitute(<span class="kw-2">&amp;</span>plan.ot_map, face, <span class="kw-2">&amp;</span>glyphs[<span class="number">0</span>..<span class="number">2</span>])
+                || (indic_plan.config.reph_mode == RephMode::Explicit
+                    &amp;&amp; indic_plan.rphf.would_substitute(<span class="kw-2">&amp;</span>plan.ot_map, face, glyphs))
             {
                 limit += <span class="number">2</span>;
                 <span class="kw">while </span>limit &lt; end &amp;&amp; buffer.info[limit].is_joiner() {
@@ -2947,8 +3142,8 @@
                 base = start;
                 has_reph = <span class="bool-val">true</span>;
             }
-        } <span class="kw">else if </span>indic_plan.config.reph_mode == RephMode::LogRepha &amp;&amp;
-            buffer.info[start].indic_category() == category::REPHA
+        } <span class="kw">else if </span>indic_plan.config.reph_mode == RephMode::LogRepha
+            &amp;&amp; buffer.info[start].indic_category() == category::REPHA
         {
             limit += <span class="number">1</span>;
             <span class="kw">while </span>limit &lt; end &amp;&amp; buffer.info[limit].is_joiner() {
@@ -2969,8 +3164,8 @@
                     </span><span class="kw">if </span>buffer.info[i].is_consonant() {
                         <span class="comment">// -&gt; that does not have a below-base or post-base form
                         // (post-base forms have to follow below-base forms),
-                        </span><span class="kw">if </span>buffer.info[i].indic_position() != position::BELOW_C &amp;&amp;
-                            (buffer.info[i].indic_position() != position::POST_C || seen_below)
+                        </span><span class="kw">if </span>buffer.info[i].indic_position() != position::BELOW_C
+                            &amp;&amp; (buffer.info[i].indic_position() != position::POST_C || seen_below)
                         {
                             base = i;
                             <span class="kw">break</span>;
@@ -2995,8 +3190,9 @@
                         // A ZWJ before a Halant, requests a subjoined form instead, and hence
                         // search continues.  This is particularly important for Bengali
                         // sequence Ra,H,Ya that should form Ya-Phalaa by subjoining Ya.
-                        </span><span class="kw">if </span>start &lt; i &amp;&amp; buffer.info[i].indic_category() == category::ZWJ &amp;&amp;
-                            buffer.info[i - <span class="number">1</span>].indic_category() == category::H
+                        </span><span class="kw">if </span>start &lt; i
+                            &amp;&amp; buffer.info[i].indic_category() == category::ZWJ
+                            &amp;&amp; buffer.info[i - <span class="number">1</span>].indic_category() == category::H
                         {
                             <span class="kw">break</span>;
                         }
@@ -3029,7 +3225,7 @@
                 }
 
                 <span class="comment">// Mark all subsequent consonants as below.
-                </span><span class="kw">for </span>i <span class="kw">in </span>base+<span class="number">1</span>..end {
+                </span><span class="kw">for </span>i <span class="kw">in </span>base + <span class="number">1</span>..end {
                     <span class="kw">if </span>buffer.info[i].is_consonant() {
                         buffer.info[i].set_indic_position(position::BELOW_C);
                     }
@@ -3089,9 +3285,9 @@
 
     <span class="comment">// Mark final consonants.  A final consonant is one appearing after a matra.
     // Happens in Sinhala.
-    </span><span class="kw">for </span>i <span class="kw">in </span>base+<span class="number">1</span>..end {
+    </span><span class="kw">for </span>i <span class="kw">in </span>base + <span class="number">1</span>..end {
         <span class="kw">if </span>buffer.info[i].indic_category() == category::M {
-            <span class="kw">for </span>j <span class="kw">in </span>i+<span class="number">1</span>..end {
+            <span class="kw">for </span>j <span class="kw">in </span>i + <span class="number">1</span>..end {
                 <span class="kw">if </span>buffer.info[j].is_consonant() {
                     buffer.info[j].set_indic_position(position::FINAL_C);
                     <span class="kw">break</span>;
@@ -3136,12 +3332,13 @@
     // https://github.com/harfbuzz/harfbuzz/issues/1071
     </span><span class="kw">if </span>indic_plan.is_old_spec {
         <span class="kw">let </span>disallow_double_halants = buffer.script == <span class="prelude-val">Some</span>(script::KANNADA);
-        <span class="kw">for </span>i <span class="kw">in </span>base+<span class="number">1</span>..end {
+        <span class="kw">for </span>i <span class="kw">in </span>base + <span class="number">1</span>..end {
             <span class="kw">if </span>buffer.info[i].indic_category() == category::H {
                 <span class="kw">let </span><span class="kw-2">mut </span>j = end - <span class="number">1</span>;
                 <span class="kw">while </span>j &gt; i {
-                    <span class="kw">if </span>buffer.info[j].is_consonant() ||
-                        (disallow_double_halants &amp;&amp; buffer.info[j].indic_category() == category::H)
+                    <span class="kw">if </span>buffer.info[j].is_consonant()
+                        || (disallow_double_halants
+                            &amp;&amp; buffer.info[j].indic_category() == category::H)
                     {
                         <span class="kw">break</span>;
                     }
@@ -3152,8 +3349,8 @@
                 <span class="kw">if </span>buffer.info[j].indic_category() != category::H &amp;&amp; j &gt; i {
                     <span class="comment">// Move Halant to after last consonant.
                     </span><span class="kw">let </span>t = buffer.info[i];
-                    <span class="kw">for </span>k <span class="kw">in </span><span class="number">0</span>..j-i {
-                        buffer.info[k + i] = buffer.info[k+ i + <span class="number">1</span>];
+                    <span class="kw">for </span>k <span class="kw">in </span><span class="number">0</span>..j - i {
+                        buffer.info[k + i] = buffer.info[k + i + <span class="number">1</span>];
                     }
                     buffer.info[j] = t;
                 }
@@ -3167,16 +3364,19 @@
     </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>last_pos = position::START;
         <span class="kw">for </span>i <span class="kw">in </span>start..end {
-            <span class="kw">let </span>ok = rb_flag_unsafe(buffer.info[i].indic_category() <span class="kw">as </span>u32) &amp;
-                (category_flag(category::ZWJ) | category_flag(category::ZWNJ) |
-                    category_flag(category::N) | category_flag(category::RS) |
-                    category_flag(category::CM) | category_flag(category::H)
-                ) != <span class="number">0</span>;
+            <span class="kw">let </span>ok = rb_flag_unsafe(buffer.info[i].indic_category() <span class="kw">as </span>u32)
+                &amp; (category_flag(category::ZWJ)
+                    | category_flag(category::ZWNJ)
+                    | category_flag(category::N)
+                    | category_flag(category::RS)
+                    | category_flag(category::CM)
+                    | category_flag(category::H))
+                != <span class="number">0</span>;
             <span class="kw">if </span>ok {
                 buffer.info[i].set_indic_position(last_pos);
 
-                <span class="kw">if </span>buffer.info[i].indic_category() == category::H &amp;&amp;
-                    buffer.info[i].indic_position() == position::PRE_M
+                <span class="kw">if </span>buffer.info[i].indic_category() == category::H
+                    &amp;&amp; buffer.info[i].indic_position() == position::PRE_M
                 {
                     <span class="comment">// Uniscribe doesn&#39;t move the Halant with Left Matra.
                     // TEST: U+092B,U+093F,U+094DE
@@ -3185,7 +3385,7 @@
                     // where U+0DD9 is a left matra and U+0DCA is the virama.
                     // We don&#39;t want to move the virama with the left matra.
                     // TEST: U+0D9A,U+0DDA
-                    </span><span class="kw">for </span>j <span class="kw">in </span>(start+<span class="number">1</span>..=i).rev() {
+                    </span><span class="kw">for </span>j <span class="kw">in </span>(start + <span class="number">1</span>..=i).rev() {
                         <span class="kw">if </span>buffer.info[j - <span class="number">1</span>].indic_position() != position::PRE_M {
                             <span class="kw">let </span>pos = buffer.info[j - <span class="number">1</span>].indic_position();
                             buffer.info[i].set_indic_position(pos);
@@ -3202,9 +3402,9 @@
     // since the last consonant or matra.
     </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>last = base;
-        <span class="kw">for </span>i <span class="kw">in </span>base+<span class="number">1</span>..end {
+        <span class="kw">for </span>i <span class="kw">in </span>base + <span class="number">1</span>..end {
             <span class="kw">if </span>buffer.info[i].is_consonant() {
-                <span class="kw">for </span>j <span class="kw">in </span>last+<span class="number">1</span>..i {
+                <span class="kw">for </span>j <span class="kw">in </span>last + <span class="number">1</span>..i {
                     <span class="kw">if </span>(buffer.info[j].indic_position() <span class="kw">as </span>u8) &lt; (position::SMVD <span class="kw">as </span>u8) {
                         <span class="kw">let </span>pos = buffer.info[i].indic_position();
                         buffer.info[j].set_indic_position(pos);
@@ -3244,25 +3444,46 @@
         // We could use buffer-&gt;sort() for this, if there was no special
         // reordering of pre-base stuff happening later...
         // We don&#39;t want to merge_clusters all of that, which buffer-&gt;sort()
-        // would.
+        // would.  Here&#39;s a concrete example:
+        //
+        // Assume there&#39;s a pre-base consonant and explicit Halant before base,
+        // followed by a prebase-reordering (left) Matra:
+        //
+        //   C,H,ZWNJ,B,M
+        //
+        // At this point in reordering we would have:
+        //
+        //   M,C,H,ZWNJ,B
+        //
+        // whereas in final reordering we will bring the Matra closer to Base:
+        //
+        //   C,H,ZWNJ,M,B
+        //
+        // That&#39;s why we don&#39;t want to merge-clusters anything before the Base
+        // at this point.  But if something moved from after Base to before it,
+        // we should merge clusters from base to them.  In final-reordering, we
+        // only move things around before base, and merge-clusters up to base.
+        // These two merge-clusters from the two sides of base will interlock
+        // to merge things correctly.  See:
+        // https://github.com/harfbuzz/harfbuzz/issues/2272
         </span><span class="kw">if </span>indic_plan.is_old_spec || end - start &gt; <span class="number">127 </span>{
             buffer.merge_clusters(base, end);
         } <span class="kw">else </span>{
             <span class="comment">// Note! syllable() is a one-byte field.
             </span><span class="kw">for </span>i <span class="kw">in </span>base..end {
                 <span class="kw">if </span>buffer.info[i].syllable() != <span class="number">255 </span>{
+                    <span class="kw">let </span><span class="kw-2">mut </span>min = i;
                     <span class="kw">let </span><span class="kw-2">mut </span>max = i;
                     <span class="kw">let </span><span class="kw-2">mut </span>j = start + buffer.info[i].syllable() <span class="kw">as </span>usize;
                     <span class="kw">while </span>j != i {
+                        min = cmp::min(min, j);
                         max = cmp::max(max, j);
                         <span class="kw">let </span>next = start + buffer.info[j].syllable() <span class="kw">as </span>usize;
                         buffer.info[j].set_syllable(<span class="number">255</span>); <span class="comment">// So we don&#39;t process j later again.
                         </span>j = next;
                     }
 
-                    <span class="kw">if </span>i != max {
-                        buffer.merge_clusters(i, max + <span class="number">1</span>);
-                    }
+                    buffer.merge_clusters(cmp::max(base, min), max + <span class="number">1</span>);
                 }
             }
         }
@@ -3302,10 +3523,10 @@
         }
 
         <span class="comment">// Post-base
-        </span>mask = indic_plan.mask_array[indic_feature::BLWF] |
-            indic_plan.mask_array[indic_feature::ABVF] |
-            indic_plan.mask_array[indic_feature::PSTF];
-        <span class="kw">for </span>i <span class="kw">in </span>base+<span class="number">1</span>..end {
+        </span>mask = indic_plan.mask_array[indic_feature::BLWF]
+            | indic_plan.mask_array[indic_feature::ABVF]
+            | indic_plan.mask_array[indic_feature::PSTF];
+        <span class="kw">for </span>i <span class="kw">in </span>base + <span class="number">1</span>..end {
             buffer.info[i].mask |= mask;
         }
     }
@@ -3329,9 +3550,9 @@
         //
         // Test case: U+0924,U+094D,U+0930,U+094d,U+200D,U+0915
         </span><span class="kw">for </span>i <span class="kw">in </span>start..base.saturating_sub(<span class="number">1</span>) {
-            <span class="kw">if </span>buffer.info[i].indic_category() == category::RA &amp;&amp;
-                buffer.info[i + <span class="number">1</span>].indic_category() == category::H &amp;&amp;
-                (i + <span class="number">2 </span>== base || buffer.info[i + <span class="number">2</span>].indic_category() != category::ZWJ)
+            <span class="kw">if </span>buffer.info[i].indic_category() == category::RA
+                &amp;&amp; buffer.info[i + <span class="number">1</span>].indic_category() == category::H
+                &amp;&amp; (i + <span class="number">2 </span>== base || buffer.info[i + <span class="number">2</span>].indic_category() != category::ZWJ)
             {
                 buffer.info[i].mask |= indic_plan.mask_array[indic_feature::BLWF];
                 buffer.info[i + <span class="number">1</span>].mask |= indic_plan.mask_array[indic_feature::BLWF];
@@ -3342,11 +3563,8 @@
     <span class="kw">let </span>pref_len = <span class="number">2</span>;
     <span class="kw">if </span>indic_plan.mask_array[indic_feature::PREF] != <span class="number">0 </span>&amp;&amp; base + pref_len &lt; end {
         <span class="comment">// Find a Halant,Ra sequence and mark it for pre-base-reordering processing.
-        </span><span class="kw">for </span>i <span class="kw">in </span>base+<span class="number">1</span>..end-pref_len+<span class="number">1 </span>{
-            <span class="kw">let </span>glyphs = <span class="kw-2">&amp;</span>[
-                buffer.info[i + <span class="number">0</span>].as_glyph(),
-                buffer.info[i + <span class="number">1</span>].as_glyph(),
-            ];
+        </span><span class="kw">for </span>i <span class="kw">in </span>base + <span class="number">1</span>..end - pref_len + <span class="number">1 </span>{
+            <span class="kw">let </span>glyphs = <span class="kw-2">&amp;</span>[buffer.info[i + <span class="number">0</span>].as_glyph(), buffer.info[i + <span class="number">1</span>].as_glyph()];
             <span class="kw">if </span>indic_plan.pref.would_substitute(<span class="kw-2">&amp;</span>plan.ot_map, face, glyphs) {
                 buffer.info[i + <span class="number">0</span>].mask = indic_plan.mask_array[indic_feature::PREF];
                 buffer.info[i + <span class="number">1</span>].mask = indic_plan.mask_array[indic_feature::PREF];
@@ -3356,7 +3574,7 @@
     }
 
     <span class="comment">// Apply ZWJ/ZWNJ effects
-    </span><span class="kw">for </span>i <span class="kw">in </span>start+<span class="number">1</span>..end {
+    </span><span class="kw">for </span>i <span class="kw">in </span>start + <span class="number">1</span>..end {
         <span class="kw">if </span>buffer.info[i].is_joiner() {
             <span class="kw">let </span>non_joiner = buffer.info[i].indic_category() == category::ZWNJ;
             <span class="kw">let </span><span class="kw-2">mut </span>j = i;
@@ -3454,9 +3672,11 @@
     <span class="kw">while </span>base &lt; end {
         <span class="kw">if </span>buffer.info[base].indic_position() <span class="kw">as </span>u32 &gt;= position::BASE_C <span class="kw">as </span>u32 {
             <span class="kw">if </span>try_pref &amp;&amp; base + <span class="number">1 </span>&lt; end {
-                <span class="kw">for </span>i <span class="kw">in </span>base+<span class="number">1</span>..end {
+                <span class="kw">for </span>i <span class="kw">in </span>base + <span class="number">1</span>..end {
                     <span class="kw">if </span>(buffer.info[i].mask &amp; plan.mask_array[indic_feature::PREF]) != <span class="number">0 </span>{
-                        <span class="kw">if </span>!(buffer.info[i].is_substituted() &amp;&amp; buffer.info[i].is_ligated_and_didnt_multiply()) {
+                        <span class="kw">if </span>!(buffer.info[i].is_substituted()
+                            &amp;&amp; buffer.info[i].is_ligated_and_didnt_multiply())
+                        {
                             <span class="comment">// Ok, this was a &#39;pref&#39; candidate but didn&#39;t form any.
                             // Base is around here...
                             </span>base = i;
@@ -3491,7 +3711,10 @@
                         i += <span class="number">1</span>;
                     }
 
-                    <span class="kw">if </span>i &lt; end &amp;&amp; buffer.info[i].is_consonant() &amp;&amp; buffer.info[i].indic_position() == position::BELOW_C {
+                    <span class="kw">if </span>i &lt; end
+                        &amp;&amp; buffer.info[i].is_consonant()
+                        &amp;&amp; buffer.info[i].indic_position() == position::BELOW_C
+                    {
                         base = i;
                         buffer.info[base].set_indic_position(position::BASE_C);
                     }
@@ -3510,12 +3733,16 @@
         base += <span class="number">1</span>;
     }
 
-    <span class="kw">if </span>base == end &amp;&amp; start &lt; base &amp;&amp; buffer.info[base - <span class="number">1</span>].is_one_of(rb_flag(category::ZWJ <span class="kw">as </span>u32)) {
+    <span class="kw">if </span>base == end &amp;&amp; start &lt; base &amp;&amp; buffer.info[base - <span class="number">1</span>].is_one_of(rb_flag(category::ZWJ <span class="kw">as </span>u32))
+    {
         base -= <span class="number">1</span>;
     }
 
     <span class="kw">if </span>base &lt; end {
-        <span class="kw">while </span>start &lt; base &amp;&amp; buffer.info[base].is_one_of(rb_flag(category::N <span class="kw">as </span>u32) | rb_flag(category::H <span class="kw">as </span>u32)) {
+        <span class="kw">while </span>start &lt; base
+            &amp;&amp; buffer.info[base]
+                .is_one_of(rb_flag(category::N <span class="kw">as </span>u32) | rb_flag(category::H <span class="kw">as </span>u32))
+        {
             base -= <span class="number">1</span>;
         }
     }
@@ -3557,14 +3784,19 @@
         // We want to position matra after them.
         </span><span class="kw">if </span>buffer.script != <span class="prelude-val">Some</span>(script::MALAYALAM) &amp;&amp; buffer.script != <span class="prelude-val">Some</span>(script::TAMIL) {
             <span class="kw">loop </span>{
-                <span class="kw">while </span>new_pos &gt; start &amp;&amp; !buffer.info[new_pos].is_one_of(rb_flag(category::M <span class="kw">as </span>u32) | rb_flag(category::H <span class="kw">as </span>u32)) {
+                <span class="kw">while </span>new_pos &gt; start
+                    &amp;&amp; !buffer.info[new_pos]
+                        .is_one_of(rb_flag(category::M <span class="kw">as </span>u32) | rb_flag(category::H <span class="kw">as </span>u32))
+                {
                     new_pos -= <span class="number">1</span>;
                 }
 
                 <span class="comment">// If we found no Halant we are done.
                 // Otherwise only proceed if the Halant does
                 // not belong to the Matra itself!
-                </span><span class="kw">if </span>buffer.info[new_pos].is_halant() &amp;&amp; buffer.info[new_pos].indic_position() != position::PRE_M {
+                </span><span class="kw">if </span>buffer.info[new_pos].is_halant()
+                    &amp;&amp; buffer.info[new_pos].indic_position() != position::PRE_M
+                {
                     <span class="kw">if </span>new_pos + <span class="number">1 </span>&lt; end {
                         <span class="comment">// -&gt; If ZWJ follows this halant, matra is NOT repositioned after this halant.
                         </span><span class="kw">if </span>buffer.info[new_pos + <span class="number">1</span>].indic_category() == category::ZWJ {
@@ -3593,7 +3825,7 @@
 
         <span class="kw">if </span>start &lt; new_pos &amp;&amp; buffer.info[new_pos].indic_position() != position::PRE_M {
             <span class="comment">// Now go see if there&#39;s actually any matras...
-            </span><span class="kw">for </span>i <span class="kw">in </span>(start+<span class="number">1</span>..=new_pos).rev() {
+            </span><span class="kw">for </span>i <span class="kw">in </span>(start + <span class="number">1</span>..=new_pos).rev() {
                 <span class="kw">if </span>buffer.info[i - <span class="number">1</span>].indic_position() == position::PRE_M {
                     <span class="kw">let </span>old_pos = i - <span class="number">1</span>;
                     <span class="comment">// Shouldn&#39;t actually happen.
@@ -3602,7 +3834,7 @@
                     }
 
                     <span class="kw">let </span>tmp = buffer.info[old_pos];
-                    <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..new_pos-old_pos {
+                    <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..new_pos - old_pos {
                         buffer.info[i + old_pos] = buffer.info[i + old_pos + <span class="number">1</span>];
                     }
                     buffer.info[new_pos] = tmp;
@@ -3641,8 +3873,10 @@
     //   move it if it did NOT ligate.  If it ligated, it&#39;s probably the font trying
     //   to make it work without the reordering.
 
-    </span><span class="kw">if </span>start + <span class="number">1 </span>&lt; end &amp;&amp; buffer.info[start].indic_position() == position::RA_TO_BECOME_REPH &amp;&amp;
-        (buffer.info[start].indic_category() == category::REPHA) ^ buffer.info[start].is_ligated_and_didnt_multiply()
+    </span><span class="kw">if </span>start + <span class="number">1 </span>&lt; end
+        &amp;&amp; buffer.info[start].indic_position() == position::RA_TO_BECOME_REPH
+        &amp;&amp; (buffer.info[start].indic_category() == category::REPHA)
+            ^ buffer.info[start].is_ligated_and_didnt_multiply()
     {
         <span class="kw">let </span><span class="kw-2">mut </span>new_reph_pos;
         <span class="kw">loop </span>{
@@ -3682,7 +3916,10 @@
                 //    consonant that is not a potential pre-base-reordering Ra.
                 </span><span class="kw">if </span>reph_pos == RephPosition::AfterMain {
                     new_reph_pos = base;
-                    <span class="kw">while </span>new_reph_pos + <span class="number">1 </span>&lt; end &amp;&amp; buffer.info[new_reph_pos + <span class="number">1</span>].indic_position() <span class="kw">as </span>u8 &lt;= position::AFTER_MAIN <span class="kw">as </span>u8 {
+                    <span class="kw">while </span>new_reph_pos + <span class="number">1 </span>&lt; end
+                        &amp;&amp; buffer.info[new_reph_pos + <span class="number">1</span>].indic_position() <span class="kw">as </span>u8
+                            &lt;= position::AFTER_MAIN <span class="kw">as </span>u8
+                    {
                         new_reph_pos += <span class="number">1</span>;
                     }
 
@@ -3699,9 +3936,12 @@
                 // This is our take on what step 4 is trying to say (and failing, BADLY).
                 </span><span class="kw">if </span>reph_pos == RephPosition::AfterSub {
                     new_reph_pos = base;
-                    <span class="kw">while </span>new_reph_pos + <span class="number">1 </span>&lt; end &amp;&amp;
-                        (rb_flag_unsafe(buffer.info[new_reph_pos + <span class="number">1</span>].indic_position() <span class="kw">as </span>u32)
-                            &amp; (rb_flag(position::POST_C <span class="kw">as </span>u32) | rb_flag(position::AFTER_POST <span class="kw">as </span>u32) | rb_flag(position::SMVD <span class="kw">as </span>u32))) == <span class="number">0
+                    <span class="kw">while </span>new_reph_pos + <span class="number">1 </span>&lt; end
+                        &amp;&amp; (rb_flag_unsafe(buffer.info[new_reph_pos + <span class="number">1</span>].indic_position() <span class="kw">as </span>u32)
+                            &amp; (rb_flag(position::POST_C <span class="kw">as </span>u32)
+                                | rb_flag(position::AFTER_POST <span class="kw">as </span>u32)
+                                | rb_flag(position::SMVD <span class="kw">as </span>u32)))
+                            == <span class="number">0
                     </span>{
                         new_reph_pos += <span class="number">1</span>;
                     }
@@ -3738,7 +3978,9 @@
             // 6. Otherwise, reorder reph to the end of the syllable.
             </span>{
                 new_reph_pos = end - <span class="number">1</span>;
-                <span class="kw">while </span>new_reph_pos &gt; start &amp;&amp; buffer.info[new_reph_pos].indic_position() == position::SMVD {
+                <span class="kw">while </span>new_reph_pos &gt; start
+                    &amp;&amp; buffer.info[new_reph_pos].indic_position() == position::SMVD
+                {
                     new_reph_pos -= <span class="number">1</span>;
                 }
 
@@ -3748,7 +3990,7 @@
                 // Uniscribe doesn&#39;t do this.
                 // TEST: U+0930,U+094D,U+0915,U+094B,U+094D
                 </span><span class="kw">if </span>buffer.info[new_reph_pos].is_halant() {
-                    <span class="kw">for </span>info <span class="kw">in </span><span class="kw-2">&amp;</span>buffer.info[base+<span class="number">1</span>..new_reph_pos] {
+                    <span class="kw">for </span>info <span class="kw">in </span><span class="kw-2">&amp;</span>buffer.info[base + <span class="number">1</span>..new_reph_pos] {
                         <span class="kw">if </span>info.indic_category() == category::M {
                             <span class="comment">// Ok, got it.
                             </span>new_reph_pos -= <span class="number">1</span>;
@@ -3781,7 +4023,7 @@
 
     // Otherwise there can&#39;t be any pre-base-reordering Ra.
     </span><span class="kw">if </span>try_pref &amp;&amp; base + <span class="number">1 </span>&lt; end {
-        <span class="kw">for </span>i <span class="kw">in </span>base+<span class="number">1</span>..end {
+        <span class="kw">for </span>i <span class="kw">in </span>base + <span class="number">1</span>..end {
             <span class="kw">if </span>(buffer.info[i].mask &amp; plan.mask_array[indic_feature::PREF]) != <span class="number">0 </span>{
                 <span class="comment">// 1. Only reorder a glyph produced by substitution during application
                 //    of the &lt;pref&gt; feature. (Note that a font may shape a Ra consonant with
@@ -3801,9 +4043,13 @@
                     <span class="comment">// Malayalam / Tamil do not have &quot;half&quot; forms or explicit virama forms.
                     // The glyphs formed by &#39;half&#39; are Chillus or ligated explicit viramas.
                     // We want to position matra after them.
-                    </span><span class="kw">if </span>buffer.script != <span class="prelude-val">Some</span>(script::MALAYALAM) &amp;&amp; buffer.script != <span class="prelude-val">Some</span>(script::TAMIL) {
-                        <span class="kw">while </span>new_pos &gt; start &amp;&amp; !buffer.info[new_pos - <span class="number">1</span>].is_one_of(rb_flag(category::M <span class="kw">as </span>u32) |
-                            rb_flag(category::H <span class="kw">as </span>u32))
+                    </span><span class="kw">if </span>buffer.script != <span class="prelude-val">Some</span>(script::MALAYALAM)
+                        &amp;&amp; buffer.script != <span class="prelude-val">Some</span>(script::TAMIL)
+                    {
+                        <span class="kw">while </span>new_pos &gt; start
+                            &amp;&amp; !buffer.info[new_pos - <span class="number">1</span>].is_one_of(
+                                rb_flag(category::M <span class="kw">as </span>u32) | rb_flag(category::H <span class="kw">as </span>u32),
+                            )
                         {
                             new_pos -= <span class="number">1</span>;
                         }
@@ -3821,7 +4067,7 @@
 
                         buffer.merge_clusters(new_pos, old_pos + <span class="number">1</span>);
                         <span class="kw">let </span>tmp = buffer.info[old_pos];
-                        <span class="kw">for </span>i <span class="kw">in </span>(<span class="number">0</span>..=old_pos-new_pos).rev() {
+                        <span class="kw">for </span>i <span class="kw">in </span>(<span class="number">0</span>..=old_pos - new_pos).rev() {
                             buffer.info[i + new_pos + <span class="number">1</span>] = buffer.info[i + new_pos];
                         }
                         buffer.info[new_pos] = tmp;
@@ -3843,8 +4089,13 @@
 
     <span class="comment">// Apply &#39;init&#39; to the Left Matra if it&#39;s a word start.
     </span><span class="kw">if </span>buffer.info[start].indic_position() == position::PRE_M {
-        <span class="kw">if </span>start == <span class="number">0 </span>|| (rb_flag_unsafe(buffer.info[start - <span class="number">1</span>].general_category().to_rb()) &amp;
-            rb_flag_range(hb_gc::RB_UNICODE_GENERAL_CATEGORY_FORMAT, hb_gc::RB_UNICODE_GENERAL_CATEGORY_NON_SPACING_MARK)) == <span class="number">0
+        <span class="kw">if </span>start == <span class="number">0
+            </span>|| (rb_flag_unsafe(buffer.info[start - <span class="number">1</span>].general_category().to_rb())
+                &amp; rb_flag_range(
+                    hb_gc::RB_UNICODE_GENERAL_CATEGORY_FORMAT,
+                    hb_gc::RB_UNICODE_GENERAL_CATEGORY_NON_SPACING_MARK,
+                ))
+                == <span class="number">0
         </span>{
             buffer.info[start].mask |= plan.mask_array[indic_feature::INIT];
         } <span class="kw">else </span>{
@@ -3855,13 +4106,13 @@
 
 <span class="kw">pub fn </span>get_category_and_position(u: u32) -&gt; (Category, Position) {
     <span class="kw">let </span>(c1, c2) = <span class="kw">super</span>::indic_table::get_categories(u);
-    <span class="kw">let </span>c2 = <span class="kw">if </span>c1 == SyllabicCategory::ConsonantMedial ||
-        c1 == SyllabicCategory::GeminationMark ||
-        c1 == SyllabicCategory::RegisterShifter ||
-        c1 == SyllabicCategory::ConsonantSucceedingRepha ||
-        c1 == SyllabicCategory::Virama ||
-        c1 == SyllabicCategory::VowelDependent ||
-        <span class="bool-val">false
+    <span class="kw">let </span>c2 = <span class="kw">if </span>c1 == SyllabicCategory::ConsonantMedial
+        || c1 == SyllabicCategory::GeminationMark
+        || c1 == SyllabicCategory::RegisterShifter
+        || c1 == SyllabicCategory::ConsonantSucceedingRepha
+        || c1 == SyllabicCategory::Virama
+        || c1 == SyllabicCategory::VowelDependent
+        || <span class="bool-val">false
     </span>{
         c2
     } <span class="kw">else </span>{
@@ -3928,7 +4179,8 @@
     (c1, c2)
 }
 
-<span class="kw">fn </span>matra_position_indic(u: u32, side: u8) -&gt; u8 {
+<span class="attr">#[rustfmt::skip]
+</span><span class="kw">fn </span>matra_position_indic(u: u32, side: u8) -&gt; u8 {
     <span class="attr">#[inline] </span><span class="kw">fn </span>in_half_block(u: u32, base: u32) -&gt; bool { u &amp; !<span class="number">0x7F </span>== base }
     <span class="attr">#[inline] </span><span class="kw">fn </span>is_deva(u: u32) -&gt; bool { in_half_block(u, <span class="number">0x0900</span>) }
     <span class="attr">#[inline] </span><span class="kw">fn </span>is_beng(u: u32) -&gt; bool { in_half_block(u, <span class="number">0x0980</span>) }
@@ -3956,9 +4208,17 @@
         } <span class="kw">else if </span>is_taml(u) {
             position::AFTER_POST
         } <span class="kw">else if </span>is_telu(u) {
-            <span class="kw">if </span>u &lt;= <span class="number">0x0C42 </span>{ position::BEFORE_SUB } <span class="kw">else </span>{ position::AFTER_SUB }
+            <span class="kw">if </span>u &lt;= <span class="number">0x0C42 </span>{
+                position::BEFORE_SUB
+            } <span class="kw">else </span>{
+                position::AFTER_SUB
+            }
         } <span class="kw">else if </span>is_knda(u) {
-            <span class="kw">if </span>u &lt; <span class="number">0x0CC3 </span>|| u &gt; <span class="number">0xCD6 </span>{ position::BEFORE_SUB } <span class="kw">else </span>{ position::AFTER_SUB }
+            <span class="kw">if </span>u &lt; <span class="number">0x0CC3 </span>|| u &gt; <span class="number">0xCD6 </span>{
+                position::BEFORE_SUB
+            } <span class="kw">else </span>{
+                position::AFTER_SUB
+            }
         } <span class="kw">else if </span>is_mlym(u) {
             position::AFTER_POST
         } <span class="kw">else if </span>is_sinh(u) {
@@ -3971,7 +4231,7 @@
     <span class="comment">// BENG and MLYM don&#39;t have top matras.
     </span><span class="attr">#[inline]
     </span><span class="kw">fn </span>matra_pos_top(u: u32) -&gt; Position {
-        <span class="kw">if </span>is_deva(u)      {
+        <span class="kw">if </span>is_deva(u) {
             position::AFTER_SUB
         } <span class="kw">else if </span>is_guru(u) {
             <span class="comment">// Deviate from spec

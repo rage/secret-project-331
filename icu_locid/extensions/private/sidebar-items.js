@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["Private","Subtag"]};
+window.SIDEBAR_ITEMS = {"macro":["subtag"],"struct":["Private","Subtag"]};

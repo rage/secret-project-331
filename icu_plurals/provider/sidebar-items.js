@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["CardinalV1Marker","OrdinalV1Marker","PluralRulesV1"]};
+window.SIDEBAR_ITEMS = {"struct":["Baked","CardinalV1Marker","OrdinalV1Marker","PluralRulesV1"]};

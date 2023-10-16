@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/memmap2-0.6.2/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="memmap2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../memmap2/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/memmap2-0.8.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="memmap2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../memmap2/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1786,6 +1786,249 @@
 <a href="#1786" id="1786">1786</a>
 <a href="#1787" id="1787">1787</a>
 <a href="#1788" id="1788">1788</a>
+<a href="#1789" id="1789">1789</a>
+<a href="#1790" id="1790">1790</a>
+<a href="#1791" id="1791">1791</a>
+<a href="#1792" id="1792">1792</a>
+<a href="#1793" id="1793">1793</a>
+<a href="#1794" id="1794">1794</a>
+<a href="#1795" id="1795">1795</a>
+<a href="#1796" id="1796">1796</a>
+<a href="#1797" id="1797">1797</a>
+<a href="#1798" id="1798">1798</a>
+<a href="#1799" id="1799">1799</a>
+<a href="#1800" id="1800">1800</a>
+<a href="#1801" id="1801">1801</a>
+<a href="#1802" id="1802">1802</a>
+<a href="#1803" id="1803">1803</a>
+<a href="#1804" id="1804">1804</a>
+<a href="#1805" id="1805">1805</a>
+<a href="#1806" id="1806">1806</a>
+<a href="#1807" id="1807">1807</a>
+<a href="#1808" id="1808">1808</a>
+<a href="#1809" id="1809">1809</a>
+<a href="#1810" id="1810">1810</a>
+<a href="#1811" id="1811">1811</a>
+<a href="#1812" id="1812">1812</a>
+<a href="#1813" id="1813">1813</a>
+<a href="#1814" id="1814">1814</a>
+<a href="#1815" id="1815">1815</a>
+<a href="#1816" id="1816">1816</a>
+<a href="#1817" id="1817">1817</a>
+<a href="#1818" id="1818">1818</a>
+<a href="#1819" id="1819">1819</a>
+<a href="#1820" id="1820">1820</a>
+<a href="#1821" id="1821">1821</a>
+<a href="#1822" id="1822">1822</a>
+<a href="#1823" id="1823">1823</a>
+<a href="#1824" id="1824">1824</a>
+<a href="#1825" id="1825">1825</a>
+<a href="#1826" id="1826">1826</a>
+<a href="#1827" id="1827">1827</a>
+<a href="#1828" id="1828">1828</a>
+<a href="#1829" id="1829">1829</a>
+<a href="#1830" id="1830">1830</a>
+<a href="#1831" id="1831">1831</a>
+<a href="#1832" id="1832">1832</a>
+<a href="#1833" id="1833">1833</a>
+<a href="#1834" id="1834">1834</a>
+<a href="#1835" id="1835">1835</a>
+<a href="#1836" id="1836">1836</a>
+<a href="#1837" id="1837">1837</a>
+<a href="#1838" id="1838">1838</a>
+<a href="#1839" id="1839">1839</a>
+<a href="#1840" id="1840">1840</a>
+<a href="#1841" id="1841">1841</a>
+<a href="#1842" id="1842">1842</a>
+<a href="#1843" id="1843">1843</a>
+<a href="#1844" id="1844">1844</a>
+<a href="#1845" id="1845">1845</a>
+<a href="#1846" id="1846">1846</a>
+<a href="#1847" id="1847">1847</a>
+<a href="#1848" id="1848">1848</a>
+<a href="#1849" id="1849">1849</a>
+<a href="#1850" id="1850">1850</a>
+<a href="#1851" id="1851">1851</a>
+<a href="#1852" id="1852">1852</a>
+<a href="#1853" id="1853">1853</a>
+<a href="#1854" id="1854">1854</a>
+<a href="#1855" id="1855">1855</a>
+<a href="#1856" id="1856">1856</a>
+<a href="#1857" id="1857">1857</a>
+<a href="#1858" id="1858">1858</a>
+<a href="#1859" id="1859">1859</a>
+<a href="#1860" id="1860">1860</a>
+<a href="#1861" id="1861">1861</a>
+<a href="#1862" id="1862">1862</a>
+<a href="#1863" id="1863">1863</a>
+<a href="#1864" id="1864">1864</a>
+<a href="#1865" id="1865">1865</a>
+<a href="#1866" id="1866">1866</a>
+<a href="#1867" id="1867">1867</a>
+<a href="#1868" id="1868">1868</a>
+<a href="#1869" id="1869">1869</a>
+<a href="#1870" id="1870">1870</a>
+<a href="#1871" id="1871">1871</a>
+<a href="#1872" id="1872">1872</a>
+<a href="#1873" id="1873">1873</a>
+<a href="#1874" id="1874">1874</a>
+<a href="#1875" id="1875">1875</a>
+<a href="#1876" id="1876">1876</a>
+<a href="#1877" id="1877">1877</a>
+<a href="#1878" id="1878">1878</a>
+<a href="#1879" id="1879">1879</a>
+<a href="#1880" id="1880">1880</a>
+<a href="#1881" id="1881">1881</a>
+<a href="#1882" id="1882">1882</a>
+<a href="#1883" id="1883">1883</a>
+<a href="#1884" id="1884">1884</a>
+<a href="#1885" id="1885">1885</a>
+<a href="#1886" id="1886">1886</a>
+<a href="#1887" id="1887">1887</a>
+<a href="#1888" id="1888">1888</a>
+<a href="#1889" id="1889">1889</a>
+<a href="#1890" id="1890">1890</a>
+<a href="#1891" id="1891">1891</a>
+<a href="#1892" id="1892">1892</a>
+<a href="#1893" id="1893">1893</a>
+<a href="#1894" id="1894">1894</a>
+<a href="#1895" id="1895">1895</a>
+<a href="#1896" id="1896">1896</a>
+<a href="#1897" id="1897">1897</a>
+<a href="#1898" id="1898">1898</a>
+<a href="#1899" id="1899">1899</a>
+<a href="#1900" id="1900">1900</a>
+<a href="#1901" id="1901">1901</a>
+<a href="#1902" id="1902">1902</a>
+<a href="#1903" id="1903">1903</a>
+<a href="#1904" id="1904">1904</a>
+<a href="#1905" id="1905">1905</a>
+<a href="#1906" id="1906">1906</a>
+<a href="#1907" id="1907">1907</a>
+<a href="#1908" id="1908">1908</a>
+<a href="#1909" id="1909">1909</a>
+<a href="#1910" id="1910">1910</a>
+<a href="#1911" id="1911">1911</a>
+<a href="#1912" id="1912">1912</a>
+<a href="#1913" id="1913">1913</a>
+<a href="#1914" id="1914">1914</a>
+<a href="#1915" id="1915">1915</a>
+<a href="#1916" id="1916">1916</a>
+<a href="#1917" id="1917">1917</a>
+<a href="#1918" id="1918">1918</a>
+<a href="#1919" id="1919">1919</a>
+<a href="#1920" id="1920">1920</a>
+<a href="#1921" id="1921">1921</a>
+<a href="#1922" id="1922">1922</a>
+<a href="#1923" id="1923">1923</a>
+<a href="#1924" id="1924">1924</a>
+<a href="#1925" id="1925">1925</a>
+<a href="#1926" id="1926">1926</a>
+<a href="#1927" id="1927">1927</a>
+<a href="#1928" id="1928">1928</a>
+<a href="#1929" id="1929">1929</a>
+<a href="#1930" id="1930">1930</a>
+<a href="#1931" id="1931">1931</a>
+<a href="#1932" id="1932">1932</a>
+<a href="#1933" id="1933">1933</a>
+<a href="#1934" id="1934">1934</a>
+<a href="#1935" id="1935">1935</a>
+<a href="#1936" id="1936">1936</a>
+<a href="#1937" id="1937">1937</a>
+<a href="#1938" id="1938">1938</a>
+<a href="#1939" id="1939">1939</a>
+<a href="#1940" id="1940">1940</a>
+<a href="#1941" id="1941">1941</a>
+<a href="#1942" id="1942">1942</a>
+<a href="#1943" id="1943">1943</a>
+<a href="#1944" id="1944">1944</a>
+<a href="#1945" id="1945">1945</a>
+<a href="#1946" id="1946">1946</a>
+<a href="#1947" id="1947">1947</a>
+<a href="#1948" id="1948">1948</a>
+<a href="#1949" id="1949">1949</a>
+<a href="#1950" id="1950">1950</a>
+<a href="#1951" id="1951">1951</a>
+<a href="#1952" id="1952">1952</a>
+<a href="#1953" id="1953">1953</a>
+<a href="#1954" id="1954">1954</a>
+<a href="#1955" id="1955">1955</a>
+<a href="#1956" id="1956">1956</a>
+<a href="#1957" id="1957">1957</a>
+<a href="#1958" id="1958">1958</a>
+<a href="#1959" id="1959">1959</a>
+<a href="#1960" id="1960">1960</a>
+<a href="#1961" id="1961">1961</a>
+<a href="#1962" id="1962">1962</a>
+<a href="#1963" id="1963">1963</a>
+<a href="#1964" id="1964">1964</a>
+<a href="#1965" id="1965">1965</a>
+<a href="#1966" id="1966">1966</a>
+<a href="#1967" id="1967">1967</a>
+<a href="#1968" id="1968">1968</a>
+<a href="#1969" id="1969">1969</a>
+<a href="#1970" id="1970">1970</a>
+<a href="#1971" id="1971">1971</a>
+<a href="#1972" id="1972">1972</a>
+<a href="#1973" id="1973">1973</a>
+<a href="#1974" id="1974">1974</a>
+<a href="#1975" id="1975">1975</a>
+<a href="#1976" id="1976">1976</a>
+<a href="#1977" id="1977">1977</a>
+<a href="#1978" id="1978">1978</a>
+<a href="#1979" id="1979">1979</a>
+<a href="#1980" id="1980">1980</a>
+<a href="#1981" id="1981">1981</a>
+<a href="#1982" id="1982">1982</a>
+<a href="#1983" id="1983">1983</a>
+<a href="#1984" id="1984">1984</a>
+<a href="#1985" id="1985">1985</a>
+<a href="#1986" id="1986">1986</a>
+<a href="#1987" id="1987">1987</a>
+<a href="#1988" id="1988">1988</a>
+<a href="#1989" id="1989">1989</a>
+<a href="#1990" id="1990">1990</a>
+<a href="#1991" id="1991">1991</a>
+<a href="#1992" id="1992">1992</a>
+<a href="#1993" id="1993">1993</a>
+<a href="#1994" id="1994">1994</a>
+<a href="#1995" id="1995">1995</a>
+<a href="#1996" id="1996">1996</a>
+<a href="#1997" id="1997">1997</a>
+<a href="#1998" id="1998">1998</a>
+<a href="#1999" id="1999">1999</a>
+<a href="#2000" id="2000">2000</a>
+<a href="#2001" id="2001">2001</a>
+<a href="#2002" id="2002">2002</a>
+<a href="#2003" id="2003">2003</a>
+<a href="#2004" id="2004">2004</a>
+<a href="#2005" id="2005">2005</a>
+<a href="#2006" id="2006">2006</a>
+<a href="#2007" id="2007">2007</a>
+<a href="#2008" id="2008">2008</a>
+<a href="#2009" id="2009">2009</a>
+<a href="#2010" id="2010">2010</a>
+<a href="#2011" id="2011">2011</a>
+<a href="#2012" id="2012">2012</a>
+<a href="#2013" id="2013">2013</a>
+<a href="#2014" id="2014">2014</a>
+<a href="#2015" id="2015">2015</a>
+<a href="#2016" id="2016">2016</a>
+<a href="#2017" id="2017">2017</a>
+<a href="#2018" id="2018">2018</a>
+<a href="#2019" id="2019">2019</a>
+<a href="#2020" id="2020">2020</a>
+<a href="#2021" id="2021">2021</a>
+<a href="#2022" id="2022">2022</a>
+<a href="#2023" id="2023">2023</a>
+<a href="#2024" id="2024">2024</a>
+<a href="#2025" id="2025">2025</a>
+<a href="#2026" id="2026">2026</a>
+<a href="#2027" id="2027">2027</a>
+<a href="#2028" id="2028">2028</a>
+<a href="#2029" id="2029">2029</a>
+<a href="#2030" id="2030">2030</a>
+<a href="#2031" id="2031">2031</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! A cross-platform Rust API for memory mapped buffers.
 //!
 //! The core functionality is provided by either [`Mmap`] or [`MmapMut`],
@@ -1824,7 +2067,9 @@
 //! you can use [`MmapOptions`] in order to further configure a mapping
 //! before you create it.
 
-</span><span class="attr">#[cfg_attr(unix, path = <span class="string">&quot;unix.rs&quot;</span>)]
+</span><span class="attr">#![allow(clippy::len_without_is_empty, clippy::missing_safety_doc)]
+
+#[cfg_attr(unix, path = <span class="string">&quot;unix.rs&quot;</span>)]
 #[cfg_attr(windows, path = <span class="string">&quot;windows.rs&quot;</span>)]
 #[cfg_attr(not(any(unix, windows)), path = <span class="string">&quot;stub.rs&quot;</span>)]
 </span><span class="kw">mod </span>os;
@@ -2317,7 +2562,7 @@
 /// Dereferencing and accessing the bytes of the buffer may result in page faults (e.g. swapping
 /// the mapped pages into physical memory) though the details of this are platform specific.
 ///
-/// `Mmap` is [`Sync`](std::marker::Sync) and [`Send`](std::marker::Send).
+/// `Mmap` is [`Sync`] and [`Send`].
 ///
 /// ## Safety
 ///
@@ -2459,6 +2704,28 @@
     </span><span class="attr">#[cfg(unix)]
     </span><span class="kw">pub fn </span>unlock(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="self">self</span>.inner.unlock()
+    }
+
+    <span class="doccomment">/// Adjust the size of the memory mapping.
+    ///
+    /// This will try to resize the memory mapping in place. If
+    /// [`RemapOptions::may_move`] is specified it will move the mapping if it
+    /// could not resize in place, otherwise it will error.
+    ///
+    /// Only supported on Linux.
+    ///
+    /// See the [`mremap(2)`] man page.
+    ///
+    /// # Safety
+    ///
+    /// Resizing the memory mapping beyond the end of the mapped file will
+    /// result in UB should you happen to access memory beyond the end of the
+    /// file.
+    ///
+    /// [`mremap(2)`]: https://man7.org/linux/man-pages/man2/mremap.2.html
+    </span><span class="attr">#[cfg(target_os = <span class="string">&quot;linux&quot;</span>)]
+    </span><span class="kw">pub unsafe fn </span>remap(<span class="kw-2">&amp;mut </span><span class="self">self</span>, new_len: usize, options: RemapOptions) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="self">self</span>.inner.remap(new_len, options)
     }
 }
 
@@ -2651,6 +2918,28 @@
     </span><span class="kw">pub fn </span>unlock(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="self">self</span>.inner.unlock()
     }
+
+    <span class="doccomment">/// Adjust the size of the memory mapping.
+    ///
+    /// This will try to resize the memory mapping in place. If
+    /// [`RemapOptions::may_move`] is specified it will move the mapping if it
+    /// could not resize in place, otherwise it will error.
+    ///
+    /// Only supported on Linux.
+    ///
+    /// See the [`mremap(2)`] man page.
+    ///
+    /// # Safety
+    ///
+    /// Resizing the memory mapping beyond the end of the mapped file will
+    /// result in UB should you happen to access memory beyond the end of the
+    /// file.
+    ///
+    /// [`mremap(2)`]: https://man7.org/linux/man-pages/man2/mremap.2.html
+    </span><span class="attr">#[cfg(target_os = <span class="string">&quot;linux&quot;</span>)]
+    </span><span class="kw">pub unsafe fn </span>remap(<span class="kw-2">&amp;mut </span><span class="self">self</span>, new_len: usize, options: RemapOptions) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="self">self</span>.inner.remap(new_len, options)
+    }
 }
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>MmapRaw {
@@ -2690,7 +2979,7 @@
 /// Dereferencing and accessing the bytes of the buffer may result in page faults (e.g. swapping
 /// the mapped pages into physical memory) though the details of this are platform specific.
 ///
-/// `Mmap` is [`Sync`](std::marker::Sync) and [`Send`](std::marker::Send).
+/// `Mmap` is [`Sync`] and [`Send`].
 ///
 /// See [`Mmap`] for the immutable version.
 ///
@@ -2919,6 +3208,28 @@
     </span><span class="kw">pub fn </span>unlock(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="self">self</span>.inner.unlock()
     }
+
+    <span class="doccomment">/// Adjust the size of the memory mapping.
+    ///
+    /// This will try to resize the memory mapping in place. If
+    /// [`RemapOptions::may_move`] is specified it will move the mapping if it
+    /// could not resize in place, otherwise it will error.
+    ///
+    /// Only supported on Linux.
+    ///
+    /// See the [`mremap(2)`] man page.
+    ///
+    /// # Safety
+    ///
+    /// Resizing the memory mapping beyond the end of the mapped file will
+    /// result in UB should you happen to access memory beyond the end of the
+    /// file.
+    ///
+    /// [`mremap(2)`]: https://man7.org/linux/man-pages/man2/mremap.2.html
+    </span><span class="attr">#[cfg(target_os = <span class="string">&quot;linux&quot;</span>)]
+    </span><span class="kw">pub unsafe fn </span>remap(<span class="kw-2">&amp;mut </span><span class="self">self</span>, new_len: usize, options: RemapOptions) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="self">self</span>.inner.remap(new_len, options)
+    }
 }
 
 <span class="attr">#[cfg(feature = <span class="string">&quot;stable_deref_trait&quot;</span>)]
@@ -2963,6 +3274,51 @@
     }
 }
 
+<span class="doccomment">/// Options for [`Mmap::remap`] and [`MmapMut::remap`].
+</span><span class="attr">#[derive(Copy, Clone, Default, Debug)]
+#[cfg(target_os = <span class="string">&quot;linux&quot;</span>)]
+</span><span class="kw">pub struct </span>RemapOptions {
+    may_move: bool,
+}
+
+<span class="attr">#[cfg(target_os = <span class="string">&quot;linux&quot;</span>)]
+</span><span class="kw">impl </span>RemapOptions {
+    <span class="doccomment">/// Creates a mew set of options for resizing a memory map.
+    </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::default()
+    }
+
+    <span class="doccomment">/// Controls whether the memory map can be moved if it is not possible to
+    /// resize it in place.
+    ///
+    /// If false then the memory map is guaranteed to remain at the same
+    /// address when being resized but attempting to resize will return an
+    /// error if the new memory map would overlap with something else in the
+    /// current process&#39; memory.
+    ///
+    /// By default this is false.
+    ///
+    /// # `may_move` and `StableDeref`
+    /// If the `stable_deref_trait` feature is enabled then [`Mmap`] and
+    /// [`MmapMut`] implement `StableDeref`. `StableDeref` promises that the
+    /// memory map dereferences to a fixed address, however, calling `remap`
+    /// with `may_move` set may result in the backing memory of the mapping
+    /// being moved to a new address. This may cause UB in other code
+    /// depending on the `StableDeref` guarantees.
+    </span><span class="kw">pub fn </span>may_move(<span class="kw-2">mut </span><span class="self">self</span>, may_move: bool) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.may_move = may_move;
+        <span class="self">self
+    </span>}
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>into_flags(<span class="self">self</span>) -&gt; libc::c_int {
+        <span class="kw">if </span><span class="self">self</span>.may_move {
+            libc::MREMAP_MAYMOVE
+        } <span class="kw">else </span>{
+            <span class="number">0
+        </span>}
+    }
+}
+
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>test {
     <span class="kw">extern crate </span>tempfile;
@@ -2992,7 +3348,7 @@
             .read(<span class="bool-val">true</span>)
             .write(<span class="bool-val">true</span>)
             .create(<span class="bool-val">true</span>)
-            .open(<span class="kw-2">&amp;</span>path)
+            .open(path)
             .unwrap();
 
         file.set_len(expected_len <span class="kw">as </span>u64).unwrap();
@@ -3025,7 +3381,7 @@
             .read(<span class="bool-val">true</span>)
             .write(<span class="bool-val">true</span>)
             .create(<span class="bool-val">true</span>)
-            .open(<span class="kw-2">&amp;</span>path)
+            .open(path)
             .unwrap();
 
         file.set_len(expected_len <span class="kw">as </span>u64).unwrap();
@@ -3057,7 +3413,7 @@
             .read(<span class="bool-val">true</span>)
             .write(<span class="bool-val">true</span>)
             .create(<span class="bool-val">true</span>)
-            .open(<span class="kw-2">&amp;</span>path)
+            .open(path)
             .unwrap();
         <span class="kw">let </span>mmap = <span class="kw">unsafe </span>{ Mmap::map(<span class="kw-2">&amp;</span>file).unwrap() };
         <span class="macro">assert!</span>(mmap.is_empty());
@@ -3112,7 +3468,7 @@
             .read(<span class="bool-val">true</span>)
             .write(<span class="bool-val">true</span>)
             .create(<span class="bool-val">true</span>)
-            .open(<span class="kw-2">&amp;</span>path)
+            .open(path)
             .unwrap();
         file.set_len(<span class="number">128</span>).unwrap();
 
@@ -3136,7 +3492,7 @@
             .read(<span class="bool-val">true</span>)
             .write(<span class="bool-val">true</span>)
             .create(<span class="bool-val">true</span>)
-            .open(<span class="kw-2">&amp;</span>path)
+            .open(path)
             .unwrap();
         file.set_len(<span class="number">128</span>).unwrap();
         <span class="kw">let </span>write = <span class="string">b&quot;abc123&quot;</span>;
@@ -3162,7 +3518,7 @@
             .read(<span class="bool-val">true</span>)
             .write(<span class="bool-val">true</span>)
             .create(<span class="bool-val">true</span>)
-            .open(<span class="kw-2">&amp;</span>path)
+            .open(path)
             .unwrap();
         file.set_len(<span class="number">128</span>).unwrap();
 
@@ -3198,7 +3554,7 @@
             .read(<span class="bool-val">true</span>)
             .write(<span class="bool-val">true</span>)
             .create(<span class="bool-val">true</span>)
-            .open(<span class="kw-2">&amp;</span>path)
+            .open(path)
             .unwrap();
         file.set_len(<span class="number">128</span>).unwrap();
 
@@ -3223,10 +3579,10 @@
             .read(<span class="bool-val">true</span>)
             .write(<span class="bool-val">true</span>)
             .create(<span class="bool-val">true</span>)
-            .open(<span class="kw-2">&amp;</span>path)
+            .open(path)
             .unwrap();
 
-        <span class="kw">let </span>offset = u32::max_value() <span class="kw">as </span>u64 + <span class="number">2</span>;
+        <span class="kw">let </span>offset = u32::MAX <span class="kw">as </span>u64 + <span class="number">2</span>;
         <span class="kw">let </span>len = <span class="number">5432</span>;
         file.set_len(offset + len <span class="kw">as </span>u64).unwrap();
 
@@ -3310,7 +3666,7 @@
             .read(<span class="bool-val">true</span>)
             .write(<span class="bool-val">true</span>)
             .create(<span class="bool-val">true</span>)
-            .open(<span class="kw-2">&amp;</span>tempdir.path().join(<span class="string">&quot;jit_x86&quot;</span>))
+            .open(tempdir.path().join(<span class="string">&quot;jit_x86&quot;</span>))
             .expect(<span class="string">&quot;open&quot;</span>);
 
         file.set_len(<span class="number">4096</span>).expect(<span class="string">&quot;set_len&quot;</span>);
@@ -3330,7 +3686,7 @@
             .read(<span class="bool-val">true</span>)
             .write(<span class="bool-val">true</span>)
             .create(<span class="bool-val">true</span>)
-            .open(<span class="kw-2">&amp;</span>path)
+            .open(path)
             .expect(<span class="string">&quot;open&quot;</span>);
         file.set_len(<span class="number">256_u64</span>).expect(<span class="string">&quot;set_len&quot;</span>);
 
@@ -3376,7 +3732,7 @@
             .read(<span class="bool-val">true</span>)
             .write(<span class="bool-val">true</span>)
             .create(<span class="bool-val">true</span>)
-            .open(<span class="kw-2">&amp;</span>path)
+            .open(path)
             .expect(<span class="string">&quot;open&quot;</span>);
         file.set_len(<span class="number">256_u64</span>).expect(<span class="string">&quot;set_len&quot;</span>);
 
@@ -3430,7 +3786,7 @@
             .read(<span class="bool-val">true</span>)
             .write(<span class="bool-val">true</span>)
             .create(<span class="bool-val">true</span>)
-            .open(<span class="kw-2">&amp;</span>path)
+            .open(path)
             .expect(<span class="string">&quot;open&quot;</span>);
         file.write_all(<span class="string">b&quot;abc123&quot;</span>).unwrap();
         <span class="kw">let </span>mmap = MmapOptions::new().map_raw(<span class="kw-2">&amp;</span>file).unwrap();
@@ -3484,14 +3840,14 @@
             .read(<span class="bool-val">true</span>)
             .write(<span class="bool-val">true</span>)
             .create(<span class="bool-val">true</span>)
-            .open(<span class="kw-2">&amp;</span>path)
+            .open(path)
             .unwrap();
 
         file.set_len(expected_len <span class="kw">as </span>u64).unwrap();
 
         <span class="comment">// Test MmapMut::advise
         </span><span class="kw">let </span><span class="kw-2">mut </span>mmap = <span class="kw">unsafe </span>{ MmapMut::map_mut(<span class="kw-2">&amp;</span>file).unwrap() };
-        mmap.advise(Advice::Random)
+        mmap.advise(Advice::random())
             .expect(<span class="string">&quot;mmap advising should be supported on unix&quot;</span>);
 
         <span class="kw">let </span>len = mmap.len();
@@ -3503,7 +3859,7 @@
         <span class="comment">// check that the mmap is empty
         </span><span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>zeros[..], <span class="kw-2">&amp;</span>mmap[..]);
 
-        mmap.advise_range(Advice::Sequential, <span class="number">0</span>, mmap.len())
+        mmap.advise_range(Advice::sequential(), <span class="number">0</span>, mmap.len())
             .expect(<span class="string">&quot;mmap advising should be supported on unix&quot;</span>);
 
         <span class="comment">// write values into the mmap
@@ -3515,11 +3871,26 @@
         <span class="comment">// Set advice and Read from the read-only map
         </span><span class="kw">let </span>mmap = <span class="kw">unsafe </span>{ Mmap::map(<span class="kw-2">&amp;</span>file).unwrap() };
 
-        mmap.advise(Advice::Random)
+        mmap.advise(Advice::random())
             .expect(<span class="string">&quot;mmap advising should be supported on unix&quot;</span>);
 
         <span class="comment">// read values back
         </span><span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>incr[..], <span class="kw-2">&amp;</span>mmap[..]);
+    }
+
+    <span class="attr">#[test]
+    #[cfg(target_os = <span class="string">&quot;linux&quot;</span>)]
+    </span><span class="kw">fn </span>advise_writes_unsafely() {
+        <span class="kw">let </span><span class="kw-2">mut </span>mmap = MmapMut::map_anon(<span class="number">4096</span>).unwrap();
+        mmap.as_mut().fill(<span class="number">255</span>);
+        <span class="kw">let </span>mmap = mmap.make_read_only().unwrap();
+
+        <span class="kw">let </span>a = mmap.as_ref()[<span class="number">0</span>];
+        mmap.advise(<span class="kw">unsafe </span>{ Advice::dont_need() }).unwrap();
+        <span class="kw">let </span>b = mmap.as_ref()[<span class="number">0</span>];
+
+        <span class="macro">assert_eq!</span>(a, <span class="number">255</span>);
+        <span class="macro">assert_eq!</span>(b, <span class="number">0</span>);
     }
 
     <span class="doccomment">/// Returns true if a non-zero amount of memory is locked.
@@ -3546,7 +3917,7 @@
             .read(<span class="bool-val">true</span>)
             .write(<span class="bool-val">true</span>)
             .create(<span class="bool-val">true</span>)
-            .open(<span class="kw-2">&amp;</span>path)
+            .open(path)
             .unwrap();
         file.set_len(<span class="number">128</span>).unwrap();
 
@@ -3572,6 +3943,121 @@
             .expect(<span class="string">&quot;mmap unlock again should not cause problems&quot;</span>);
         <span class="attr">#[cfg(target_os = <span class="string">&quot;linux&quot;</span>)]
         </span><span class="macro">assert!</span>(!is_locked());
+    }
+
+    <span class="attr">#[test]
+    #[cfg(target_os = <span class="string">&quot;linux&quot;</span>)]
+    </span><span class="kw">fn </span>remap_grow() {
+        <span class="kw">use </span><span class="kw">crate</span>::RemapOptions;
+
+        <span class="kw">let </span>initial_len = <span class="number">128</span>;
+        <span class="kw">let </span>final_len = <span class="number">2000</span>;
+
+        <span class="kw">let </span>zeros = <span class="macro">vec!</span>[<span class="number">0u8</span>; final_len];
+        <span class="kw">let </span>incr: Vec&lt;u8&gt; = (<span class="number">0</span>..final_len).map(|v| v <span class="kw">as </span>u8).collect();
+
+        <span class="kw">let </span>file = tempfile::tempfile().unwrap();
+        file.set_len(final_len <span class="kw">as </span>u64).unwrap();
+
+        <span class="kw">let </span><span class="kw-2">mut </span>mmap = <span class="kw">unsafe </span>{ MmapOptions::new().len(initial_len).map_mut(<span class="kw-2">&amp;</span>file).unwrap() };
+        <span class="macro">assert_eq!</span>(mmap.len(), initial_len);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>mmap[..], <span class="kw-2">&amp;</span>zeros[..initial_len]);
+
+        <span class="kw">unsafe </span>{
+            mmap.remap(final_len, RemapOptions::new().may_move(<span class="bool-val">true</span>))
+                .unwrap()
+        };
+
+        <span class="comment">// The size should have been updated
+        </span><span class="macro">assert_eq!</span>(mmap.len(), final_len);
+
+        <span class="comment">// Should still be all zeros
+        </span><span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>mmap[..], <span class="kw-2">&amp;</span>zeros);
+
+        <span class="comment">// Write out to the whole expanded slice.
+        </span>mmap.copy_from_slice(<span class="kw-2">&amp;</span>incr);
+    }
+
+    <span class="attr">#[test]
+    #[cfg(target_os = <span class="string">&quot;linux&quot;</span>)]
+    </span><span class="kw">fn </span>remap_shrink() {
+        <span class="kw">use </span><span class="kw">crate</span>::RemapOptions;
+
+        <span class="kw">let </span>initial_len = <span class="number">20000</span>;
+        <span class="kw">let </span>final_len = <span class="number">400</span>;
+
+        <span class="kw">let </span>incr: Vec&lt;u8&gt; = (<span class="number">0</span>..final_len).map(|v| v <span class="kw">as </span>u8).collect();
+
+        <span class="kw">let </span>file = tempfile::tempfile().unwrap();
+        file.set_len(initial_len <span class="kw">as </span>u64).unwrap();
+
+        <span class="kw">let </span><span class="kw-2">mut </span>mmap = <span class="kw">unsafe </span>{ MmapMut::map_mut(<span class="kw-2">&amp;</span>file).unwrap() };
+        <span class="macro">assert_eq!</span>(mmap.len(), initial_len);
+
+        <span class="kw">unsafe </span>{ mmap.remap(final_len, RemapOptions::new()).unwrap() };
+        <span class="macro">assert_eq!</span>(mmap.len(), final_len);
+
+        <span class="comment">// Check that the mmap is still writable along the slice length
+        </span>mmap.copy_from_slice(<span class="kw-2">&amp;</span>incr);
+    }
+
+    <span class="attr">#[test]
+    #[cfg(target_os = <span class="string">&quot;linux&quot;</span>)]
+    #[cfg(target_pointer_width = <span class="string">&quot;32&quot;</span>)]
+    </span><span class="kw">fn </span>remap_len_overflow() {
+        <span class="kw">use </span><span class="kw">crate</span>::RemapOptions;
+
+        <span class="kw">let </span>file = tempfile::tempfile().unwrap();
+        file.set_len(<span class="number">1024</span>).unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>mmap = <span class="kw">unsafe </span>{ MmapOptions::new().len(<span class="number">1024</span>).map(<span class="kw-2">&amp;</span>file).unwrap() };
+
+        <span class="kw">let </span>res = <span class="kw">unsafe </span>{ mmap.remap(<span class="number">0x80000000</span>, RemapOptions::new().may_move(<span class="bool-val">true</span>)) };
+        <span class="macro">assert_eq!</span>(
+            res.unwrap_err().to_string(),
+            <span class="string">&quot;memory map length overflows isize&quot;
+        </span>);
+
+        <span class="macro">assert_eq!</span>(mmap.len(), <span class="number">1024</span>);
+    }
+
+    <span class="attr">#[test]
+    #[cfg(target_os = <span class="string">&quot;linux&quot;</span>)]
+    </span><span class="kw">fn </span>remap_with_offset() {
+        <span class="kw">use </span><span class="kw">crate</span>::RemapOptions;
+
+        <span class="kw">let </span>offset = <span class="number">77</span>;
+        <span class="kw">let </span>initial_len = <span class="number">128</span>;
+        <span class="kw">let </span>final_len = <span class="number">2000</span>;
+
+        <span class="kw">let </span>zeros = <span class="macro">vec!</span>[<span class="number">0u8</span>; final_len];
+        <span class="kw">let </span>incr: Vec&lt;u8&gt; = (<span class="number">0</span>..final_len).map(|v| v <span class="kw">as </span>u8).collect();
+
+        <span class="kw">let </span>file = tempfile::tempfile().unwrap();
+        file.set_len(final_len <span class="kw">as </span>u64 + offset).unwrap();
+
+        <span class="kw">let </span><span class="kw-2">mut </span>mmap = <span class="kw">unsafe </span>{
+            MmapOptions::new()
+                .len(initial_len)
+                .offset(offset)
+                .map_mut(<span class="kw-2">&amp;</span>file)
+                .unwrap()
+        };
+        <span class="macro">assert_eq!</span>(mmap.len(), initial_len);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>mmap[..], <span class="kw-2">&amp;</span>zeros[..initial_len]);
+
+        <span class="kw">unsafe </span>{
+            mmap.remap(final_len, RemapOptions::new().may_move(<span class="bool-val">true</span>))
+                .unwrap()
+        };
+
+        <span class="comment">// The size should have been updated
+        </span><span class="macro">assert_eq!</span>(mmap.len(), final_len);
+
+        <span class="comment">// Should still be all zeros
+        </span><span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>mmap[..], <span class="kw-2">&amp;</span>zeros);
+
+        <span class="comment">// Write out to the whole expanded slice.
+        </span>mmap.copy_from_slice(<span class="kw-2">&amp;</span>incr);
     }
 }
 </code></pre></div></section></main></body></html>

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["CodePointInversionListAndStringListError","Error"],"struct":["CodePointInversionListAndStringList"]};
+window.SIDEBAR_ITEMS = {"enum":["CodePointInversionListAndStringListError","Error"],"struct":["CodePointInversionListAndStringList","CodePointInversionListAndStringListULE"]};

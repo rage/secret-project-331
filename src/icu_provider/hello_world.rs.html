@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_provider-1.2.0/src/hello_world.rs`."><title>hello_world.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_provider" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../icu_provider/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_provider-1.3.2/src/hello_world.rs`."><title>hello_world.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_provider" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../icu_provider/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -314,6 +314,52 @@
 <a href="#314" id="314">314</a>
 <a href="#315" id="315">315</a>
 <a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
+<a href="#361" id="361">361</a>
+<a href="#362" id="362">362</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
@@ -322,8 +368,8 @@
 
 </span><span class="attr">#![allow(clippy::exhaustive_structs)] </span><span class="comment">// data struct module
 
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;datagen&quot;</span>)]
-</span><span class="kw">use </span><span class="kw">crate</span>::datagen::IterableDataProvider;
+</span><span class="kw">use crate as </span>icu_provider;
+
 <span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span>alloc::borrow::Cow;
 <span class="kw">use </span>alloc::string::String;
@@ -366,7 +412,7 @@
 }
 
 <span class="kw">impl </span>KeyedDataMarker <span class="kw">for </span>HelloWorldV1Marker {
-    <span class="kw">const </span>KEY: DataKey = <span class="macro">crate::data_key!</span>(<span class="string">&quot;core/helloworld@1&quot;</span>);
+    <span class="kw">const </span>KEY: DataKey = <span class="macro">icu_provider::data_key!</span>(<span class="string">&quot;core/helloworld@1&quot;</span>);
 }
 
 <span class="doccomment">/// A data provider returning Hello World strings in different languages.
@@ -392,6 +438,25 @@
 ///
 /// assert_eq!(&quot;Hallo Welt&quot;, german_hello_world.get().message);
 /// ```
+///
+/// Load the reverse string using an auxiliary key:
+///
+/// ```
+/// use icu_provider::hello_world::*;
+/// use icu_provider::prelude::*;
+///
+/// let reverse_hello_world: DataPayload&lt;HelloWorldV1Marker&gt; =
+///     HelloWorldProvider
+///         .load(DataRequest {
+///             locale: &amp;&quot;en+reverse&quot;.parse().unwrap(),
+///             metadata: Default::default(),
+///         })
+///         .expect(&quot;Loading should succeed&quot;)
+///         .take_payload()
+///         .expect(&quot;Data should be present&quot;);
+///
+/// assert_eq!(&quot;Olleh Dlrow&quot;, reverse_hello_world.get().message);
+/// ```
 </span><span class="attr">#[derive(Debug, PartialEq, Default)]
 </span><span class="kw">pub struct </span>HelloWorldProvider;
 
@@ -402,17 +467,28 @@
         (<span class="string">&quot;bn&quot;</span>, <span class="string">&quot;ওহে বিশ্ব&quot;</span>),
         (<span class="string">&quot;cs&quot;</span>, <span class="string">&quot;Ahoj světe&quot;</span>),
         (<span class="string">&quot;de&quot;</span>, <span class="string">&quot;Hallo Welt&quot;</span>),
+        (<span class="string">&quot;de-AT&quot;</span>, <span class="string">&quot;Servus Welt&quot;</span>),
         (<span class="string">&quot;el&quot;</span>, <span class="string">&quot;Καλημέρα κόσμε&quot;</span>),
         (<span class="string">&quot;en&quot;</span>, <span class="string">&quot;Hello World&quot;</span>),
-        (<span class="string">&quot;eo&quot;</span>, <span class="string">&quot;Saluton, Mondo&quot;</span>),
+        (<span class="string">&quot;en+reverse&quot;</span>, <span class="string">&quot;Olleh Dlrow&quot;</span>),
+        (<span class="string">&quot;en-001&quot;</span>, <span class="string">&quot;Hello from 🗺️&quot;</span>),            <span class="comment">// WORLD
+        </span>(<span class="string">&quot;en-002&quot;</span>, <span class="string">&quot;Hello from 🌍&quot;</span>),           <span class="comment">// AFRICA
+        </span>(<span class="string">&quot;en-019&quot;</span>, <span class="string">&quot;Hello from 🌎&quot;</span>),           <span class="comment">// AMERICAS
+        </span>(<span class="string">&quot;en-142&quot;</span>, <span class="string">&quot;Hello from 🌏&quot;</span>),           <span class="comment">// ASIA
+        </span>(<span class="string">&quot;en-GB&quot;</span>, <span class="string">&quot;Hello from 🇬🇧&quot;</span>),            <span class="comment">// GREAT BRITAIN
+        </span>(<span class="string">&quot;en-GB-u-sd-gbeng&quot;</span>, <span class="string">&quot;Hello from 🏴󠁧󠁢󠁥󠁮󠁧󠁿&quot;</span>), <span class="comment">// ENGLAND
+        </span>(<span class="string">&quot;eo&quot;</span>, <span class="string">&quot;Saluton, Mondo&quot;</span>),
         (<span class="string">&quot;fa&quot;</span>, <span class="string">&quot;سلام دنیا‎&quot;</span>),
         (<span class="string">&quot;fi&quot;</span>, <span class="string">&quot;hei maailma&quot;</span>),
         (<span class="string">&quot;is&quot;</span>, <span class="string">&quot;Halló, heimur&quot;</span>),
         (<span class="string">&quot;ja&quot;</span>, <span class="string">&quot;こんにちは世界&quot;</span>),
+        (<span class="string">&quot;ja+reverse&quot;</span>, <span class="string">&quot;界世はちにんこ&quot;</span>),
         (<span class="string">&quot;la&quot;</span>, <span class="string">&quot;Ave, munde&quot;</span>),
         (<span class="string">&quot;pt&quot;</span>, <span class="string">&quot;Olá, mundo&quot;</span>),
         (<span class="string">&quot;ro&quot;</span>, <span class="string">&quot;Salut, lume&quot;</span>),
         (<span class="string">&quot;ru&quot;</span>, <span class="string">&quot;Привет, мир&quot;</span>),
+        (<span class="string">&quot;sr&quot;</span>, <span class="string">&quot;Поздрав свете&quot;</span>),
+        (<span class="string">&quot;sr-Latn&quot;</span>, <span class="string">&quot;Pozdrav svete&quot;</span>),
         (<span class="string">&quot;vi&quot;</span>, <span class="string">&quot;Xin chào thế giới&quot;</span>),
         (<span class="string">&quot;zh&quot;</span>, <span class="string">&quot;你好世界&quot;</span>),
     ];
@@ -449,7 +525,7 @@
 
 <span class="comment">// AnyProvider support.
 </span><span class="attr">#[cfg(not(feature = <span class="string">&quot;datagen&quot;</span>))]
-</span><span class="macro">impl_dynamic_data_provider!</span>(HelloWorldProvider, [HelloWorldV1Marker,], AnyMarker);
+</span><span class="macro">icu_provider::impl_dynamic_data_provider!</span>(HelloWorldProvider, [HelloWorldV1Marker,], AnyMarker);
 
 <span class="attr">#[cfg(feature = <span class="string">&quot;deserialize_json&quot;</span>)]
 </span><span class="doccomment">/// A data provider returning Hello World strings in different languages as JSON blobs.
@@ -488,7 +564,7 @@
         <span class="kw">let </span>result = HelloWorldProvider.load(req)<span class="question-mark">?</span>;
         <span class="kw">let </span>(<span class="kw-2">mut </span>metadata, old_payload) =
             DataResponse::&lt;HelloWorldV1Marker&gt;::take_metadata_and_payload(result)<span class="question-mark">?</span>;
-        metadata.buffer_format = <span class="prelude-val">Some</span>(<span class="kw">crate</span>::buf::BufferFormat::Json);
+        metadata.buffer_format = <span class="prelude-val">Some</span>(icu_provider::buf::BufferFormat::Json);
         <span class="attr">#[allow(clippy::unwrap_used)] </span><span class="comment">// HelloWorldV1::serialize is infallible
         </span><span class="prelude-val">Ok</span>(DataResponse {
             metadata,
@@ -503,19 +579,15 @@
 }
 
 <span class="attr">#[cfg(feature = <span class="string">&quot;datagen&quot;</span>)]
-</span><span class="kw">impl </span>IterableDataProvider&lt;HelloWorldV1Marker&gt; <span class="kw">for </span>HelloWorldProvider {
+</span><span class="kw">impl </span>icu_provider::datagen::IterableDataProvider&lt;HelloWorldV1Marker&gt; <span class="kw">for </span>HelloWorldProvider {
     <span class="kw">fn </span>supported_locales(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;DataLocale&gt;, DataError&gt; {
         <span class="attr">#[allow(clippy::unwrap_used)] </span><span class="comment">// datagen
-        </span><span class="prelude-val">Ok</span>(<span class="self">Self</span>::DATA
-            .iter()
-            .map(|(s, <span class="kw">_</span>)| s.parse::&lt;icu_locid::LanguageIdentifier&gt;().unwrap())
-            .map(DataLocale::from)
-            .collect())
+        </span><span class="prelude-val">Ok</span>(<span class="self">Self</span>::DATA.iter().map(|(s, <span class="kw">_</span>)| s.parse().unwrap()).collect())
     }
 }
 
 <span class="attr">#[cfg(feature = <span class="string">&quot;datagen&quot;</span>)]
-</span><span class="macro">make_exportable_provider!</span>(HelloWorldProvider, [HelloWorldV1Marker,]);
+</span><span class="macro">icu_provider::make_exportable_provider!</span>(HelloWorldProvider, [HelloWorldV1Marker,]);
 
 <span class="doccomment">/// A type that formats localized &quot;hello world&quot; strings.
 ///
@@ -552,12 +624,22 @@
 <span class="kw">impl </span>HelloWorldFormatter {
     <span class="doccomment">/// Creates a new [`HelloWorldFormatter`] for the specified locale.
     ///
-    /// See [`HelloWorldFormatter`] for an example.
-    ///
-    /// [📚 Help choosing a constructor](crate::constructors)
-    /// &lt;div class=&quot;stab unstable&quot;&gt;
-    /// ⚠️ The bounds on this function may change over time, including in SemVer minor releases.
-    /// &lt;/div&gt;
+    /// [📚 Help choosing a constructor](icu_provider::constructors)
+    </span><span class="kw">pub fn </span>try_new(locale: <span class="kw-2">&amp;</span>DataLocale) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, DataError&gt; {
+        <span class="self">Self</span>::try_new_unstable(<span class="kw-2">&amp;</span>HelloWorldProvider, locale)
+    }
+
+    <span class="macro">icu_provider::gen_any_buffer_data_constructors!</span>(locale: include, options: skip, error: DataError,
+        <span class="attr">#[cfg(skip)]
+        </span>functions: [
+            try_new,
+            try_new_with_any_provider,
+            try_new_with_buffer_provider,
+            try_new_unstable,
+            <span class="self">Self</span>,
+    ]);
+
+    <span class="attr">#[doc = <span class="macro">icu_provider::gen_any_buffer_unstable_docs!</span>(UNSTABLE, <span class="self">Self</span>::try_new)]
     </span><span class="kw">pub fn </span>try_new_unstable&lt;P&gt;(provider: <span class="kw-2">&amp;</span>P, locale: <span class="kw-2">&amp;</span>DataLocale) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, DataError&gt;
     <span class="kw">where
         </span>P: DataProvider&lt;HelloWorldV1Marker&gt;,
@@ -570,8 +652,6 @@
             </span>.take_payload()<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ data })
     }
-
-    <span class="macro">crate::gen_any_buffer_constructors!</span>(locale: include, options: skip, error: DataError);
 
     <span class="doccomment">/// Formats a hello world message, returning a [`FormattedHelloWorld`].
     </span><span class="attr">#[allow(clippy::needless_lifetimes)] </span><span class="comment">// documentary example
@@ -606,6 +686,7 @@
 <span class="attr">#[cfg(feature = <span class="string">&quot;datagen&quot;</span>)]
 #[test]
 </span><span class="kw">fn </span>test_iter() {
+    <span class="kw">use </span><span class="kw">crate</span>::datagen::IterableDataProvider;
     <span class="kw">use </span>icu_locid::locale;
 
     <span class="macro">assert_eq!</span>(
@@ -614,17 +695,28 @@
             <span class="macro">locale!</span>(<span class="string">&quot;bn&quot;</span>).into(),
             <span class="macro">locale!</span>(<span class="string">&quot;cs&quot;</span>).into(),
             <span class="macro">locale!</span>(<span class="string">&quot;de&quot;</span>).into(),
+            <span class="macro">locale!</span>(<span class="string">&quot;de-AT&quot;</span>).into(),
             <span class="macro">locale!</span>(<span class="string">&quot;el&quot;</span>).into(),
             <span class="macro">locale!</span>(<span class="string">&quot;en&quot;</span>).into(),
+            <span class="string">&quot;en+reverse&quot;</span>.parse().unwrap(),
+            <span class="macro">locale!</span>(<span class="string">&quot;en-001&quot;</span>).into(),
+            <span class="macro">locale!</span>(<span class="string">&quot;en-002&quot;</span>).into(),
+            <span class="macro">locale!</span>(<span class="string">&quot;en-019&quot;</span>).into(),
+            <span class="macro">locale!</span>(<span class="string">&quot;en-142&quot;</span>).into(),
+            <span class="macro">locale!</span>(<span class="string">&quot;en-GB&quot;</span>).into(),
+            <span class="macro">locale!</span>(<span class="string">&quot;en-GB-u-sd-gbeng&quot;</span>).into(),
             <span class="macro">locale!</span>(<span class="string">&quot;eo&quot;</span>).into(),
             <span class="macro">locale!</span>(<span class="string">&quot;fa&quot;</span>).into(),
             <span class="macro">locale!</span>(<span class="string">&quot;fi&quot;</span>).into(),
             <span class="macro">locale!</span>(<span class="string">&quot;is&quot;</span>).into(),
             <span class="macro">locale!</span>(<span class="string">&quot;ja&quot;</span>).into(),
+            <span class="string">&quot;ja+reverse&quot;</span>.parse().unwrap(),
             <span class="macro">locale!</span>(<span class="string">&quot;la&quot;</span>).into(),
             <span class="macro">locale!</span>(<span class="string">&quot;pt&quot;</span>).into(),
             <span class="macro">locale!</span>(<span class="string">&quot;ro&quot;</span>).into(),
             <span class="macro">locale!</span>(<span class="string">&quot;ru&quot;</span>).into(),
+            <span class="macro">locale!</span>(<span class="string">&quot;sr&quot;</span>).into(),
+            <span class="macro">locale!</span>(<span class="string">&quot;sr-Latn&quot;</span>).into(),
             <span class="macro">locale!</span>(<span class="string">&quot;vi&quot;</span>).into(),
             <span class="macro">locale!</span>(<span class="string">&quot;zh&quot;</span>).into()
         ]

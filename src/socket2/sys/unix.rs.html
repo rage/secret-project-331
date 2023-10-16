@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/socket2-0.5.3/src/sys/unix.rs`."><title>unix.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="socket2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../socket2/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/socket2-0.5.4/src/sys/unix.rs`."><title>unix.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="socket2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../socket2/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -2899,6 +2899,175 @@
 <a href="#2899" id="2899">2899</a>
 <a href="#2900" id="2900">2900</a>
 <a href="#2901" id="2901">2901</a>
+<a href="#2902" id="2902">2902</a>
+<a href="#2903" id="2903">2903</a>
+<a href="#2904" id="2904">2904</a>
+<a href="#2905" id="2905">2905</a>
+<a href="#2906" id="2906">2906</a>
+<a href="#2907" id="2907">2907</a>
+<a href="#2908" id="2908">2908</a>
+<a href="#2909" id="2909">2909</a>
+<a href="#2910" id="2910">2910</a>
+<a href="#2911" id="2911">2911</a>
+<a href="#2912" id="2912">2912</a>
+<a href="#2913" id="2913">2913</a>
+<a href="#2914" id="2914">2914</a>
+<a href="#2915" id="2915">2915</a>
+<a href="#2916" id="2916">2916</a>
+<a href="#2917" id="2917">2917</a>
+<a href="#2918" id="2918">2918</a>
+<a href="#2919" id="2919">2919</a>
+<a href="#2920" id="2920">2920</a>
+<a href="#2921" id="2921">2921</a>
+<a href="#2922" id="2922">2922</a>
+<a href="#2923" id="2923">2923</a>
+<a href="#2924" id="2924">2924</a>
+<a href="#2925" id="2925">2925</a>
+<a href="#2926" id="2926">2926</a>
+<a href="#2927" id="2927">2927</a>
+<a href="#2928" id="2928">2928</a>
+<a href="#2929" id="2929">2929</a>
+<a href="#2930" id="2930">2930</a>
+<a href="#2931" id="2931">2931</a>
+<a href="#2932" id="2932">2932</a>
+<a href="#2933" id="2933">2933</a>
+<a href="#2934" id="2934">2934</a>
+<a href="#2935" id="2935">2935</a>
+<a href="#2936" id="2936">2936</a>
+<a href="#2937" id="2937">2937</a>
+<a href="#2938" id="2938">2938</a>
+<a href="#2939" id="2939">2939</a>
+<a href="#2940" id="2940">2940</a>
+<a href="#2941" id="2941">2941</a>
+<a href="#2942" id="2942">2942</a>
+<a href="#2943" id="2943">2943</a>
+<a href="#2944" id="2944">2944</a>
+<a href="#2945" id="2945">2945</a>
+<a href="#2946" id="2946">2946</a>
+<a href="#2947" id="2947">2947</a>
+<a href="#2948" id="2948">2948</a>
+<a href="#2949" id="2949">2949</a>
+<a href="#2950" id="2950">2950</a>
+<a href="#2951" id="2951">2951</a>
+<a href="#2952" id="2952">2952</a>
+<a href="#2953" id="2953">2953</a>
+<a href="#2954" id="2954">2954</a>
+<a href="#2955" id="2955">2955</a>
+<a href="#2956" id="2956">2956</a>
+<a href="#2957" id="2957">2957</a>
+<a href="#2958" id="2958">2958</a>
+<a href="#2959" id="2959">2959</a>
+<a href="#2960" id="2960">2960</a>
+<a href="#2961" id="2961">2961</a>
+<a href="#2962" id="2962">2962</a>
+<a href="#2963" id="2963">2963</a>
+<a href="#2964" id="2964">2964</a>
+<a href="#2965" id="2965">2965</a>
+<a href="#2966" id="2966">2966</a>
+<a href="#2967" id="2967">2967</a>
+<a href="#2968" id="2968">2968</a>
+<a href="#2969" id="2969">2969</a>
+<a href="#2970" id="2970">2970</a>
+<a href="#2971" id="2971">2971</a>
+<a href="#2972" id="2972">2972</a>
+<a href="#2973" id="2973">2973</a>
+<a href="#2974" id="2974">2974</a>
+<a href="#2975" id="2975">2975</a>
+<a href="#2976" id="2976">2976</a>
+<a href="#2977" id="2977">2977</a>
+<a href="#2978" id="2978">2978</a>
+<a href="#2979" id="2979">2979</a>
+<a href="#2980" id="2980">2980</a>
+<a href="#2981" id="2981">2981</a>
+<a href="#2982" id="2982">2982</a>
+<a href="#2983" id="2983">2983</a>
+<a href="#2984" id="2984">2984</a>
+<a href="#2985" id="2985">2985</a>
+<a href="#2986" id="2986">2986</a>
+<a href="#2987" id="2987">2987</a>
+<a href="#2988" id="2988">2988</a>
+<a href="#2989" id="2989">2989</a>
+<a href="#2990" id="2990">2990</a>
+<a href="#2991" id="2991">2991</a>
+<a href="#2992" id="2992">2992</a>
+<a href="#2993" id="2993">2993</a>
+<a href="#2994" id="2994">2994</a>
+<a href="#2995" id="2995">2995</a>
+<a href="#2996" id="2996">2996</a>
+<a href="#2997" id="2997">2997</a>
+<a href="#2998" id="2998">2998</a>
+<a href="#2999" id="2999">2999</a>
+<a href="#3000" id="3000">3000</a>
+<a href="#3001" id="3001">3001</a>
+<a href="#3002" id="3002">3002</a>
+<a href="#3003" id="3003">3003</a>
+<a href="#3004" id="3004">3004</a>
+<a href="#3005" id="3005">3005</a>
+<a href="#3006" id="3006">3006</a>
+<a href="#3007" id="3007">3007</a>
+<a href="#3008" id="3008">3008</a>
+<a href="#3009" id="3009">3009</a>
+<a href="#3010" id="3010">3010</a>
+<a href="#3011" id="3011">3011</a>
+<a href="#3012" id="3012">3012</a>
+<a href="#3013" id="3013">3013</a>
+<a href="#3014" id="3014">3014</a>
+<a href="#3015" id="3015">3015</a>
+<a href="#3016" id="3016">3016</a>
+<a href="#3017" id="3017">3017</a>
+<a href="#3018" id="3018">3018</a>
+<a href="#3019" id="3019">3019</a>
+<a href="#3020" id="3020">3020</a>
+<a href="#3021" id="3021">3021</a>
+<a href="#3022" id="3022">3022</a>
+<a href="#3023" id="3023">3023</a>
+<a href="#3024" id="3024">3024</a>
+<a href="#3025" id="3025">3025</a>
+<a href="#3026" id="3026">3026</a>
+<a href="#3027" id="3027">3027</a>
+<a href="#3028" id="3028">3028</a>
+<a href="#3029" id="3029">3029</a>
+<a href="#3030" id="3030">3030</a>
+<a href="#3031" id="3031">3031</a>
+<a href="#3032" id="3032">3032</a>
+<a href="#3033" id="3033">3033</a>
+<a href="#3034" id="3034">3034</a>
+<a href="#3035" id="3035">3035</a>
+<a href="#3036" id="3036">3036</a>
+<a href="#3037" id="3037">3037</a>
+<a href="#3038" id="3038">3038</a>
+<a href="#3039" id="3039">3039</a>
+<a href="#3040" id="3040">3040</a>
+<a href="#3041" id="3041">3041</a>
+<a href="#3042" id="3042">3042</a>
+<a href="#3043" id="3043">3043</a>
+<a href="#3044" id="3044">3044</a>
+<a href="#3045" id="3045">3045</a>
+<a href="#3046" id="3046">3046</a>
+<a href="#3047" id="3047">3047</a>
+<a href="#3048" id="3048">3048</a>
+<a href="#3049" id="3049">3049</a>
+<a href="#3050" id="3050">3050</a>
+<a href="#3051" id="3051">3051</a>
+<a href="#3052" id="3052">3052</a>
+<a href="#3053" id="3053">3053</a>
+<a href="#3054" id="3054">3054</a>
+<a href="#3055" id="3055">3055</a>
+<a href="#3056" id="3056">3056</a>
+<a href="#3057" id="3057">3057</a>
+<a href="#3058" id="3058">3058</a>
+<a href="#3059" id="3059">3059</a>
+<a href="#3060" id="3060">3060</a>
+<a href="#3061" id="3061">3061</a>
+<a href="#3062" id="3062">3062</a>
+<a href="#3063" id="3063">3063</a>
+<a href="#3064" id="3064">3064</a>
+<a href="#3065" id="3065">3065</a>
+<a href="#3066" id="3066">3066</a>
+<a href="#3067" id="3067">3067</a>
+<a href="#3068" id="3068">3068</a>
+<a href="#3069" id="3069">3069</a>
+<a href="#3070" id="3070">3070</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright 2015 The Rust Project Developers.
 //
 // Licensed under the Apache License, Version 2.0 &lt;LICENSE-APACHE or
@@ -2971,9 +3140,9 @@
 </span><span class="kw">use </span>libc::ssize_t;
 <span class="kw">use </span>libc::{in6_addr, in_addr};
 
-<span class="attr">#[cfg(not(target_os = <span class="string">&quot;redox&quot;</span>))]
-</span><span class="kw">use </span><span class="kw">crate</span>::RecvFlags;
 <span class="kw">use crate</span>::{Domain, Protocol, SockAddr, TcpKeepalive, Type};
+<span class="attr">#[cfg(not(target_os = <span class="string">&quot;redox&quot;</span>))]
+</span><span class="kw">use crate</span>::{MsgHdr, MsgHdrMut, RecvFlags};
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>libc::c_int;
 
@@ -2982,9 +3151,9 @@
 <span class="comment">// Used in `Type`.
 </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;all&quot;</span>, target_os = <span class="string">&quot;linux&quot;</span>))]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>libc::SOCK_DCCP;
-<span class="attr">#[cfg(all(feature = <span class="string">&quot;all&quot;</span>, not(target_os = <span class="string">&quot;redox&quot;</span>)))]
+<span class="attr">#[cfg(all(feature = <span class="string">&quot;all&quot;</span>, not(any(target_os = <span class="string">&quot;redox&quot;</span>, target_os = <span class="string">&quot;espidf&quot;</span>))))]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>libc::SOCK_RAW;
-<span class="attr">#[cfg(feature = <span class="string">&quot;all&quot;</span>)]
+<span class="attr">#[cfg(all(feature = <span class="string">&quot;all&quot;</span>, not(target_os = <span class="string">&quot;espidf&quot;</span>)))]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>libc::SOCK_SEQPACKET;
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>libc::{SOCK_DGRAM, SOCK_STREAM};
 <span class="comment">// Used in `Protocol`.
@@ -3006,12 +3175,16 @@
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>libc::IPPROTO_UDPLITE;
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>libc::{IPPROTO_ICMP, IPPROTO_ICMPV6, IPPROTO_TCP, IPPROTO_UDP};
 <span class="comment">// Used in `SockAddr`.
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>libc::{
+</span><span class="attr">#[cfg(all(feature = <span class="string">&quot;all&quot;</span>, any(target_os = <span class="string">&quot;freebsd&quot;</span>, target_os = <span class="string">&quot;openbsd&quot;</span>)))]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>libc::IPPROTO_DIVERT;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>libc::{
     sa_family_t, sockaddr, sockaddr_in, sockaddr_in6, sockaddr_storage, socklen_t,
 };
 <span class="comment">// Used in `RecvFlags`.
-</span><span class="attr">#[cfg(not(target_os = <span class="string">&quot;redox&quot;</span>))]
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>libc::{MSG_TRUNC, SO_OOBINLINE};
+</span><span class="attr">#[cfg(not(any(target_os = <span class="string">&quot;redox&quot;</span>, target_os = <span class="string">&quot;espidf&quot;</span>)))]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>libc::MSG_TRUNC;
+<span class="attr">#[cfg(not(target_os = <span class="string">&quot;redox&quot;</span>))]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>libc::SO_OOBINLINE;
 <span class="comment">// Used in `Socket`.
 </span><span class="attr">#[cfg(not(target_os = <span class="string">&quot;nto&quot;</span>))]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>libc::ipv6_mreq <span class="kw">as </span>Ipv6Mreq;
@@ -3024,9 +3197,10 @@
     target_os = <span class="string">&quot;redox&quot;</span>,
     target_os = <span class="string">&quot;solaris&quot;</span>,
     target_os = <span class="string">&quot;haiku&quot;</span>,
+    target_os = <span class="string">&quot;espidf&quot;</span>,
 )))]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>libc::IPV6_RECVTCLASS;
-<span class="attr">#[cfg(all(feature = <span class="string">&quot;all&quot;</span>, not(target_os = <span class="string">&quot;redox&quot;</span>)))]
+<span class="attr">#[cfg(all(feature = <span class="string">&quot;all&quot;</span>, not(any(target_os = <span class="string">&quot;redox&quot;</span>, target_os = <span class="string">&quot;espidf&quot;</span>))))]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>libc::IP_HDRINCL;
 <span class="attr">#[cfg(not(any(
     target_os = <span class="string">&quot;aix&quot;</span>,
@@ -3039,6 +3213,7 @@
     target_os = <span class="string">&quot;solaris&quot;</span>,
     target_os = <span class="string">&quot;haiku&quot;</span>,
     target_os = <span class="string">&quot;nto&quot;</span>,
+    target_os = <span class="string">&quot;espidf&quot;</span>,
 )))]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>libc::IP_RECVTOS;
 <span class="attr">#[cfg(not(any(
@@ -3077,6 +3252,7 @@
     target_os = <span class="string">&quot;redox&quot;</span>,
     target_os = <span class="string">&quot;fuchsia&quot;</span>,
     target_os = <span class="string">&quot;nto&quot;</span>,
+    target_os = <span class="string">&quot;espidf&quot;</span>,
 )))]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>libc::{
     ip_mreq_source <span class="kw">as </span>IpMreqSource, IP_ADD_SOURCE_MEMBERSHIP, IP_DROP_SOURCE_MEMBERSHIP,
@@ -3228,6 +3404,7 @@
     target_os = <span class="string">&quot;solaris&quot;</span>,
     target_os = <span class="string">&quot;tvos&quot;</span>,
     target_os = <span class="string">&quot;watchos&quot;</span>,
+    target_os = <span class="string">&quot;espidf&quot;</span>,
 ))]
 </span><span class="kw">type </span>IovLen = c_int;
 
@@ -3370,11 +3547,12 @@
     libc::SOCK_DGRAM,
     <span class="attr">#[cfg(all(feature = <span class="string">&quot;all&quot;</span>, target_os = <span class="string">&quot;linux&quot;</span>))]
     </span>libc::SOCK_DCCP,
-    <span class="attr">#[cfg(not(target_os = <span class="string">&quot;redox&quot;</span>))]
+    <span class="attr">#[cfg(not(any(target_os = <span class="string">&quot;redox&quot;</span>, target_os = <span class="string">&quot;espidf&quot;</span>)))]
     </span>libc::SOCK_RAW,
-    <span class="attr">#[cfg(not(any(target_os = <span class="string">&quot;redox&quot;</span>, target_os = <span class="string">&quot;haiku&quot;</span>)))]
+    <span class="attr">#[cfg(not(any(target_os = <span class="string">&quot;redox&quot;</span>, target_os = <span class="string">&quot;haiku&quot;</span>, target_os = <span class="string">&quot;espidf&quot;</span>)))]
     </span>libc::SOCK_RDM,
-    libc::SOCK_SEQPACKET,
+    <span class="attr">#[cfg(not(target_os = <span class="string">&quot;espidf&quot;</span>))]
+    </span>libc::SOCK_SEQPACKET,
     <span class="comment">/* TODO: add these optional bit OR-ed flags:
     #[cfg(any(
         target_os = &quot;android&quot;,
@@ -3421,6 +3599,8 @@
         )
     ))]
     </span>libc::IPPROTO_UDPLITE,
+    <span class="attr">#[cfg(all(feature = <span class="string">&quot;all&quot;</span>, any(target_os = <span class="string">&quot;freebsd&quot;</span>, target_os = <span class="string">&quot;openbsd&quot;</span>)))]
+    </span>libc::IPPROTO_DIVERT,
 );
 
 <span class="doccomment">/// Unix-only API.
@@ -3435,6 +3615,7 @@
     /// On Unix this corresponds to the `MSG_EOR` flag.
     ///
     /// [`SEQPACKET`]: Type::SEQPACKET
+    </span><span class="attr">#[cfg(not(target_os = <span class="string">&quot;espidf&quot;</span>))]
     </span><span class="kw">pub const fn </span>is_end_of_record(<span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.<span class="number">0 </span>&amp; libc::MSG_EOR != <span class="number">0
     </span>}
@@ -3453,11 +3634,13 @@
 <span class="attr">#[cfg(not(target_os = <span class="string">&quot;redox&quot;</span>))]
 </span><span class="kw">impl </span>std::fmt::Debug <span class="kw">for </span>RecvFlags {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
-        f.debug_struct(<span class="string">&quot;RecvFlags&quot;</span>)
-            .field(<span class="string">&quot;is_end_of_record&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.is_end_of_record())
-            .field(<span class="string">&quot;is_out_of_band&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.is_out_of_band())
-            .field(<span class="string">&quot;is_truncated&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.is_truncated())
-            .finish()
+        <span class="kw">let </span><span class="kw-2">mut </span>s = f.debug_struct(<span class="string">&quot;RecvFlags&quot;</span>);
+        <span class="attr">#[cfg(not(target_os = <span class="string">&quot;espidf&quot;</span>))]
+        </span>s.field(<span class="string">&quot;is_end_of_record&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.is_end_of_record());
+        s.field(<span class="string">&quot;is_out_of_band&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.is_out_of_band());
+        <span class="attr">#[cfg(not(target_os = <span class="string">&quot;espidf&quot;</span>))]
+        </span>s.field(<span class="string">&quot;is_truncated&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.is_truncated());
+        s.finish()
     }
 }
 
@@ -3541,6 +3724,39 @@
             }
     };
     <span class="prelude-val">Ok</span>(<span class="kw">unsafe </span>{ SockAddr::new(storage, len <span class="kw">as </span>socklen_t) })
+}
+
+<span class="comment">// Used in `MsgHdr`.
+</span><span class="attr">#[cfg(not(target_os = <span class="string">&quot;redox&quot;</span>))]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>libc::msghdr;
+
+<span class="attr">#[cfg(not(target_os = <span class="string">&quot;redox&quot;</span>))]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>set_msghdr_name(msg: <span class="kw-2">&amp;mut </span>msghdr, name: <span class="kw-2">&amp;</span>SockAddr) {
+    msg.msg_name = name.as_ptr() <span class="kw">as </span><span class="kw-2">*mut </span><span class="kw">_</span>;
+    msg.msg_namelen = name.len();
+}
+
+<span class="attr">#[cfg(not(target_os = <span class="string">&quot;redox&quot;</span>))]
+#[allow(clippy::unnecessary_cast)] </span><span class="comment">// IovLen type can be `usize`.
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>set_msghdr_iov(msg: <span class="kw-2">&amp;mut </span>msghdr, ptr: <span class="kw-2">*mut </span>libc::iovec, len: usize) {
+    msg.msg_iov = ptr;
+    msg.msg_iovlen = min(len, IovLen::MAX <span class="kw">as </span>usize) <span class="kw">as </span>IovLen;
+}
+
+<span class="attr">#[cfg(not(target_os = <span class="string">&quot;redox&quot;</span>))]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>set_msghdr_control(msg: <span class="kw-2">&amp;mut </span>msghdr, ptr: <span class="kw-2">*mut </span>libc::c_void, len: usize) {
+    msg.msg_control = ptr;
+    msg.msg_controllen = len <span class="kw">as _</span>;
+}
+
+<span class="attr">#[cfg(not(target_os = <span class="string">&quot;redox&quot;</span>))]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>set_msghdr_flags(msg: <span class="kw-2">&amp;mut </span>msghdr, flags: libc::c_int) {
+    msg.msg_flags = flags;
+}
+
+<span class="attr">#[cfg(not(target_os = <span class="string">&quot;redox&quot;</span>))]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>msghdr_flags(msg: <span class="kw-2">&amp;</span>msghdr) -&gt; RecvFlags {
+    RecvFlags(msg.msg_flags)
 }
 
 <span class="doccomment">/// Unix only API.
@@ -3851,7 +4067,9 @@
     bufs: <span class="kw-2">&amp;mut </span>[<span class="kw">crate</span>::MaybeUninitSlice&lt;<span class="lifetime">&#39;_</span>&gt;],
     flags: c_int,
 ) -&gt; io::Result&lt;(usize, RecvFlags)&gt; {
-    recvmsg(fd, ptr::null_mut(), bufs, flags).map(|(n, <span class="kw">_</span>, recv_flags)| (n, recv_flags))
+    <span class="kw">let </span><span class="kw-2">mut </span>msg = MsgHdrMut::new().with_buffers(bufs);
+    <span class="kw">let </span>n = recvmsg(fd, <span class="kw-2">&amp;mut </span>msg, flags)<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>((n, msg.flags()))
 }
 
 <span class="attr">#[cfg(not(target_os = <span class="string">&quot;redox&quot;</span>))]
@@ -3860,42 +4078,29 @@
     bufs: <span class="kw-2">&amp;mut </span>[<span class="kw">crate</span>::MaybeUninitSlice&lt;<span class="lifetime">&#39;_</span>&gt;],
     flags: c_int,
 ) -&gt; io::Result&lt;(usize, RecvFlags, SockAddr)&gt; {
-    <span class="comment">// Safety: `recvmsg` initialises the address storage and we set the length
+    <span class="kw">let </span><span class="kw-2">mut </span>msg = MsgHdrMut::new().with_buffers(bufs);
+    <span class="comment">// SAFETY: `recvmsg` initialises the address storage and we set the length
     // manually.
-    </span><span class="kw">unsafe </span>{
+    </span><span class="kw">let </span>(n, addr) = <span class="kw">unsafe </span>{
         SockAddr::try_init(|storage, len| {
-            recvmsg(fd, storage, bufs, flags).map(|(n, addrlen, recv_flags)| {
-                <span class="comment">// Set the correct address length.
-                </span><span class="kw-2">*</span>len = addrlen;
-                (n, recv_flags)
-            })
-        })
-    }
-    .map(|((n, recv_flags), addr)| (n, recv_flags, addr))
+            msg.inner.msg_name = storage.cast();
+            msg.inner.msg_namelen = <span class="kw-2">*</span>len;
+            <span class="kw">let </span>n = recvmsg(fd, <span class="kw-2">&amp;mut </span>msg, flags)<span class="question-mark">?</span>;
+            <span class="comment">// Set the correct address length.
+            </span><span class="kw-2">*</span>len = msg.inner.msg_namelen;
+            <span class="prelude-val">Ok</span>(n)
+        })<span class="question-mark">?
+    </span>};
+    <span class="prelude-val">Ok</span>((n, msg.flags(), addr))
 }
 
-<span class="doccomment">/// Returns the (bytes received, sending address len, `RecvFlags`).
-</span><span class="attr">#[cfg(not(target_os = <span class="string">&quot;redox&quot;</span>))]
-#[allow(clippy::unnecessary_cast)] </span><span class="comment">// For `IovLen::MAX as usize` (Already `usize` on Linux).
-</span><span class="kw">fn </span>recvmsg(
+<span class="attr">#[cfg(not(target_os = <span class="string">&quot;redox&quot;</span>))]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>recvmsg(
     fd: Socket,
-    msg_name: <span class="kw-2">*mut </span>sockaddr_storage,
-    bufs: <span class="kw-2">&amp;mut </span>[<span class="kw">crate</span>::MaybeUninitSlice&lt;<span class="lifetime">&#39;_</span>&gt;],
+    msg: <span class="kw-2">&amp;mut </span>MsgHdrMut&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>&gt;,
     flags: c_int,
-) -&gt; io::Result&lt;(usize, libc::socklen_t, RecvFlags)&gt; {
-    <span class="kw">let </span>msg_namelen = <span class="kw">if </span>msg_name.is_null() {
-        <span class="number">0
-    </span>} <span class="kw">else </span>{
-        size_of::&lt;sockaddr_storage&gt;() <span class="kw">as </span>libc::socklen_t
-    };
-    <span class="comment">// libc::msghdr contains unexported padding fields on Fuchsia.
-    </span><span class="kw">let </span><span class="kw-2">mut </span>msg: libc::msghdr = <span class="kw">unsafe </span>{ mem::zeroed() };
-    msg.msg_name = msg_name.cast();
-    msg.msg_namelen = msg_namelen;
-    msg.msg_iov = bufs.as_mut_ptr().cast();
-    msg.msg_iovlen = min(bufs.len(), IovLen::MAX <span class="kw">as </span>usize) <span class="kw">as </span>IovLen;
-    <span class="macro">syscall!</span>(recvmsg(fd, <span class="kw-2">&amp;mut </span>msg, flags))
-        .map(|n| (n <span class="kw">as </span>usize, msg.msg_namelen, RecvFlags(msg.msg_flags)))
+) -&gt; io::Result&lt;usize&gt; {
+    <span class="macro">syscall!</span>(recvmsg(fd, <span class="kw-2">&amp;mut </span>msg.inner, flags)).map(|n| n <span class="kw">as </span>usize)
 }
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>send(fd: Socket, buf: <span class="kw-2">&amp;</span>[u8], flags: c_int) -&gt; io::Result&lt;usize&gt; {
@@ -3910,7 +4115,8 @@
 
 <span class="attr">#[cfg(not(target_os = <span class="string">&quot;redox&quot;</span>))]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>send_vectored(fd: Socket, bufs: <span class="kw-2">&amp;</span>[IoSlice&lt;<span class="lifetime">&#39;_</span>&gt;], flags: c_int) -&gt; io::Result&lt;usize&gt; {
-    sendmsg(fd, ptr::null(), <span class="number">0</span>, bufs, flags)
+    <span class="kw">let </span>msg = MsgHdr::new().with_buffers(bufs);
+    sendmsg(fd, <span class="kw-2">&amp;</span>msg, flags)
 }
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>send_to(fd: Socket, buf: <span class="kw-2">&amp;</span>[u8], addr: <span class="kw-2">&amp;</span>SockAddr, flags: c_int) -&gt; io::Result&lt;usize&gt; {
@@ -3932,30 +4138,13 @@
     addr: <span class="kw-2">&amp;</span>SockAddr,
     flags: c_int,
 ) -&gt; io::Result&lt;usize&gt; {
-    sendmsg(fd, addr.as_storage_ptr(), addr.len(), bufs, flags)
+    <span class="kw">let </span>msg = MsgHdr::new().with_addr(addr).with_buffers(bufs);
+    sendmsg(fd, <span class="kw-2">&amp;</span>msg, flags)
 }
 
-<span class="doccomment">/// Returns the (bytes received, sending address len, `RecvFlags`).
-</span><span class="attr">#[cfg(not(target_os = <span class="string">&quot;redox&quot;</span>))]
-#[allow(clippy::unnecessary_cast)] </span><span class="comment">// For `IovLen::MAX as usize` (Already `usize` on Linux).
-</span><span class="kw">fn </span>sendmsg(
-    fd: Socket,
-    msg_name: <span class="kw-2">*const </span>sockaddr_storage,
-    msg_namelen: socklen_t,
-    bufs: <span class="kw-2">&amp;</span>[IoSlice&lt;<span class="lifetime">&#39;_</span>&gt;],
-    flags: c_int,
-) -&gt; io::Result&lt;usize&gt; {
-    <span class="comment">// libc::msghdr contains unexported padding fields on Fuchsia.
-    </span><span class="kw">let </span><span class="kw-2">mut </span>msg: libc::msghdr = <span class="kw">unsafe </span>{ mem::zeroed() };
-    <span class="comment">// Safety: we&#39;re creating a `*mut` pointer from a reference, which is UB
-    // once actually used. However the OS should not write to it in the
-    // `sendmsg` system call.
-    </span>msg.msg_name = (msg_name <span class="kw">as </span><span class="kw-2">*mut </span>sockaddr_storage).cast();
-    msg.msg_namelen = msg_namelen;
-    <span class="comment">// Safety: Same as above about `*const` -&gt; `*mut`.
-    </span>msg.msg_iov = bufs.as_ptr() <span class="kw">as </span><span class="kw-2">*mut </span><span class="kw">_</span>;
-    msg.msg_iovlen = min(bufs.len(), IovLen::MAX <span class="kw">as </span>usize) <span class="kw">as </span>IovLen;
-    <span class="macro">syscall!</span>(sendmsg(fd, <span class="kw-2">&amp;</span>msg, flags)).map(|n| n <span class="kw">as </span>usize)
+<span class="attr">#[cfg(not(target_os = <span class="string">&quot;redox&quot;</span>))]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>sendmsg(fd: Socket, msg: <span class="kw-2">&amp;</span>MsgHdr&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>&gt;, flags: c_int) -&gt; io::Result&lt;usize&gt; {
+    <span class="macro">syscall!</span>(sendmsg(fd, <span class="kw-2">&amp;</span>msg.inner, flags)).map(|n| n <span class="kw">as </span>usize)
 }
 
 <span class="doccomment">/// Wrapper around `getsockopt` to deal with platform specific timeouts.
@@ -4155,6 +4344,7 @@
     target_os = <span class="string">&quot;redox&quot;</span>,
     target_os = <span class="string">&quot;solaris&quot;</span>,
     target_os = <span class="string">&quot;nto&quot;</span>,
+    target_os = <span class="string">&quot;espidf&quot;</span>,
 )))]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const fn </span>to_mreqn(
     multiaddr: <span class="kw-2">&amp;</span>Ipv4Addr,
@@ -4721,8 +4911,8 @@
     <span class="doccomment">/// Sets the value for the `SO_SETFIB` option on this socket.
     ///
     /// Bind socket to the specified forwarding table (VRF) on a FreeBSD.
-    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;all&quot;</span>, any(target_os = <span class="string">&quot;freebsd&quot;</span>)))]
-    #[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">&quot;all&quot;</span>, any(target_os = <span class="string">&quot;freebsd&quot;</span>)))))]
+    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;all&quot;</span>, target_os = <span class="string">&quot;freebsd&quot;</span>))]
+    #[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">&quot;all&quot;</span>, target_os = <span class="string">&quot;freebsd&quot;</span>))))]
     </span><span class="kw">pub fn </span>set_fib(<span class="kw-2">&amp;</span><span class="self">self</span>, fib: u32) -&gt; io::Result&lt;()&gt; {
         <span class="macro">syscall!</span>(setsockopt(
             <span class="self">self</span>.as_raw(),
@@ -4732,6 +4922,33 @@
             mem::size_of::&lt;u32&gt;() <span class="kw">as </span>libc::socklen_t,
         ))
         .map(|<span class="kw">_</span>| ())
+    }
+
+    <span class="doccomment">/// This method is deprecated, use [`crate::Socket::bind_device_by_index_v4`].
+    </span><span class="attr">#[cfg(all(
+        feature = <span class="string">&quot;all&quot;</span>,
+        any(
+            target_os = <span class="string">&quot;ios&quot;</span>,
+            target_os = <span class="string">&quot;macos&quot;</span>,
+            target_os = <span class="string">&quot;tvos&quot;</span>,
+            target_os = <span class="string">&quot;watchos&quot;</span>,
+        )
+    ))]
+    #[cfg_attr(
+        docsrs,
+        doc(cfg(all(
+            feature = <span class="string">&quot;all&quot;</span>,
+            any(
+                target_os = <span class="string">&quot;ios&quot;</span>,
+                target_os = <span class="string">&quot;macos&quot;</span>,
+                target_os = <span class="string">&quot;tvos&quot;</span>,
+                target_os = <span class="string">&quot;watchos&quot;</span>,
+            )
+        )))
+    )]
+    #[deprecated = <span class="string">&quot;Use `Socket::bind_device_by_index_v4` instead&quot;</span>]
+    </span><span class="kw">pub fn </span>bind_device_by_index(<span class="kw-2">&amp;</span><span class="self">self</span>, interface: <span class="prelude-ty">Option</span>&lt;NonZeroU32&gt;) -&gt; io::Result&lt;()&gt; {
+        <span class="self">self</span>.bind_device_by_index_v4(interface)
     }
 
     <span class="doccomment">/// Sets the value for `IP_BOUND_IF` option on this socket.
@@ -4765,9 +4982,45 @@
             )
         )))
     )]
-    </span><span class="kw">pub fn </span>bind_device_by_index(<span class="kw-2">&amp;</span><span class="self">self</span>, interface: <span class="prelude-ty">Option</span>&lt;NonZeroU32&gt;) -&gt; io::Result&lt;()&gt; {
+    </span><span class="kw">pub fn </span>bind_device_by_index_v4(<span class="kw-2">&amp;</span><span class="self">self</span>, interface: <span class="prelude-ty">Option</span>&lt;NonZeroU32&gt;) -&gt; io::Result&lt;()&gt; {
         <span class="kw">let </span>index = interface.map_or(<span class="number">0</span>, NonZeroU32::get);
         <span class="kw">unsafe </span>{ setsockopt(<span class="self">self</span>.as_raw(), IPPROTO_IP, libc::IP_BOUND_IF, index) }
+    }
+
+    <span class="doccomment">/// Sets the value for `IPV6_BOUND_IF` option on this socket.
+    ///
+    /// If a socket is bound to an interface, only packets received from that
+    /// particular interface are processed by the socket.
+    ///
+    /// If `interface` is `None`, the binding is removed. If the `interface`
+    /// index is not valid, an error is returned.
+    ///
+    /// One can use [`libc::if_nametoindex`] to convert an interface alias to an
+    /// index.
+    </span><span class="attr">#[cfg(all(
+        feature = <span class="string">&quot;all&quot;</span>,
+        any(
+            target_os = <span class="string">&quot;ios&quot;</span>,
+            target_os = <span class="string">&quot;macos&quot;</span>,
+            target_os = <span class="string">&quot;tvos&quot;</span>,
+            target_os = <span class="string">&quot;watchos&quot;</span>,
+        )
+    ))]
+    #[cfg_attr(
+        docsrs,
+        doc(cfg(all(
+            feature = <span class="string">&quot;all&quot;</span>,
+            any(
+                target_os = <span class="string">&quot;ios&quot;</span>,
+                target_os = <span class="string">&quot;macos&quot;</span>,
+                target_os = <span class="string">&quot;tvos&quot;</span>,
+                target_os = <span class="string">&quot;watchos&quot;</span>,
+            )
+        )))
+    )]
+    </span><span class="kw">pub fn </span>bind_device_by_index_v6(<span class="kw-2">&amp;</span><span class="self">self</span>, interface: <span class="prelude-ty">Option</span>&lt;NonZeroU32&gt;) -&gt; io::Result&lt;()&gt; {
+        <span class="kw">let </span>index = interface.map_or(<span class="number">0</span>, NonZeroU32::get);
+        <span class="kw">unsafe </span>{ setsockopt(<span class="self">self</span>.as_raw(), IPPROTO_IPV6, libc::IPV6_BOUND_IF, index) }
     }
 
     <span class="doccomment">/// Gets the value for `IP_BOUND_IF` option on this socket, i.e. the index
@@ -4796,9 +5049,69 @@
             )
         )))
     )]
-    </span><span class="kw">pub fn </span>device_index(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; io::Result&lt;<span class="prelude-ty">Option</span>&lt;NonZeroU32&gt;&gt; {
+    </span><span class="kw">pub fn </span>device_index_v4(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; io::Result&lt;<span class="prelude-ty">Option</span>&lt;NonZeroU32&gt;&gt; {
         <span class="kw">let </span>index =
             <span class="kw">unsafe </span>{ getsockopt::&lt;libc::c_uint&gt;(<span class="self">self</span>.as_raw(), IPPROTO_IP, libc::IP_BOUND_IF)<span class="question-mark">? </span>};
+        <span class="prelude-val">Ok</span>(NonZeroU32::new(index))
+    }
+
+    <span class="doccomment">/// This method is deprecated, use [`crate::Socket::device_index_v4`].
+    </span><span class="attr">#[cfg(all(
+        feature = <span class="string">&quot;all&quot;</span>,
+        any(
+            target_os = <span class="string">&quot;ios&quot;</span>,
+            target_os = <span class="string">&quot;macos&quot;</span>,
+            target_os = <span class="string">&quot;tvos&quot;</span>,
+            target_os = <span class="string">&quot;watchos&quot;</span>,
+        )
+    ))]
+    #[cfg_attr(
+        docsrs,
+        doc(cfg(all(
+            feature = <span class="string">&quot;all&quot;</span>,
+            any(
+                target_os = <span class="string">&quot;ios&quot;</span>,
+                target_os = <span class="string">&quot;macos&quot;</span>,
+                target_os = <span class="string">&quot;tvos&quot;</span>,
+                target_os = <span class="string">&quot;watchos&quot;</span>,
+            )
+        )))
+    )]
+    #[deprecated = <span class="string">&quot;Use `Socket::device_index_v4` instead&quot;</span>]
+    </span><span class="kw">pub fn </span>device_index(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; io::Result&lt;<span class="prelude-ty">Option</span>&lt;NonZeroU32&gt;&gt; {
+        <span class="self">self</span>.device_index_v4()
+    }
+
+    <span class="doccomment">/// Gets the value for `IPV6_BOUND_IF` option on this socket, i.e. the index
+    /// for the interface to which the socket is bound.
+    ///
+    /// Returns `None` if the socket is not bound to any interface, otherwise
+    /// returns an interface index.
+    </span><span class="attr">#[cfg(all(
+        feature = <span class="string">&quot;all&quot;</span>,
+        any(
+            target_os = <span class="string">&quot;ios&quot;</span>,
+            target_os = <span class="string">&quot;macos&quot;</span>,
+            target_os = <span class="string">&quot;tvos&quot;</span>,
+            target_os = <span class="string">&quot;watchos&quot;</span>,
+        )
+    ))]
+    #[cfg_attr(
+        docsrs,
+        doc(cfg(all(
+            feature = <span class="string">&quot;all&quot;</span>,
+            any(
+                target_os = <span class="string">&quot;ios&quot;</span>,
+                target_os = <span class="string">&quot;macos&quot;</span>,
+                target_os = <span class="string">&quot;tvos&quot;</span>,
+                target_os = <span class="string">&quot;watchos&quot;</span>,
+            )
+        )))
+    )]
+    </span><span class="kw">pub fn </span>device_index_v6(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; io::Result&lt;<span class="prelude-ty">Option</span>&lt;NonZeroU32&gt;&gt; {
+        <span class="kw">let </span>index = <span class="kw">unsafe </span>{
+            getsockopt::&lt;libc::c_uint&gt;(<span class="self">self</span>.as_raw(), IPPROTO_IPV6, libc::IPV6_BOUND_IF)<span class="question-mark">?
+        </span>};
         <span class="prelude-val">Ok</span>(NonZeroU32::new(index))
     }
 
@@ -4879,6 +5192,35 @@
                 <span class="self">self</span>.as_raw(),
                 libc::SOL_SOCKET,
                 libc::SO_REUSEPORT,
+                reuse <span class="kw">as </span>c_int,
+            )
+        }
+    }
+
+    <span class="doccomment">/// Get the value of the `SO_REUSEPORT_LB` option on this socket.
+    ///
+    /// For more information about this option, see [`set_reuse_port_lb`].
+    ///
+    /// [`set_reuse_port_lb`]: crate::Socket::set_reuse_port_lb
+    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;all&quot;</span>, target_os = <span class="string">&quot;freebsd&quot;</span>))]
+    </span><span class="kw">pub fn </span>reuse_port_lb(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; io::Result&lt;bool&gt; {
+        <span class="kw">unsafe </span>{
+            getsockopt::&lt;c_int&gt;(<span class="self">self</span>.as_raw(), libc::SOL_SOCKET, libc::SO_REUSEPORT_LB)
+                .map(|reuse| reuse != <span class="number">0</span>)
+        }
+    }
+
+    <span class="doccomment">/// Set value for the `SO_REUSEPORT_LB` option on this socket.
+    ///
+    /// This allows multiple programs or threads to bind to the same port and
+    /// incoming connections will be load balanced using a hash function.
+    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;all&quot;</span>, target_os = <span class="string">&quot;freebsd&quot;</span>))]
+    </span><span class="kw">pub fn </span>set_reuse_port_lb(<span class="kw-2">&amp;</span><span class="self">self</span>, reuse: bool) -&gt; io::Result&lt;()&gt; {
+        <span class="kw">unsafe </span>{
+            setsockopt(
+                <span class="self">self</span>.as_raw(),
+                libc::SOL_SOCKET,
+                libc::SO_REUSEPORT_LB,
                 reuse <span class="kw">as </span>c_int,
             )
         }
@@ -5325,8 +5667,8 @@
     /// Therefore, there is no corresponding `set` helper.
     ///
     /// For more information about this option, see [Linux patch](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=5daab9db7b65df87da26fd8cfa695fb9546a1ddb)
-    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;all&quot;</span>, any(target_os = <span class="string">&quot;linux&quot;</span>)))]
-    #[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">&quot;all&quot;</span>, any(target_os = <span class="string">&quot;linux&quot;</span>)))))]
+    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;all&quot;</span>, target_os = <span class="string">&quot;linux&quot;</span>))]
+    #[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">&quot;all&quot;</span>, target_os = <span class="string">&quot;linux&quot;</span>))))]
     </span><span class="kw">pub fn </span>cookie(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; io::Result&lt;u64&gt; {
         <span class="kw">unsafe </span>{ getsockopt::&lt;libc::c_ulonglong&gt;(<span class="self">self</span>.as_raw(), libc::SOL_SOCKET, libc::SO_COOKIE) }
     }
@@ -5436,11 +5778,7 @@
             payload.as_mut_ptr().cast(),
             <span class="kw-2">&amp;mut </span>len,
         ))
-        .map(|<span class="kw">_</span>| {
-            <span class="kw">let </span>buf = <span class="kw-2">&amp;</span>payload[..len <span class="kw">as </span>usize];
-            <span class="comment">// TODO: use `MaybeUninit::slice_assume_init_ref` once stable.
-            </span><span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span>(buf <span class="kw">as </span><span class="kw-2">*const </span>[<span class="kw">_</span>] <span class="kw">as </span><span class="kw-2">*const </span>[u8]) }.into()
-        })
+        .map(|<span class="kw">_</span>| payload[..len <span class="kw">as </span>usize].to_vec())
     }
 
     <span class="doccomment">/// Set the value of the `TCP_CONGESTION` option for this socket.

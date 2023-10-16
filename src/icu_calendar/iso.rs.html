@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_calendar-1.2.0/src/iso.rs`."><title>iso.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_calendar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../icu_calendar/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_calendar-1.3.2/src/iso.rs`."><title>iso.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_calendar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../icu_calendar/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -730,6 +730,94 @@
 <a href="#730" id="730">730</a>
 <a href="#731" id="731">731</a>
 <a href="#732" id="732">732</a>
+<a href="#733" id="733">733</a>
+<a href="#734" id="734">734</a>
+<a href="#735" id="735">735</a>
+<a href="#736" id="736">736</a>
+<a href="#737" id="737">737</a>
+<a href="#738" id="738">738</a>
+<a href="#739" id="739">739</a>
+<a href="#740" id="740">740</a>
+<a href="#741" id="741">741</a>
+<a href="#742" id="742">742</a>
+<a href="#743" id="743">743</a>
+<a href="#744" id="744">744</a>
+<a href="#745" id="745">745</a>
+<a href="#746" id="746">746</a>
+<a href="#747" id="747">747</a>
+<a href="#748" id="748">748</a>
+<a href="#749" id="749">749</a>
+<a href="#750" id="750">750</a>
+<a href="#751" id="751">751</a>
+<a href="#752" id="752">752</a>
+<a href="#753" id="753">753</a>
+<a href="#754" id="754">754</a>
+<a href="#755" id="755">755</a>
+<a href="#756" id="756">756</a>
+<a href="#757" id="757">757</a>
+<a href="#758" id="758">758</a>
+<a href="#759" id="759">759</a>
+<a href="#760" id="760">760</a>
+<a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
+<a href="#763" id="763">763</a>
+<a href="#764" id="764">764</a>
+<a href="#765" id="765">765</a>
+<a href="#766" id="766">766</a>
+<a href="#767" id="767">767</a>
+<a href="#768" id="768">768</a>
+<a href="#769" id="769">769</a>
+<a href="#770" id="770">770</a>
+<a href="#771" id="771">771</a>
+<a href="#772" id="772">772</a>
+<a href="#773" id="773">773</a>
+<a href="#774" id="774">774</a>
+<a href="#775" id="775">775</a>
+<a href="#776" id="776">776</a>
+<a href="#777" id="777">777</a>
+<a href="#778" id="778">778</a>
+<a href="#779" id="779">779</a>
+<a href="#780" id="780">780</a>
+<a href="#781" id="781">781</a>
+<a href="#782" id="782">782</a>
+<a href="#783" id="783">783</a>
+<a href="#784" id="784">784</a>
+<a href="#785" id="785">785</a>
+<a href="#786" id="786">786</a>
+<a href="#787" id="787">787</a>
+<a href="#788" id="788">788</a>
+<a href="#789" id="789">789</a>
+<a href="#790" id="790">790</a>
+<a href="#791" id="791">791</a>
+<a href="#792" id="792">792</a>
+<a href="#793" id="793">793</a>
+<a href="#794" id="794">794</a>
+<a href="#795" id="795">795</a>
+<a href="#796" id="796">796</a>
+<a href="#797" id="797">797</a>
+<a href="#798" id="798">798</a>
+<a href="#799" id="799">799</a>
+<a href="#800" id="800">800</a>
+<a href="#801" id="801">801</a>
+<a href="#802" id="802">802</a>
+<a href="#803" id="803">803</a>
+<a href="#804" id="804">804</a>
+<a href="#805" id="805">805</a>
+<a href="#806" id="806">806</a>
+<a href="#807" id="807">807</a>
+<a href="#808" id="808">808</a>
+<a href="#809" id="809">809</a>
+<a href="#810" id="810">810</a>
+<a href="#811" id="811">811</a>
+<a href="#812" id="812">812</a>
+<a href="#813" id="813">813</a>
+<a href="#814" id="814">814</a>
+<a href="#815" id="815">815</a>
+<a href="#816" id="816">816</a>
+<a href="#817" id="817">817</a>
+<a href="#818" id="818">818</a>
+<a href="#819" id="819">819</a>
+<a href="#820" id="820">820</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
@@ -763,12 +851,10 @@
 
 </span><span class="kw">use </span><span class="kw">crate</span>::any_calendar::AnyCalendarKind;
 <span class="kw">use </span><span class="kw">crate</span>::calendar_arithmetic::{ArithmeticDate, CalendarArithmetic};
-<span class="kw">use </span><span class="kw">crate</span>::helpers::{div_rem_euclid, quotient};
 <span class="kw">use crate</span>::{types, Calendar, CalendarError, Date, DateDuration, DateDurationUnit, DateTime};
+<span class="kw">use </span>calendrical_calculations::helpers::{i64_to_saturated_i32, I32CastError};
+<span class="kw">use </span>calendrical_calculations::rata_die::RataDie;
 <span class="kw">use </span>tinystr::tinystr;
-
-<span class="comment">// The georgian epoch is equivalent to first day in fixed day measurement
-</span><span class="kw">const </span>EPOCH: i32 = <span class="number">1</span>;
 
 <span class="doccomment">/// The [ISO Calendar]
 ///
@@ -784,11 +870,11 @@
 ///
 /// This calendar supports one era, `&quot;default&quot;`
 
-</span><span class="attr">#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Hash)]
+</span><span class="attr">#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[allow(clippy::exhaustive_structs)] </span><span class="comment">// this type is stable
 </span><span class="kw">pub struct </span>Iso;
 
-<span class="attr">#[derive(Copy, Clone, Debug, Hash, Eq, PartialEq)]
+<span class="attr">#[derive(Copy, Clone, Debug, Hash, Eq, PartialEq, PartialOrd, Ord)]
 </span><span class="doccomment">/// The inner date type used for representing [`Date`]s of [`Iso`]. See [`Date`] and [`Iso`] for more details.
 </span><span class="kw">pub struct </span>IsoDateInner(<span class="kw">pub</span>(<span class="kw">crate</span>) ArithmeticDate&lt;Iso&gt;);
 
@@ -808,10 +894,14 @@
     </span>}
 
     <span class="kw">fn </span>is_leap_year(year: i32) -&gt; bool {
-        year % <span class="number">4 </span>== <span class="number">0 </span>&amp;&amp; (year % <span class="number">400 </span>== <span class="number">0 </span>|| year % <span class="number">100 </span>!= <span class="number">0</span>)
+        calendrical_calculations::iso::is_leap_year(year)
     }
 
-    <span class="kw">fn </span>days_in_provided_year(year: i32) -&gt; u32 {
+    <span class="kw">fn </span>last_month_day_in_year(_year: i32) -&gt; (u8, u8) {
+        (<span class="number">12</span>, <span class="number">31</span>)
+    }
+
+    <span class="kw">fn </span>days_in_provided_year(year: i32) -&gt; u16 {
         <span class="kw">if </span><span class="self">Self</span>::is_leap_year(year) {
             <span class="number">366
         </span>} <span class="kw">else </span>{
@@ -834,7 +924,7 @@
             <span class="kw">return </span><span class="prelude-val">Err</span>(CalendarError::UnknownEra(era.<span class="number">0</span>, <span class="self">self</span>.debug_name()));
         }
 
-        ArithmeticDate::new_from_solar(<span class="self">self</span>, year, month_code, day).map(IsoDateInner)
+        ArithmeticDate::new_from_codes(<span class="self">self</span>, year, month_code, day).map(IsoDateInner)
     }
 
     <span class="kw">fn </span>date_from_iso(<span class="kw-2">&amp;</span><span class="self">self</span>, iso: Date&lt;Iso&gt;) -&gt; IsoDateInner {
@@ -849,7 +939,7 @@
         date.<span class="number">0</span>.months_in_year()
     }
 
-    <span class="kw">fn </span>days_in_year(<span class="kw-2">&amp;</span><span class="self">self</span>, date: <span class="kw-2">&amp;</span><span class="self">Self</span>::DateInner) -&gt; u32 {
+    <span class="kw">fn </span>days_in_year(<span class="kw-2">&amp;</span><span class="self">self</span>, date: <span class="kw-2">&amp;</span><span class="self">Self</span>::DateInner) -&gt; u16 {
         date.<span class="number">0</span>.days_in_year()
     }
 
@@ -866,6 +956,7 @@
         </span><span class="kw">let </span>years_since_400 = date.<span class="number">0</span>.year % <span class="number">400</span>;
         <span class="kw">let </span>leap_years_since_400 = years_since_400 / <span class="number">4 </span>- years_since_400 / <span class="number">100</span>;
         <span class="comment">// The number of days to the current year
+        // Can never cause an overflow because years_since_400 has a maximum value of 399.
         </span><span class="kw">let </span>days_to_current_year = <span class="number">365 </span>* years_since_400 + leap_years_since_400;
         <span class="comment">// The weekday offset from January 1 this year and January 1 2000
         </span><span class="kw">let </span>year_offset = days_to_current_year % <span class="number">7</span>;
@@ -925,7 +1016,7 @@
 
     <span class="doccomment">/// The calendar-specific month represented by `date`
     </span><span class="kw">fn </span>month(<span class="kw-2">&amp;</span><span class="self">self</span>, date: <span class="kw-2">&amp;</span><span class="self">Self</span>::DateInner) -&gt; types::FormattableMonth {
-        date.<span class="number">0</span>.solar_month()
+        date.<span class="number">0</span>.month()
     }
 
     <span class="doccomment">/// The calendar-specific day-of-month represented by `date`
@@ -934,8 +1025,8 @@
     }
 
     <span class="kw">fn </span>day_of_year_info(<span class="kw-2">&amp;</span><span class="self">self</span>, date: <span class="kw-2">&amp;</span><span class="self">Self</span>::DateInner) -&gt; types::DayOfYearInfo {
-        <span class="kw">let </span>prev_year = date.<span class="number">0</span>.year - <span class="number">1</span>;
-        <span class="kw">let </span>next_year = date.<span class="number">0</span>.year + <span class="number">1</span>;
+        <span class="kw">let </span>prev_year = date.<span class="number">0</span>.year.saturating_sub(<span class="number">1</span>);
+        <span class="kw">let </span>next_year = date.<span class="number">0</span>.year.saturating_add(<span class="number">1</span>);
         types::DayOfYearInfo {
             day_of_year: date.<span class="number">0</span>.day_of_year(),
             days_in_year: date.<span class="number">0</span>.days_in_year(),
@@ -968,16 +1059,14 @@
     /// assert_eq!(date_iso.day_of_month().0, 2);
     /// ```
     </span><span class="kw">pub fn </span>try_new_iso_date(year: i32, month: u8, day: u8) -&gt; <span class="prelude-ty">Result</span>&lt;Date&lt;Iso&gt;, CalendarError&gt; {
-        <span class="kw">if </span>!(<span class="number">1</span>..=<span class="number">12</span>).contains(<span class="kw-2">&amp;</span>month) {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(CalendarError::OutOfRange);
-        }
-        <span class="kw">if </span>day == <span class="number">0 </span>|| day &gt; Iso::days_in_month(year, month) {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(CalendarError::OutOfRange);
-        }
-        <span class="prelude-val">Ok</span>(Date::from_raw(
-            IsoDateInner(ArithmeticDate::new(year, month, day)),
-            Iso,
-        ))
+        ArithmeticDate::new_from_ordinals(year, month, day)
+            .map(IsoDateInner)
+            .map(|inner| Date::from_raw(inner, Iso))
+    }
+
+    <span class="doccomment">/// Constructs an ISO date representing the UNIX epoch on January 1, 1970.
+    </span><span class="kw">pub fn </span>unix_epoch() -&gt; <span class="self">Self </span>{
+        Date::from_raw(IsoDateInner(ArithmeticDate::new_unchecked(<span class="number">1970</span>, <span class="number">1</span>, <span class="number">1</span>)), Iso)
     }
 }
 
@@ -1033,15 +1122,11 @@
         <span class="kw">let </span>minutes_a_hour = <span class="number">60</span>;
         <span class="kw">let </span>hours_a_day = <span class="number">24</span>;
         <span class="kw">let </span>minutes_a_day = minutes_a_hour * hours_a_day;
-        <span class="kw">if let </span><span class="prelude-val">Ok</span>(unix_epoch) = DateTime::try_new_iso_datetime(<span class="number">1970</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>) {
-            (Iso::fixed_from_iso(<span class="kw-2">*</span><span class="self">self</span>.date.inner())
-                - Iso::fixed_from_iso(<span class="kw-2">*</span>unix_epoch.date.inner()))
-                * minutes_a_day
-                + i32::from(<span class="self">self</span>.time.hour.number()) * minutes_a_hour
-                + i32::from(<span class="self">self</span>.time.minute.number())
-        } <span class="kw">else </span>{
-            <span class="macro">unreachable!</span>(<span class="string">&quot;DateTime should be created successfully&quot;</span>)
-        }
+        <span class="kw">let </span>unix_epoch = Iso::fixed_from_iso(Date::unix_epoch().inner);
+        <span class="kw">let </span>result = (Iso::fixed_from_iso(<span class="kw-2">*</span><span class="self">self</span>.date.inner()) - unix_epoch) * minutes_a_day
+            + i64::from(<span class="self">self</span>.time.hour.number()) * minutes_a_hour
+            + i64::from(<span class="self">self</span>.time.minute.number());
+        i64_to_saturated_i32(result)
     }
 
     <span class="doccomment">/// Convert minute count since 00:00:00 on Jan 1st, 1970 to ISO Date.
@@ -1077,10 +1162,9 @@
     /// ```
     </span><span class="kw">pub fn </span>from_minutes_since_local_unix_epoch(minute: i32) -&gt; DateTime&lt;Iso&gt; {
         <span class="kw">let </span>(time, extra_days) = types::Time::from_minute_with_remainder_days(minute);
-        <span class="attr">#[allow(clippy::unwrap_used)] </span><span class="comment">// constant date
-        </span><span class="kw">let </span>unix_epoch = DateTime::try_new_iso_datetime(<span class="number">1970</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>).unwrap();
-        <span class="kw">let </span>unix_epoch_days = Iso::fixed_from_iso(<span class="kw-2">*</span>unix_epoch.date.inner());
-        <span class="kw">let </span>date = Iso::iso_from_fixed(unix_epoch_days + extra_days);
+        <span class="kw">let </span>unix_epoch = Date::unix_epoch();
+        <span class="kw">let </span>unix_epoch_days = Iso::fixed_from_iso(unix_epoch.inner);
+        <span class="kw">let </span>date = Iso::iso_from_fixed(unix_epoch_days + extra_days <span class="kw">as </span>i64);
         DateTime { date, time }
     }
 }
@@ -1101,7 +1185,7 @@
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>days_in_year_direct(year: i32) -&gt; u32 {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>days_in_year_direct(year: i32) -&gt; u16 {
         <span class="kw">if </span><span class="self">Self</span>::is_leap_year(year) {
             <span class="number">366
         </span>} <span class="kw">else </span>{
@@ -1111,36 +1195,11 @@
 
     <span class="comment">// Fixed is day count representation of calendars starting from Jan 1st of year 1.
     // The fixed calculations algorithms are from the Calendrical Calculations book.
-    //
-    // Lisp code reference: https://github.com/EdReingold/calendar-code2/blob/1ee51ecfaae6f856b0d7de3e36e9042100b4f424/calendar.l#L1167-L1189
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>fixed_from_iso(date: IsoDateInner) -&gt; i32 {
-        <span class="comment">// Calculate days per year
-        </span><span class="kw">let </span><span class="kw-2">mut </span>fixed: i32 = EPOCH - <span class="number">1 </span>+ <span class="number">365 </span>* (date.<span class="number">0</span>.year - <span class="number">1</span>);
-        <span class="comment">// Adjust for leap year logic
-        </span>fixed += quotient(date.<span class="number">0</span>.year - <span class="number">1</span>, <span class="number">4</span>) - quotient(date.<span class="number">0</span>.year - <span class="number">1</span>, <span class="number">100</span>)
-            + quotient(date.<span class="number">0</span>.year - <span class="number">1</span>, <span class="number">400</span>);
-        <span class="comment">// Days of current year
-        </span>fixed += quotient(<span class="number">367 </span>* (date.<span class="number">0</span>.month <span class="kw">as </span>i32) - <span class="number">362</span>, <span class="number">12</span>);
-        <span class="comment">// Leap year adjustment for the current year
-        </span>fixed += <span class="kw">if </span>date.<span class="number">0</span>.month &lt;= <span class="number">2 </span>{
-            <span class="number">0
-        </span>} <span class="kw">else if </span><span class="self">Self</span>::is_leap_year(date.<span class="number">0</span>.year) {
-            -<span class="number">1
-        </span>} <span class="kw">else </span>{
-            -<span class="number">2
-        </span>};
-        <span class="comment">// Days passed in current month
-        </span>fixed + (date.<span class="number">0</span>.day <span class="kw">as </span>i32)
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>fixed_from_iso(date: IsoDateInner) -&gt; RataDie {
+        calendrical_calculations::iso::fixed_from_iso(date.<span class="number">0</span>.year, date.<span class="number">0</span>.month, date.<span class="number">0</span>.day)
     }
 
-    <span class="kw">fn </span>fixed_from_iso_integers(year: i32, month: u8, day: u8) -&gt; <span class="prelude-ty">Option</span>&lt;i32&gt; {
-        Date::try_new_iso_date(year, month, day)
-            .ok()
-            .map(|d| <span class="kw-2">*</span>d.inner())
-            .map(<span class="self">Self</span>::fixed_from_iso)
-    }
-
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>iso_from_year_day(year: i32, year_day: u32) -&gt; Date&lt;Iso&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>iso_from_year_day(year: i32, year_day: u16) -&gt; Date&lt;Iso&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>month = <span class="number">1</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>day = year_day <span class="kw">as </span>i32;
         <span class="kw">while </span>month &lt;= <span class="number">12 </span>{
@@ -1158,55 +1217,21 @@
         </span><span class="attr">#[allow(clippy::unwrap_used)] </span><span class="comment">// month in 1..=12, day &lt;= month_days
         </span>Date::try_new_iso_date(year, month, day).unwrap()
     }
-
-    <span class="comment">// Lisp code reference: https://github.com/EdReingold/calendar-code2/blob/1ee51ecfaae6f856b0d7de3e36e9042100b4f424/calendar.l#L1191-L1217
-    </span><span class="kw">fn </span>iso_year_from_fixed(date: i32) -&gt; i32 {
-        <span class="kw">let </span>date = date - EPOCH;
-        <span class="comment">// 400 year cycles have 146097 days
-        </span><span class="kw">let </span>(n_400, date) = div_rem_euclid(date, <span class="number">146097</span>);
-
-        <span class="comment">// 100 year cycles have 36524 days
-        </span><span class="kw">let </span>(n_100, date) = div_rem_euclid(date, <span class="number">36524</span>);
-
-        <span class="comment">// 4 year cycles have 1461 days
-        </span><span class="kw">let </span>(n_4, date) = div_rem_euclid(date, <span class="number">1461</span>);
-
-        <span class="kw">let </span>n_1 = quotient(date, <span class="number">365</span>);
-
-        <span class="kw">let </span>year = <span class="number">400 </span>* n_400 + <span class="number">100 </span>* n_100 + <span class="number">4 </span>* n_4 + n_1;
-
-        <span class="kw">if </span>n_100 == <span class="number">4 </span>|| n_1 == <span class="number">4 </span>{
-            year
-        } <span class="kw">else </span>{
-            year + <span class="number">1
-        </span>}
-    }
-
-    <span class="kw">fn </span>iso_new_year(year: i32) -&gt; i32 {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>iso_from_fixed(date: RataDie) -&gt; Date&lt;Iso&gt; {
+        <span class="kw">let </span>(year, month, day) = <span class="kw">match </span>calendrical_calculations::iso::iso_from_fixed(date) {
+            <span class="prelude-val">Err</span>(I32CastError::BelowMin) =&gt; {
+                <span class="kw">return </span>Date::from_raw(IsoDateInner(ArithmeticDate::min_date()), Iso)
+            }
+            <span class="prelude-val">Err</span>(I32CastError::AboveMax) =&gt; {
+                <span class="kw">return </span>Date::from_raw(IsoDateInner(ArithmeticDate::max_date()), Iso)
+            }
+            <span class="prelude-val">Ok</span>(ymd) =&gt; ymd,
+        };
         <span class="attr">#[allow(clippy::unwrap_used)] </span><span class="comment">// valid day and month
-        </span><span class="self">Self</span>::fixed_from_iso_integers(year, <span class="number">1</span>, <span class="number">1</span>).unwrap()
-    }
-
-    <span class="comment">// Lisp code reference: https://github.com/EdReingold/calendar-code2/blob/1ee51ecfaae6f856b0d7de3e36e9042100b4f424/calendar.l#L1237-L1258
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>iso_from_fixed(date: i32) -&gt; Date&lt;Iso&gt; {
-        <span class="kw">let </span>year = <span class="self">Self</span>::iso_year_from_fixed(date);
-        <span class="kw">let </span>prior_days = date - <span class="self">Self</span>::iso_new_year(year);
-        <span class="attr">#[allow(clippy::unwrap_used)] </span><span class="comment">// valid day and month
-        </span><span class="kw">let </span>correction = <span class="kw">if </span>date &lt; <span class="self">Self</span>::fixed_from_iso_integers(year, <span class="number">3</span>, <span class="number">1</span>).unwrap() {
-            <span class="number">0
-        </span>} <span class="kw">else if </span><span class="self">Self</span>::is_leap_year(year) {
-            <span class="number">1
-        </span>} <span class="kw">else </span>{
-            <span class="number">2
-        </span>};
-        <span class="kw">let </span>month = quotient(<span class="number">12 </span>* (prior_days + correction) + <span class="number">373</span>, <span class="number">367</span>) <span class="kw">as </span>u8; <span class="comment">// in 1..12 &lt; u8::MAX
-        </span><span class="attr">#[allow(clippy::unwrap_used)] </span><span class="comment">// valid day and month
-        </span><span class="kw">let </span>day = (date - <span class="self">Self</span>::fixed_from_iso_integers(year, month, <span class="number">1</span>).unwrap() + <span class="number">1</span>) <span class="kw">as </span>u8; <span class="comment">// &lt;= days_in_month &lt; u8::MAX
-        </span><span class="attr">#[allow(clippy::unwrap_used)] </span><span class="comment">// valid day and month
         </span>Date::try_new_iso_date(year, month, day).unwrap()
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>day_of_year(date: IsoDateInner) -&gt; u32 {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>day_of_year(date: IsoDateInner) -&gt; u16 {
         <span class="comment">// Cumulatively how much are dates in each month
         // offset from &quot;30 days in each month&quot; (in non leap years)
         </span><span class="kw">let </span>month_offset = [<span class="number">0</span>, <span class="number">1</span>, -<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">4</span>];
@@ -1216,9 +1241,9 @@
             <span class="comment">// Months after February in a leap year are offset by one less
             </span>offset += <span class="number">1</span>;
         }
-        <span class="kw">let </span>prev_month_days = (<span class="number">30 </span>* (date.<span class="number">0</span>.month <span class="kw">as </span>i32 - <span class="number">1</span>) + offset) <span class="kw">as </span>u32;
+        <span class="kw">let </span>prev_month_days = (<span class="number">30 </span>* (date.<span class="number">0</span>.month <span class="kw">as </span>i32 - <span class="number">1</span>) + offset) <span class="kw">as </span>u16;
 
-        prev_month_days + date.<span class="number">0</span>.day <span class="kw">as </span>u32
+        prev_month_days + date.<span class="number">0</span>.day <span class="kw">as </span>u16
     }
 
     <span class="doccomment">/// Wrap the year in the appropriate era code
@@ -1226,6 +1251,7 @@
         types::FormattableYear {
             era: types::Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;default&quot;</span>)),
             number: year,
+            cyclic: <span class="prelude-val">None</span>,
             related_iso: <span class="prelude-val">None</span>,
         }
     }
@@ -1233,10 +1259,10 @@
 
 <span class="kw">impl </span>IsoDateInner {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>jan_1(year: i32) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>(ArithmeticDate::new(year, <span class="number">1</span>, <span class="number">1</span>))
+        <span class="self">Self</span>(ArithmeticDate::new_unchecked(year, <span class="number">1</span>, <span class="number">1</span>))
     }
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>dec_31(year: i32) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>(ArithmeticDate::new(year, <span class="number">12</span>, <span class="number">1</span>))
+        <span class="self">Self</span>(ArithmeticDate::new_unchecked(year, <span class="number">12</span>, <span class="number">1</span>))
     }
 }
 
@@ -1254,6 +1280,160 @@
 </span><span class="kw">mod </span>test {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
     <span class="kw">use </span><span class="kw">crate</span>::types::IsoWeekday;
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>iso_overflow() {
+        <span class="attr">#[derive(Debug)]
+        </span><span class="kw">struct </span>TestCase {
+            year: i32,
+            month: u8,
+            day: u8,
+            fixed: RataDie,
+            saturating: bool,
+        }
+        <span class="comment">// Calculates the max possible year representable using i32::MAX as the fixed date
+        </span><span class="kw">let </span>max_year = Iso::iso_from_fixed(RataDie::new(i32::MAX <span class="kw">as </span>i64))
+            .year()
+            .number;
+
+        <span class="comment">// Calculates the minimum possible year representable using i32::MIN as the fixed date
+        // *Cannot be tested yet due to hard coded date not being available yet (see line 436)
+        </span><span class="kw">let </span>min_year = -<span class="number">5879610</span>;
+
+        <span class="kw">let </span>cases = [
+            TestCase {
+                <span class="comment">// Earliest date that can be represented before causing a minimum overflow
+                </span>year: min_year,
+                month: <span class="number">6</span>,
+                day: <span class="number">22</span>,
+                fixed: RataDie::new(i32::MIN <span class="kw">as </span>i64),
+                saturating: <span class="bool-val">false</span>,
+            },
+            TestCase {
+                year: min_year,
+                month: <span class="number">6</span>,
+                day: <span class="number">23</span>,
+                fixed: RataDie::new(i32::MIN <span class="kw">as </span>i64 + <span class="number">1</span>),
+                saturating: <span class="bool-val">false</span>,
+            },
+            TestCase {
+                year: min_year,
+                month: <span class="number">6</span>,
+                day: <span class="number">21</span>,
+                fixed: RataDie::new(i32::MIN <span class="kw">as </span>i64 - <span class="number">1</span>),
+                saturating: <span class="bool-val">false</span>,
+            },
+            TestCase {
+                year: min_year,
+                month: <span class="number">12</span>,
+                day: <span class="number">31</span>,
+                fixed: RataDie::new(-<span class="number">2147483456</span>),
+                saturating: <span class="bool-val">false</span>,
+            },
+            TestCase {
+                year: min_year + <span class="number">1</span>,
+                month: <span class="number">1</span>,
+                day: <span class="number">1</span>,
+                fixed: RataDie::new(-<span class="number">2147483455</span>),
+                saturating: <span class="bool-val">false</span>,
+            },
+            TestCase {
+                year: max_year,
+                month: <span class="number">6</span>,
+                day: <span class="number">11</span>,
+                fixed: RataDie::new(i32::MAX <span class="kw">as </span>i64 - <span class="number">30</span>),
+                saturating: <span class="bool-val">false</span>,
+            },
+            TestCase {
+                year: max_year,
+                month: <span class="number">7</span>,
+                day: <span class="number">9</span>,
+                fixed: RataDie::new(i32::MAX <span class="kw">as </span>i64 - <span class="number">2</span>),
+                saturating: <span class="bool-val">false</span>,
+            },
+            TestCase {
+                year: max_year,
+                month: <span class="number">7</span>,
+                day: <span class="number">10</span>,
+                fixed: RataDie::new(i32::MAX <span class="kw">as </span>i64 - <span class="number">1</span>),
+                saturating: <span class="bool-val">false</span>,
+            },
+            TestCase {
+                <span class="comment">// Latest date that can be represented before causing a maximum overflow
+                </span>year: max_year,
+                month: <span class="number">7</span>,
+                day: <span class="number">11</span>,
+                fixed: RataDie::new(i32::MAX <span class="kw">as </span>i64),
+                saturating: <span class="bool-val">false</span>,
+            },
+            TestCase {
+                year: max_year,
+                month: <span class="number">7</span>,
+                day: <span class="number">12</span>,
+                fixed: RataDie::new(i32::MAX <span class="kw">as </span>i64 + <span class="number">1</span>),
+                saturating: <span class="bool-val">false</span>,
+            },
+            TestCase {
+                year: i32::MIN,
+                month: <span class="number">1</span>,
+                day: <span class="number">2</span>,
+                fixed: RataDie::new(-<span class="number">784352296669</span>),
+                saturating: <span class="bool-val">false</span>,
+            },
+            TestCase {
+                year: i32::MIN,
+                month: <span class="number">1</span>,
+                day: <span class="number">1</span>,
+                fixed: RataDie::new(-<span class="number">784352296670</span>),
+                saturating: <span class="bool-val">false</span>,
+            },
+            TestCase {
+                year: i32::MIN,
+                month: <span class="number">1</span>,
+                day: <span class="number">1</span>,
+                fixed: RataDie::new(-<span class="number">784352296671</span>),
+                saturating: <span class="bool-val">true</span>,
+            },
+            TestCase {
+                year: i32::MAX,
+                month: <span class="number">12</span>,
+                day: <span class="number">30</span>,
+                fixed: RataDie::new(<span class="number">784352295938</span>),
+                saturating: <span class="bool-val">false</span>,
+            },
+            TestCase {
+                year: i32::MAX,
+                month: <span class="number">12</span>,
+                day: <span class="number">31</span>,
+                fixed: RataDie::new(<span class="number">784352295939</span>),
+                saturating: <span class="bool-val">false</span>,
+            },
+            TestCase {
+                year: i32::MAX,
+                month: <span class="number">12</span>,
+                day: <span class="number">31</span>,
+                fixed: RataDie::new(<span class="number">784352295940</span>),
+                saturating: <span class="bool-val">true</span>,
+            },
+        ];
+
+        <span class="kw">for </span>case <span class="kw">in </span>cases {
+            <span class="kw">let </span>date = Date::try_new_iso_date(case.year, case.month, case.day).unwrap();
+            <span class="kw">if </span>!case.saturating {
+                <span class="macro">assert_eq!</span>(Iso::fixed_from_iso(date.inner), case.fixed, <span class="string">&quot;{case:?}&quot;</span>);
+            }
+            <span class="macro">assert_eq!</span>(Iso::iso_from_fixed(case.fixed), date, <span class="string">&quot;{case:?}&quot;</span>);
+        }
+    }
+
+    <span class="comment">// Calculates the minimum possible year representable using a large negative fixed date
+    </span><span class="attr">#[test]
+    </span><span class="kw">fn </span>min_year() {
+        <span class="macro">assert_eq!</span>(
+            Iso::iso_from_fixed(RataDie::big_negative()).year().number,
+            i32::MIN
+        );
+    }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_day_of_week() {
@@ -1405,17 +1585,13 @@
     </span><span class="kw">fn </span>test_iso_to_from_fixed() {
         <span class="comment">// Reminder: ISO year 0 is Gregorian year 1 BCE.
         // Year 0 is a leap year due to the 400-year rule.
-        </span><span class="kw">fn </span>check(fixed: i32, year: i32, month: u8, day: u8) {
-            <span class="macro">assert_eq!</span>(Iso::iso_year_from_fixed(fixed), year, <span class="string">&quot;fixed: {fixed}&quot;</span>);
+        </span><span class="kw">fn </span>check(fixed: i64, year: i32, month: u8, day: u8) {
+            <span class="kw">let </span>fixed = RataDie::new(fixed);
+
             <span class="macro">assert_eq!</span>(
                 Iso::iso_from_fixed(fixed),
                 Date::try_new_iso_date(year, month, day).unwrap(),
-                <span class="string">&quot;fixed: {fixed}&quot;
-            </span>);
-            <span class="macro">assert_eq!</span>(
-                Iso::fixed_from_iso_integers(year, month, day),
-                <span class="prelude-val">Some</span>(fixed),
-                <span class="string">&quot;fixed: {fixed}&quot;
+                <span class="string">&quot;fixed: {fixed:?}&quot;
             </span>);
         }
         check(-<span class="number">1828</span>, -<span class="number">5</span>, <span class="number">12</span>, <span class="number">30</span>);

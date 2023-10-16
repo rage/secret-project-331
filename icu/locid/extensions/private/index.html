@@ -4,7 +4,7 @@ private use.</p>
 behavior depends on them.</p>
 <p>The main struct for this extension is <a href="struct.Private.html" title="struct icu::locid::extensions::private::Private"><code>Private</code></a> which is a list of <a href="struct.Subtag.html" title="struct icu::locid::extensions::private::Subtag"><code>Subtag</code></a>s.</p>
 <h2 id="examples"><a href="#examples">Examples</a></h2>
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>icu::locid::extensions_private_subtag <span class="kw">as </span>subtag;
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>icu::locid::extensions::private::subtag;
 <span class="kw">use </span>icu::locid::{locale, Locale};
 
 <span class="kw">let </span><span class="kw-2">mut </span>loc: Locale = <span class="string">&quot;en-US-x-foo-faa&quot;</span>.parse().expect(<span class="string">&quot;Parsing failed.&quot;</span>);

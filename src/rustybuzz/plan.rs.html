@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.7.0/src/plan.rs`."><title>plan.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../rustybuzz/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.10.0/src/plan.rs`."><title>plan.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../rustybuzz/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -313,12 +313,41 @@
 <a href="#313" id="313">313</a>
 <a href="#314" id="314">314</a>
 <a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>alloc::boxed::Box;
 <span class="kw">use </span>core::any::Any;
 
-<span class="kw">use crate</span>::{aat, Direction, Face, Feature, Language, Mask, Tag, Script};
 <span class="kw">use </span><span class="kw">crate</span>::complex::{complex_categorize, ComplexShaper, DEFAULT_SHAPER, DUMBER_SHAPER};
 <span class="kw">use </span><span class="kw">crate</span>::ot::{<span class="self">self</span>, feature, FeatureFlags, TableIndex};
+<span class="kw">use crate</span>::{aat, Direction, Face, Feature, Language, Mask, Script, Tag};
 
 <span class="kw">pub struct </span>ShapePlan {
     <span class="kw">pub </span>direction: Direction,
@@ -394,11 +423,9 @@
         <span class="kw">let </span>aat_map = aat::MapBuilder::default();
 
         <span class="kw">let </span><span class="kw-2">mut </span>shaper = <span class="kw">match </span>script {
-            <span class="prelude-val">Some</span>(script) =&gt; complex_categorize(
-                script,
-                direction,
-                ot_map.chosen_script(TableIndex::GSUB),
-            ),
+            <span class="prelude-val">Some</span>(script) =&gt; {
+                complex_categorize(script, direction, ot_map.chosen_script(TableIndex::GSUB))
+            }
             <span class="prelude-val">None </span>=&gt; <span class="kw-2">&amp;</span>DEFAULT_SHAPER,
         };
 
@@ -406,7 +433,8 @@
         <span class="kw">let </span>script_fallback_mark_positioning = shaper.fallback_position;
 
         <span class="comment">// https://github.com/harfbuzz/harfbuzz/issues/2124
-        </span><span class="kw">let </span>apply_morx = face.tables().morx.is_some() &amp;&amp; (direction.is_horizontal() || face.gsub.is_none());
+        </span><span class="kw">let </span>apply_morx =
+            face.tables().morx.is_some() &amp;&amp; (direction.is_horizontal() || face.gsub.is_none());
 
         <span class="comment">// https://github.com/harfbuzz/harfbuzz/issues/1528
         </span><span class="kw">if </span>apply_morx &amp;&amp; shaper <span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_ </span>!= <span class="kw-2">&amp;</span>DEFAULT_SHAPER <span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_ </span>{
@@ -430,10 +458,19 @@
         <span class="kw">const </span>COMMON_FEATURES: <span class="kw-2">&amp;</span>[(Tag, FeatureFlags)] = <span class="kw-2">&amp;</span>[
             (feature::ABOVE_BASE_MARK_POSITIONING, FeatureFlags::GLOBAL),
             (feature::BELOW_BASE_MARK_POSITIONING, FeatureFlags::GLOBAL),
-            (feature::GLYPH_COMPOSITION_DECOMPOSITION, FeatureFlags::GLOBAL),
+            (
+                feature::GLYPH_COMPOSITION_DECOMPOSITION,
+                FeatureFlags::GLOBAL,
+            ),
             (feature::LOCALIZED_FORMS, FeatureFlags::GLOBAL),
-            (feature::MARK_POSITIONING, FeatureFlags::GLOBAL_MANUAL_JOINERS),
-            (feature::MARK_TO_MARK_POSITIONING, FeatureFlags::GLOBAL_MANUAL_JOINERS),
+            (
+                feature::MARK_POSITIONING,
+                FeatureFlags::GLOBAL_MANUAL_JOINERS,
+            ),
+            (
+                feature::MARK_TO_MARK_POSITIONING,
+                FeatureFlags::GLOBAL_MANUAL_JOINERS,
+            ),
             (feature::REQUIRED_LIGATURES, FeatureFlags::GLOBAL),
         ];
 
@@ -444,22 +481,30 @@
             (feature::DISTANCES, FeatureFlags::GLOBAL),
             (feature::KERNING, FeatureFlags::GLOBAL_HAS_FALLBACK),
             (feature::STANDARD_LIGATURES, FeatureFlags::GLOBAL),
-            (feature::REQUIRED_CONTEXTUAL_ALTERNATES, FeatureFlags::GLOBAL),
+            (
+                feature::REQUIRED_CONTEXTUAL_ALTERNATES,
+                FeatureFlags::GLOBAL,
+            ),
         ];
 
         <span class="kw">let </span>empty = FeatureFlags::empty();
 
-        <span class="self">self</span>.ot_map.enable_feature(feature::REQUIRED_VARIATION_ALTERNATES, empty, <span class="number">1</span>);
+        <span class="self">self</span>.ot_map
+            .enable_feature(feature::REQUIRED_VARIATION_ALTERNATES, empty, <span class="number">1</span>);
         <span class="self">self</span>.ot_map.add_gsub_pause(<span class="prelude-val">None</span>);
 
         <span class="kw">match </span><span class="self">self</span>.direction {
             Direction::LeftToRight =&gt; {
-                <span class="self">self</span>.ot_map.enable_feature(feature::LEFT_TO_RIGHT_ALTERNATES, empty, <span class="number">1</span>);
-                <span class="self">self</span>.ot_map.enable_feature(feature::LEFT_TO_RIGHT_MIRRORED_FORMS, empty, <span class="number">1</span>);
+                <span class="self">self</span>.ot_map
+                    .enable_feature(feature::LEFT_TO_RIGHT_ALTERNATES, empty, <span class="number">1</span>);
+                <span class="self">self</span>.ot_map
+                    .enable_feature(feature::LEFT_TO_RIGHT_MIRRORED_FORMS, empty, <span class="number">1</span>);
             }
             Direction::RightToLeft =&gt; {
-                <span class="self">self</span>.ot_map.enable_feature(feature::RIGHT_TO_LEFT_ALTERNATES, empty, <span class="number">1</span>);
-                <span class="self">self</span>.ot_map.add_feature(feature::RIGHT_TO_LEFT_MIRRORED_FORMS, empty, <span class="number">1</span>);
+                <span class="self">self</span>.ot_map
+                    .enable_feature(feature::RIGHT_TO_LEFT_ALTERNATES, empty, <span class="number">1</span>);
+                <span class="self">self</span>.ot_map
+                    .add_feature(feature::RIGHT_TO_LEFT_MIRRORED_FORMS, empty, <span class="number">1</span>);
             }
             <span class="kw">_ </span>=&gt; {}
         }
@@ -470,20 +515,24 @@
         <span class="self">self</span>.ot_map.add_feature(feature::DENOMINATORS, empty, <span class="number">1</span>);
 
         <span class="comment">// Random!
-        </span><span class="self">self</span>.ot_map.enable_feature(feature::RANDOMIZE, FeatureFlags::RANDOM, ot::Map::MAX_VALUE);
+        </span><span class="self">self</span>.ot_map
+            .enable_feature(feature::RANDOMIZE, FeatureFlags::RANDOM, ot::Map::MAX_VALUE);
 
         <span class="comment">// Tracking.  We enable dummy feature here just to allow disabling
         // AAT &#39;trak&#39; table using features.
         // https://github.com/harfbuzz/harfbuzz/issues/1303
-        </span><span class="self">self</span>.ot_map.enable_feature(Tag::from_bytes(<span class="string">b&quot;trak&quot;</span>), FeatureFlags::HAS_FALLBACK, <span class="number">1</span>);
+        </span><span class="self">self</span>.ot_map
+            .enable_feature(Tag::from_bytes(<span class="string">b&quot;trak&quot;</span>), FeatureFlags::HAS_FALLBACK, <span class="number">1</span>);
 
-        <span class="self">self</span>.ot_map.enable_feature(Tag::from_bytes(<span class="string">b&quot;HARF&quot;</span>), empty, <span class="number">1</span>);
+        <span class="self">self</span>.ot_map
+            .enable_feature(Tag::from_bytes(<span class="string">b&quot;HARF&quot;</span>), empty, <span class="number">1</span>);
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(func) = <span class="self">self</span>.shaper.collect_features {
             func(<span class="self">self</span>);
         }
 
-        <span class="self">self</span>.ot_map.enable_feature(Tag::from_bytes(<span class="string">b&quot;BUZZ&quot;</span>), empty, <span class="number">1</span>);
+        <span class="self">self</span>.ot_map
+            .enable_feature(Tag::from_bytes(<span class="string">b&quot;BUZZ&quot;</span>), empty, <span class="number">1</span>);
 
         <span class="kw">for </span><span class="kw-2">&amp;</span>(tag, flags) <span class="kw">in </span>COMMON_FEATURES {
             <span class="self">self</span>.ot_map.add_feature(tag, flags, <span class="number">1</span>);
@@ -498,17 +547,23 @@
             // matter which script/langsys it is listed (or not) under.
             // See various bugs referenced from:
             // https://github.com/harfbuzz/harfbuzz/issues/63
-            </span><span class="self">self</span>.ot_map.enable_feature(feature::VERTICAL_WRITING, FeatureFlags::GLOBAL_SEARCH, <span class="number">1</span>);
+            </span><span class="self">self</span>.ot_map
+                .enable_feature(feature::VERTICAL_WRITING, FeatureFlags::GLOBAL_SEARCH, <span class="number">1</span>);
         }
 
         <span class="kw">for </span>feature <span class="kw">in </span>user_features {
-            <span class="kw">let </span>flags = <span class="kw">if </span>feature.is_global() { FeatureFlags::GLOBAL } <span class="kw">else </span>{ empty };
+            <span class="kw">let </span>flags = <span class="kw">if </span>feature.is_global() {
+                FeatureFlags::GLOBAL
+            } <span class="kw">else </span>{
+                empty
+            };
             <span class="self">self</span>.ot_map.add_feature(feature.tag, flags, feature.value);
         }
 
         <span class="kw">if </span><span class="self">self</span>.apply_morx {
             <span class="kw">for </span>feature <span class="kw">in </span>user_features {
-                <span class="self">self</span>.aat_map.add_feature(<span class="self">self</span>.face, feature.tag, feature.value);
+                <span class="self">self</span>.aat_map
+                    .add_feature(<span class="self">self</span>.face, feature.tag, feature.value);
             }
         }
 
@@ -536,7 +591,11 @@
         <span class="kw">let </span>has_vert = ot_map.one_mask(feature::VERTICAL_WRITING) != <span class="number">0</span>;
 
         <span class="kw">let </span>horizontal = <span class="self">self</span>.direction.is_horizontal();
-        <span class="kw">let </span>kern_tag = <span class="kw">if </span>horizontal { feature::KERNING } <span class="kw">else </span>{ feature::VERTICAL_KERNING };
+        <span class="kw">let </span>kern_tag = <span class="kw">if </span>horizontal {
+            feature::KERNING
+        } <span class="kw">else </span>{
+            feature::VERTICAL_KERNING
+        };
         <span class="kw">let </span>kern_mask = ot_map.mask(kern_tag).<span class="number">0</span>;
         <span class="kw">let </span>requested_kerning = kern_mask != <span class="number">0</span>;
         <span class="kw">let </span>trak_mask = ot_map.mask(Tag::from_bytes(<span class="string">b&quot;trak&quot;</span>)).<span class="number">0</span>;
@@ -547,7 +606,10 @@
             &amp;&amp; <span class="self">self</span>.shaper.gpos_tag != ot_map.chosen_script(TableIndex::GPOS);
 
         <span class="comment">// Decide who provides glyph classes. GDEF or Unicode.
-        </span><span class="kw">let </span>fallback_glyph_classes = !<span class="self">self</span>.face.tables().gdef
+        </span><span class="kw">let </span>fallback_glyph_classes = !<span class="self">self
+            </span>.face
+            .tables()
+            .gdef
             .map_or(<span class="bool-val">false</span>, |table| table.has_glyph_classes());
 
         <span class="comment">// Decide who does substitutions. GSUB, morx, or fallback.
@@ -573,21 +635,17 @@
             }
         }
 
-        <span class="kw">let </span>zero_marks =
-            <span class="self">self</span>.script_zero_marks
+        <span class="kw">let </span>zero_marks = <span class="self">self</span>.script_zero_marks
             &amp;&amp; !apply_kerx
             &amp;&amp; (!apply_kern || !ot::has_machine_kerning(<span class="self">self</span>.face));
 
         <span class="kw">let </span>has_gpos_mark = ot_map.one_mask(feature::MARK_POSITIONING) != <span class="number">0</span>;
 
         <span class="kw">let </span>adjust_mark_positioning_when_zeroing =
-            !apply_gpos
-            &amp;&amp; !apply_kerx
-            &amp;&amp; (!apply_kern || !ot::has_cross_kerning(<span class="self">self</span>.face));
+            !apply_gpos &amp;&amp; !apply_kerx &amp;&amp; (!apply_kern || !ot::has_cross_kerning(<span class="self">self</span>.face));
 
         <span class="kw">let </span>fallback_mark_positioning =
-            adjust_mark_positioning_when_zeroing
-            &amp;&amp; <span class="self">self</span>.script_fallback_mark_positioning;
+            adjust_mark_positioning_when_zeroing &amp;&amp; <span class="self">self</span>.script_fallback_mark_positioning;
 
         <span class="comment">// Currently we always apply trak.
         </span><span class="kw">let </span>apply_trak = requested_tracking &amp;&amp; <span class="self">self</span>.face.tables().trak.is_some();

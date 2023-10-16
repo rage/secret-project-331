@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["chinese_based","coptic","ethiopian","hebrew","helpers","islamic","iso","julian","persian","rata_die"]};

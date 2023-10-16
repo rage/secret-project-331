@@ -159,7 +159,7 @@ builder.add_range(<span class="kw-2">&amp;</span>(<span class="string">&#39;C&#3
 <span class="kw">let </span>check = builder.build();
 <span class="macro">assert!</span>(check.contains(<span class="string">&#39;Q&#39;</span>)); <span class="comment">// 81
 </span><span class="macro">assert!</span>(!check.contains(<span class="string">&#39;N&#39;</span>)); <span class="comment">// 78</span></code></pre></div>
-</div></details><details class="toggle method-toggle" open><summary><section id="method.is_empty" class="method"><a class="src rightside" href="../../src/icu_collections/codepointinvlist/builder.rs.html#495-497">source</a><h4 class="code-header">pub fn <a href="#method.is_empty" class="fn">is_empty</a>(&amp;mut self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.73.0/std/primitive.bool.html">bool</a></h4></section></summary><div class="docblock"><p>Returns whether the build is empty.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.is_empty" class="method"><a class="src rightside" href="../../src/icu_collections/codepointinvlist/builder.rs.html#495-497">source</a><h4 class="code-header">pub fn <a href="#method.is_empty" class="fn">is_empty</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.73.0/std/primitive.bool.html">bool</a></h4></section></summary><div class="docblock"><p>Returns whether the build is empty.</p>
 <h5 id="examples-15"><a href="#examples-15">Examples</a></h5>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>icu_collections::codepointinvlist::{
     CodePointInversionList, CodePointInversionListBuilder,

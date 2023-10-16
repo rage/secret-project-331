@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.7.0/src/complex/arabic.rs`."><title>arabic.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../rustybuzz/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.10.0/src/complex/arabic.rs`."><title>arabic.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../rustybuzz/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -597,15 +597,69 @@
 <a href="#597" id="597">597</a>
 <a href="#598" id="598">598</a>
 <a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
+<a href="#604" id="604">604</a>
+<a href="#605" id="605">605</a>
+<a href="#606" id="606">606</a>
+<a href="#607" id="607">607</a>
+<a href="#608" id="608">608</a>
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
+<a href="#614" id="614">614</a>
+<a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
+<a href="#618" id="618">618</a>
+<a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a>
+<a href="#624" id="624">624</a>
+<a href="#625" id="625">625</a>
+<a href="#626" id="626">626</a>
+<a href="#627" id="627">627</a>
+<a href="#628" id="628">628</a>
+<a href="#629" id="629">629</a>
+<a href="#630" id="630">630</a>
+<a href="#631" id="631">631</a>
+<a href="#632" id="632">632</a>
+<a href="#633" id="633">633</a>
+<a href="#634" id="634">634</a>
+<a href="#635" id="635">635</a>
+<a href="#636" id="636">636</a>
+<a href="#637" id="637">637</a>
+<a href="#638" id="638">638</a>
+<a href="#639" id="639">639</a>
+<a href="#640" id="640">640</a>
+<a href="#641" id="641">641</a>
+<a href="#642" id="642">642</a>
+<a href="#643" id="643">643</a>
+<a href="#644" id="644">644</a>
+<a href="#645" id="645">645</a>
+<a href="#646" id="646">646</a>
+<a href="#647" id="647">647</a>
+<a href="#648" id="648">648</a>
+<a href="#649" id="649">649</a>
+<a href="#650" id="650">650</a>
+<a href="#651" id="651">651</a>
+<a href="#652" id="652">652</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>alloc::boxed::Box;
 
-<span class="kw">use crate</span>::{script, Tag, Face, GlyphInfo, Mask, Script};
+<span class="kw">use super</span>::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::buffer::{Buffer, BufferScratchFlags};
 <span class="kw">use </span><span class="kw">crate</span>::ot::{feature, FeatureFlags};
 <span class="kw">use </span><span class="kw">crate</span>::plan::{ShapePlan, ShapePlanner};
-<span class="kw">use </span><span class="kw">crate</span>::unicode::{CharExt, GeneralCategory, GeneralCategoryExt, modified_combining_class, hb_gc};
-<span class="kw">use super</span>::<span class="kw-2">*</span>;
-
+<span class="kw">use </span><span class="kw">crate</span>::unicode::{
+    hb_gc, modified_combining_class, CharExt, GeneralCategory, GeneralCategoryExt,
+};
+<span class="kw">use crate</span>::{script, Face, GlyphInfo, Mask, Script, Tag};
 
 <span class="kw">pub const </span>ARABIC_SHAPER: ComplexShaper = ComplexShaper {
     collect_features: <span class="prelude-val">Some</span>(collect_features),
@@ -623,7 +677,6 @@
     fallback_position: <span class="bool-val">true</span>,
 };
 
-
 <span class="kw">const </span>ARABIC_HAS_STCH: BufferScratchFlags = BufferScratchFlags::COMPLEX0;
 
 <span class="kw">const </span>ARABIC_FEATURES: <span class="kw-2">&amp;</span>[Tag] = <span class="kw-2">&amp;</span>[
@@ -639,7 +692,6 @@
 <span class="kw">fn </span>feature_is_syriac(tag: Tag) -&gt; bool {
     <span class="macro">matches!</span>(tag.to_bytes()[<span class="number">3</span>], <span class="string">b&#39;2&#39; </span>| <span class="string">b&#39;3&#39;</span>)
 }
-
 
 <span class="kw">mod </span>action {
     <span class="kw">pub const </span>ISOL: u8 = <span class="number">0</span>;
@@ -661,54 +713,74 @@
     }
 }
 
-
 <span class="kw">const </span>STATE_TABLE: <span class="kw-2">&amp;</span>[[(u8, u8, u16); <span class="number">6</span>]] = <span class="kw-2">&amp;</span>[
     <span class="comment">// jt_U,          jt_L,          jt_R,
     // jt_D,          jg_ALAPH,      jg_DALATH_RISH
 
     // State 0: prev was U, not willing to join.
     </span>[
-        (action::NONE, action::NONE, <span class="number">0</span>), (action::NONE, action::ISOL, <span class="number">2</span>), (action::NONE, action::ISOL, <span class="number">1</span>),
-        (action::NONE, action::ISOL, <span class="number">2</span>), (action::NONE, action::ISOL, <span class="number">1</span>), (action::NONE, action::ISOL, <span class="number">6</span>),
+        (action::NONE, action::NONE, <span class="number">0</span>),
+        (action::NONE, action::ISOL, <span class="number">2</span>),
+        (action::NONE, action::ISOL, <span class="number">1</span>),
+        (action::NONE, action::ISOL, <span class="number">2</span>),
+        (action::NONE, action::ISOL, <span class="number">1</span>),
+        (action::NONE, action::ISOL, <span class="number">6</span>),
     ],
-
     <span class="comment">// State 1: prev was R or action::ISOL/ALAPH, not willing to join.
     </span>[
-        (action::NONE, action::NONE, <span class="number">0</span>), (action::NONE, action::ISOL, <span class="number">2</span>), (action::NONE, action::ISOL, <span class="number">1</span>),
-        (action::NONE, action::ISOL, <span class="number">2</span>), (action::NONE, action::FIN2, <span class="number">5</span>), (action::NONE, action::ISOL, <span class="number">6</span>),
+        (action::NONE, action::NONE, <span class="number">0</span>),
+        (action::NONE, action::ISOL, <span class="number">2</span>),
+        (action::NONE, action::ISOL, <span class="number">1</span>),
+        (action::NONE, action::ISOL, <span class="number">2</span>),
+        (action::NONE, action::FIN2, <span class="number">5</span>),
+        (action::NONE, action::ISOL, <span class="number">6</span>),
     ],
-
     <span class="comment">// State 2: prev was D/L in action::ISOL form, willing to join.
     </span>[
-        (action::NONE, action::NONE, <span class="number">0</span>), (action::NONE, action::ISOL, <span class="number">2</span>), (action::INIT, action::FINA, <span class="number">1</span>),
-        (action::INIT, action::FINA, <span class="number">3</span>), (action::INIT, action::FINA, <span class="number">4</span>), (action::INIT, action::FINA, <span class="number">6</span>),
+        (action::NONE, action::NONE, <span class="number">0</span>),
+        (action::NONE, action::ISOL, <span class="number">2</span>),
+        (action::INIT, action::FINA, <span class="number">1</span>),
+        (action::INIT, action::FINA, <span class="number">3</span>),
+        (action::INIT, action::FINA, <span class="number">4</span>),
+        (action::INIT, action::FINA, <span class="number">6</span>),
     ],
-
     <span class="comment">// State 3: prev was D in action::FINA form, willing to join.
     </span>[
-        (action::NONE, action::NONE, <span class="number">0</span>), (action::NONE, action::ISOL, <span class="number">2</span>), (action::MEDI, action::FINA, <span class="number">1</span>),
-        (action::MEDI, action::FINA, <span class="number">3</span>), (action::MEDI, action::FINA, <span class="number">4</span>), (action::MEDI, action::FINA, <span class="number">6</span>),
+        (action::NONE, action::NONE, <span class="number">0</span>),
+        (action::NONE, action::ISOL, <span class="number">2</span>),
+        (action::MEDI, action::FINA, <span class="number">1</span>),
+        (action::MEDI, action::FINA, <span class="number">3</span>),
+        (action::MEDI, action::FINA, <span class="number">4</span>),
+        (action::MEDI, action::FINA, <span class="number">6</span>),
     ],
-
     <span class="comment">// State 4: prev was action::FINA ALAPH, not willing to join.
     </span>[
-        (action::NONE, action::NONE, <span class="number">0</span>), (action::NONE, action::ISOL, <span class="number">2</span>), (action::MED2, action::ISOL, <span class="number">1</span>),
-        (action::MED2, action::ISOL, <span class="number">2</span>), (action::MED2, action::FIN2, <span class="number">5</span>), (action::MED2, action::ISOL, <span class="number">6</span>),
+        (action::NONE, action::NONE, <span class="number">0</span>),
+        (action::NONE, action::ISOL, <span class="number">2</span>),
+        (action::MED2, action::ISOL, <span class="number">1</span>),
+        (action::MED2, action::ISOL, <span class="number">2</span>),
+        (action::MED2, action::FIN2, <span class="number">5</span>),
+        (action::MED2, action::ISOL, <span class="number">6</span>),
     ],
-
     <span class="comment">// State 5: prev was FIN2/FIN3 ALAPH, not willing to join.
     </span>[
-        (action::NONE, action::NONE, <span class="number">0</span>), (action::NONE, action::ISOL, <span class="number">2</span>), (action::ISOL, action::ISOL, <span class="number">1</span>),
-        (action::ISOL, action::ISOL, <span class="number">2</span>), (action::ISOL, action::FIN2, <span class="number">5</span>), (action::ISOL, action::ISOL, <span class="number">6</span>),
+        (action::NONE, action::NONE, <span class="number">0</span>),
+        (action::NONE, action::ISOL, <span class="number">2</span>),
+        (action::ISOL, action::ISOL, <span class="number">1</span>),
+        (action::ISOL, action::ISOL, <span class="number">2</span>),
+        (action::ISOL, action::FIN2, <span class="number">5</span>),
+        (action::ISOL, action::ISOL, <span class="number">6</span>),
     ],
-
     <span class="comment">// State 6: prev was DALATH/RISH, not willing to join.
     </span>[
-        (action::NONE, action::NONE, <span class="number">0</span>), (action::NONE, action::ISOL, <span class="number">2</span>), (action::NONE, action::ISOL, <span class="number">1</span>),
-        (action::NONE, action::ISOL, <span class="number">2</span>), (action::NONE, action::FIN3, <span class="number">5</span>), (action::NONE, action::ISOL, <span class="number">6</span>),
-    ]
+        (action::NONE, action::NONE, <span class="number">0</span>),
+        (action::NONE, action::ISOL, <span class="number">2</span>),
+        (action::NONE, action::ISOL, <span class="number">1</span>),
+        (action::NONE, action::ISOL, <span class="number">2</span>),
+        (action::NONE, action::FIN3, <span class="number">5</span>),
+        (action::NONE, action::ISOL, <span class="number">6</span>),
+    ],
 ];
-
 
 <span class="attr">#[derive(Clone, Copy, PartialEq, Debug)]
 </span><span class="kw">pub enum </span>JoiningType {
@@ -723,19 +795,15 @@
     X = <span class="number">8</span>, <span class="comment">// means: use general-category to choose between U or T.
 </span>}
 
-
 <span class="kw">impl </span>GlyphInfo {
     <span class="kw">fn </span>arabic_shaping_action(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8 {
-        <span class="kw">let </span>v: <span class="kw-2">&amp;</span>[u8; <span class="number">4</span>] = bytemuck::cast_ref(<span class="kw-2">&amp;</span><span class="self">self</span>.var2);
-        v[<span class="number">2</span>]
+        <span class="self">self</span>.complex_var_u8_auxiliary()
     }
 
     <span class="kw">fn </span>set_arabic_shaping_action(<span class="kw-2">&amp;mut </span><span class="self">self</span>, action: u8) {
-        <span class="kw">let </span>v: <span class="kw-2">&amp;mut </span>[u8; <span class="number">4</span>] = bytemuck::cast_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>.var2);
-        v[<span class="number">2</span>] = action;
+        <span class="self">self</span>.set_complex_var_u8_auxiliary(action)
     }
 }
-
 
 <span class="kw">pub struct </span>ArabicShapePlan {
     <span class="comment">// The &quot;+ 1&quot; in the next array is to accommodate for the &quot;NONE&quot; command,
@@ -748,17 +816,22 @@
 
 <span class="kw">impl </span>ArabicShapePlan {
     <span class="kw">pub fn </span>new(plan: <span class="kw-2">&amp;</span>ShapePlan) -&gt; ArabicShapePlan {
-        <span class="kw">let </span>has_stch = plan.ot_map.one_mask(feature::STRETCHING_GLYPH_DECOMPOSITION) != <span class="number">0</span>;
+        <span class="kw">let </span>has_stch = plan
+            .ot_map
+            .one_mask(feature::STRETCHING_GLYPH_DECOMPOSITION)
+            != <span class="number">0</span>;
 
         <span class="kw">let </span><span class="kw-2">mut </span>mask_array = [<span class="number">0</span>; ARABIC_FEATURES.len() + <span class="number">1</span>];
         <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..ARABIC_FEATURES.len() {
             mask_array[i] = plan.ot_map.one_mask(ARABIC_FEATURES[i]);
         }
 
-        ArabicShapePlan { mask_array, has_stch }
+        ArabicShapePlan {
+            mask_array,
+            has_stch,
+        }
     }
 }
-
 
 <span class="kw">fn </span>collect_features(planner: <span class="kw-2">&amp;mut </span>ShapePlanner) {
     <span class="comment">// We apply features according to the Arabic spec, with pauses
@@ -782,17 +855,31 @@
     // A pause after calt is required to make KFGQPC Uthmanic Script HAFS
     // work correctly.  See https://github.com/harfbuzz/harfbuzz/issues/505
 
-    </span>planner.ot_map.enable_feature(feature::STRETCHING_GLYPH_DECOMPOSITION, FeatureFlags::empty(), <span class="number">1</span>);
+    </span>planner.ot_map.enable_feature(
+        feature::STRETCHING_GLYPH_DECOMPOSITION,
+        FeatureFlags::empty(),
+        <span class="number">1</span>,
+    );
     planner.ot_map.add_gsub_pause(<span class="prelude-val">Some</span>(record_stch));
 
-    planner.ot_map.enable_feature(feature::GLYPH_COMPOSITION_DECOMPOSITION, FeatureFlags::empty(), <span class="number">1</span>);
-    planner.ot_map.enable_feature(feature::LOCALIZED_FORMS, FeatureFlags::empty(), <span class="number">1</span>);
+    planner.ot_map.enable_feature(
+        feature::GLYPH_COMPOSITION_DECOMPOSITION,
+        FeatureFlags::empty(),
+        <span class="number">1</span>,
+    );
+    planner
+        .ot_map
+        .enable_feature(feature::LOCALIZED_FORMS, FeatureFlags::empty(), <span class="number">1</span>);
 
     planner.ot_map.add_gsub_pause(<span class="prelude-val">None</span>);
 
     <span class="kw">for </span>feature <span class="kw">in </span>ARABIC_FEATURES {
         <span class="kw">let </span>has_fallback = planner.script == <span class="prelude-val">Some</span>(script::ARABIC) &amp;&amp; !feature_is_syriac(<span class="kw-2">*</span>feature);
-        <span class="kw">let </span>flags = <span class="kw">if </span>has_fallback { FeatureFlags::HAS_FALLBACK } <span class="kw">else </span>{ FeatureFlags::empty() };
+        <span class="kw">let </span>flags = <span class="kw">if </span>has_fallback {
+            FeatureFlags::HAS_FALLBACK
+        } <span class="kw">else </span>{
+            FeatureFlags::empty()
+        };
         planner.ot_map.add_feature(<span class="kw-2">*</span>feature, flags, <span class="number">1</span>);
         planner.ot_map.add_gsub_pause(<span class="prelude-val">None</span>);
     }
@@ -801,8 +888,11 @@
     // however, it says a ZWJ should also mean &quot;don&#39;t ligate&quot;.  So we run
     // the main ligating features as MANUAL_ZWJ.
 
-    </span>planner.ot_map.enable_feature(feature::REQUIRED_LIGATURES,
-                                  FeatureFlags::MANUAL_ZWJ | FeatureFlags::HAS_FALLBACK, <span class="number">1</span>);
+    </span>planner.ot_map.enable_feature(
+        feature::REQUIRED_LIGATURES,
+        FeatureFlags::MANUAL_ZWJ | FeatureFlags::HAS_FALLBACK,
+        <span class="number">1</span>,
+    );
 
     <span class="kw">if </span>planner.script == <span class="prelude-val">Some</span>(script::ARABIC) {
         planner.ot_map.add_gsub_pause(<span class="prelude-val">Some</span>(fallback_shape));
@@ -810,8 +900,14 @@
 
     <span class="comment">// No pause after rclt.
     // See 98460779bae19e4d64d29461ff154b3527bf8420
-    </span>planner.ot_map.enable_feature(feature::REQUIRED_CONTEXTUAL_ALTERNATES, FeatureFlags::MANUAL_ZWJ, <span class="number">1</span>);
-    planner.ot_map.enable_feature(feature::CONTEXTUAL_ALTERNATES, FeatureFlags::MANUAL_ZWJ, <span class="number">1</span>);
+    </span>planner.ot_map.enable_feature(
+        feature::REQUIRED_CONTEXTUAL_ALTERNATES,
+        FeatureFlags::MANUAL_ZWJ,
+        <span class="number">1</span>,
+    );
+    planner
+        .ot_map
+        .enable_feature(feature::CONTEXTUAL_ALTERNATES, FeatureFlags::MANUAL_ZWJ, <span class="number">1</span>);
     planner.ot_map.add_gsub_pause(<span class="prelude-val">None</span>);
 
     <span class="comment">// The spec includes &#39;cswh&#39;.  Earlier versions of Windows
@@ -824,7 +920,11 @@
     // Test case: U+0643,U+0640,U+0631.
 
     // planner.ot_map.enable_feature(feature::CONTEXTUAL_SWASH, FeatureFlags::empty(), 1);
-    </span>planner.ot_map.enable_feature(feature::MARK_POSITIONING_VIA_SUBSTITUTION, FeatureFlags::empty(), <span class="number">1</span>);
+    </span>planner.ot_map.enable_feature(
+        feature::MARK_POSITIONING_VIA_SUBSTITUTION,
+        FeatureFlags::empty(),
+        <span class="number">1</span>,
+    );
 }
 
 <span class="kw">fn </span>fallback_shape(<span class="kw">_</span>: <span class="kw-2">&amp;</span>ShapePlan, <span class="kw">_</span>: <span class="kw-2">&amp;</span>Face, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Buffer) {}
@@ -905,8 +1005,8 @@
 
             <span class="comment">// Yay, justification!
 
-            </span><span class="kw">let </span><span class="kw-2">mut </span>w_total = <span class="number">0</span>;     <span class="comment">// Total to be filled
-            </span><span class="kw">let </span><span class="kw-2">mut </span>w_fixed = <span class="number">0</span>;     <span class="comment">// Sum of fixed tiles
+            </span><span class="kw">let </span><span class="kw-2">mut </span>w_total = <span class="number">0</span>; <span class="comment">// Total to be filled
+            </span><span class="kw">let </span><span class="kw-2">mut </span>w_fixed = <span class="number">0</span>; <span class="comment">// Sum of fixed tiles
             </span><span class="kw">let </span><span class="kw-2">mut </span>w_repeating = <span class="number">0</span>; <span class="comment">// Sum of repeating tiles
             </span><span class="kw">let </span><span class="kw-2">mut </span>n_repeating: i32 = <span class="number">0</span>;
 
@@ -925,10 +1025,10 @@
 
             <span class="kw">let </span>start = i;
             <span class="kw">let </span><span class="kw-2">mut </span>context = i;
-            <span class="kw">while </span>context != <span class="number">0 </span>&amp;&amp;
-                !action::is_stch(buffer.info[context - <span class="number">1</span>].arabic_shaping_action()) &amp;&amp;
-                (buffer.info[context - <span class="number">1</span>].is_default_ignorable() ||
-                    is_word_category(buffer.info[context - <span class="number">1</span>].general_category()))
+            <span class="kw">while </span>context != <span class="number">0
+                </span>&amp;&amp; !action::is_stch(buffer.info[context - <span class="number">1</span>].arabic_shaping_action())
+                &amp;&amp; (buffer.info[context - <span class="number">1</span>].is_default_ignorable()
+                    || is_word_category(buffer.info[context - <span class="number">1</span>].general_category()))
             {
                 context -= <span class="number">1</span>;
                 w_total += buffer.pos[context].x_advance;
@@ -960,7 +1060,7 @@
             } <span class="kw">else </span>{
                 buffer.unsafe_to_break(context, end);
                 <span class="kw">let </span><span class="kw-2">mut </span>x_offset = <span class="number">0</span>;
-                <span class="kw">for </span>k <span class="kw">in </span>(start+<span class="number">1</span>..=end).rev() {
+                <span class="kw">for </span>k <span class="kw">in </span>(start + <span class="number">1</span>..=end).rev() {
                     <span class="kw">let </span>width = face.glyph_h_advance(buffer.info[k - <span class="number">1</span>].as_glyph()) <span class="kw">as </span>i32;
 
                     <span class="kw">let </span><span class="kw-2">mut </span>repeat = <span class="number">1</span>;
@@ -999,22 +1099,22 @@
 <span class="comment">// See:
 // https://github.com/harfbuzz/harfbuzz/commit/6e6f82b6f3dde0fc6c3c7d991d9ec6cfff57823d#commitcomment-14248516
 </span><span class="kw">fn </span>is_word_category(gc: GeneralCategory) -&gt; bool {
-    (rb_flag_unsafe(gc.to_rb()) &amp;
-        (   rb_flag(hb_gc::RB_UNICODE_GENERAL_CATEGORY_UNASSIGNED) |
-            rb_flag(hb_gc::RB_UNICODE_GENERAL_CATEGORY_PRIVATE_USE) |
-            rb_flag(hb_gc::RB_UNICODE_GENERAL_CATEGORY_MODIFIER_LETTER) |
-            rb_flag(hb_gc::RB_UNICODE_GENERAL_CATEGORY_OTHER_LETTER) |
-            rb_flag(hb_gc::RB_UNICODE_GENERAL_CATEGORY_SPACING_MARK) |
-            rb_flag(hb_gc::RB_UNICODE_GENERAL_CATEGORY_ENCLOSING_MARK) |
-            rb_flag(hb_gc::RB_UNICODE_GENERAL_CATEGORY_NON_SPACING_MARK) |
-            rb_flag(hb_gc::RB_UNICODE_GENERAL_CATEGORY_DECIMAL_NUMBER) |
-            rb_flag(hb_gc::RB_UNICODE_GENERAL_CATEGORY_LETTER_NUMBER) |
-            rb_flag(hb_gc::RB_UNICODE_GENERAL_CATEGORY_OTHER_NUMBER) |
-            rb_flag(hb_gc::RB_UNICODE_GENERAL_CATEGORY_CURRENCY_SYMBOL) |
-            rb_flag(hb_gc::RB_UNICODE_GENERAL_CATEGORY_MODIFIER_SYMBOL) |
-            rb_flag(hb_gc::RB_UNICODE_GENERAL_CATEGORY_MATH_SYMBOL) |
-            rb_flag(hb_gc::RB_UNICODE_GENERAL_CATEGORY_OTHER_SYMBOL)
-        )) != <span class="number">0
+    (rb_flag_unsafe(gc.to_rb())
+        &amp; (rb_flag(hb_gc::RB_UNICODE_GENERAL_CATEGORY_UNASSIGNED)
+            | rb_flag(hb_gc::RB_UNICODE_GENERAL_CATEGORY_PRIVATE_USE)
+            | rb_flag(hb_gc::RB_UNICODE_GENERAL_CATEGORY_MODIFIER_LETTER)
+            | rb_flag(hb_gc::RB_UNICODE_GENERAL_CATEGORY_OTHER_LETTER)
+            | rb_flag(hb_gc::RB_UNICODE_GENERAL_CATEGORY_SPACING_MARK)
+            | rb_flag(hb_gc::RB_UNICODE_GENERAL_CATEGORY_ENCLOSING_MARK)
+            | rb_flag(hb_gc::RB_UNICODE_GENERAL_CATEGORY_NON_SPACING_MARK)
+            | rb_flag(hb_gc::RB_UNICODE_GENERAL_CATEGORY_DECIMAL_NUMBER)
+            | rb_flag(hb_gc::RB_UNICODE_GENERAL_CATEGORY_LETTER_NUMBER)
+            | rb_flag(hb_gc::RB_UNICODE_GENERAL_CATEGORY_OTHER_NUMBER)
+            | rb_flag(hb_gc::RB_UNICODE_GENERAL_CATEGORY_CURRENCY_SYMBOL)
+            | rb_flag(hb_gc::RB_UNICODE_GENERAL_CATEGORY_MODIFIER_SYMBOL)
+            | rb_flag(hb_gc::RB_UNICODE_GENERAL_CATEGORY_MATH_SYMBOL)
+            | rb_flag(hb_gc::RB_UNICODE_GENERAL_CATEGORY_OTHER_SYMBOL)))
+        != <span class="number">0
 </span>}
 
 <span class="kw">fn </span>setup_masks(plan: <span class="kw-2">&amp;</span>ShapePlan, <span class="kw">_</span>: <span class="kw-2">&amp;</span>Face, buffer: <span class="kw-2">&amp;mut </span>Buffer) {
@@ -1022,7 +1122,11 @@
     setup_masks_inner(arabic_plan, plan.script, buffer)
 }
 
-<span class="kw">pub fn </span>setup_masks_inner(arabic_plan: <span class="kw-2">&amp;</span>ArabicShapePlan, script: <span class="prelude-ty">Option</span>&lt;Script&gt;, buffer: <span class="kw-2">&amp;mut </span>Buffer) {
+<span class="kw">pub fn </span>setup_masks_inner(
+    arabic_plan: <span class="kw-2">&amp;</span>ArabicShapePlan,
+    script: <span class="prelude-ty">Option</span>&lt;Script&gt;,
+    buffer: <span class="kw-2">&amp;mut </span>Buffer,
+) {
     arabic_joining(buffer);
     <span class="kw">if </span>script == <span class="prelude-val">Some</span>(script::MONGOLIAN) {
         mongolian_variation_selectors(buffer);
@@ -1050,10 +1154,8 @@
     }
 
     <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..buffer.len {
-        <span class="kw">let </span>this_type = get_joining_type(
-            buffer.info[i].as_char(),
-            buffer.info[i].general_category(),
-        );
+        <span class="kw">let </span>this_type =
+            get_joining_type(buffer.info[i].as_char(), buffer.info[i].general_category());
         <span class="kw">if </span>this_type == JoiningType::T {
             buffer.info[i].set_arabic_shaping_action(action::NONE);
             <span class="kw">continue</span>;
@@ -1092,7 +1194,7 @@
 }
 
 <span class="kw">fn </span>mongolian_variation_selectors(buffer: <span class="kw-2">&amp;mut </span>Buffer) {
-   <span class="comment">// Copy arabic_shaping_action() from base to Mongolian variation selectors.
+    <span class="comment">// Copy arabic_shaping_action() from base to Mongolian variation selectors.
     </span><span class="kw">let </span>len = buffer.len;
     <span class="kw">let </span>info = <span class="kw-2">&amp;mut </span>buffer.info;
     <span class="kw">for </span>i <span class="kw">in </span><span class="number">1</span>..len {
@@ -1109,12 +1211,16 @@
         <span class="kw">return </span>j_type;
     }
 
-    <span class="kw">let </span>ok = rb_flag_unsafe(gc.to_rb()) &amp;
-        (   rb_flag(hb_gc::RB_UNICODE_GENERAL_CATEGORY_NON_SPACING_MARK) |
-            rb_flag(hb_gc::RB_UNICODE_GENERAL_CATEGORY_ENCLOSING_MARK) |
-            rb_flag(hb_gc::RB_UNICODE_GENERAL_CATEGORY_FORMAT));
+    <span class="kw">let </span>ok = rb_flag_unsafe(gc.to_rb())
+        &amp; (rb_flag(hb_gc::RB_UNICODE_GENERAL_CATEGORY_NON_SPACING_MARK)
+            | rb_flag(hb_gc::RB_UNICODE_GENERAL_CATEGORY_ENCLOSING_MARK)
+            | rb_flag(hb_gc::RB_UNICODE_GENERAL_CATEGORY_FORMAT));
 
-    <span class="kw">if </span>ok != <span class="number">0 </span>{ JoiningType::T } <span class="kw">else </span>{ JoiningType::U }
+    <span class="kw">if </span>ok != <span class="number">0 </span>{
+        JoiningType::T
+    } <span class="kw">else </span>{
+        JoiningType::U
+    }
 }
 
 <span class="comment">// http://www.unicode.org/reports/tr53/
@@ -1146,9 +1252,9 @@
         }
 
         <span class="kw">let </span><span class="kw-2">mut </span>j = i;
-        <span class="kw">while </span>j &lt; end &amp;&amp;
-            buffer.info[j].modified_combining_class() == cc &amp;&amp;
-            MODIFIER_COMBINING_MARKS.contains(<span class="kw-2">&amp;</span>buffer.info[j].glyph_id)
+        <span class="kw">while </span>j &lt; end
+            &amp;&amp; buffer.info[j].modified_combining_class() == cc
+            &amp;&amp; MODIFIER_COMBINING_MARKS.contains(<span class="kw-2">&amp;</span>buffer.info[j].glyph_id)
         {
             j += <span class="number">1</span>;
         }
@@ -1164,7 +1270,7 @@
 
         temp[..j - i].copy_from_slice(<span class="kw-2">&amp;</span>buffer.info[i..j]);
 
-        <span class="kw">for </span>k <span class="kw">in </span>(<span class="number">0</span>..i-start).rev() {
+        <span class="kw">for </span>k <span class="kw">in </span>(<span class="number">0</span>..i - start).rev() {
             buffer.info[k + start + j - i] = buffer.info[k + start];
         }
 

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fixed_decimal-0.5.3/src/decimal.rs`."><title>decimal.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="fixed_decimal" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../fixed_decimal/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fixed_decimal-0.5.4/src/decimal.rs`."><title>decimal.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="fixed_decimal" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../fixed_decimal/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -3453,6 +3453,16 @@
 <a href="#3453" id="3453">3453</a>
 <a href="#3454" id="3454">3454</a>
 <a href="#3455" id="3455">3455</a>
+<a href="#3456" id="3456">3456</a>
+<a href="#3457" id="3457">3457</a>
+<a href="#3458" id="3458">3458</a>
+<a href="#3459" id="3459">3459</a>
+<a href="#3460" id="3460">3460</a>
+<a href="#3461" id="3461">3461</a>
+<a href="#3462" id="3462">3462</a>
+<a href="#3463" id="3463">3463</a>
+<a href="#3464" id="3464">3464</a>
+<a href="#3465" id="3465">3465</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
@@ -4389,63 +4399,6 @@
         </span><span class="self">self</span>.check_invariants();
     }
 
-    <span class="doccomment">/// Increments the digits by 1. if the digits are empty, it will add
-    /// an element with value 1. If there are some trailing zeros,
-    /// it will be reomved from `self.digits`.
-    </span><span class="kw">fn </span>increment_abs_by_one(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-        <span class="kw">for </span>(zero_count, digit) <span class="kw">in </span><span class="self">self</span>.digits.iter_mut().rev().enumerate() {
-            <span class="kw-2">*</span>digit += <span class="number">1</span>;
-            <span class="kw">if </span><span class="kw-2">*</span>digit &lt; <span class="number">10 </span>{
-                <span class="self">self</span>.digits.truncate(<span class="self">self</span>.digits.len() - zero_count);
-                <span class="attr">#[cfg(debug_assertions)]
-                </span><span class="self">self</span>.check_invariants();
-                <span class="kw">return </span><span class="prelude-val">Ok</span>(());
-            }
-        }
-
-        <span class="self">self</span>.digits.clear();
-
-        <span class="kw">if </span><span class="self">self</span>.magnitude == i16::MAX {
-            <span class="self">self</span>.magnitude = <span class="number">0</span>;
-
-            <span class="attr">#[cfg(debug_assertions)]
-            </span><span class="self">self</span>.check_invariants();
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Limit);
-        }
-
-        <span class="comment">// Still a carry, carry one to the next magnitude.
-        </span><span class="self">self</span>.digits.push(<span class="number">1</span>);
-        <span class="self">self</span>.magnitude += <span class="number">1</span>;
-
-        <span class="kw">if </span><span class="self">self</span>.upper_magnitude &lt; <span class="self">self</span>.magnitude {
-            <span class="self">self</span>.upper_magnitude = <span class="self">self</span>.magnitude;
-        }
-
-        <span class="attr">#[cfg(debug_assertions)]
-        </span><span class="self">self</span>.check_invariants();
-        <span class="prelude-val">Ok</span>(())
-    }
-
-    <span class="doccomment">/// Removes the trailing zeros in `self.digits`
-    </span><span class="kw">fn </span>remove_trailing_zeros_from_digits_list(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="kw">let </span>no_of_trailing_zeros = <span class="self">self
-            </span>.digits
-            .iter()
-            .rev()
-            .take_while(|<span class="kw-2">&amp;</span>digit| <span class="kw-2">*</span>digit == <span class="number">0</span>)
-            .count();
-
-        <span class="self">self</span>.digits
-            .truncate(<span class="self">self</span>.digits.len() - no_of_trailing_zeros);
-
-        <span class="kw">if </span><span class="self">self</span>.digits.is_empty() {
-            <span class="self">self</span>.magnitude = <span class="number">0</span>;
-        }
-
-        <span class="attr">#[cfg(debug_assertions)]
-        </span><span class="self">self</span>.check_invariants();
-    }
-
     <span class="doccomment">/// Truncate the number on the right to a particular position, deleting
     /// digits if necessary.
     ///
@@ -4501,7 +4454,8 @@
     /// assert_eq!(&quot;1&quot;, dec.to_string());
     /// ```
     </span><span class="kw">pub fn </span>trunc(<span class="kw-2">&amp;mut </span><span class="self">self</span>, position: i16) {
-        <span class="self">self</span>.lower_magnitude = cmp::min(position, <span class="number">0</span>);
+        <span class="comment">// 1. Set upper and lower magnitude
+        </span><span class="self">self</span>.lower_magnitude = cmp::min(position, <span class="number">0</span>);
         <span class="kw">if </span>position == i16::MIN {
             <span class="comment">// Nothing more to do
             </span><span class="attr">#[cfg(debug_assertions)]
@@ -4511,12 +4465,33 @@
         <span class="kw">let </span>magnitude = position - <span class="number">1</span>;
         <span class="self">self</span>.upper_magnitude = cmp::max(<span class="self">self</span>.upper_magnitude, magnitude);
 
-        <span class="kw">if </span>magnitude &lt;= <span class="self">self</span>.magnitude {
-            <span class="self">self</span>.digits
-                .truncate(<span class="kw">crate</span>::ops::i16_abs_sub(<span class="self">self</span>.magnitude, magnitude) <span class="kw">as </span>usize);
-            <span class="self">self</span>.remove_trailing_zeros_from_digits_list();
+        <span class="comment">// 2. If the rounding position is *lower than* the rightmost nonzero digit, exit early
+        </span><span class="kw">if </span><span class="self">self</span>.is_zero() || magnitude &lt; <span class="self">self</span>.nonzero_magnitude_end() {
+            <span class="attr">#[cfg(debug_assertions)]
+            </span><span class="self">self</span>.check_invariants();
+            <span class="kw">return</span>;
+        }
+
+        <span class="comment">// 3. If the rounding position is *in the middle* of the nonzero digits
+        </span><span class="kw">if </span>magnitude &lt; <span class="self">self</span>.magnitude {
+            <span class="comment">// 3a. Calculate the number of digits to retain and remove the rest
+            </span><span class="kw">let </span>digits_to_retain = <span class="kw">crate</span>::ops::i16_abs_sub(<span class="self">self</span>.magnitude, magnitude);
+            <span class="self">self</span>.digits.truncate(digits_to_retain <span class="kw">as </span>usize);
+            <span class="comment">// 3b. Remove trailing zeros from self.digits to retain invariants
+            // Note: this does not affect visible trailing zeros,
+            // which is tracked by self.lower_magnitude
+            </span><span class="kw">let </span>position_past_last_nonzero_digit = <span class="self">self
+                </span>.digits
+                .iter()
+                .rposition(|x| <span class="kw-2">*</span>x != <span class="number">0</span>)
+                .map(|x| x + <span class="number">1</span>)
+                .unwrap_or(<span class="number">0</span>);
+            <span class="self">self</span>.digits.truncate(position_past_last_nonzero_digit);
+            <span class="comment">// 3c. By the invariant, there should still be at least 1 nonzero digit
+            </span><span class="macro">debug_assert!</span>(!<span class="self">self</span>.digits.is_empty());
         } <span class="kw">else </span>{
-            <span class="self">self</span>.digits.clear();
+            <span class="comment">// 4. If the rounding position is *above* the leftmost nonzero digit, set to zero
+            </span><span class="self">self</span>.digits.clear();
             <span class="self">self</span>.magnitude = <span class="number">0</span>;
         }
 
@@ -4623,32 +4598,60 @@
     /// assert_eq!(&quot;2&quot;, dec.to_string());
     /// ```
     </span><span class="kw">pub fn </span>expand(<span class="kw-2">&amp;mut </span><span class="self">self</span>, position: i16) {
-        <span class="kw">let </span>before_truncate_is_zero = <span class="self">self</span>.is_zero();
-        <span class="kw">let </span>before_truncate_bottom_magnitude = <span class="self">self</span>.nonzero_magnitude_end();
-        <span class="kw">let </span>before_truncate_magnitude = <span class="self">self</span>.magnitude;
-        <span class="self">self</span>.trunc(position);
+        <span class="comment">// 1. Set upper and lower magnitude
+        </span><span class="self">self</span>.lower_magnitude = cmp::min(position, <span class="number">0</span>);
+        <span class="kw">if </span>position == i16::MIN {
+            <span class="comment">// Nothing more to do
+            </span><span class="attr">#[cfg(debug_assertions)]
+            </span><span class="self">self</span>.check_invariants();
+            <span class="kw">return</span>;
+        }
+        <span class="kw">let </span>magnitude = position - <span class="number">1</span>;
+        <span class="self">self</span>.upper_magnitude = cmp::max(<span class="self">self</span>.upper_magnitude, magnitude);
 
-        <span class="kw">if </span>before_truncate_is_zero || position &lt;= before_truncate_bottom_magnitude {
+        <span class="comment">// 2. If the rounding position is *lower than* the rightmost nonzero digit, exit early
+        </span><span class="kw">if </span><span class="self">self</span>.is_zero() || magnitude &lt; <span class="self">self</span>.nonzero_magnitude_end() {
             <span class="attr">#[cfg(debug_assertions)]
             </span><span class="self">self</span>.check_invariants();
             <span class="kw">return</span>;
         }
 
-        <span class="kw">if </span>position &lt;= before_truncate_magnitude {
-            <span class="kw">let </span>result = <span class="self">self</span>.increment_abs_by_one();
-            <span class="kw">if </span>result.is_err() {
-                <span class="comment">// Do nothing for now.
-            </span>}
+        <span class="comment">// 3. If the rounding position is *in the middle* of the nonzero digits
+        </span><span class="kw">if </span>magnitude &lt; <span class="self">self</span>.magnitude {
+            <span class="comment">// 3a. Calculate the number of digits to retain and remove the rest
+            </span><span class="kw">let </span>digits_to_retain = <span class="kw">crate</span>::ops::i16_abs_sub(<span class="self">self</span>.magnitude, magnitude);
+            <span class="self">self</span>.digits.truncate(digits_to_retain <span class="kw">as </span>usize);
+            <span class="comment">// 3b. Increment the rightmost remaining digit since we are rounding up; this might
+            // require bubbling the addition to higher magnitudes, like 199 + 1 = 200
+            </span><span class="kw">for </span>(zero_count, digit) <span class="kw">in </span><span class="self">self</span>.digits.iter_mut().rev().enumerate() {
+                <span class="kw-2">*</span>digit += <span class="number">1</span>;
+                <span class="kw">if </span><span class="kw-2">*</span>digit &lt; <span class="number">10 </span>{
+                    <span class="self">self</span>.digits.truncate(<span class="self">self</span>.digits.len() - zero_count);
+                    <span class="attr">#[cfg(debug_assertions)]
+                    </span><span class="self">self</span>.check_invariants();
+                    <span class="kw">return</span>;
+                }
+            }
+            <span class="comment">// 3c. If we get here, the mantissa is fully saturated, and we continue into case 4
+        </span>}
 
+        <span class="comment">// 4. If the rounding position is *above* the leftmost nonzero digit, OR if we saturated,
+        // set the value to a single digit 1 at the appropriate position
+        </span><span class="kw">if </span><span class="self">self</span>.magnitude == i16::MAX {
+            <span class="comment">// TODO(#2297): Decide on behavior here
+            </span><span class="self">self</span>.magnitude = <span class="number">0</span>;
+            <span class="self">self</span>.digits.clear();
             <span class="attr">#[cfg(debug_assertions)]
             </span><span class="self">self</span>.check_invariants();
             <span class="kw">return</span>;
         }
-
-        <span class="macro">debug_assert!</span>(<span class="self">self</span>.digits.is_empty());
+        <span class="self">self</span>.digits.clear();
         <span class="self">self</span>.digits.push(<span class="number">1</span>);
-        <span class="self">self</span>.magnitude = position;
-        <span class="self">self</span>.upper_magnitude = cmp::max(<span class="self">self</span>.upper_magnitude, position);
+        <span class="comment">// If we got here from case 3, we should use self.magnitude + 1
+        // If we got here directly from case 4, we should use magnitude + 1
+        // We can use cmp::max to pick the right one
+        </span><span class="self">self</span>.magnitude = cmp::max(<span class="self">self</span>.magnitude, magnitude) + <span class="number">1</span>;
+        <span class="self">self</span>.upper_magnitude = cmp::max(<span class="self">self</span>.upper_magnitude, <span class="self">self</span>.magnitude);
 
         <span class="attr">#[cfg(debug_assertions)]
         </span><span class="self">self</span>.check_invariants();
@@ -5412,7 +5415,7 @@
 </span><span class="attr">#[non_exhaustive]
 #[cfg(feature = <span class="string">&quot;ryu&quot;</span>)]
 #[derive(Debug, Clone, Copy)]
-</span><span class="kw">pub enum </span>DoublePrecision {
+</span><span class="kw">pub enum </span>FloatPrecision {
     <span class="doccomment">/// Specify that the floating point number is integer-valued.
     ///
     /// If the floating point is not actually integer-valued, an error will be returned.
@@ -5441,7 +5444,7 @@
     ///
     /// Since f64 values do not carry a notion of their precision, the second argument to this
     /// function specifies the type of precision associated with the f64. For more information,
-    /// see [`DoublePrecision`].
+    /// see [`FloatPrecision`].
     ///
     /// This function uses `ryu`, which is an efficient double-to-string algorithm, but other
     /// implementations may yield higher performance; for more details, see
@@ -5450,21 +5453,21 @@
     /// This function can be made available with the `&quot;ryu&quot;` Cargo feature.
     ///
     /// ```rust
-    /// use fixed_decimal::{DoublePrecision, FixedDecimal};
+    /// use fixed_decimal::{FixedDecimal, FloatPrecision};
     /// use writeable::assert_writeable_eq;
     ///
     /// let decimal =
-    ///     FixedDecimal::try_from_f64(-5.1, DoublePrecision::Magnitude(-2))
+    ///     FixedDecimal::try_from_f64(-5.1, FloatPrecision::Magnitude(-2))
     ///         .expect(&quot;Finite quantity with limited precision&quot;);
     /// assert_writeable_eq!(decimal, &quot;-5.10&quot;);
     ///
     /// let decimal =
-    ///     FixedDecimal::try_from_f64(0.012345678, DoublePrecision::Floating)
+    ///     FixedDecimal::try_from_f64(0.012345678, FloatPrecision::Floating)
     ///         .expect(&quot;Finite quantity&quot;);
     /// assert_writeable_eq!(decimal, &quot;0.012345678&quot;);
     ///
     /// let decimal =
-    ///     FixedDecimal::try_from_f64(12345678000., DoublePrecision::Integer)
+    ///     FixedDecimal::try_from_f64(12345678000., FloatPrecision::Integer)
     ///         .expect(&quot;Finite, integer-valued quantity&quot;);
     /// assert_writeable_eq!(decimal, &quot;12345678000&quot;);
     /// ```
@@ -5472,17 +5475,17 @@
     /// Negative zero is supported.
     ///
     /// ```rust
-    /// use fixed_decimal::{DoublePrecision, FixedDecimal};
+    /// use fixed_decimal::{FixedDecimal, FloatPrecision};
     /// use writeable::assert_writeable_eq;
     ///
     /// // IEEE 754 for floating point defines the sign bit separate
     /// // from the mantissa and exponent, allowing for -0.
     /// let negative_zero =
-    ///     FixedDecimal::try_from_f64(-0.0, DoublePrecision::Integer)
+    ///     FixedDecimal::try_from_f64(-0.0, FloatPrecision::Integer)
     ///         .expect(&quot;Negative zero&quot;);
     /// assert_writeable_eq!(negative_zero, &quot;-0&quot;);
     /// ```
-    </span><span class="kw">pub fn </span>try_from_f64(float: f64, precision: DoublePrecision) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
+    </span><span class="kw">pub fn </span>try_from_f64(float: f64, precision: FloatPrecision) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>decimal = <span class="self">Self</span>::new_from_f64_raw(float)<span class="question-mark">?</span>;
         <span class="kw">let </span>n_digits = decimal.digits.len();
         <span class="comment">// magnitude of the lowest digit in self.digits
@@ -5493,16 +5496,16 @@
             decimal.lower_magnitude = <span class="number">0</span>;
         }
         <span class="kw">match </span>precision {
-            DoublePrecision::Floating =&gt; (),
-            DoublePrecision::Integer =&gt; {
+            FloatPrecision::Floating =&gt; (),
+            FloatPrecision::Integer =&gt; {
                 <span class="kw">if </span>lowest_magnitude &lt; <span class="number">0 </span>{
                     <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Limit);
                 }
             }
-            DoublePrecision::Magnitude(mag) =&gt; {
+            FloatPrecision::Magnitude(mag) =&gt; {
                 decimal.half_even(mag);
             }
-            DoublePrecision::SignificantDigits(sig) =&gt; {
+            FloatPrecision::SignificantDigits(sig) =&gt; {
                 <span class="kw">if </span>sig == <span class="number">0 </span>{
                     <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Limit);
                 }
@@ -5540,169 +5543,169 @@
     <span class="attr">#[derive(Debug)]
     </span><span class="kw">struct </span>TestCase {
         <span class="kw">pub </span>input: f64,
-        <span class="kw">pub </span>precision: DoublePrecision,
+        <span class="kw">pub </span>precision: FloatPrecision,
         <span class="kw">pub </span>expected: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
     }
     <span class="kw">let </span>cases = [
         TestCase {
             input: <span class="number">1.234567</span>,
-            precision: DoublePrecision::Floating,
+            precision: FloatPrecision::Floating,
             expected: <span class="string">&quot;1.234567&quot;</span>,
         },
         TestCase {
             input: <span class="number">888999.</span>,
-            precision: DoublePrecision::Floating,
+            precision: FloatPrecision::Floating,
             expected: <span class="string">&quot;888999&quot;</span>,
         },
         <span class="comment">// HalfExpand tests
         </span>TestCase {
             input: <span class="number">1.234567</span>,
-            precision: DoublePrecision::Magnitude(-<span class="number">2</span>),
+            precision: FloatPrecision::Magnitude(-<span class="number">2</span>),
             expected: <span class="string">&quot;1.23&quot;</span>,
         },
         TestCase {
             input: <span class="number">1.235567</span>,
-            precision: DoublePrecision::Magnitude(-<span class="number">2</span>),
+            precision: FloatPrecision::Magnitude(-<span class="number">2</span>),
             expected: <span class="string">&quot;1.24&quot;</span>,
         },
         TestCase {
             input: <span class="number">1.2002</span>,
-            precision: DoublePrecision::Magnitude(-<span class="number">3</span>),
+            precision: FloatPrecision::Magnitude(-<span class="number">3</span>),
             expected: <span class="string">&quot;1.200&quot;</span>,
         },
         TestCase {
             input: <span class="number">888999.</span>,
-            precision: DoublePrecision::Magnitude(<span class="number">2</span>),
+            precision: FloatPrecision::Magnitude(<span class="number">2</span>),
             expected: <span class="string">&quot;889000&quot;</span>,
         },
         TestCase {
             input: <span class="number">888999.</span>,
-            precision: DoublePrecision::Magnitude(<span class="number">4</span>),
+            precision: FloatPrecision::Magnitude(<span class="number">4</span>),
             expected: <span class="string">&quot;890000&quot;</span>,
         },
         TestCase {
             input: <span class="number">0.9</span>,
-            precision: DoublePrecision::Magnitude(<span class="number">0</span>),
+            precision: FloatPrecision::Magnitude(<span class="number">0</span>),
             expected: <span class="string">&quot;1&quot;</span>,
         },
         TestCase {
             input: <span class="number">0.9</span>,
-            precision: DoublePrecision::Magnitude(<span class="number">2</span>),
+            precision: FloatPrecision::Magnitude(<span class="number">2</span>),
             expected: <span class="string">&quot;00&quot;</span>,
         },
         TestCase {
             input: <span class="number">0.009</span>,
-            precision: DoublePrecision::Magnitude(-<span class="number">2</span>),
+            precision: FloatPrecision::Magnitude(-<span class="number">2</span>),
             expected: <span class="string">&quot;0.01&quot;</span>,
         },
         TestCase {
             input: <span class="number">0.009</span>,
-            precision: DoublePrecision::Magnitude(-<span class="number">1</span>),
+            precision: FloatPrecision::Magnitude(-<span class="number">1</span>),
             expected: <span class="string">&quot;0.0&quot;</span>,
         },
         TestCase {
             input: <span class="number">0.009</span>,
-            precision: DoublePrecision::Magnitude(<span class="number">0</span>),
+            precision: FloatPrecision::Magnitude(<span class="number">0</span>),
             expected: <span class="string">&quot;0&quot;</span>,
         },
         TestCase {
             input: <span class="number">0.0000009</span>,
-            precision: DoublePrecision::Magnitude(<span class="number">0</span>),
+            precision: FloatPrecision::Magnitude(<span class="number">0</span>),
             expected: <span class="string">&quot;0&quot;</span>,
         },
         TestCase {
             input: <span class="number">0.0000009</span>,
-            precision: DoublePrecision::Magnitude(-<span class="number">7</span>),
+            precision: FloatPrecision::Magnitude(-<span class="number">7</span>),
             expected: <span class="string">&quot;0.0000009&quot;</span>,
         },
         TestCase {
             input: <span class="number">0.0000009</span>,
-            precision: DoublePrecision::Magnitude(-<span class="number">6</span>),
+            precision: FloatPrecision::Magnitude(-<span class="number">6</span>),
             expected: <span class="string">&quot;0.000001&quot;</span>,
         },
         TestCase {
             input: <span class="number">1.234567</span>,
-            precision: DoublePrecision::SignificantDigits(<span class="number">1</span>),
+            precision: FloatPrecision::SignificantDigits(<span class="number">1</span>),
             expected: <span class="string">&quot;1&quot;</span>,
         },
         TestCase {
             input: <span class="number">1.234567</span>,
-            precision: DoublePrecision::SignificantDigits(<span class="number">2</span>),
+            precision: FloatPrecision::SignificantDigits(<span class="number">2</span>),
             expected: <span class="string">&quot;1.2&quot;</span>,
         },
         TestCase {
             input: <span class="number">1.234567</span>,
-            precision: DoublePrecision::SignificantDigits(<span class="number">4</span>),
+            precision: FloatPrecision::SignificantDigits(<span class="number">4</span>),
             expected: <span class="string">&quot;1.235&quot;</span>,
         },
         TestCase {
             input: <span class="number">1.234567</span>,
-            precision: DoublePrecision::SignificantDigits(<span class="number">10</span>),
+            precision: FloatPrecision::SignificantDigits(<span class="number">10</span>),
             expected: <span class="string">&quot;1.234567000&quot;</span>,
         },
         TestCase {
             input: <span class="number">888999.</span>,
-            precision: DoublePrecision::SignificantDigits(<span class="number">1</span>),
+            precision: FloatPrecision::SignificantDigits(<span class="number">1</span>),
             expected: <span class="string">&quot;900000&quot;</span>,
         },
         TestCase {
             input: <span class="number">888999.</span>,
-            precision: DoublePrecision::SignificantDigits(<span class="number">2</span>),
+            precision: FloatPrecision::SignificantDigits(<span class="number">2</span>),
             expected: <span class="string">&quot;890000&quot;</span>,
         },
         TestCase {
             input: <span class="number">888999.</span>,
-            precision: DoublePrecision::SignificantDigits(<span class="number">4</span>),
+            precision: FloatPrecision::SignificantDigits(<span class="number">4</span>),
             expected: <span class="string">&quot;889000&quot;</span>,
         },
         TestCase {
             input: <span class="number">988999.</span>,
-            precision: DoublePrecision::SignificantDigits(<span class="number">1</span>),
+            precision: FloatPrecision::SignificantDigits(<span class="number">1</span>),
             expected: <span class="string">&quot;1000000&quot;</span>,
         },
         TestCase {
             input: <span class="number">99888.</span>,
-            precision: DoublePrecision::SignificantDigits(<span class="number">1</span>),
+            precision: FloatPrecision::SignificantDigits(<span class="number">1</span>),
             expected: <span class="string">&quot;100000&quot;</span>,
         },
         TestCase {
             input: <span class="number">99888.</span>,
-            precision: DoublePrecision::SignificantDigits(<span class="number">2</span>),
+            precision: FloatPrecision::SignificantDigits(<span class="number">2</span>),
             expected: <span class="string">&quot;100000&quot;</span>,
         },
         TestCase {
             input: <span class="number">99888.</span>,
-            precision: DoublePrecision::SignificantDigits(<span class="number">3</span>),
+            precision: FloatPrecision::SignificantDigits(<span class="number">3</span>),
             expected: <span class="string">&quot;99900&quot;</span>,
         },
         TestCase {
             input: <span class="number">0.0099</span>,
-            precision: DoublePrecision::SignificantDigits(<span class="number">1</span>),
+            precision: FloatPrecision::SignificantDigits(<span class="number">1</span>),
             expected: <span class="string">&quot;0.01&quot;</span>,
         },
         TestCase {
             input: <span class="number">9.9888</span>,
-            precision: DoublePrecision::SignificantDigits(<span class="number">1</span>),
+            precision: FloatPrecision::SignificantDigits(<span class="number">1</span>),
             expected: <span class="string">&quot;10&quot;</span>,
         },
         TestCase {
             input: <span class="number">9.9888</span>,
-            precision: DoublePrecision::SignificantDigits(<span class="number">2</span>),
+            precision: FloatPrecision::SignificantDigits(<span class="number">2</span>),
             expected: <span class="string">&quot;10&quot;</span>,
         },
         TestCase {
             input: <span class="number">99888.0</span>,
-            precision: DoublePrecision::SignificantDigits(<span class="number">1</span>),
+            precision: FloatPrecision::SignificantDigits(<span class="number">1</span>),
             expected: <span class="string">&quot;100000&quot;</span>,
         },
         TestCase {
             input: <span class="number">99888.0</span>,
-            precision: DoublePrecision::SignificantDigits(<span class="number">2</span>),
+            precision: FloatPrecision::SignificantDigits(<span class="number">2</span>),
             expected: <span class="string">&quot;100000&quot;</span>,
         },
         TestCase {
             input: <span class="number">9.9888</span>,
-            precision: DoublePrecision::SignificantDigits(<span class="number">3</span>),
+            precision: FloatPrecision::SignificantDigits(<span class="number">3</span>),
             expected: <span class="string">&quot;9.99&quot;</span>,
         },
     ];
@@ -5826,7 +5829,7 @@
     <span class="attr">#[derive(Debug)]
     </span><span class="kw">struct </span>TestCase {
         <span class="kw">pub </span>input_str: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
-        <span class="doccomment">/// The output str, None for roundtrip
+        <span class="doccomment">/// The output str, `None` for roundtrip
         </span><span class="kw">pub </span>output_str: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt;,
         <span class="doccomment">/// [upper magnitude, upper nonzero magnitude, lower nonzero magnitude, lower magnitude]
         </span><span class="kw">pub </span>magnitudes: [i16; <span class="number">4</span>],
@@ -6793,6 +6796,23 @@
     <span class="kw">let </span><span class="kw-2">mut </span>dec = FixedDecimal::from_str(<span class="string">&quot;-0.009&quot;</span>).unwrap();
     dec.half_expand(-<span class="number">1</span>);
     <span class="macro">assert_eq!</span>(<span class="string">&quot;-0.0&quot;</span>, dec.to_string());
+
+    <span class="comment">// Test specific cases
+    </span><span class="kw">let </span><span class="kw-2">mut </span>dec = FixedDecimal::from_str(<span class="string">&quot;1.108&quot;</span>).unwrap();
+    dec.half_even(-<span class="number">2</span>);
+    <span class="macro">assert_eq!</span>(<span class="string">&quot;1.11&quot;</span>, dec.to_string());
+
+    <span class="kw">let </span><span class="kw-2">mut </span>dec = FixedDecimal::from_str(<span class="string">&quot;1.108&quot;</span>).unwrap();
+    dec.expand(-<span class="number">2</span>);
+    <span class="macro">assert_eq!</span>(<span class="string">&quot;1.11&quot;</span>, dec.to_string());
+
+    <span class="kw">let </span><span class="kw-2">mut </span>dec = FixedDecimal::from_str(<span class="string">&quot;1.108&quot;</span>).unwrap();
+    dec.trunc(-<span class="number">2</span>);
+    <span class="macro">assert_eq!</span>(<span class="string">&quot;1.10&quot;</span>, dec.to_string());
+
+    <span class="kw">let </span><span class="kw-2">mut </span>dec = FixedDecimal::from_str(<span class="string">&quot;2.78536913177&quot;</span>).unwrap();
+    dec.half_even(-<span class="number">2</span>);
+    <span class="macro">assert_eq!</span>(<span class="string">&quot;2.79&quot;</span>, dec.to_string());
 }
 
 <span class="attr">#[test]

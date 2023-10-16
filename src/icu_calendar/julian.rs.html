@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_calendar-1.2.0/src/julian.rs`."><title>julian.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_calendar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../icu_calendar/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_calendar-1.3.2/src/julian.rs`."><title>julian.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_calendar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../icu_calendar/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -418,6 +418,138 @@
 <a href="#418" id="418">418</a>
 <a href="#419" id="419">419</a>
 <a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
+<a href="#449" id="449">449</a>
+<a href="#450" id="450">450</a>
+<a href="#451" id="451">451</a>
+<a href="#452" id="452">452</a>
+<a href="#453" id="453">453</a>
+<a href="#454" id="454">454</a>
+<a href="#455" id="455">455</a>
+<a href="#456" id="456">456</a>
+<a href="#457" id="457">457</a>
+<a href="#458" id="458">458</a>
+<a href="#459" id="459">459</a>
+<a href="#460" id="460">460</a>
+<a href="#461" id="461">461</a>
+<a href="#462" id="462">462</a>
+<a href="#463" id="463">463</a>
+<a href="#464" id="464">464</a>
+<a href="#465" id="465">465</a>
+<a href="#466" id="466">466</a>
+<a href="#467" id="467">467</a>
+<a href="#468" id="468">468</a>
+<a href="#469" id="469">469</a>
+<a href="#470" id="470">470</a>
+<a href="#471" id="471">471</a>
+<a href="#472" id="472">472</a>
+<a href="#473" id="473">473</a>
+<a href="#474" id="474">474</a>
+<a href="#475" id="475">475</a>
+<a href="#476" id="476">476</a>
+<a href="#477" id="477">477</a>
+<a href="#478" id="478">478</a>
+<a href="#479" id="479">479</a>
+<a href="#480" id="480">480</a>
+<a href="#481" id="481">481</a>
+<a href="#482" id="482">482</a>
+<a href="#483" id="483">483</a>
+<a href="#484" id="484">484</a>
+<a href="#485" id="485">485</a>
+<a href="#486" id="486">486</a>
+<a href="#487" id="487">487</a>
+<a href="#488" id="488">488</a>
+<a href="#489" id="489">489</a>
+<a href="#490" id="490">490</a>
+<a href="#491" id="491">491</a>
+<a href="#492" id="492">492</a>
+<a href="#493" id="493">493</a>
+<a href="#494" id="494">494</a>
+<a href="#495" id="495">495</a>
+<a href="#496" id="496">496</a>
+<a href="#497" id="497">497</a>
+<a href="#498" id="498">498</a>
+<a href="#499" id="499">499</a>
+<a href="#500" id="500">500</a>
+<a href="#501" id="501">501</a>
+<a href="#502" id="502">502</a>
+<a href="#503" id="503">503</a>
+<a href="#504" id="504">504</a>
+<a href="#505" id="505">505</a>
+<a href="#506" id="506">506</a>
+<a href="#507" id="507">507</a>
+<a href="#508" id="508">508</a>
+<a href="#509" id="509">509</a>
+<a href="#510" id="510">510</a>
+<a href="#511" id="511">511</a>
+<a href="#512" id="512">512</a>
+<a href="#513" id="513">513</a>
+<a href="#514" id="514">514</a>
+<a href="#515" id="515">515</a>
+<a href="#516" id="516">516</a>
+<a href="#517" id="517">517</a>
+<a href="#518" id="518">518</a>
+<a href="#519" id="519">519</a>
+<a href="#520" id="520">520</a>
+<a href="#521" id="521">521</a>
+<a href="#522" id="522">522</a>
+<a href="#523" id="523">523</a>
+<a href="#524" id="524">524</a>
+<a href="#525" id="525">525</a>
+<a href="#526" id="526">526</a>
+<a href="#527" id="527">527</a>
+<a href="#528" id="528">528</a>
+<a href="#529" id="529">529</a>
+<a href="#530" id="530">530</a>
+<a href="#531" id="531">531</a>
+<a href="#532" id="532">532</a>
+<a href="#533" id="533">533</a>
+<a href="#534" id="534">534</a>
+<a href="#535" id="535">535</a>
+<a href="#536" id="536">536</a>
+<a href="#537" id="537">537</a>
+<a href="#538" id="538">538</a>
+<a href="#539" id="539">539</a>
+<a href="#540" id="540">540</a>
+<a href="#541" id="541">541</a>
+<a href="#542" id="542">542</a>
+<a href="#543" id="543">543</a>
+<a href="#544" id="544">544</a>
+<a href="#545" id="545">545</a>
+<a href="#546" id="546">546</a>
+<a href="#547" id="547">547</a>
+<a href="#548" id="548">548</a>
+<a href="#549" id="549">549</a>
+<a href="#550" id="550">550</a>
+<a href="#551" id="551">551</a>
+<a href="#552" id="552">552</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
@@ -453,15 +585,12 @@
 
 </span><span class="kw">use </span><span class="kw">crate</span>::any_calendar::AnyCalendarKind;
 <span class="kw">use </span><span class="kw">crate</span>::calendar_arithmetic::{ArithmeticDate, CalendarArithmetic};
-<span class="kw">use </span><span class="kw">crate</span>::helpers::quotient;
+<span class="kw">use </span><span class="kw">crate</span>::gregorian::year_as_gregorian;
 <span class="kw">use </span><span class="kw">crate</span>::iso::Iso;
 <span class="kw">use crate</span>::{types, Calendar, CalendarError, Date, DateDuration, DateDurationUnit, DateTime};
-<span class="kw">use </span>core::marker::PhantomData;
+<span class="kw">use </span>calendrical_calculations::helpers::I32CastError;
+<span class="kw">use </span>calendrical_calculations::rata_die::RataDie;
 <span class="kw">use </span>tinystr::tinystr;
-
-<span class="comment">// Julian epoch is equivalent to fixed_from_iso of December 30th of 0 year
-// 1st Jan of 1st year Julian is equivalent to December 30th of 0th year of ISO year
-</span><span class="kw">const </span>JULIAN_EPOCH: i32 = -<span class="number">1</span>;
 
 <span class="doccomment">/// The [Julian Calendar]
 ///
@@ -473,8 +602,12 @@
 ///
 /// # Era codes
 ///
-/// This calendar supports two era codes: `&quot;bc&quot;`, and `&quot;ad&quot;`, corresponding to the BC and AD eras
-</span><span class="attr">#[derive(Copy, Clone, Debug, Hash, Default, Eq, PartialEq)]
+/// This calendar supports two era codes: `&quot;bce&quot;`, and `&quot;ce&quot;`, corresponding to the BCE/BC and CE/AD eras
+///
+/// # Month codes
+///
+/// This calendar supports 12 solar month codes (`&quot;M01&quot; - &quot;M12&quot;`)
+</span><span class="attr">#[derive(Copy, Clone, Debug, Hash, Default, Eq, PartialEq, PartialOrd, Ord)]
 #[allow(clippy::exhaustive_structs)] </span><span class="comment">// this type is stable
 </span><span class="kw">pub struct </span>Julian;
 
@@ -499,10 +632,14 @@
     </span>}
 
     <span class="kw">fn </span>is_leap_year(year: i32) -&gt; bool {
-        <span class="self">Self</span>::is_leap_year_const(year)
+        calendrical_calculations::julian::is_leap_year(year)
     }
 
-    <span class="kw">fn </span>days_in_provided_year(year: i32) -&gt; u32 {
+    <span class="kw">fn </span>last_month_day_in_year(_year: i32) -&gt; (u8, u8) {
+        (<span class="number">12</span>, <span class="number">31</span>)
+    }
+
+    <span class="kw">fn </span>days_in_provided_year(year: i32) -&gt; u16 {
         <span class="kw">if </span><span class="self">Self</span>::is_leap_year(year) {
             <span class="number">366
         </span>} <span class="kw">else </span>{
@@ -520,12 +657,12 @@
         month_code: types::MonthCode,
         day: u8,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::DateInner, CalendarError&gt; {
-        <span class="kw">let </span>year = <span class="kw">if </span>era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;ad&quot;</span>) {
+        <span class="kw">let </span>year = <span class="kw">if </span>era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;ce&quot;</span>) {
             <span class="kw">if </span>year &lt;= <span class="number">0 </span>{
                 <span class="kw">return </span><span class="prelude-val">Err</span>(CalendarError::OutOfRange);
             }
             year
-        } <span class="kw">else if </span>era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;bc&quot;</span>) {
+        } <span class="kw">else if </span>era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;bce&quot;</span>) {
             <span class="kw">if </span>year &lt;= <span class="number">0 </span>{
                 <span class="kw">return </span><span class="prelude-val">Err</span>(CalendarError::OutOfRange);
             }
@@ -534,7 +671,7 @@
             <span class="kw">return </span><span class="prelude-val">Err</span>(CalendarError::UnknownEra(era.<span class="number">0</span>, <span class="self">self</span>.debug_name()));
         };
 
-        ArithmeticDate::new_from_solar(<span class="self">self</span>, year, month_code, day).map(JulianDateInner)
+        ArithmeticDate::new_from_codes(<span class="self">self</span>, year, month_code, day).map(JulianDateInner)
     }
     <span class="kw">fn </span>date_from_iso(<span class="kw-2">&amp;</span><span class="self">self</span>, iso: Date&lt;Iso&gt;) -&gt; JulianDateInner {
         <span class="kw">let </span>fixed_iso = Iso::fixed_from_iso(<span class="kw-2">*</span>iso.inner());
@@ -550,7 +687,7 @@
         date.<span class="number">0</span>.months_in_year()
     }
 
-    <span class="kw">fn </span>days_in_year(<span class="kw-2">&amp;</span><span class="self">self</span>, date: <span class="kw-2">&amp;</span><span class="self">Self</span>::DateInner) -&gt; u32 {
+    <span class="kw">fn </span>days_in_year(<span class="kw-2">&amp;</span><span class="self">self</span>, date: <span class="kw-2">&amp;</span><span class="self">Self</span>::DateInner) -&gt; u16 {
         date.<span class="number">0</span>.days_in_year()
     }
 
@@ -581,12 +718,12 @@
     <span class="doccomment">/// The calendar-specific year represented by `date`
     /// Julian has the same era scheme as Gregorian
     </span><span class="kw">fn </span>year(<span class="kw-2">&amp;</span><span class="self">self</span>, date: <span class="kw-2">&amp;</span><span class="self">Self</span>::DateInner) -&gt; types::FormattableYear {
-        <span class="kw">crate</span>::gregorian::year_as_gregorian(date.<span class="number">0</span>.year)
+        year_as_gregorian(date.<span class="number">0</span>.year)
     }
 
     <span class="doccomment">/// The calendar-specific month represented by `date`
     </span><span class="kw">fn </span>month(<span class="kw-2">&amp;</span><span class="self">self</span>, date: <span class="kw-2">&amp;</span><span class="self">Self</span>::DateInner) -&gt; types::FormattableMonth {
-        date.<span class="number">0</span>.solar_month()
+        date.<span class="number">0</span>.month()
     }
 
     <span class="doccomment">/// The calendar-specific day-of-month represented by `date`
@@ -621,47 +758,14 @@
         <span class="self">Self
     </span>}
 
-    <span class="attr">#[inline(always)]
-    </span><span class="kw">const fn </span>is_leap_year_const(year: i32) -&gt; bool {
-        year % <span class="number">4 </span>== <span class="number">0
-    </span>}
-
     <span class="comment">// &quot;Fixed&quot; is a day count representation of calendars staring from Jan 1st of year 1 of the Georgian Calendar.
-    // The fixed date algorithms are from
-    // Dershowitz, Nachum, and Edward M. Reingold. _Calendrical calculations_. Cambridge University Press, 2008.
-    //
-    // Lisp code reference: https://github.com/EdReingold/calendar-code2/blob/1ee51ecfaae6f856b0d7de3e36e9042100b4f424/calendar.l#L1689-L1709
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const fn </span>fixed_from_julian(date: ArithmeticDate&lt;Julian&gt;) -&gt; i32 {
-        <span class="kw">let </span>year = <span class="kw">if </span>date.year &lt; <span class="number">0 </span>{
-            date.year + <span class="number">1
-        </span>} <span class="kw">else </span>{
-            date.year
-        };
-        <span class="kw">let </span><span class="kw-2">mut </span>fixed: i32 = JULIAN_EPOCH - <span class="number">1 </span>+ <span class="number">365 </span>* (year - <span class="number">1</span>) + quotient(year - <span class="number">1</span>, <span class="number">4</span>);
-        fixed += quotient(<span class="number">367 </span>* (date.month <span class="kw">as </span>i32) - <span class="number">362</span>, <span class="number">12</span>);
-        fixed += <span class="kw">if </span>date.month &lt;= <span class="number">2 </span>{
-            <span class="number">0
-        </span>} <span class="kw">else if </span><span class="self">Self</span>::is_leap_year_const(date.year) {
-            -<span class="number">1
-        </span>} <span class="kw">else </span>{
-            -<span class="number">2
-        </span>};
-
-        fixed + (date.day <span class="kw">as </span>i32)
-    }
-
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const fn </span>fixed_from_julian_integers(year: i32, month: u8, day: u8) -&gt; i32 {
-        <span class="self">Self</span>::fixed_from_julian(ArithmeticDate {
-            year,
-            month,
-            day,
-            marker: PhantomData,
-        })
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const fn </span>fixed_from_julian(date: ArithmeticDate&lt;Julian&gt;) -&gt; RataDie {
+        calendrical_calculations::julian::fixed_from_julian(date.year, date.month, date.day)
     }
 
     <span class="doccomment">/// Convenience function so we can call days_in_year without
     /// needing to construct a full ArithmeticDate
-    </span><span class="kw">fn </span>days_in_year_direct(year: i32) -&gt; u32 {
+    </span><span class="kw">fn </span>days_in_year_direct(year: i32) -&gt; u16 {
         <span class="kw">if </span>Julian::is_leap_year(year) {
             <span class="number">366
         </span>} <span class="kw">else </span>{
@@ -669,30 +773,20 @@
         </span>}
     }
 
-    <span class="comment">// Lisp code reference: https://github.com/EdReingold/calendar-code2/blob/1ee51ecfaae6f856b0d7de3e36e9042100b4f424/calendar.l#L1711-L1738
-    </span><span class="kw">fn </span>julian_from_fixed(date: i32) -&gt; JulianDateInner {
-        <span class="kw">let </span>approx = quotient((<span class="number">4 </span>* date) + <span class="number">1464</span>, <span class="number">1461</span>);
-        <span class="kw">let </span>year = <span class="kw">if </span>approx &lt;= <span class="number">0 </span>{ approx - <span class="number">1 </span>} <span class="kw">else </span>{ approx };
-        <span class="kw">let </span>prior_days = date - <span class="self">Self</span>::fixed_from_julian_integers(year, <span class="number">1</span>, <span class="number">1</span>);
-        <span class="kw">let </span>correction = <span class="kw">if </span>date &lt; <span class="self">Self</span>::fixed_from_julian_integers(year, <span class="number">3</span>, <span class="number">1</span>) {
-            <span class="number">0
-        </span>} <span class="kw">else if </span>Julian::is_leap_year(year) {
-            <span class="number">1
-        </span>} <span class="kw">else </span>{
-            <span class="number">2
-        </span>};
-        <span class="kw">let </span>month = quotient(<span class="number">12 </span>* (prior_days + correction) + <span class="number">373</span>, <span class="number">367</span>) <span class="kw">as </span>u8; <span class="comment">// this expression is in 1..=12
-        </span><span class="kw">let </span>day = (date - <span class="self">Self</span>::fixed_from_julian_integers(year, month, <span class="number">1</span>) + <span class="number">1</span>) <span class="kw">as </span>u8; <span class="comment">// as days_in_month is &lt; u8::MAX
-
-        </span><span class="attr">#[allow(clippy::unwrap_used)] </span><span class="comment">// day and month have the correct bounds
-        </span><span class="kw-2">*</span>Date::try_new_julian_date(year, month, day).unwrap().inner()
+    <span class="kw">fn </span>julian_from_fixed(date: RataDie) -&gt; JulianDateInner {
+        <span class="kw">let </span>(year, month, day) = <span class="kw">match </span>calendrical_calculations::julian::julian_from_fixed(date) {
+            <span class="prelude-val">Err</span>(I32CastError::BelowMin) =&gt; <span class="kw">return </span>JulianDateInner(ArithmeticDate::min_date()),
+            <span class="prelude-val">Err</span>(I32CastError::AboveMax) =&gt; <span class="kw">return </span>JulianDateInner(ArithmeticDate::max_date()),
+            <span class="prelude-val">Ok</span>(ymd) =&gt; ymd,
+        };
+        JulianDateInner(ArithmeticDate::new_unchecked(year, month, day))
     }
 }
 
 <span class="kw">impl </span>Date&lt;Julian&gt; {
     <span class="doccomment">/// Construct new Julian Date.
     ///
-    /// Zero and negative years are in BC, with year 0 = 1 BC
+    /// Years are arithmetic, meaning there is a year 0. Zero and negative years are in BC, with year 0 = 1 BC
     ///
     /// ```rust
     /// use icu::calendar::Date;
@@ -709,28 +803,16 @@
         month: u8,
         day: u8,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Date&lt;Julian&gt;, CalendarError&gt; {
-        <span class="kw">let </span>inner = ArithmeticDate {
-            year,
-            month,
-            day,
-            marker: PhantomData,
-        };
-
-        <span class="kw">if </span>day &gt; <span class="number">28 </span>{
-            <span class="kw">let </span>bound = inner.days_in_month();
-            <span class="kw">if </span>day &gt; bound {
-                <span class="kw">return </span><span class="prelude-val">Err</span>(CalendarError::OutOfRange);
-            }
-        }
-
-        <span class="prelude-val">Ok</span>(Date::from_raw(JulianDateInner(inner), Julian))
+        ArithmeticDate::new_from_ordinals(year, month, day)
+            .map(JulianDateInner)
+            .map(|inner| Date::from_raw(inner, Julian))
     }
 }
 
 <span class="kw">impl </span>DateTime&lt;Julian&gt; {
     <span class="doccomment">/// Construct a new Julian datetime from integers.
     ///
-    /// Zero and negative years are in BC, with year 0 = 1 BC
+    /// Years are arithmetic, meaning there is a year 0. Zero and negative years are in BC, with year 0 = 1 BC
     ///
     /// ```rust
     /// use icu::calendar::DateTime;
@@ -764,6 +846,7 @@
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>test {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span>types::Era;
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_day_iso_to_julian() {
@@ -836,6 +919,187 @@
         <span class="kw">let </span>julian = iso_date.to_calendar(Julian::new());
         <span class="kw">let </span>recovered_iso = julian.to_iso();
         <span class="macro">assert_eq!</span>(iso_date, recovered_iso);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_julian_near_era_change() {
+        <span class="comment">// Tests that the Julian calendar gives the correct expected
+        // day, month, and year for positive years (CE)
+
+        </span><span class="attr">#[derive(Debug)]
+        </span><span class="kw">struct </span>TestCase {
+            fixed_date: i64,
+            iso_year: i32,
+            iso_month: u8,
+            iso_day: u8,
+            expected_year: i32,
+            expected_era: Era,
+            expected_month: u32,
+            expected_day: u32,
+        }
+
+        <span class="kw">let </span>cases = [
+            TestCase {
+                fixed_date: <span class="number">1</span>,
+                iso_year: <span class="number">1</span>,
+                iso_month: <span class="number">1</span>,
+                iso_day: <span class="number">1</span>,
+                expected_year: <span class="number">1</span>,
+                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;ce&quot;</span>)),
+                expected_month: <span class="number">1</span>,
+                expected_day: <span class="number">3</span>,
+            },
+            TestCase {
+                fixed_date: <span class="number">0</span>,
+                iso_year: <span class="number">0</span>,
+                iso_month: <span class="number">12</span>,
+                iso_day: <span class="number">31</span>,
+                expected_year: <span class="number">1</span>,
+                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;ce&quot;</span>)),
+                expected_month: <span class="number">1</span>,
+                expected_day: <span class="number">2</span>,
+            },
+            TestCase {
+                fixed_date: -<span class="number">1</span>,
+                iso_year: <span class="number">0</span>,
+                iso_month: <span class="number">12</span>,
+                iso_day: <span class="number">30</span>,
+                expected_year: <span class="number">1</span>,
+                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;ce&quot;</span>)),
+                expected_month: <span class="number">1</span>,
+                expected_day: <span class="number">1</span>,
+            },
+            TestCase {
+                fixed_date: -<span class="number">2</span>,
+                iso_year: <span class="number">0</span>,
+                iso_month: <span class="number">12</span>,
+                iso_day: <span class="number">29</span>,
+                expected_year: <span class="number">1</span>,
+                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;bce&quot;</span>)),
+                expected_month: <span class="number">12</span>,
+                expected_day: <span class="number">31</span>,
+            },
+            TestCase {
+                fixed_date: -<span class="number">3</span>,
+                iso_year: <span class="number">0</span>,
+                iso_month: <span class="number">12</span>,
+                iso_day: <span class="number">28</span>,
+                expected_year: <span class="number">1</span>,
+                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;bce&quot;</span>)),
+                expected_month: <span class="number">12</span>,
+                expected_day: <span class="number">30</span>,
+            },
+            TestCase {
+                fixed_date: -<span class="number">367</span>,
+                iso_year: -<span class="number">1</span>,
+                iso_month: <span class="number">12</span>,
+                iso_day: <span class="number">30</span>,
+                expected_year: <span class="number">1</span>,
+                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;bce&quot;</span>)),
+                expected_month: <span class="number">1</span>,
+                expected_day: <span class="number">1</span>,
+            },
+            TestCase {
+                fixed_date: -<span class="number">368</span>,
+                iso_year: -<span class="number">1</span>,
+                iso_month: <span class="number">12</span>,
+                iso_day: <span class="number">29</span>,
+                expected_year: <span class="number">2</span>,
+                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;bce&quot;</span>)),
+                expected_month: <span class="number">12</span>,
+                expected_day: <span class="number">31</span>,
+            },
+            TestCase {
+                fixed_date: -<span class="number">1462</span>,
+                iso_year: -<span class="number">4</span>,
+                iso_month: <span class="number">12</span>,
+                iso_day: <span class="number">30</span>,
+                expected_year: <span class="number">4</span>,
+                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;bce&quot;</span>)),
+                expected_month: <span class="number">1</span>,
+                expected_day: <span class="number">1</span>,
+            },
+            TestCase {
+                fixed_date: -<span class="number">1463</span>,
+                iso_year: -<span class="number">4</span>,
+                iso_month: <span class="number">12</span>,
+                iso_day: <span class="number">29</span>,
+                expected_year: <span class="number">5</span>,
+                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;bce&quot;</span>)),
+                expected_month: <span class="number">12</span>,
+                expected_day: <span class="number">31</span>,
+            },
+        ];
+
+        <span class="kw">for </span>case <span class="kw">in </span>cases {
+            <span class="kw">let </span>iso_from_fixed: Date&lt;Iso&gt; = Iso::iso_from_fixed(RataDie::new(case.fixed_date));
+            <span class="kw">let </span>julian_from_fixed: Date&lt;Julian&gt; = Date::new_from_iso(iso_from_fixed, Julian);
+            <span class="macro">assert_eq!</span>(julian_from_fixed.year().number, case.expected_year,
+                <span class="string">&quot;Failed year check from fixed: {case:?}\nISO: {iso_from_fixed:?}\nJulian: {julian_from_fixed:?}&quot;</span>);
+            <span class="macro">assert_eq!</span>(julian_from_fixed.year().era, case.expected_era,
+                <span class="string">&quot;Failed era check from fixed: {case:?}\nISO: {iso_from_fixed:?}\nJulian: {julian_from_fixed:?}&quot;</span>);
+            <span class="macro">assert_eq!</span>(julian_from_fixed.month().ordinal, case.expected_month,
+                <span class="string">&quot;Failed month check from fixed: {case:?}\nISO: {iso_from_fixed:?}\nJulian: {julian_from_fixed:?}&quot;</span>);
+            <span class="macro">assert_eq!</span>(julian_from_fixed.day_of_month().<span class="number">0</span>, case.expected_day,
+                <span class="string">&quot;Failed day check from fixed: {case:?}\nISO: {iso_from_fixed:?}\nJulian: {julian_from_fixed:?}&quot;</span>);
+
+            <span class="kw">let </span>iso_date_man: Date&lt;Iso&gt; =
+                Date::try_new_iso_date(case.iso_year, case.iso_month, case.iso_day)
+                    .expect(<span class="string">&quot;Failed to initialize ISO date for {case:?}&quot;</span>);
+            <span class="kw">let </span>julian_date_man: Date&lt;Julian&gt; = Date::new_from_iso(iso_date_man, Julian);
+            <span class="macro">assert_eq!</span>(iso_from_fixed, iso_date_man,
+                <span class="string">&quot;ISO from fixed not equal to ISO generated from manually-input ymd\nCase: {case:?}\nFixed: {iso_from_fixed:?}\nMan: {iso_date_man:?}&quot;</span>);
+            <span class="macro">assert_eq!</span>(julian_from_fixed, julian_date_man,
+                <span class="string">&quot;Julian from fixed not equal to Julian generated from manually-input ymd\nCase: {case:?}\nFixed: {julian_from_fixed:?}\nMan: {julian_date_man:?}&quot;</span>);
+        }
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_julian_fixed_date_conversion() {
+        <span class="comment">// Tests that converting from fixed date to Julian then
+        // back to fixed date yields the same fixed date
+        </span><span class="kw">for </span>i <span class="kw">in </span>-<span class="number">10000</span>..=<span class="number">10000 </span>{
+            <span class="kw">let </span>fixed = RataDie::new(i);
+            <span class="kw">let </span>julian = Julian::julian_from_fixed(fixed);
+            <span class="kw">let </span>new_fixed = Julian::fixed_from_julian(julian.<span class="number">0</span>);
+            <span class="macro">assert_eq!</span>(fixed, new_fixed);
+        }
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_julian_directionality() {
+        <span class="comment">// Tests that for a large range of fixed dates, if a fixed date
+        // is less than another, the corresponding YMD should also be less
+        // than the other, without exception.
+        </span><span class="kw">for </span>i <span class="kw">in </span>-<span class="number">100</span>..=<span class="number">100 </span>{
+            <span class="kw">for </span>j <span class="kw">in </span>-<span class="number">100</span>..=<span class="number">100 </span>{
+                <span class="kw">let </span>julian_i = Julian::julian_from_fixed(RataDie::new(i)).<span class="number">0</span>;
+                <span class="kw">let </span>julian_j = Julian::julian_from_fixed(RataDie::new(j)).<span class="number">0</span>;
+
+                <span class="macro">assert_eq!</span>(
+                    i.cmp(<span class="kw-2">&amp;</span>j),
+                    julian_i.cmp(<span class="kw-2">&amp;</span>julian_j),
+                    <span class="string">&quot;Julian directionality inconsistent with directionality for i: {i}, j: {j}&quot;
+                </span>);
+            }
+        }
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_hebrew_epoch() {
+        <span class="macro">assert_eq!</span>(
+            calendrical_calculations::julian::fixed_from_julian_book_version(-<span class="number">3761</span>, <span class="number">10</span>, <span class="number">7</span>),
+            RataDie::new(-<span class="number">1373427</span>)
+        );
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_julian_leap_years() {
+        <span class="macro">assert!</span>(Julian::is_leap_year(<span class="number">4</span>));
+        <span class="macro">assert!</span>(Julian::is_leap_year(<span class="number">0</span>));
+        <span class="macro">assert!</span>(Julian::is_leap_year(-<span class="number">4</span>));
+
+        Date::try_new_julian_date(<span class="number">2020</span>, <span class="number">2</span>, <span class="number">29</span>).unwrap();
     }
 }
 </code></pre></div></section></main></body></html>

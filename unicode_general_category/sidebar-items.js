@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["UNICODE_VERSION"],"enum":["GeneralCategory"],"fn":["get_general_category"]};

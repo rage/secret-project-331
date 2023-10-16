@@ -44,8 +44,8 @@ tuple, and then construct the <a href="../struct.LanguageIdentifier.html" title=
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>icu_locid::subtags::{Language, Region, Script};
 <span class="kw">use </span>icu_locid::LanguageIdentifier;
 <span class="kw">use </span>icu_locid::{
-    langid, subtags_language <span class="kw">as </span>language, subtags_region <span class="kw">as </span>region,
-    subtags_script <span class="kw">as </span>script,
+    langid,
+    subtags::{language, region, script},
 };
 <span class="kw">use </span>zerovec::ZeroMap;
 

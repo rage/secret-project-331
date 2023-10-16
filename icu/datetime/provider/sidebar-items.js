@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["calendar","time_zones"]};
+window.SIDEBAR_ITEMS = {"mod":["calendar","time_zones"],"struct":["Baked"]};

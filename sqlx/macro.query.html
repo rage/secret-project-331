@@ -11,7 +11,7 @@ struct type, if the query has at least one output column that is not <code>Void<
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
 <span class="comment">// anonymous struct has `#[derive(Debug)]` for convenience
-</span><span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, account);
+</span><span class="macro">println!</span>(<span class="string">&quot;{account:?}&quot;</span>);
 <span class="macro">println!</span>(<span class="string">&quot;{}: {}&quot;</span>, account.id, account.name);
 </code></pre></div>
 <p><strong>The method you want to call depends on how many rows you’re expecting.</strong></p>
@@ -66,7 +66,7 @@ and this macro will typecheck passed arguments and error on missing ones:</p>
     .fetch_one(<span class="kw-2">&amp;mut </span>conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-<span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, account);
+<span class="macro">println!</span>(<span class="string">&quot;{account:?}&quot;</span>);
 <span class="macro">println!</span>(<span class="string">&quot;{}: {}&quot;</span>, account.id, account.name);</code></pre></div>
 <p>Bind parameters in the SQL string are specific to the database backend:</p>
 <ul>

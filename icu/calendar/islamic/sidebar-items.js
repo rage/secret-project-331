@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["IslamicCivil","IslamicCivilDateInner","IslamicDateInner","IslamicObservational","IslamicTabular","IslamicTabularDateInner","IslamicUmmAlQura","IslamicUmmAlQuraDateInner"]};

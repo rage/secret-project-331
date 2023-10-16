@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_datetime-1.2.1/src/any/datetime.rs`."><title>datetime.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_datetime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../icu_datetime/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_datetime-1.3.2/src/any/datetime.rs`."><title>datetime.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_datetime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../icu_datetime/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -613,13 +613,62 @@
 <a href="#613" id="613">613</a>
 <a href="#614" id="614">614</a>
 <a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
+<a href="#618" id="618">618</a>
+<a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a>
+<a href="#624" id="624">624</a>
+<a href="#625" id="625">625</a>
+<a href="#626" id="626">626</a>
+<a href="#627" id="627">627</a>
+<a href="#628" id="628">628</a>
+<a href="#629" id="629">629</a>
+<a href="#630" id="630">630</a>
+<a href="#631" id="631">631</a>
+<a href="#632" id="632">632</a>
+<a href="#633" id="633">633</a>
+<a href="#634" id="634">634</a>
+<a href="#635" id="635">635</a>
+<a href="#636" id="636">636</a>
+<a href="#637" id="637">637</a>
+<a href="#638" id="638">638</a>
+<a href="#639" id="639">639</a>
+<a href="#640" id="640">640</a>
+<a href="#641" id="641">641</a>
+<a href="#642" id="642">642</a>
+<a href="#643" id="643">643</a>
+<a href="#644" id="644">644</a>
+<a href="#645" id="645">645</a>
+<a href="#646" id="646">646</a>
+<a href="#647" id="647">647</a>
+<a href="#648" id="648">648</a>
+<a href="#649" id="649">649</a>
+<a href="#650" id="650">650</a>
+<a href="#651" id="651">651</a>
+<a href="#652" id="652">652</a>
+<a href="#653" id="653">653</a>
+<a href="#654" id="654">654</a>
+<a href="#655" id="655">655</a>
+<a href="#656" id="656">656</a>
+<a href="#657" id="657">657</a>
+<a href="#658" id="658">658</a>
+<a href="#659" id="659">659</a>
+<a href="#660" id="660">660</a>
+<a href="#661" id="661">661</a>
+<a href="#662" id="662">662</a>
+<a href="#663" id="663">663</a>
+<a href="#664" id="664">664</a>
+<a href="#665" id="665">665</a>
+<a href="#666" id="666">666</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
 
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-</span><span class="kw">use </span><span class="kw">crate</span>::options::components;
-<span class="kw">use </span><span class="kw">crate</span>::provider::{calendar::<span class="kw-2">*</span>, date_time::PatternSelector};
+</span><span class="kw">use </span><span class="kw">crate</span>::provider::{calendar::<span class="kw-2">*</span>, date_time::PatternSelector};
 <span class="kw">use crate</span>::{calendar, options::DateTimeFormatterOptions, raw, DateFormatter, TimeFormatter};
 <span class="kw">use crate</span>::{input::DateTimeInput, DateTimeError, FormattedDateTime};
 <span class="kw">use </span>alloc::string::String;
@@ -660,8 +709,7 @@
 ///     length::Time::Short,
 /// );
 ///
-/// let dtf = DateTimeFormatter::try_new_unstable(
-///     &amp;icu_testdata::unstable(),
+/// let dtf = DateTimeFormatter::try_new(
 ///     &amp;locale!(&quot;en-u-ca-gregory&quot;).into(),
 ///     options.into(),
 /// )
@@ -689,10 +737,9 @@
 /// # use std::rc::Rc;
 /// # use std::convert::TryInto;
 ///
-/// let locale = locale!(&quot;en-u-ca-japanese&quot;); // English with the Japanese calendar
+/// let locale = locale!(&quot;en-u-ca-japanese&quot;).into(); // English with the Japanese calendar
 ///
-/// let calendar = AnyCalendar::try_new_for_locale_unstable(&amp;icu_testdata::unstable(), &amp;(&amp;locale).into())
-///                    .expect(&quot;constructing AnyCalendar failed&quot;);
+/// let calendar = AnyCalendar::new_for_locale(&amp;locale);
 /// let calendar = Rc::new(calendar); // Avoid cloning it
 ///
 ///
@@ -713,7 +760,7 @@
 ///
 /// let options = length::Bag::from_date_time_style(length::Date::Medium, length::Time::Short);
 ///
-/// let dtf = DateTimeFormatter::try_new_unstable(&amp;icu_testdata::unstable(), &amp;locale.into(), options.into())
+/// let dtf = DateTimeFormatter::try_new(&amp;locale, options.into())
 ///     .expect(&quot;Failed to create DateTimeFormatter instance.&quot;);
 ///
 /// let manual_value = dtf.format(&amp;manual_datetime).expect(&quot;Calendars should match&quot;);
@@ -730,43 +777,14 @@
 </span><span class="kw">pub struct </span>DateTimeFormatter(<span class="kw">pub</span>(<span class="kw">crate</span>) raw::DateTimeFormatter, AnyCalendar);
 
 <span class="kw">impl </span>DateTimeFormatter {
-    <span class="doccomment">/// Construct a new [`DateTimeFormatter`] from a data provider that implements
-    /// [`AnyProvider`].
+    <span class="doccomment">/// Construct a new [`DateTimeFormatter`] from compiled data.
     ///
     /// This method will pick the calendar off of the locale; and if unspecified or unknown will fall back to the default
     /// calendar for the locale. See [`AnyCalendarKind`] for a list of supported calendars.
     ///
-    /// The provider must be able to provide data for the following keys: `datetime/symbols@1`, `datetime/timelengths@1`,
-    /// `datetime/timelengths@1`, `datetime/symbols@1`, `datetime/skeletons@1`, `datetime/week_data@1`, and `plurals/ordinals@1`.
+    /// ✨ *Enabled with the `compiled_data` Cargo feature.*
     ///
-    /// Furthermore, based on the type of calendar used, one of the following data keys may be necessary:
-    ///
-    /// - `u-ca-japanese` (Japanese calendar): `calendar/japanese@1`
-    </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>try_new_with_any_provider&lt;P&gt;(
-        data_provider: <span class="kw-2">&amp;</span>P,
-        locale: <span class="kw-2">&amp;</span>DataLocale,
-        options: DateTimeFormatterOptions,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, DateTimeError&gt;
-    <span class="kw">where
-        </span>P: AnyProvider,
-    {
-        <span class="kw">let </span>downcasting = data_provider.as_downcasting();
-        <span class="self">Self</span>::try_new_unstable(<span class="kw-2">&amp;</span>downcasting, locale, options)
-    }
-
-    <span class="doccomment">/// Construct a new [`DateTimeFormatter`] from a data provider that implements
-    /// [`BufferProvider`].
-    ///
-    /// This method will pick the calendar off of the locale; and if unspecified or unknown will fall back to the default
-    /// calendar for the locale. See [`AnyCalendarKind`] for a list of supported calendars.
-    ///
-    /// The provider must be able to provide data for the following keys: `datetime/symbols@1`, `datetime/datelengths@1`,
-    /// `datetime/timelengths@1`, `datetime/symbols@1`, `datetime/skeletons@1`, `datetime/week_data@1`, and `plurals/ordinals@1`.
-    ///
-    /// Furthermore, based on the type of calendar used, one of the following data keys may be necessary:
-    ///
-    /// - `u-ca-japanese` (Japanese calendar): `calendar/japanese@1`
+    /// [📚 Help choosing a constructor](icu_provider::constructors)
     ///
     /// # Examples
     ///
@@ -778,18 +796,14 @@
     /// use std::str::FromStr;
     /// use writeable::assert_writeable_eq;
     ///
-    /// let mut options = length::Bag::from_date_time_style(
+    /// let options = length::Bag::from_date_time_style(
     ///     length::Date::Medium,
     ///     length::Time::Short,
     /// );
     /// let locale = locale!(&quot;en-u-ca-gregory&quot;);
     ///
-    /// let dtf = DateTimeFormatter::try_new_with_buffer_provider(
-    ///     &amp;icu_testdata::buffer(),
-    ///     &amp;locale.into(),
-    ///     options.into(),
-    /// )
-    /// .expect(&quot;Failed to create TypedDateTimeFormatter instance.&quot;);
+    /// let dtf = DateTimeFormatter::try_new(&amp;locale.into(), options.into())
+    ///     .expect(&quot;Failed to create TypedDateTimeFormatter instance.&quot;);
     ///
     /// let datetime = DateTime::try_new_iso_datetime(2020, 9, 1, 12, 34, 28)
     ///     .expect(&quot;Failed to construct DateTime.&quot;);
@@ -800,21 +814,136 @@
     ///     &quot;Sep 1, 2020, 12:34 PM&quot;
     /// );
     /// ```
-    </span><span class="attr">#[inline]
+    /// ✨ *Enabled with the `compiled_data` Cargo feature.*
+    ///
+    /// [📚 Help choosing a constructor](icu_provider::constructors)
+    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    #[inline]
+    </span><span class="kw">pub fn </span>try_new(
+        locale: <span class="kw-2">&amp;</span>DataLocale,
+        options: DateTimeFormatterOptions,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, DateTimeError&gt; {
+        <span class="kw">let </span>calendar = AnyCalendar::new_for_locale(locale);
+        <span class="kw">let </span>kind = calendar.kind();
+
+        <span class="kw">let </span>patterns = PatternSelector::for_options(
+            <span class="kw-2">&amp;</span><span class="kw">crate</span>::provider::Baked,
+            calendar::load_lengths_for_any_calendar_kind(<span class="kw-2">&amp;</span><span class="kw">crate</span>::provider::Baked, locale, kind)<span class="question-mark">?</span>,
+            locale,
+            <span class="kw-2">&amp;</span>options,
+        )<span class="question-mark">?</span>;
+
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span>(
+            raw::DateTimeFormatter::try_new(
+                patterns,
+                || {
+                    calendar::load_symbols_for_any_calendar_kind(
+                        <span class="kw-2">&amp;</span><span class="kw">crate</span>::provider::Baked,
+                        locale,
+                        kind,
+                    )
+                },
+                locale,
+            )<span class="question-mark">?</span>,
+            calendar,
+        ))
+    }
+
+    <span class="attr">#[doc = <span class="macro">icu_provider::gen_any_buffer_unstable_docs!</span>(ANY, <span class="self">Self</span>::try_new)]
+    #[inline]
+    </span><span class="kw">pub fn </span>try_new_with_any_provider(
+        provider: <span class="kw-2">&amp;</span><span class="kw">impl </span>AnyProvider,
+        locale: <span class="kw-2">&amp;</span>DataLocale,
+        options: DateTimeFormatterOptions,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, DateTimeError&gt; {
+        <span class="kw">let </span>downcasting = provider.as_downcasting();
+        <span class="self">Self</span>::try_new_unstable(<span class="kw-2">&amp;</span>downcasting, locale, options)
+    }
+
+    <span class="attr">#[doc = <span class="macro">icu_provider::gen_any_buffer_unstable_docs!</span>(BUFFER, <span class="self">Self</span>::try_new)]
+    #[inline]
     #[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
-    </span><span class="kw">pub fn </span>try_new_with_buffer_provider&lt;P&gt;(
-        data_provider: <span class="kw-2">&amp;</span>P,
+    </span><span class="kw">pub fn </span>try_new_with_buffer_provider(
+        provider: <span class="kw-2">&amp;</span><span class="kw">impl </span>BufferProvider,
+        locale: <span class="kw-2">&amp;</span>DataLocale,
+        options: DateTimeFormatterOptions,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, DateTimeError&gt; {
+        <span class="kw">let </span>deserializing = provider.as_deserializing();
+        <span class="self">Self</span>::try_new_unstable(<span class="kw-2">&amp;</span>deserializing, locale, options)
+    }
+
+    <span class="attr">#[doc = <span class="macro">icu_provider::gen_any_buffer_unstable_docs!</span>(UNSTABLE, <span class="self">Self</span>::try_new_experimental)]
+    #[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    #[inline(never)]
+    </span><span class="kw">pub fn </span>try_new_experimental_unstable&lt;P&gt;(
+        provider: <span class="kw-2">&amp;</span>P,
         locale: <span class="kw-2">&amp;</span>DataLocale,
         options: DateTimeFormatterOptions,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, DateTimeError&gt;
     <span class="kw">where
-        </span>P: BufferProvider,
+        </span>P: DataProvider&lt;TimeSymbolsV1Marker&gt;
+            + DataProvider&lt;TimeLengthsV1Marker&gt;
+            + DataProvider&lt;<span class="kw">crate</span>::provider::calendar::DateSkeletonPatternsV1Marker&gt;
+            + DataProvider&lt;OrdinalV1Marker&gt;
+            + DataProvider&lt;WeekDataV1Marker&gt;
+            + DataProvider&lt;DecimalSymbolsV1Marker&gt;
+            + DataProvider&lt;BuddhistDateLengthsV1Marker&gt;
+            + DataProvider&lt;BuddhistDateSymbolsV1Marker&gt;
+            + DataProvider&lt;ChineseDateLengthsV1Marker&gt;
+            + DataProvider&lt;ChineseDateSymbolsV1Marker&gt;
+            + DataProvider&lt;CopticDateLengthsV1Marker&gt;
+            + DataProvider&lt;CopticDateSymbolsV1Marker&gt;
+            + DataProvider&lt;DangiDateLengthsV1Marker&gt;
+            + DataProvider&lt;DangiDateSymbolsV1Marker&gt;
+            + DataProvider&lt;EthiopianDateLengthsV1Marker&gt;
+            + DataProvider&lt;EthiopianDateSymbolsV1Marker&gt;
+            + DataProvider&lt;GregorianDateLengthsV1Marker&gt;
+            + DataProvider&lt;GregorianDateSymbolsV1Marker&gt;
+            + DataProvider&lt;HebrewDateLengthsV1Marker&gt;
+            + DataProvider&lt;HebrewDateSymbolsV1Marker&gt;
+            + DataProvider&lt;IndianDateLengthsV1Marker&gt;
+            + DataProvider&lt;IndianDateSymbolsV1Marker&gt;
+            + DataProvider&lt;IslamicDateLengthsV1Marker&gt;
+            + DataProvider&lt;IslamicDateSymbolsV1Marker&gt;
+            + DataProvider&lt;JapaneseDateLengthsV1Marker&gt;
+            + DataProvider&lt;JapaneseDateSymbolsV1Marker&gt;
+            + DataProvider&lt;JapaneseErasV1Marker&gt;
+            + DataProvider&lt;JapaneseExtendedDateLengthsV1Marker&gt;
+            + DataProvider&lt;JapaneseExtendedDateSymbolsV1Marker&gt;
+            + DataProvider&lt;JapaneseExtendedErasV1Marker&gt;
+            + DataProvider&lt;PersianDateLengthsV1Marker&gt;
+            + DataProvider&lt;PersianDateSymbolsV1Marker&gt;
+            + DataProvider&lt;RocDateLengthsV1Marker&gt;
+            + DataProvider&lt;RocDateSymbolsV1Marker&gt;
+            + <span class="question-mark">?</span>Sized,
     {
-        <span class="kw">let </span>deserializing = data_provider.as_deserializing();
-        <span class="self">Self</span>::try_new_unstable(<span class="kw-2">&amp;</span>deserializing, locale, options)
+        <span class="kw">let </span>calendar = AnyCalendar::try_new_for_locale_unstable(provider, locale)<span class="question-mark">?</span>;
+        <span class="kw">let </span>kind = calendar.kind();
+
+        <span class="kw">let </span>patterns = PatternSelector::for_options_experimental(
+            provider,
+            calendar::load_lengths_for_any_calendar_kind(provider, locale, kind)<span class="question-mark">?</span>,
+            locale,
+            <span class="kw-2">&amp;</span>kind.as_bcp47_value(),
+            <span class="kw-2">&amp;</span>options,
+        )<span class="question-mark">?</span>;
+
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span>(
+            raw::DateTimeFormatter::try_new_unstable(
+                provider,
+                patterns,
+                || calendar::load_symbols_for_any_calendar_kind(provider, locale, kind),
+                locale,
+            )<span class="question-mark">?</span>,
+            calendar,
+        ))
     }
 
-    <span class="doccomment">/// Constructor that supports experimental options.
+    <span class="doccomment">/// Constructor that supports experimental options with compiled data.
+    ///
+    /// ✨ *Enabled with the `compiled_data` and `experimental` Cargo features.*
+    ///
+    /// [📚 Help choosing a constructor](icu_provider::constructors)
     ///
     /// &lt;div class=&quot;stab unstable&quot;&gt;
     /// 🚧 This code is experimental; it may change at any time, in breaking or non-breaking ways,
@@ -838,8 +967,7 @@
     /// options.year = Some(components::Year::Numeric);
     /// options.month = Some(components::Month::Long);
     ///
-    /// let dtf = DateTimeFormatter::try_new_experimental_unstable(
-    ///     &amp;icu_testdata::buffer().as_deserializing(),
+    /// let dtf = DateTimeFormatter::try_new_experimental(
     ///     &amp;locale!(&quot;en-u-ca-gregory&quot;).into(),
     ///     options.into(),
     /// )
@@ -855,43 +983,18 @@
     /// );
     /// ```
     </span><span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    #[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
     #[inline(never)]
-    </span><span class="kw">pub fn </span>try_new_experimental_unstable&lt;P&gt;(
-        data_provider: <span class="kw-2">&amp;</span>P,
+    </span><span class="kw">pub fn </span>try_new_experimental(
         locale: <span class="kw-2">&amp;</span>DataLocale,
         options: DateTimeFormatterOptions,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, DateTimeError&gt;
-    <span class="kw">where
-        </span>P: DataProvider&lt;TimeSymbolsV1Marker&gt;
-            + DataProvider&lt;TimeLengthsV1Marker&gt;
-            + DataProvider&lt;<span class="kw">crate</span>::provider::calendar::DateSkeletonPatternsV1Marker&gt;
-            + DataProvider&lt;OrdinalV1Marker&gt;
-            + DataProvider&lt;WeekDataV1Marker&gt;
-            + DataProvider&lt;DecimalSymbolsV1Marker&gt;
-            + DataProvider&lt;GregorianDateLengthsV1Marker&gt;
-            + DataProvider&lt;BuddhistDateLengthsV1Marker&gt;
-            + DataProvider&lt;JapaneseDateLengthsV1Marker&gt;
-            + DataProvider&lt;JapaneseExtendedDateLengthsV1Marker&gt;
-            + DataProvider&lt;CopticDateLengthsV1Marker&gt;
-            + DataProvider&lt;IndianDateLengthsV1Marker&gt;
-            + DataProvider&lt;EthiopianDateLengthsV1Marker&gt;
-            + DataProvider&lt;GregorianDateSymbolsV1Marker&gt;
-            + DataProvider&lt;BuddhistDateSymbolsV1Marker&gt;
-            + DataProvider&lt;JapaneseDateSymbolsV1Marker&gt;
-            + DataProvider&lt;JapaneseExtendedDateSymbolsV1Marker&gt;
-            + DataProvider&lt;CopticDateSymbolsV1Marker&gt;
-            + DataProvider&lt;IndianDateSymbolsV1Marker&gt;
-            + DataProvider&lt;EthiopianDateSymbolsV1Marker&gt;
-            + DataProvider&lt;JapaneseErasV1Marker&gt;
-            + DataProvider&lt;JapaneseExtendedErasV1Marker&gt;
-            + <span class="question-mark">?</span>Sized,
-    {
-        <span class="kw">let </span>calendar = AnyCalendar::try_new_for_locale_unstable(data_provider, locale)<span class="question-mark">?</span>;
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, DateTimeError&gt; {
+        <span class="kw">let </span>calendar = AnyCalendar::new_for_locale(locale);
         <span class="kw">let </span>kind = calendar.kind();
 
         <span class="kw">let </span>patterns = PatternSelector::for_options_experimental(
-            data_provider,
-            calendar::load_lengths_for_any_calendar_kind(data_provider, locale, kind)<span class="question-mark">?</span>,
+            <span class="kw-2">&amp;</span><span class="kw">crate</span>::provider::Baked,
+            calendar::load_lengths_for_any_calendar_kind(<span class="kw-2">&amp;</span><span class="kw">crate</span>::provider::Baked, locale, kind)<span class="question-mark">?</span>,
             locale,
             <span class="kw-2">&amp;</span>kind.as_bcp47_value(),
             <span class="kw-2">&amp;</span>options,
@@ -899,60 +1002,24 @@
 
         <span class="prelude-val">Ok</span>(<span class="self">Self</span>(
             raw::DateTimeFormatter::try_new(
-                data_provider,
                 patterns,
-                || calendar::load_symbols_for_any_calendar_kind(data_provider, locale, kind),
+                || {
+                    calendar::load_symbols_for_any_calendar_kind(
+                        <span class="kw-2">&amp;</span><span class="kw">crate</span>::provider::Baked,
+                        locale,
+                        kind,
+                    )
+                },
                 locale,
             )<span class="question-mark">?</span>,
             calendar,
         ))
     }
 
-    <span class="doccomment">/// Construct a new [`DateTimeFormatter`] from a data provider that can provide all of the requested data.
-    ///
-    /// This method is **unstable**, more bounds may be added in the future as calendar support is added. It is
-    /// preferable to use a provider that implements `DataProvider&lt;D&gt;` for all `D`, and ensure data is loaded as
-    /// appropriate. The [`Self::try_new_with_buffer_provider()`], [`Self::try_new_with_any_provider()`] constructors
-    /// may also be used if compile stability is desired.
-    ///
-    /// This method will pick the calendar off of the locale; and if unspecified or unknown will fall back to the default
-    /// calendar for the locale. See [`AnyCalendarKind`] for a list of supported calendars.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use icu::calendar::DateTime;
-    /// use icu::datetime::{options::length, DateTimeFormatter};
-    /// use icu::locid::locale;
-    /// use icu_provider::any::DynamicDataProviderAnyMarkerWrap;
-    /// use std::str::FromStr;
-    /// use writeable::assert_writeable_eq;
-    ///
-    /// let options = length::Bag::from_date_time_style(
-    ///     length::Date::Medium,
-    ///     length::Time::Short,
-    /// );
-    /// let locale = locale!(&quot;en-u-ca-gregory&quot;);
-    ///
-    /// let dtf = DateTimeFormatter::try_new_unstable(
-    ///     &amp;icu_testdata::unstable(),
-    ///     &amp;locale.into(),
-    ///     options.into(),
-    /// )
-    /// .expect(&quot;Failed to create TypedDateTimeFormatter instance.&quot;);
-    ///
-    /// let datetime = DateTime::try_new_iso_datetime(2020, 9, 1, 12, 34, 28)
-    ///     .expect(&quot;Failed to construct DateTime.&quot;);
-    /// let any_datetime = datetime.to_any();
-    ///
-    /// assert_writeable_eq!(
-    ///     dtf.format(&amp;any_datetime).expect(&quot;Calendars should match&quot;),
-    ///     &quot;Sep 1, 2020, 12:34 PM&quot;
-    /// );
-    /// ```
-    </span><span class="attr">#[inline(never)]
+    <span class="attr">#[doc = <span class="macro">icu_provider::gen_any_buffer_unstable_docs!</span>(UNSTABLE, <span class="self">Self</span>::try_new)]
+    #[inline(never)]
     </span><span class="kw">pub fn </span>try_new_unstable&lt;P&gt;(
-        data_provider: <span class="kw-2">&amp;</span>P,
+        provider: <span class="kw-2">&amp;</span>P,
         locale: <span class="kw-2">&amp;</span>DataLocale,
         options: DateTimeFormatterOptions,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, DateTimeError&gt;
@@ -962,39 +1029,51 @@
             + DataProvider&lt;OrdinalV1Marker&gt;
             + DataProvider&lt;WeekDataV1Marker&gt;
             + DataProvider&lt;DecimalSymbolsV1Marker&gt;
-            + DataProvider&lt;GregorianDateLengthsV1Marker&gt;
             + DataProvider&lt;BuddhistDateLengthsV1Marker&gt;
-            + DataProvider&lt;JapaneseDateLengthsV1Marker&gt;
-            + DataProvider&lt;JapaneseExtendedDateLengthsV1Marker&gt;
-            + DataProvider&lt;CopticDateLengthsV1Marker&gt;
-            + DataProvider&lt;IndianDateLengthsV1Marker&gt;
-            + DataProvider&lt;EthiopianDateLengthsV1Marker&gt;
-            + DataProvider&lt;GregorianDateSymbolsV1Marker&gt;
             + DataProvider&lt;BuddhistDateSymbolsV1Marker&gt;
-            + DataProvider&lt;JapaneseDateSymbolsV1Marker&gt;
-            + DataProvider&lt;JapaneseExtendedDateSymbolsV1Marker&gt;
+            + DataProvider&lt;ChineseDateLengthsV1Marker&gt;
+            + DataProvider&lt;ChineseDateSymbolsV1Marker&gt;
+            + DataProvider&lt;CopticDateLengthsV1Marker&gt;
             + DataProvider&lt;CopticDateSymbolsV1Marker&gt;
-            + DataProvider&lt;IndianDateSymbolsV1Marker&gt;
+            + DataProvider&lt;DangiDateLengthsV1Marker&gt;
+            + DataProvider&lt;DangiDateSymbolsV1Marker&gt;
+            + DataProvider&lt;EthiopianDateLengthsV1Marker&gt;
             + DataProvider&lt;EthiopianDateSymbolsV1Marker&gt;
+            + DataProvider&lt;GregorianDateLengthsV1Marker&gt;
+            + DataProvider&lt;GregorianDateSymbolsV1Marker&gt;
+            + DataProvider&lt;HebrewDateLengthsV1Marker&gt;
+            + DataProvider&lt;HebrewDateSymbolsV1Marker&gt;
+            + DataProvider&lt;IndianDateLengthsV1Marker&gt;
+            + DataProvider&lt;IndianDateSymbolsV1Marker&gt;
+            + DataProvider&lt;IslamicDateLengthsV1Marker&gt;
+            + DataProvider&lt;IslamicDateSymbolsV1Marker&gt;
+            + DataProvider&lt;JapaneseDateLengthsV1Marker&gt;
+            + DataProvider&lt;JapaneseDateSymbolsV1Marker&gt;
             + DataProvider&lt;JapaneseErasV1Marker&gt;
+            + DataProvider&lt;JapaneseExtendedDateLengthsV1Marker&gt;
+            + DataProvider&lt;JapaneseExtendedDateSymbolsV1Marker&gt;
             + DataProvider&lt;JapaneseExtendedErasV1Marker&gt;
+            + DataProvider&lt;PersianDateLengthsV1Marker&gt;
+            + DataProvider&lt;PersianDateSymbolsV1Marker&gt;
+            + DataProvider&lt;RocDateLengthsV1Marker&gt;
+            + DataProvider&lt;RocDateSymbolsV1Marker&gt;
             + <span class="question-mark">?</span>Sized,
     {
-        <span class="kw">let </span>calendar = AnyCalendar::try_new_for_locale_unstable(data_provider, locale)<span class="question-mark">?</span>;
+        <span class="kw">let </span>calendar = AnyCalendar::try_new_for_locale_unstable(provider, locale)<span class="question-mark">?</span>;
         <span class="kw">let </span>kind = calendar.kind();
 
         <span class="kw">let </span>patterns = PatternSelector::for_options(
-            data_provider,
-            calendar::load_lengths_for_any_calendar_kind(data_provider, locale, kind)<span class="question-mark">?</span>,
+            provider,
+            calendar::load_lengths_for_any_calendar_kind(provider, locale, kind)<span class="question-mark">?</span>,
             locale,
             <span class="kw-2">&amp;</span>options,
         )<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(<span class="self">Self</span>(
-            raw::DateTimeFormatter::try_new(
-                data_provider,
+            raw::DateTimeFormatter::try_new_unstable(
+                provider,
                 patterns,
-                || calendar::load_symbols_for_any_calendar_kind(data_provider, locale, kind),
+                || calendar::load_symbols_for_any_calendar_kind(provider, locale, kind),
                 locale,
             )<span class="question-mark">?</span>,
             calendar,
@@ -1019,15 +1098,10 @@
     /// let length = length::Date::Medium;
     /// let locale = locale!(&quot;en-u-ca-gregory&quot;);
     ///
-    /// let df = DateFormatter::try_new_with_length_unstable(
-    ///     &amp;icu_testdata::unstable(),
-    ///     &amp;locale.into(),
-    ///     length,
-    /// )
-    /// .expect(&quot;Failed to create TypedDateFormatter instance.&quot;);
+    /// let df = DateFormatter::try_new_with_length(&amp;locale.into(), length)
+    ///     .expect(&quot;Failed to create TypedDateFormatter instance.&quot;);
     ///
-    /// let tf = TimeFormatter::try_new_with_length_unstable(
-    ///     &amp;icu_testdata::unstable(),
+    /// let tf = TimeFormatter::try_new_with_length(
     ///     &amp;locale!(&quot;en&quot;).into(),
     ///     length::Time::Short,
     /// )
@@ -1089,10 +1163,19 @@
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.format(value)<span class="question-mark">?</span>.write_to_string().into_owned())
     }
 
-    <span class="doccomment">/// Returns a [`components::Bag`] that represents the resolved components for the
+    <span class="doccomment">/// Returns a [`components::Bag`](crate::options::components::Bag) that represents the resolved components for the
     /// options that were provided to the [`DateTimeFormatter`]. The developer may request
     /// a certain set of options for a [`DateTimeFormatter`] but the locale and resolution
     /// algorithm may change certain details of what actually gets resolved.
+    ///
+    /// ✨ *Enabled with the `experimental` Cargo feature.*
+    ///
+    /// &lt;div class=&quot;stab unstable&quot;&gt;
+    /// 🚧 This code is experimental; it may change at any time, in breaking or non-breaking ways,
+    /// including in SemVer minor releases. It can be enabled with the &quot;experimental&quot; Cargo feature
+    /// of the icu meta-crate. Use with caution.
+    /// &lt;a href=&quot;https://github.com/unicode-org/icu4x/issues/1317&quot;&gt;#1317&lt;/a&gt;
+    /// &lt;/div&gt;
     ///
     /// # Examples
     ///
@@ -1107,12 +1190,9 @@
     ///
     /// let options = length::Bag::from_date_style(length::Date::Medium).into();
     ///
-    /// let dtf = DateTimeFormatter::try_new_unstable(
-    ///     &amp;icu_testdata::unstable(),
-    ///     &amp;locale!(&quot;en-u-ca-gregory&quot;).into(),
-    ///     options,
-    /// )
-    /// .expect(&quot;Failed to create TypedDateTimeFormatter instance.&quot;);
+    /// let dtf =
+    ///     DateTimeFormatter::try_new(&amp;locale!(&quot;en-u-ca-gregory&quot;).into(), options)
+    ///         .expect(&quot;Failed to create TypedDateTimeFormatter instance.&quot;);
     ///
     /// let mut expected_components_bag = components::Bag::default();
     /// expected_components_bag.year = Some(components::Year::Numeric);
@@ -1122,13 +1202,13 @@
     /// assert_eq!(dtf.resolve_components(), expected_components_bag);
     /// ```
     </span><span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-    </span><span class="kw">pub fn </span>resolve_components(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; components::Bag {
+    </span><span class="kw">pub fn </span>resolve_components(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">crate</span>::options::components::Bag {
         <span class="self">self</span>.<span class="number">0</span>.resolve_components()
     }
 
     <span class="doccomment">/// Converts a date to the correct calendar if necessary
     ///
-    /// Returns Err if the date is not ISO or compatible with the current calendar, returns Ok(None)
+    /// Returns `Err` if the date is not ISO or compatible with the current calendar, returns `Ok(None)`
     /// if the date is compatible with the current calendar and doesn&#39;t need conversion
     </span><span class="kw">fn </span>convert_if_necessary&lt;<span class="lifetime">&#39;a</span>&gt;(
         <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
@@ -1169,12 +1249,7 @@
     <span class="kw">fn </span>test_format(datetime: <span class="kw-2">&amp;</span>DateTime&lt;AnyCalendar&gt;, locale: Locale, expected: <span class="kw-2">&amp;</span>str) {
         <span class="kw">let </span>options = length::Bag::from_date_time_style(length::Date::Long, length::Time::Short);
 
-        <span class="kw">let </span>dtf = DateTimeFormatter::try_new_unstable(
-            <span class="kw-2">&amp;</span>icu_testdata::unstable(),
-            <span class="kw-2">&amp;</span>locale.into(),
-            options.into(),
-        )
-        .unwrap();
+        <span class="kw">let </span>dtf = DateTimeFormatter::try_new(<span class="kw-2">&amp;</span>locale.into(), options.into()).unwrap();
         <span class="macro">writeable::assert_writeable_eq!</span>(
             dtf.format(datetime).expect(<span class="string">&quot;Calendars should match&quot;</span>),
             expected
@@ -1212,20 +1287,47 @@
     #[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
     </span><span class="kw">fn </span>works_with_default_options() {
         <span class="macro">assert_eq!</span>(
-            DateTimeFormatter::try_new_with_buffer_provider(
-                <span class="kw-2">&amp;</span>icu_testdata::buffer(),
-                Default::default(),
-                Default::default(),
-            )
-            .unwrap()
-            .format_to_string(
-                <span class="kw-2">&amp;</span>DateTime::try_new_iso_datetime(<span class="number">2022</span>, <span class="number">9</span>, <span class="number">20</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>)
-                    .unwrap()
-                    .to_any()
-            )
-            .unwrap(),
+            DateTimeFormatter::try_new(Default::default(), Default::default(),)
+                .unwrap()
+                .format_to_string(
+                    <span class="kw-2">&amp;</span>DateTime::try_new_iso_datetime(<span class="number">2022</span>, <span class="number">9</span>, <span class="number">20</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>)
+                        .unwrap()
+                        .to_any()
+                )
+                .unwrap(),
             <span class="string">&quot;2022 M09 20 00:00:00&quot;
         </span>);
     }
+}
+
+<span class="attr">#[test]
+#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+</span><span class="kw">fn </span>buffer_constructor() {
+    <span class="kw">use </span>icu::calendar::DateTime;
+    <span class="kw">use </span>icu::datetime::{options::length, DateTimeFormatter};
+    <span class="kw">use </span>icu::locid::locale;
+    <span class="kw">use </span>writeable::assert_writeable_eq;
+
+    <span class="kw">let </span>provider = icu_provider_blob::BlobDataProvider::try_new_from_static_blob(<span class="macro">include_bytes!</span>(
+        <span class="string">&quot;../../tests/data/blob.postcard&quot;
+    </span>))
+    .unwrap();
+
+    <span class="kw">let </span>dtf = DateTimeFormatter::try_new_with_buffer_provider(
+        <span class="kw-2">&amp;</span>provider,
+        <span class="kw-2">&amp;</span><span class="macro">locale!</span>(<span class="string">&quot;en&quot;</span>).into(),
+        length::Bag::from_date_time_style(length::Date::Medium, length::Time::Short).into(),
+    )
+    .unwrap();
+
+    <span class="macro">assert_writeable_eq!</span>(
+        dtf.format(
+            <span class="kw-2">&amp;</span>DateTime::try_new_iso_datetime(<span class="number">2020</span>, <span class="number">9</span>, <span class="number">1</span>, <span class="number">12</span>, <span class="number">34</span>, <span class="number">28</span>)
+                .unwrap()
+                .to_any()
+        )
+        .expect(<span class="string">&quot;Calendars should match&quot;</span>),
+        <span class="string">&quot;Sep 1, 2020, 12:34 PM&quot;
+    </span>);
 }
 </code></pre></div></section></main></body></html>

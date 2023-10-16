@@ -11,9 +11,8 @@ which map to integer values.</p>
 
 <span class="comment">// A Char16Trie containing the ASCII characters mapping &#39;a&#39; to 1 and &#39;ab&#39;
 // to 100.
-</span><span class="kw">let </span>trie_data = <span class="macro">vec!</span>[<span class="number">48</span>, <span class="number">97</span>, <span class="number">176</span>, <span class="number">98</span>, <span class="number">32868</span>];
-<span class="kw">let </span>trie =
-    Char16Trie::new(ZeroVec::from_slice_or_alloc(trie_data.as_slice()));
+</span><span class="kw">let </span>trie_data = [<span class="number">48</span>, <span class="number">97</span>, <span class="number">176</span>, <span class="number">98</span>, <span class="number">32868</span>];
+<span class="kw">let </span>trie = Char16Trie::new(ZeroVec::from_slice_or_alloc(<span class="kw-2">&amp;</span>trie_data));
 
 <span class="kw">let </span><span class="kw-2">mut </span>iter = trie.iter();
 <span class="kw">let </span>res = iter.next(<span class="string">&#39;a&#39;</span>);
@@ -22,5 +21,5 @@ which map to integer values.</p>
 <span class="macro">assert_eq!</span>(res, TrieResult::FinalValue(<span class="number">100</span>));
 <span class="kw">let </span>res = iter.next(<span class="string">&#39;c&#39;</span>);
 <span class="macro">assert_eq!</span>(res, TrieResult::NoMatch);</code></pre></div>
-</div></details><h2 id="structs" class="small-section-header"><a href="#structs">Structs</a></h2><ul class="item-table"><li><div class="item-name"><a class="struct" href="struct.Char16Trie.html" title="struct icu::collections::char16trie::Char16Trie">Char16Trie</a></div><div class="desc docblock-short">This struct represents a de-serialized Char16Trie that was exported from
+</div></details><h2 id="structs" class="small-section-header"><a href="#structs">Structs</a></h2><ul class="item-table"><li><div class="item-name"><a class="struct" href="struct.Char16Trie.html" title="struct icu::collections::char16trie::Char16Trie">Char16Trie</a></div><div class="desc docblock-short">This struct represents a de-serialized <code>Char16Trie</code> that was exported from
 ICU binary data.</div></li><li><div class="item-name"><a class="struct" href="struct.Char16TrieIterator.html" title="struct icu::collections::char16trie::Char16TrieIterator">Char16TrieIterator</a></div><div class="desc docblock-short">This struct represents an iterator over a <a href="struct.Char16Trie.html" title="struct icu::collections::char16trie::Char16Trie"><code>Char16Trie</code></a>.</div></li></ul><h2 id="enums" class="small-section-header"><a href="#enums">Enums</a></h2><ul class="item-table"><li><div class="item-name"><a class="enum" href="enum.TrieResult.html" title="enum icu::collections::char16trie::TrieResult">TrieResult</a></div><div class="desc docblock-short">An enum representing the return value from a lookup in <a href="struct.Char16Trie.html" title="struct icu::collections::char16trie::Char16Trie"><code>Char16Trie</code></a>.</div></li></ul></section></div></main></body></html>

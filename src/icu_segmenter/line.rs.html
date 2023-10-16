@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_segmenter-1.2.1/src/line.rs`."><title>line.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_segmenter" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../icu_segmenter/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_segmenter-1.3.2/src/line.rs`."><title>line.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_segmenter" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../icu_segmenter/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1578,6 +1578,67 @@
 <a href="#1578" id="1578">1578</a>
 <a href="#1579" id="1579">1579</a>
 <a href="#1580" id="1580">1580</a>
+<a href="#1581" id="1581">1581</a>
+<a href="#1582" id="1582">1582</a>
+<a href="#1583" id="1583">1583</a>
+<a href="#1584" id="1584">1584</a>
+<a href="#1585" id="1585">1585</a>
+<a href="#1586" id="1586">1586</a>
+<a href="#1587" id="1587">1587</a>
+<a href="#1588" id="1588">1588</a>
+<a href="#1589" id="1589">1589</a>
+<a href="#1590" id="1590">1590</a>
+<a href="#1591" id="1591">1591</a>
+<a href="#1592" id="1592">1592</a>
+<a href="#1593" id="1593">1593</a>
+<a href="#1594" id="1594">1594</a>
+<a href="#1595" id="1595">1595</a>
+<a href="#1596" id="1596">1596</a>
+<a href="#1597" id="1597">1597</a>
+<a href="#1598" id="1598">1598</a>
+<a href="#1599" id="1599">1599</a>
+<a href="#1600" id="1600">1600</a>
+<a href="#1601" id="1601">1601</a>
+<a href="#1602" id="1602">1602</a>
+<a href="#1603" id="1603">1603</a>
+<a href="#1604" id="1604">1604</a>
+<a href="#1605" id="1605">1605</a>
+<a href="#1606" id="1606">1606</a>
+<a href="#1607" id="1607">1607</a>
+<a href="#1608" id="1608">1608</a>
+<a href="#1609" id="1609">1609</a>
+<a href="#1610" id="1610">1610</a>
+<a href="#1611" id="1611">1611</a>
+<a href="#1612" id="1612">1612</a>
+<a href="#1613" id="1613">1613</a>
+<a href="#1614" id="1614">1614</a>
+<a href="#1615" id="1615">1615</a>
+<a href="#1616" id="1616">1616</a>
+<a href="#1617" id="1617">1617</a>
+<a href="#1618" id="1618">1618</a>
+<a href="#1619" id="1619">1619</a>
+<a href="#1620" id="1620">1620</a>
+<a href="#1621" id="1621">1621</a>
+<a href="#1622" id="1622">1622</a>
+<a href="#1623" id="1623">1623</a>
+<a href="#1624" id="1624">1624</a>
+<a href="#1625" id="1625">1625</a>
+<a href="#1626" id="1626">1626</a>
+<a href="#1627" id="1627">1627</a>
+<a href="#1628" id="1628">1628</a>
+<a href="#1629" id="1629">1629</a>
+<a href="#1630" id="1630">1630</a>
+<a href="#1631" id="1631">1631</a>
+<a href="#1632" id="1632">1632</a>
+<a href="#1633" id="1633">1633</a>
+<a href="#1634" id="1634">1634</a>
+<a href="#1635" id="1635">1635</a>
+<a href="#1636" id="1636">1636</a>
+<a href="#1637" id="1637">1637</a>
+<a href="#1638" id="1638">1638</a>
+<a href="#1639" id="1639">1639</a>
+<a href="#1640" id="1640">1640</a>
+<a href="#1641" id="1641">1641</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
@@ -1725,8 +1786,7 @@
 /// ```rust
 /// # use icu_segmenter::LineSegmenter;
 /// #
-/// # let segmenter = LineSegmenter::try_new_auto_unstable(&amp;icu_testdata::unstable())
-/// #    .expect(&quot;Data exists&quot;);
+/// # let segmenter = LineSegmenter::new_auto();
 /// #
 /// let text = &quot;Summary\r\nThis annex…&quot;;
 /// let breakpoints: Vec&lt;usize&gt; = segmenter.segment_str(text).collect();
@@ -1741,9 +1801,7 @@
 /// ```rust
 /// use icu_segmenter::LineSegmenter;
 ///
-/// let segmenter =
-///     LineSegmenter::try_new_auto_unstable(&amp;icu_testdata::unstable())
-///         .expect(&quot;Data exists&quot;);
+/// let segmenter = LineSegmenter::new_auto();
 ///
 /// let breakpoints: Vec&lt;usize&gt; =
 ///     segmenter.segment_str(&quot;Hello World&quot;).collect();
@@ -1762,11 +1820,7 @@
 /// options.strictness = LineBreakStrictness::Strict;
 /// options.word_option = LineBreakWordOption::BreakAll;
 /// options.ja_zh = false;
-/// let segmenter = LineSegmenter::try_new_auto_with_options_unstable(
-///     &amp;icu_testdata::unstable(),
-///     options,
-/// )
-/// .expect(&quot;Data exists&quot;);
+/// let segmenter = LineSegmenter::new_auto_with_options(options);
 ///
 /// let breakpoints: Vec&lt;usize&gt; =
 ///     segmenter.segment_str(&quot;Hello World&quot;).collect();
@@ -1778,9 +1832,7 @@
 /// ```rust
 /// use icu_segmenter::LineSegmenter;
 ///
-/// let segmenter =
-///     LineSegmenter::try_new_auto_unstable(&amp;icu_testdata::unstable())
-///         .expect(&quot;Data exists&quot;);
+/// let segmenter = LineSegmenter::new_auto();
 ///
 /// let breakpoints: Vec&lt;usize&gt; =
 ///     segmenter.segment_latin1(b&quot;Hello World&quot;).collect();
@@ -1793,12 +1845,8 @@
 /// use icu::properties::{maps, LineBreak};
 /// use icu_segmenter::LineSegmenter;
 ///
-/// # let segmenter = LineSegmenter::try_new_auto_unstable(&amp;icu_testdata::unstable())
-/// #   .expect(&quot;Data exists&quot;);
+/// # let segmenter = LineSegmenter::new_auto();
 /// #
-/// let data = maps::load_line_break(&amp;icu_testdata::unstable()).expect(&quot;The data should be valid!&quot;);
-/// let lb = data.as_borrowed();
-///
 /// let text = &quot;Summary\r\nThis annex…&quot;;
 ///
 /// let mandatory_breaks: Vec&lt;usize&gt; = segmenter
@@ -1807,16 +1855,16 @@
 ///     .filter(|&amp;i| {
 ///         text[..i].chars().next_back().map_or(false, |c| {
 ///             matches!(
-///                 lb.get(c),
+///                 maps::line_break().get(c),
 ///                 LineBreak::MandatoryBreak
 ///                     | LineBreak::CarriageReturn
 ///                     | LineBreak::LineFeed
 ///                     | LineBreak::NextLine
-///                 ) || i == text.len()
+///             ) || i == text.len()
 ///         })
 ///     })
 ///     .collect();
-/// assert_eq!(&amp;mandatory_breaks, &amp;[9,  22]);
+/// assert_eq!(&amp;mandatory_breaks, &amp;[9, 22]);
 /// ```
 </span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>LineSegmenter {
@@ -1826,13 +1874,39 @@
 }
 
 <span class="kw">impl </span>LineSegmenter {
-    <span class="doccomment">/// Constructs a [`LineSegmenter`] with an invariant locale and the best available data for
+    <span class="doccomment">/// Constructs a [`LineSegmenter`] with an invariant locale and the best available compiled data for
     /// complex scripts (Khmer, Lao, Myanmar, and Thai).
     ///
     /// The current behavior, which is subject to change, is to use the LSTM model when available.
     ///
-    /// See also [`Self::try_new_auto_with_options_unstable`].
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;auto&quot;</span>)]
+    /// See also [`Self::new_auto_with_options`].
+    ///
+    /// ✨ *Enabled with the `compiled_data` and `auto` Cargo features.*
+    ///
+    /// [📚 Help choosing a constructor](icu_provider::constructors)
+    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    #[cfg(feature = <span class="string">&quot;auto&quot;</span>)]
+    </span><span class="kw">pub fn </span>new_auto() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new_auto_with_options(Default::default())
+    }
+
+    <span class="attr">#[cfg(feature = <span class="string">&quot;auto&quot;</span>)]
+    </span><span class="macro">icu_provider::gen_any_buffer_data_constructors!</span>(
+        locale: skip,
+        options: skip,
+        error: SegmenterError,
+        <span class="attr">#[cfg(skip)]
+        </span>functions: [
+            new_auto,
+            try_new_auto_with_any_provider,
+            try_new_auto_with_buffer_provider,
+            try_new_auto_unstable,
+            <span class="self">Self</span>,
+        ]
+    );
+
+    <span class="attr">#[doc = <span class="macro">icu_provider::gen_any_buffer_unstable_docs!</span>(UNSTABLE, <span class="self">Self</span>::new_auto)]
+    #[cfg(feature = <span class="string">&quot;auto&quot;</span>)]
     </span><span class="kw">pub fn </span>try_new_auto_unstable&lt;D&gt;(provider: <span class="kw-2">&amp;</span>D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, SegmenterError&gt;
     <span class="kw">where
         </span>D: DataProvider&lt;LineBreakDataV1Marker&gt;
@@ -1843,26 +1917,40 @@
         <span class="self">Self</span>::try_new_auto_with_options_unstable(provider, Default::default())
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;auto&quot;</span>)]
-    </span><span class="macro">icu_provider::gen_any_buffer_constructors!</span>(
-        locale: skip,
-        options: skip,
-        error: SegmenterError,
-        functions: [
-            <span class="self">Self</span>::try_new_auto_unstable,
-            try_new_auto_with_any_provider,
-            try_new_auto_with_buffer_provider
-        ]
-    );
-
-    <span class="doccomment">/// Constructs a [`LineSegmenter`] with an invariant locale and LSTM data for
+    <span class="doccomment">/// Constructs a [`LineSegmenter`] with an invariant locale and compiled LSTM data for
     /// complex scripts (Khmer, Lao, Myanmar, and Thai).
     ///
     /// The LSTM, or Long Term Short Memory, is a machine learning model. It is smaller than
     /// the full dictionary but more expensive during segmentation (inference).
     ///
-    /// See also [`Self::try_new_lstm_with_options_unstable`].
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;lstm&quot;</span>)]
+    /// See also [`Self::new_lstm_with_options`].
+    ///
+    /// ✨ *Enabled with the `compiled_data` and `lstm` Cargo features.*
+    ///
+    /// [📚 Help choosing a constructor](icu_provider::constructors)
+    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    #[cfg(feature = <span class="string">&quot;lstm&quot;</span>)]
+    </span><span class="kw">pub fn </span>new_lstm() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new_lstm_with_options(Default::default())
+    }
+
+    <span class="attr">#[cfg(feature = <span class="string">&quot;lstm&quot;</span>)]
+    </span><span class="macro">icu_provider::gen_any_buffer_data_constructors!</span>(
+        locale: skip,
+        options: skip,
+        error: SegmenterError,
+        <span class="attr">#[cfg(skip)]
+        </span>functions: [
+            new_lstm,
+            try_new_lstm_with_any_provider,
+            try_new_lstm_with_buffer_provider,
+            try_new_lstm_unstable,
+            <span class="self">Self</span>,
+        ]
+    );
+
+    <span class="attr">#[cfg(feature = <span class="string">&quot;lstm&quot;</span>)]
+    #[doc = <span class="macro">icu_provider::gen_any_buffer_unstable_docs!</span>(UNSTABLE, <span class="self">Self</span>::new_lstm)]
     </span><span class="kw">pub fn </span>try_new_lstm_unstable&lt;D&gt;(provider: <span class="kw-2">&amp;</span>D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, SegmenterError&gt;
     <span class="kw">where
         </span>D: DataProvider&lt;LineBreakDataV1Marker&gt;
@@ -1873,25 +1961,37 @@
         <span class="self">Self</span>::try_new_lstm_with_options_unstable(provider, Default::default())
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;lstm&quot;</span>)]
-    </span><span class="macro">icu_provider::gen_any_buffer_constructors!</span>(
-        locale: skip,
-        options: skip,
-        error: SegmenterError,
-        functions: [
-            <span class="self">Self</span>::try_new_lstm_unstable,
-            try_new_lstm_with_any_provider,
-            try_new_lstm_with_buffer_provider
-        ]
-    );
-
-    <span class="doccomment">/// Constructs a [`LineSegmenter`] with an invariant locale and dictionary data for
+    <span class="doccomment">/// Constructs a [`LineSegmenter`] with an invariant locale and compiled dictionary data for
     /// complex scripts (Khmer, Lao, Myanmar, and Thai).
     ///
     /// The dictionary model uses a list of words to determine appropriate breakpoints. It is
     /// faster than the LSTM model but requires more data.
     ///
-    /// See also [`Self::try_new_dictionary_with_options_unstable`].
+    /// See also [`Self::new_dictionary_with_options`].
+    ///
+    /// ✨ *Enabled with the `compiled_data` Cargo feature.*
+    ///
+    /// [📚 Help choosing a constructor](icu_provider::constructors)
+    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    </span><span class="kw">pub fn </span>new_dictionary() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new_dictionary_with_options(Default::default())
+    }
+
+    <span class="macro">icu_provider::gen_any_buffer_data_constructors!</span>(
+        locale: skip,
+        options: skip,
+        error: SegmenterError,
+        <span class="attr">#[cfg(skip)]
+        </span>functions: [
+            new_dictionary,
+            try_new_dictionary_with_any_provider,
+            try_new_dictionary_with_buffer_provider,
+            try_new_dictionary_unstable,
+            <span class="self">Self</span>,
+        ]
+    );
+
+    <span class="attr">#[doc = <span class="macro">icu_provider::gen_any_buffer_unstable_docs!</span>(UNSTABLE, <span class="self">Self</span>::new_dictionary)]
     </span><span class="kw">pub fn </span>try_new_dictionary_unstable&lt;D&gt;(provider: <span class="kw-2">&amp;</span>D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, SegmenterError&gt;
     <span class="kw">where
         </span>D: DataProvider&lt;LineBreakDataV1Marker&gt;
@@ -1902,24 +2002,39 @@
         <span class="self">Self</span>::try_new_dictionary_with_options_unstable(provider, Default::default())
     }
 
-    <span class="macro">icu_provider::gen_any_buffer_constructors!</span>(
-        locale: skip,
-        options: skip,
-        error: SegmenterError,
-        functions: [
-            <span class="self">Self</span>::try_new_dictionary_unstable,
-            try_new_dictionary_with_any_provider,
-            try_new_dictionary_with_buffer_provider
-        ]
-    );
-
     <span class="doccomment">/// Constructs a [`LineSegmenter`] with an invariant locale, custom [`LineBreakOptions`], and
-    /// the best available data for complex scripts (Khmer, Lao, Myanmar, and Thai).
+    /// the best available compiled data for complex scripts (Khmer, Lao, Myanmar, and Thai).
     ///
     /// The current behavior, which is subject to change, is to use the LSTM model when available.
     ///
-    /// See also [`Self::try_new_auto_unstable`].
+    /// See also [`Self::new_auto`].
+    ///
+    /// ✨ *Enabled with the `compiled_data` and `auto` Cargo features.*
+    ///
+    /// [📚 Help choosing a constructor](icu_provider::constructors)
     </span><span class="attr">#[cfg(feature = <span class="string">&quot;auto&quot;</span>)]
+    #[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    </span><span class="kw">pub fn </span>new_auto_with_options(options: LineBreakOptions) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new_lstm_with_options(options)
+    }
+
+    <span class="attr">#[cfg(feature = <span class="string">&quot;auto&quot;</span>)]
+    </span><span class="macro">icu_provider::gen_any_buffer_data_constructors!</span>(
+        locale: skip,
+        options: LineBreakOptions,
+        error: SegmenterError,
+        <span class="attr">#[cfg(skip)]
+        </span>functions: [
+            new_auto_with_options,
+            try_new_auto_with_options_with_any_provider,
+            try_new_auto_with_options_with_buffer_provider,
+            try_new_auto_with_options_unstable,
+            <span class="self">Self</span>,
+        ]
+    );
+
+    <span class="attr">#[cfg(feature = <span class="string">&quot;auto&quot;</span>)]
+    #[doc = <span class="macro">icu_provider::gen_any_buffer_unstable_docs!</span>(UNSTABLE, <span class="self">Self</span>::new_auto_with_options)]
     </span><span class="kw">pub fn </span>try_new_auto_with_options_unstable&lt;D&gt;(
         provider: <span class="kw-2">&amp;</span>D,
         options: LineBreakOptions,
@@ -1933,26 +2048,46 @@
         <span class="self">Self</span>::try_new_lstm_with_options_unstable(provider, options)
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;auto&quot;</span>)]
-    </span><span class="macro">icu_provider::gen_any_buffer_constructors!</span>(
-        locale: skip,
-        options: LineBreakOptions,
-        error: SegmenterError,
-        functions: [
-            <span class="self">Self</span>::try_new_auto_with_options_unstable,
-            try_new_auto_with_options_with_any_provider,
-            try_new_auto_with_options_with_buffer_provider
-        ]
-    );
-
     <span class="doccomment">/// Constructs a [`LineSegmenter`] with an invariant locale, custom [`LineBreakOptions`], and
-    /// LSTM data for complex scripts (Khmer, Lao, Myanmar, and Thai).
+    /// compiled LSTM data for complex scripts (Khmer, Lao, Myanmar, and Thai).
     ///
     /// The LSTM, or Long Term Short Memory, is a machine learning model. It is smaller than
     /// the full dictionary but more expensive during segmentation (inference).
     ///
-    /// See also [`Self::try_new_dictionary_unstable`].
+    /// See also [`Self::new_dictionary`].
+    ///
+    /// ✨ *Enabled with the `compiled_data` and `lstm` Cargo features.*
+    ///
+    /// [📚 Help choosing a constructor](icu_provider::constructors)
     </span><span class="attr">#[cfg(feature = <span class="string">&quot;lstm&quot;</span>)]
+    #[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    </span><span class="kw">pub fn </span>new_lstm_with_options(options: LineBreakOptions) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            options,
+            payload: DataPayload::from_static_ref(
+                <span class="kw">crate</span>::provider::Baked::SINGLETON_SEGMENTER_LINE_V1,
+            ),
+            complex: ComplexPayloads::new_lstm(),
+        }
+    }
+
+    <span class="attr">#[cfg(feature = <span class="string">&quot;lstm&quot;</span>)]
+    </span><span class="macro">icu_provider::gen_any_buffer_data_constructors!</span>(
+        locale: skip,
+        options: LineBreakOptions,
+        error: SegmenterError,
+        <span class="attr">#[cfg(skip)]
+        </span>functions: [
+            try_new_lstm_with_options,
+            try_new_lstm_with_options_with_any_provider,
+            try_new_lstm_with_options_with_buffer_provider,
+            try_new_lstm_with_options_unstable,
+            <span class="self">Self</span>,
+        ]
+    );
+
+    <span class="attr">#[cfg(feature = <span class="string">&quot;lstm&quot;</span>)]
+    #[doc = <span class="macro">icu_provider::gen_any_buffer_unstable_docs!</span>(UNSTABLE, <span class="self">Self</span>::new_lstm_with_options)]
     </span><span class="kw">pub fn </span>try_new_lstm_with_options_unstable&lt;D&gt;(
         provider: <span class="kw-2">&amp;</span>D,
         options: LineBreakOptions,
@@ -1970,25 +2105,49 @@
         })
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;lstm&quot;</span>)]
-    </span><span class="macro">icu_provider::gen_any_buffer_constructors!</span>(
-        locale: skip,
-        options: LineBreakOptions,
-        error: SegmenterError,
-        functions: [
-            <span class="self">Self</span>::try_new_lstm_with_options_unstable,
-            try_new_lstm_with_options_with_any_provider,
-            try_new_lstm_with_options_with_buffer_provider
-        ]
-    );
-
     <span class="doccomment">/// Constructs a [`LineSegmenter`] with an invariant locale, custom [`LineBreakOptions`], and
-    /// dictionary data for complex scripts (Khmer, Lao, Myanmar, and Thai).
+    /// compiled dictionary data for complex scripts (Khmer, Lao, Myanmar, and Thai).
     ///
     /// The dictionary model uses a list of words to determine appropriate breakpoints. It is
     /// faster than the LSTM model but requires more data.
     ///
-    /// See also [`Self::try_new_dictionary_unstable`].
+    /// See also [`Self::new_dictionary`].
+    ///
+    /// ✨ *Enabled with the `compiled_data` Cargo feature.*
+    ///
+    /// [📚 Help choosing a constructor](icu_provider::constructors)
+    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    </span><span class="kw">pub fn </span>new_dictionary_with_options(options: LineBreakOptions) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            options,
+            payload: DataPayload::from_static_ref(
+                <span class="kw">crate</span>::provider::Baked::SINGLETON_SEGMENTER_LINE_V1,
+            ),
+            <span class="comment">// Line segmenter doesn&#39;t need to load CJ dictionary because UAX 14 rules handles CJK
+            // characters [1]. Southeast Asian languages however require complex context analysis
+            // [2].
+            //
+            // [1]: https://www.unicode.org/reports/tr14/#ID
+            // [2]: https://www.unicode.org/reports/tr14/#SA
+            </span>complex: ComplexPayloads::new_southeast_asian(),
+        }
+    }
+
+    <span class="macro">icu_provider::gen_any_buffer_data_constructors!</span>(
+        locale: skip,
+        options: LineBreakOptions,
+        error: SegmenterError,
+        <span class="attr">#[cfg(skip)]
+        </span>functions: [
+            new_dictionary_with_options,
+            try_new_dictionary_with_options_with_any_provider,
+            try_new_dictionary_with_options_with_buffer_provider,
+            try_new_dictionary_with_options_unstable,
+            <span class="self">Self</span>,
+        ]
+    );
+
+    <span class="attr">#[doc = <span class="macro">icu_provider::gen_any_buffer_unstable_docs!</span>(UNSTABLE, <span class="self">Self</span>::new_dictionary_with_options)]
     </span><span class="kw">pub fn </span>try_new_dictionary_with_options_unstable&lt;D&gt;(
         provider: <span class="kw-2">&amp;</span>D,
         options: LineBreakOptions,
@@ -2011,17 +2170,6 @@
             </span>complex: ComplexPayloads::try_new_southeast_asian(provider)<span class="question-mark">?</span>,
         })
     }
-
-    <span class="macro">icu_provider::gen_any_buffer_constructors!</span>(
-        locale: skip,
-        options: LineBreakOptions,
-        error: SegmenterError,
-        functions: [
-            <span class="self">Self</span>::try_new_dictionary_with_options_unstable,
-            try_new_dictionary_with_options_with_any_provider,
-            try_new_dictionary_with_options_with_buffer_provider
-        ]
-    );
 
     <span class="doccomment">/// Creates a line break iterator for an `str` (a UTF-8 string).
     ///
@@ -2361,11 +2509,7 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
             <span class="kw">let </span><span class="kw-2">mut </span>left_prop = <span class="self">self</span>.get_linebreak_property(left_codepoint);
             <span class="self">self</span>.advance_iter();
 
-            <span class="comment">// Initializing right_codepoint can be simplified with a let-else statement in Rust 1.65.
-            // https://blog.rust-lang.org/2022/11/03/Rust-1.65.0.html#let-else-statements
-            </span><span class="kw">let </span>right_codepoint = <span class="kw">if let </span><span class="prelude-val">Some</span>(right_codepoint) = <span class="self">self</span>.get_current_codepoint() {
-                right_codepoint
-            } <span class="kw">else </span>{
+            <span class="kw">let </span><span class="prelude-val">Some</span>(right_codepoint) = <span class="self">self</span>.get_current_codepoint() <span class="kw">else </span>{
                 <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="self">self</span>.len);
             };
             <span class="kw">let </span>right_prop = <span class="self">self</span>.get_linebreak_property(right_codepoint);
@@ -2435,11 +2579,7 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
                 <span class="kw">loop </span>{
                     <span class="self">self</span>.advance_iter();
 
-                    <span class="comment">// Initializing prop can be simplified with a let-else statement in Rust 1.65.
-                    // https://blog.rust-lang.org/2022/11/03/Rust-1.65.0.html#let-else-statements
-                    </span><span class="kw">let </span>prop = <span class="kw">if let </span><span class="prelude-val">Some</span>(prop) = <span class="self">self</span>.get_current_linebreak_property() {
-                        prop
-                    } <span class="kw">else </span>{
+                    <span class="kw">let </span><span class="prelude-val">Some</span>(prop) = <span class="self">self</span>.get_current_linebreak_property() <span class="kw">else </span>{
                         <span class="comment">// Reached EOF. But we are analyzing multiple characters now, so next break may be previous point.
                         </span><span class="kw">let </span>break_state = <span class="self">self
                             </span>.get_break_state_from_table(break_state <span class="kw">as </span>u8, <span class="self">self</span>.data.eot_property);
@@ -2793,22 +2933,11 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
     <span class="kw">use </span><span class="kw">crate</span>::LineSegmenter;
-    <span class="kw">use </span>icu_provider_adapters::fork::ForkByKeyProvider;
-    <span class="kw">use </span>icu_provider_fs::FsDataProvider;
-    <span class="kw">use </span>std::path::PathBuf;
-
-    <span class="kw">fn </span>get_segmenter_testdata_provider() -&gt; <span class="kw">impl </span>BufferProvider {
-        <span class="kw">let </span>segmenter_fs_provider = FsDataProvider::try_new(
-            PathBuf::from(<span class="macro">env!</span>(<span class="string">&quot;CARGO_MANIFEST_DIR&quot;</span>)).join(<span class="string">&quot;tests/testdata/provider&quot;</span>),
-        )
-        .unwrap();
-        ForkByKeyProvider::new(segmenter_fs_provider, icu_testdata::buffer())
-    }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>linebreak_property() {
         <span class="kw">let </span>payload = DataProvider::&lt;LineBreakDataV1Marker&gt;::load(
-            <span class="kw-2">&amp;</span>get_segmenter_testdata_provider().as_deserializing(),
+            <span class="kw-2">&amp;</span><span class="kw">crate</span>::provider::Baked,
             Default::default(),
         )
         .expect(<span class="string">&quot;Loading should succeed!&quot;</span>)
@@ -2844,7 +2973,7 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
     #[allow(clippy::bool_assert_comparison)] </span><span class="comment">// clearer when we&#39;re testing bools directly
     </span><span class="kw">fn </span>break_rule() {
         <span class="kw">let </span>payload = DataProvider::&lt;LineBreakDataV1Marker&gt;::load(
-            <span class="kw-2">&amp;</span>get_segmenter_testdata_provider().as_deserializing(),
+            <span class="kw-2">&amp;</span><span class="kw">crate</span>::provider::Baked,
             Default::default(),
         )
         .expect(<span class="string">&quot;Loading should succeed!&quot;</span>)
@@ -2954,10 +3083,8 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>linebreak() {
-        <span class="kw">let </span>segmenter = LineSegmenter::try_new_dictionary_unstable(
-            <span class="kw-2">&amp;</span>get_segmenter_testdata_provider().as_deserializing(),
-        )
-        .expect(<span class="string">&quot;Data exists&quot;</span>);
+        <span class="kw">let </span>segmenter = LineSegmenter::try_new_dictionary_unstable(<span class="kw-2">&amp;</span><span class="kw">crate</span>::provider::Baked)
+            .expect(<span class="string">&quot;Data exists&quot;</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>iter = segmenter.segment_str(<span class="string">&quot;hello world&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">0</span>), iter.next());
@@ -3082,8 +3209,7 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
     </span><span class="kw">fn </span>thai_line_break() {
         <span class="kw">const </span>TEST_STR: <span class="kw-2">&amp;</span>str = <span class="string">&quot;ภาษาไทยภาษาไทย&quot;</span>;
 
-        <span class="kw">let </span>provider = get_segmenter_testdata_provider();
-        <span class="kw">let </span>segmenter = LineSegmenter::try_new_lstm_with_buffer_provider(<span class="kw-2">&amp;</span>provider).unwrap();
+        <span class="kw">let </span>segmenter = LineSegmenter::new_lstm();
         <span class="kw">let </span>breaks: Vec&lt;usize&gt; = segmenter.segment_str(TEST_STR).collect();
         <span class="macro">assert_eq!</span>(breaks, [<span class="number">0</span>, <span class="number">12</span>, <span class="number">21</span>, <span class="number">33</span>, TEST_STR.len()], <span class="string">&quot;Thai test&quot;</span>);
 
@@ -3102,8 +3228,7 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
         <span class="comment">// &quot;Burmese Language&quot; in Burmese
         </span><span class="kw">const </span>TEST_STR: <span class="kw-2">&amp;</span>str = <span class="string">&quot;မြန်မာဘာသာစကား&quot;</span>;
 
-        <span class="kw">let </span>provider = get_segmenter_testdata_provider();
-        <span class="kw">let </span>segmenter = LineSegmenter::try_new_lstm_with_buffer_provider(<span class="kw-2">&amp;</span>provider).unwrap();
+        <span class="kw">let </span>segmenter = LineSegmenter::new_lstm();
         <span class="kw">let </span>breaks: Vec&lt;usize&gt; = segmenter.segment_str(TEST_STR).collect();
         <span class="comment">// LSTM model breaks more characters, but it is better to return [30].
         </span><span class="macro">assert_eq!</span>(breaks, [<span class="number">0</span>, <span class="number">12</span>, <span class="number">18</span>, <span class="number">30</span>, TEST_STR.len()], <span class="string">&quot;Burmese test&quot;</span>);
@@ -3119,8 +3244,7 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
     </span><span class="kw">fn </span>khmer_line_break() {
         <span class="kw">const </span>TEST_STR: <span class="kw-2">&amp;</span>str = <span class="string">&quot;សេចក្ដីប្រកាសជាសកលស្ដីពីសិទ្ធិមនុស្ស&quot;</span>;
 
-        <span class="kw">let </span>provider = get_segmenter_testdata_provider();
-        <span class="kw">let </span>segmenter = LineSegmenter::try_new_lstm_with_buffer_provider(<span class="kw-2">&amp;</span>provider).unwrap();
+        <span class="kw">let </span>segmenter = LineSegmenter::new_lstm();
         <span class="kw">let </span>breaks: Vec&lt;usize&gt; = segmenter.segment_str(TEST_STR).collect();
         <span class="comment">// Note: This small sample matches the ICU dictionary segmenter
         </span><span class="macro">assert_eq!</span>(breaks, [<span class="number">0</span>, <span class="number">39</span>, <span class="number">48</span>, <span class="number">54</span>, <span class="number">72</span>, TEST_STR.len()], <span class="string">&quot;Khmer test&quot;</span>);
@@ -3139,8 +3263,7 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
     </span><span class="kw">fn </span>lao_line_break() {
         <span class="kw">const </span>TEST_STR: <span class="kw-2">&amp;</span>str = <span class="string">&quot;ກ່ຽວກັບສິດຂອງມະນຸດ&quot;</span>;
 
-        <span class="kw">let </span>provider = get_segmenter_testdata_provider();
-        <span class="kw">let </span>segmenter = LineSegmenter::try_new_lstm_with_buffer_provider(<span class="kw-2">&amp;</span>provider).unwrap();
+        <span class="kw">let </span>segmenter = LineSegmenter::new_lstm();
         <span class="kw">let </span>breaks: Vec&lt;usize&gt; = segmenter.segment_str(TEST_STR).collect();
         <span class="comment">// Note: LSTM finds a break at &#39;12&#39; that the dictionary does not find
         </span><span class="macro">assert_eq!</span>(breaks, [<span class="number">0</span>, <span class="number">12</span>, <span class="number">21</span>, <span class="number">30</span>, <span class="number">39</span>, TEST_STR.len()], <span class="string">&quot;Lao test&quot;</span>);
@@ -3152,8 +3275,7 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>empty_string() {
-        <span class="kw">let </span>segmenter =
-            LineSegmenter::try_new_auto_with_buffer_provider(<span class="kw-2">&amp;</span>icu_testdata::buffer()).unwrap();
+        <span class="kw">let </span>segmenter = LineSegmenter::new_auto();
         <span class="kw">let </span>breaks: Vec&lt;usize&gt; = segmenter.segment_str(<span class="string">&quot;&quot;</span>).collect();
         <span class="macro">assert_eq!</span>(breaks, [<span class="number">0</span>]);
     }

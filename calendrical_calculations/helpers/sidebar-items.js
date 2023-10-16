@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["I32CastError"],"fn":["i64_to_i32","i64_to_saturated_i32"]};

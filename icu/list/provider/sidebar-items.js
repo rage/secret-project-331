@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["AndListV1Marker","ConditionalListJoinerPattern","ListFormatterPatternsV1","ListJoinerPattern","OrListV1Marker","SerdeDFA","SpecialCasePattern","UnitListV1Marker"]};
+window.SIDEBAR_ITEMS = {"struct":["AndListV1Marker","Baked","ConditionalListJoinerPattern","ListFormatterPatternsV1","ListJoinerPattern","OrListV1Marker","SerdeDFA","SpecialCasePattern","UnitListV1Marker"]};

@@ -43,7 +43,7 @@ string:</p>
     .fetch_one(<span class="kw-2">&amp;mut </span>conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-<span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, account);
+<span class="macro">println!</span>(<span class="string">&quot;{account:?}&quot;</span>);
 <span class="macro">println!</span>(<span class="string">&quot;{}: {}&quot;</span>, account.id, account.name);
 </code></pre></div>
 <p><strong>The method you want to call depends on how many rows you’re expecting.</strong></p>

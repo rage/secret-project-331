@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_locid_transform-1.2.1/src/expander.rs`."><title>expander.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_locid_transform" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../icu_locid_transform/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_locid_transform-1.3.2/src/expander.rs`."><title>expander.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_locid_transform" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../icu_locid_transform/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -592,6 +592,134 @@
 <a href="#592" id="592">592</a>
 <a href="#593" id="593">593</a>
 <a href="#594" id="594">594</a>
+<a href="#595" id="595">595</a>
+<a href="#596" id="596">596</a>
+<a href="#597" id="597">597</a>
+<a href="#598" id="598">598</a>
+<a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
+<a href="#604" id="604">604</a>
+<a href="#605" id="605">605</a>
+<a href="#606" id="606">606</a>
+<a href="#607" id="607">607</a>
+<a href="#608" id="608">608</a>
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
+<a href="#614" id="614">614</a>
+<a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
+<a href="#618" id="618">618</a>
+<a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a>
+<a href="#624" id="624">624</a>
+<a href="#625" id="625">625</a>
+<a href="#626" id="626">626</a>
+<a href="#627" id="627">627</a>
+<a href="#628" id="628">628</a>
+<a href="#629" id="629">629</a>
+<a href="#630" id="630">630</a>
+<a href="#631" id="631">631</a>
+<a href="#632" id="632">632</a>
+<a href="#633" id="633">633</a>
+<a href="#634" id="634">634</a>
+<a href="#635" id="635">635</a>
+<a href="#636" id="636">636</a>
+<a href="#637" id="637">637</a>
+<a href="#638" id="638">638</a>
+<a href="#639" id="639">639</a>
+<a href="#640" id="640">640</a>
+<a href="#641" id="641">641</a>
+<a href="#642" id="642">642</a>
+<a href="#643" id="643">643</a>
+<a href="#644" id="644">644</a>
+<a href="#645" id="645">645</a>
+<a href="#646" id="646">646</a>
+<a href="#647" id="647">647</a>
+<a href="#648" id="648">648</a>
+<a href="#649" id="649">649</a>
+<a href="#650" id="650">650</a>
+<a href="#651" id="651">651</a>
+<a href="#652" id="652">652</a>
+<a href="#653" id="653">653</a>
+<a href="#654" id="654">654</a>
+<a href="#655" id="655">655</a>
+<a href="#656" id="656">656</a>
+<a href="#657" id="657">657</a>
+<a href="#658" id="658">658</a>
+<a href="#659" id="659">659</a>
+<a href="#660" id="660">660</a>
+<a href="#661" id="661">661</a>
+<a href="#662" id="662">662</a>
+<a href="#663" id="663">663</a>
+<a href="#664" id="664">664</a>
+<a href="#665" id="665">665</a>
+<a href="#666" id="666">666</a>
+<a href="#667" id="667">667</a>
+<a href="#668" id="668">668</a>
+<a href="#669" id="669">669</a>
+<a href="#670" id="670">670</a>
+<a href="#671" id="671">671</a>
+<a href="#672" id="672">672</a>
+<a href="#673" id="673">673</a>
+<a href="#674" id="674">674</a>
+<a href="#675" id="675">675</a>
+<a href="#676" id="676">676</a>
+<a href="#677" id="677">677</a>
+<a href="#678" id="678">678</a>
+<a href="#679" id="679">679</a>
+<a href="#680" id="680">680</a>
+<a href="#681" id="681">681</a>
+<a href="#682" id="682">682</a>
+<a href="#683" id="683">683</a>
+<a href="#684" id="684">684</a>
+<a href="#685" id="685">685</a>
+<a href="#686" id="686">686</a>
+<a href="#687" id="687">687</a>
+<a href="#688" id="688">688</a>
+<a href="#689" id="689">689</a>
+<a href="#690" id="690">690</a>
+<a href="#691" id="691">691</a>
+<a href="#692" id="692">692</a>
+<a href="#693" id="693">693</a>
+<a href="#694" id="694">694</a>
+<a href="#695" id="695">695</a>
+<a href="#696" id="696">696</a>
+<a href="#697" id="697">697</a>
+<a href="#698" id="698">698</a>
+<a href="#699" id="699">699</a>
+<a href="#700" id="700">700</a>
+<a href="#701" id="701">701</a>
+<a href="#702" id="702">702</a>
+<a href="#703" id="703">703</a>
+<a href="#704" id="704">704</a>
+<a href="#705" id="705">705</a>
+<a href="#706" id="706">706</a>
+<a href="#707" id="707">707</a>
+<a href="#708" id="708">708</a>
+<a href="#709" id="709">709</a>
+<a href="#710" id="710">710</a>
+<a href="#711" id="711">711</a>
+<a href="#712" id="712">712</a>
+<a href="#713" id="713">713</a>
+<a href="#714" id="714">714</a>
+<a href="#715" id="715">715</a>
+<a href="#716" id="716">716</a>
+<a href="#717" id="717">717</a>
+<a href="#718" id="718">718</a>
+<a href="#719" id="719">719</a>
+<a href="#720" id="720">720</a>
+<a href="#721" id="721">721</a>
+<a href="#722" id="722">722</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
@@ -605,15 +733,8 @@
 
 <span class="kw">use </span><span class="kw">crate</span>::TransformResult;
 
-<span class="doccomment">/// LocaleExpander supports the `minimize` and `maximize` likely subtags
-/// algorithms as described in [`UTS #35: Unicode LDML 3. Likely Subtags`].
-///
-/// The maximize method potentially updates a passed in locale in place
-/// depending up the results of running the &#39;Add Likely Subtags&#39; algorithm
-/// from [`UTS #35: Unicode LDML 3. Likely Subtags`].
-///
-/// This minimize method returns a new Locale that is the result of running the
-/// &#39;Remove Likely Subtags&#39; algorithm from [`UTS #35: Unicode LDML 3. Likely Subtags`].
+<span class="doccomment">/// Implements the *Add Likely Subtags* and *Remove Likely Subtags*
+/// algorithms as defined in *[UTS #35: Likely Subtags]*.
 ///
 /// # Examples
 ///
@@ -623,8 +744,7 @@
 /// use icu_locid::locale;
 /// use icu_locid_transform::{LocaleExpander, TransformResult};
 ///
-/// let lc = LocaleExpander::try_new_unstable(&amp;icu_testdata::unstable())
-///     .expect(&quot;create failed&quot;);
+/// let lc = LocaleExpander::new();
 ///
 /// let mut locale = locale!(&quot;zh-CN&quot;);
 /// assert_eq!(lc.maximize(&amp;mut locale), TransformResult::Modified);
@@ -641,8 +761,7 @@
 /// use icu_locid::locale;
 /// use icu_locid_transform::{LocaleExpander, TransformResult};
 ///
-/// let lc = LocaleExpander::try_new_unstable(&amp;icu_testdata::unstable())
-///     .expect(&quot;create failed&quot;);
+/// let lc = LocaleExpander::new();
 ///
 /// let mut locale = locale!(&quot;zh-Hans-CN&quot;);
 /// assert_eq!(lc.minimize(&amp;mut locale), TransformResult::Modified);
@@ -660,18 +779,15 @@
 /// use icu_locid::locale;
 /// use icu_locid_transform::{LocaleExpander, TransformResult};
 ///
-/// let lc =
-///     LocaleExpander::try_new_extended_unstable(&amp;icu_testdata::unstable())
-///         .expect(&quot;create failed&quot;);
+/// let lc = LocaleExpander::new_extended();
 ///
 /// let mut locale = locale!(&quot;atj&quot;);
 /// assert_eq!(lc.maximize(&amp;mut locale), TransformResult::Modified);
 /// assert_eq!(locale, locale!(&quot;atj-Latn-CA&quot;));
 /// ```
 ///
-/// [`CLDR`]: http://cldr.unicode.org/
-/// [`UTS #35: Unicode LDML 3. Likely Subtags`]: https://www.unicode.org/reports/tr35/#Likely_Subtags.
-</span><span class="attr">#[derive(Debug)]
+/// [UTS #35: Likely Subtags]: https://www.unicode.org/reports/tr35/#Likely_Subtags
+</span><span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>LocaleExpander {
     likely_subtags_l: DataPayload&lt;LikelySubtagsForLanguageV1Marker&gt;,
     likely_subtags_sr: DataPayload&lt;LikelySubtagsForScriptRegionV1Marker&gt;,
@@ -686,7 +802,7 @@
 
 <span class="kw">impl </span>LocaleExpanderBorrowed&lt;<span class="lifetime">&#39;_</span>&gt; {
     <span class="kw">fn </span>get_l(<span class="kw-2">&amp;</span><span class="self">self</span>, l: Language) -&gt; <span class="prelude-ty">Option</span>&lt;(Script, Region)&gt; {
-        <span class="kw">let </span>key = <span class="kw-2">&amp;</span>l.into();
+        <span class="kw">let </span>key = <span class="kw-2">&amp;</span>l.into_tinystr().to_unvalidated();
         <span class="self">self</span>.likely_subtags_l.language.get_copied(key).or_else(|| {
             <span class="self">self</span>.likely_subtags_ext
                 .and_then(|ext| ext.language.get_copied(key))
@@ -694,7 +810,10 @@
     }
 
     <span class="kw">fn </span>get_ls(<span class="kw-2">&amp;</span><span class="self">self</span>, l: Language, s: Script) -&gt; <span class="prelude-ty">Option</span>&lt;Region&gt; {
-        <span class="kw">let </span>key = <span class="kw-2">&amp;</span>(l.into(), s.into());
+        <span class="kw">let </span>key = <span class="kw-2">&amp;</span>(
+            l.into_tinystr().to_unvalidated(),
+            s.into_tinystr().to_unvalidated(),
+        );
         <span class="self">self</span>.likely_subtags_l
             .language_script
             .get_copied(key)
@@ -705,7 +824,10 @@
     }
 
     <span class="kw">fn </span>get_lr(<span class="kw-2">&amp;</span><span class="self">self</span>, l: Language, r: Region) -&gt; <span class="prelude-ty">Option</span>&lt;Script&gt; {
-        <span class="kw">let </span>key = <span class="kw-2">&amp;</span>(l.into(), r.into());
+        <span class="kw">let </span>key = <span class="kw-2">&amp;</span>(
+            l.into_tinystr().to_unvalidated(),
+            r.into_tinystr().to_unvalidated(),
+        );
         <span class="self">self</span>.likely_subtags_l
             .language_region
             .get_copied(key)
@@ -716,7 +838,7 @@
     }
 
     <span class="kw">fn </span>get_s(<span class="kw-2">&amp;</span><span class="self">self</span>, s: Script) -&gt; <span class="prelude-ty">Option</span>&lt;(Language, Region)&gt; {
-        <span class="kw">let </span>key = <span class="kw-2">&amp;</span>s.into();
+        <span class="kw">let </span>key = <span class="kw-2">&amp;</span>s.into_tinystr().to_unvalidated();
         <span class="self">self</span>.likely_subtags_sr.script.get_copied(key).or_else(|| {
             <span class="self">self</span>.likely_subtags_ext
                 .and_then(|ext| ext.script.get_copied(key))
@@ -724,7 +846,10 @@
     }
 
     <span class="kw">fn </span>get_sr(<span class="kw-2">&amp;</span><span class="self">self</span>, s: Script, r: Region) -&gt; <span class="prelude-ty">Option</span>&lt;Language&gt; {
-        <span class="kw">let </span>key = <span class="kw-2">&amp;</span>(s.into(), r.into());
+        <span class="kw">let </span>key = <span class="kw-2">&amp;</span>(
+            s.into_tinystr().to_unvalidated(),
+            r.into_tinystr().to_unvalidated(),
+        );
         <span class="self">self</span>.likely_subtags_sr
             .script_region
             .get_copied(key)
@@ -735,7 +860,7 @@
     }
 
     <span class="kw">fn </span>get_r(<span class="kw-2">&amp;</span><span class="self">self</span>, r: Region) -&gt; <span class="prelude-ty">Option</span>&lt;(Language, Script)&gt; {
-        <span class="kw">let </span>key = <span class="kw-2">&amp;</span>r.into();
+        <span class="kw">let </span>key = <span class="kw-2">&amp;</span>r.into_tinystr().to_unvalidated();
         <span class="self">self</span>.likely_subtags_sr.region.get_copied(key).or_else(|| {
             <span class="self">self</span>.likely_subtags_ext
                 .and_then(|ext| ext.region.get_copied(key))
@@ -779,39 +904,55 @@
 }
 
 <span class="kw">impl </span>LocaleExpander {
-    <span class="doccomment">/// Creates a [`LocaleExpander`] with data for CLDR locales with Basic or higher coverage.
+    <span class="doccomment">/// Creates a [`LocaleExpander`] with compiled data for commonly-used locales
+    /// (locales with *Basic* or higher [CLDR coverage]).
     ///
-    /// Use this contructor if you are using likely subtags for data lookup.
+    /// Use this constructor if you want limited likely subtags for data-oriented use cases.
+    ///
+    /// ✨ *Enabled with the `compiled_data` Cargo feature.*
     ///
     /// [📚 Help choosing a constructor](icu_provider::constructors)
-    /// &lt;div class=&quot;stab unstable&quot;&gt;
-    /// ⚠️ The bounds on this function may change over time, including in SemVer minor releases.
-    /// &lt;/div&gt;
-    </span><span class="kw">pub fn </span>try_new_unstable&lt;P&gt;(provider: <span class="kw-2">&amp;</span>P) -&gt; <span class="prelude-ty">Result</span>&lt;LocaleExpander, LocaleTransformError&gt;
-    <span class="kw">where
-        </span>P: DataProvider&lt;LikelySubtagsForLanguageV1Marker&gt;
-            + DataProvider&lt;LikelySubtagsForScriptRegionV1Marker&gt;
-            + <span class="question-mark">?</span>Sized,
-    {
-        <span class="kw">let </span>likely_subtags_l = provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>;
-        <span class="kw">let </span>likely_subtags_sr = provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>;
-
-        <span class="prelude-val">Ok</span>(LocaleExpander {
-            likely_subtags_l,
-            likely_subtags_sr,
+    ///
+    /// [CLDR coverage]: https://www.unicode.org/reports/tr35/tr35-info.html#Coverage_Levels
+    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    </span><span class="kw">pub const fn </span>new() -&gt; <span class="self">Self </span>{
+        LocaleExpander {
+            likely_subtags_l: DataPayload::from_static_ref(
+                <span class="kw">crate</span>::provider::Baked::SINGLETON_LOCID_TRANSFORM_LIKELYSUBTAGS_L_V1,
+            ),
+            likely_subtags_sr: DataPayload::from_static_ref(
+                <span class="kw">crate</span>::provider::Baked::SINGLETON_LOCID_TRANSFORM_LIKELYSUBTAGS_SR_V1,
+            ),
             likely_subtags_ext: <span class="prelude-val">None</span>,
-        })
+        }
     }
 
-    <span class="doccomment">/// Creates a [`LocaleExpander`] with data for all locales.
+    <span class="doccomment">/// Creates a [`LocaleExpander`] with compiled data for all locales.
     ///
-    /// Use this constructor if you are using likely subtags for comprehensive support of all
-    /// languages and regions, including ones that may not have CLDR data.
+    /// Use this constructor if you want to include data for all locales, including ones
+    /// that may not have data for other services (i.e. [CLDR coverage] below *Basic*).
+    ///
+    /// ✨ *Enabled with the `compiled_data` Cargo feature.*
     ///
     /// [📚 Help choosing a constructor](icu_provider::constructors)
-    /// &lt;div class=&quot;stab unstable&quot;&gt;
-    /// ⚠️ The bounds on this function may change over time, including in SemVer minor releases.
-    /// &lt;/div&gt;
+    ///
+    /// [CLDR coverage]: https://www.unicode.org/reports/tr35/tr35-info.html#Coverage_Levels
+    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    </span><span class="kw">pub const fn </span>new_extended() -&gt; <span class="self">Self </span>{
+        LocaleExpander {
+            likely_subtags_l: DataPayload::from_static_ref(
+                <span class="kw">crate</span>::provider::Baked::SINGLETON_LOCID_TRANSFORM_LIKELYSUBTAGS_L_V1,
+            ),
+            likely_subtags_sr: DataPayload::from_static_ref(
+                <span class="kw">crate</span>::provider::Baked::SINGLETON_LOCID_TRANSFORM_LIKELYSUBTAGS_SR_V1,
+            ),
+            likely_subtags_ext: <span class="prelude-val">Some</span>(DataPayload::from_static_ref(
+                <span class="kw">crate</span>::provider::Baked::SINGLETON_LOCID_TRANSFORM_LIKELYSUBTAGS_EXT_V1,
+            )),
+        }
+    }
+
+    <span class="attr">#[doc = <span class="macro">icu_provider::gen_any_buffer_unstable_docs!</span>(UNSTABLE, <span class="self">Self</span>::new_extended)]
     </span><span class="kw">pub fn </span>try_new_extended_unstable&lt;P&gt;(
         provider: <span class="kw-2">&amp;</span>P,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;LocaleExpander, LocaleTransformError&gt;
@@ -832,11 +973,47 @@
         })
     }
 
-    <span class="macro">icu_provider::gen_any_buffer_constructors!</span>(locale: skip, options: skip, error: LocaleTransformError, functions: [
-        <span class="self">Self</span>::try_new_extended_unstable,
+    <span class="macro">icu_provider::gen_any_buffer_data_constructors!</span>(locale: skip, options: skip, error: LocaleTransformError,
+        <span class="attr">#[cfg(skip)]
+        </span>functions: [
+        new_extended,
         try_new_extended_with_any_provider,
-        try_new_extended_with_buffer_provider
-    ]);
+        try_new_extended_with_buffer_provider,
+        try_new_extended_unstable,
+        <span class="self">Self
+    </span>]);
+
+    <span class="attr">#[doc = <span class="macro">icu_provider::gen_any_buffer_unstable_docs!</span>(ANY, <span class="self">Self</span>::new)]
+    </span><span class="kw">pub fn </span>try_new_with_any_provider(
+        provider: <span class="kw-2">&amp;</span>(<span class="kw">impl </span>AnyProvider + <span class="question-mark">?</span>Sized),
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;LocaleExpander, LocaleTransformError&gt; {
+        <span class="self">Self</span>::try_new_compat(<span class="kw-2">&amp;</span>provider.as_downcasting())
+    }
+
+    <span class="attr">#[doc = <span class="macro">icu_provider::gen_any_buffer_unstable_docs!</span>(BUFFER, <span class="self">Self</span>::new)]
+    #[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+    </span><span class="kw">pub fn </span>try_new_with_buffer_provider(
+        provider: <span class="kw-2">&amp;</span>(<span class="kw">impl </span>BufferProvider + <span class="question-mark">?</span>Sized),
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;LocaleExpander, LocaleTransformError&gt; {
+        <span class="self">Self</span>::try_new_compat(<span class="kw-2">&amp;</span>provider.as_deserializing())
+    }
+
+    <span class="attr">#[doc = <span class="macro">icu_provider::gen_any_buffer_unstable_docs!</span>(UNSTABLE, <span class="self">Self</span>::new)]
+    </span><span class="kw">pub fn </span>try_new_unstable&lt;P&gt;(provider: <span class="kw-2">&amp;</span>P) -&gt; <span class="prelude-ty">Result</span>&lt;LocaleExpander, LocaleTransformError&gt;
+    <span class="kw">where
+        </span>P: DataProvider&lt;LikelySubtagsForLanguageV1Marker&gt;
+            + DataProvider&lt;LikelySubtagsForScriptRegionV1Marker&gt;
+            + <span class="question-mark">?</span>Sized,
+    {
+        <span class="kw">let </span>likely_subtags_l = provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>;
+        <span class="kw">let </span>likely_subtags_sr = provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>;
+
+        <span class="prelude-val">Ok</span>(LocaleExpander {
+            likely_subtags_l,
+            likely_subtags_sr,
+            likely_subtags_ext: <span class="prelude-val">None</span>,
+        })
+    }
 
     <span class="kw">fn </span>try_new_compat&lt;P&gt;(provider: <span class="kw-2">&amp;</span>P) -&gt; <span class="prelude-ty">Result</span>&lt;LocaleExpander, LocaleTransformError&gt;
     <span class="kw">where
@@ -858,6 +1035,7 @@
 
         <span class="kw">let </span>(likely_subtags_l, likely_subtags_sr, likely_subtags_ext) =
             <span class="kw">match </span>(payload_l, payload_sr, payload_ext) {
+                (<span class="prelude-val">Ok</span>(l), <span class="prelude-val">Ok</span>(sr), <span class="prelude-val">Err</span>(<span class="kw">_</span>)) =&gt; (l, sr, <span class="prelude-val">None</span>),
                 (<span class="prelude-val">Ok</span>(l), <span class="prelude-val">Ok</span>(sr), <span class="prelude-val">Ok</span>(ext)) =&gt; (l, sr, <span class="prelude-val">Some</span>(ext)),
                 <span class="kw">_ </span>=&gt; {
                     <span class="kw">let </span>result: DataPayload&lt;LikelySubtagsV1Marker&gt; =
@@ -877,21 +1055,6 @@
             likely_subtags_sr,
             likely_subtags_ext,
         })
-    }
-
-    <span class="attr">#[doc = <span class="macro">icu_provider::gen_any_buffer_docs!</span>(ANY, icu_provider, <span class="self">Self</span>::try_new_unstable)]
-    </span><span class="kw">pub fn </span>try_new_with_any_provider(
-        provider: <span class="kw-2">&amp;</span>(<span class="kw">impl </span>AnyProvider + <span class="question-mark">?</span>Sized),
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;LocaleExpander, LocaleTransformError&gt; {
-        <span class="self">Self</span>::try_new_compat(<span class="kw-2">&amp;</span>provider.as_downcasting())
-    }
-
-    <span class="attr">#[doc = <span class="macro">icu_provider::gen_any_buffer_docs!</span>(BUFFER, icu_provider, <span class="self">Self</span>::try_new_unstable)]
-    #[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
-    </span><span class="kw">pub fn </span>try_new_with_buffer_provider(
-        provider: <span class="kw-2">&amp;</span>(<span class="kw">impl </span>BufferProvider + <span class="question-mark">?</span>Sized),
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;LocaleExpander, LocaleTransformError&gt; {
-        <span class="self">Self</span>::try_new_compat(<span class="kw-2">&amp;</span>provider.as_deserializing())
     }
 
     <span class="kw">fn </span>as_borrowed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; LocaleExpanderBorrowed {
@@ -918,8 +1081,7 @@
     /// use icu_locid::locale;
     /// use icu_locid_transform::{LocaleExpander, TransformResult};
     ///
-    /// let lc = LocaleExpander::try_new_unstable(&amp;icu_testdata::unstable())
-    ///     .expect(&quot;create failed&quot;);
+    /// let lc = LocaleExpander::new();
     ///
     /// let mut locale = locale!(&quot;zh-CN&quot;);
     /// assert_eq!(lc.maximize(&amp;mut locale), TransformResult::Modified);
@@ -992,8 +1154,7 @@
     /// use icu_locid::locale;
     /// use icu_locid_transform::{LocaleExpander, TransformResult};
     ///
-    /// let lc = LocaleExpander::try_new_unstable(&amp;icu_testdata::unstable())
-    ///     .expect(&quot;creation failed&quot;);
+    /// let lc = LocaleExpander::new();
     ///
     /// let mut locale = locale!(&quot;zh-Hans-CN&quot;);
     /// assert_eq!(lc.minimize(&amp;mut locale), TransformResult::Modified);
@@ -1100,6 +1261,50 @@
             TransformResult::Unmodified
         }
     }
+
+    <span class="comment">// TODO(3492): consider turning this and a future get_likely_region/get_likely_language public
+    </span><span class="attr">#[inline]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get_likely_script&lt;T: AsRef&lt;LanguageIdentifier&gt;&gt;(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        langid: T,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;Script&gt; {
+        <span class="kw">let </span>langid = langid.as_ref();
+        langid
+            .script
+            .or_else(|| <span class="self">self</span>.infer_likely_script(langid.language, langid.region))
+    }
+
+    <span class="kw">fn </span>infer_likely_script(<span class="kw-2">&amp;</span><span class="self">self</span>, language: Language, region: <span class="prelude-ty">Option</span>&lt;Region&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;Script&gt; {
+        <span class="kw">let </span>data = <span class="self">self</span>.as_borrowed();
+
+        <span class="comment">// proceed through _all possible cases_ in order of specificity
+        // (borrowed from LocaleExpander::maximize):
+        // 1. language + region
+        // 2. language
+        // 3. region
+        // we need to check all cases, because e.g. for &quot;en-US&quot; the default script is associated
+        // with &quot;en&quot; but not &quot;en-US&quot;
+        </span><span class="kw">if </span>language != Language::UND {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(region) = region {
+                <span class="comment">// 1. we know both language and region
+                </span><span class="kw">if let </span><span class="prelude-val">Some</span>(script) = data.get_lr(language, region) {
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(script);
+                }
+            }
+            <span class="comment">// 2. we know language, but we either do not know region or knowing region did not help
+            </span><span class="kw">if let </span><span class="prelude-val">Some</span>((script, <span class="kw">_</span>)) = data.get_l(language) {
+                <span class="kw">return </span><span class="prelude-val">Some</span>(script);
+            }
+        }
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(region) = region {
+            <span class="comment">// 3. we know region, but we either do not know language or knowing language did not help
+            </span><span class="kw">if let </span><span class="prelude-val">Some</span>((<span class="kw">_</span>, script)) = data.get_r(region) {
+                <span class="kw">return </span><span class="prelude-val">Some</span>(script);
+            }
+        }
+        <span class="comment">// we could not figure out the script from the given locale
+        </span><span class="prelude-val">None
+    </span>}
 }
 
 <span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
@@ -1108,22 +1313,60 @@
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
     <span class="kw">use </span>icu_locid::locale;
 
-    <span class="kw">struct </span>RejectByKeyProvider&lt;P&gt; {
+    <span class="kw">struct </span>RejectByKeyProvider {
         keys: Vec&lt;DataKey&gt;,
-        inner: P,
     }
 
-    <span class="kw">impl</span>&lt;P: BufferProvider&gt; BufferProvider <span class="kw">for </span>RejectByKeyProvider&lt;P&gt; {
-        <span class="kw">fn </span>load_buffer(
-            <span class="kw-2">&amp;</span><span class="self">self</span>,
-            key: DataKey,
-            req: DataRequest,
-        ) -&gt; <span class="prelude-ty">Result</span>&lt;DataResponse&lt;BufferMarker&gt;, DataError&gt; {
+    <span class="kw">impl </span>AnyProvider <span class="kw">for </span>RejectByKeyProvider {
+        <span class="kw">fn </span>load_any(<span class="kw-2">&amp;</span><span class="self">self</span>, key: DataKey, <span class="kw">_</span>: DataRequest) -&gt; <span class="prelude-ty">Result</span>&lt;AnyResponse, DataError&gt; {
             <span class="kw">if </span><span class="self">self</span>.keys.contains(<span class="kw-2">&amp;</span>key) {
-                <span class="prelude-val">Err</span>(DataErrorKind::MissingDataKey.with_str_context(<span class="string">&quot;rejected&quot;</span>))
-            } <span class="kw">else </span>{
-                <span class="self">self</span>.inner.load_buffer(key, req)
+                <span class="kw">return </span><span class="prelude-val">Err</span>(DataErrorKind::MissingDataKey.with_str_context(<span class="string">&quot;rejected&quot;</span>));
             }
+
+            <span class="kw">let </span>l = <span class="kw">crate</span>::provider::Baked::SINGLETON_LOCID_TRANSFORM_LIKELYSUBTAGS_L_V1;
+            <span class="kw">let </span>ext = <span class="kw">crate</span>::provider::Baked::SINGLETON_LOCID_TRANSFORM_LIKELYSUBTAGS_EXT_V1;
+            <span class="kw">let </span>sr = <span class="kw">crate</span>::provider::Baked::SINGLETON_LOCID_TRANSFORM_LIKELYSUBTAGS_SR_V1;
+
+            <span class="kw">let </span>payload = <span class="kw">if </span>key.hashed() == LikelySubtagsV1Marker::KEY.hashed() {
+                DataPayload::&lt;LikelySubtagsV1Marker&gt;::from_owned(LikelySubtagsV1 {
+                    language_script: l
+                        .language_script
+                        .iter_copied()
+                        .chain(ext.language_script.iter_copied())
+                        .collect(),
+                    language_region: l
+                        .language_region
+                        .iter_copied()
+                        .chain(ext.language_region.iter_copied())
+                        .collect(),
+                    language: l
+                        .language
+                        .iter_copied()
+                        .chain(ext.language.iter_copied())
+                        .collect(),
+                    script_region: ext.script_region.clone(),
+                    script: ext.script.clone(),
+                    region: ext.region.clone(),
+                    und: l.und,
+                })
+                .wrap_into_any_payload()
+            } <span class="kw">else if </span>key.hashed() == LikelySubtagsForLanguageV1Marker::KEY.hashed() {
+                DataPayload::&lt;LikelySubtagsForLanguageV1Marker&gt;::from_static_ref(l)
+                    .wrap_into_any_payload()
+            } <span class="kw">else if </span>key.hashed() == LikelySubtagsExtendedV1Marker::KEY.hashed() {
+                DataPayload::&lt;LikelySubtagsExtendedV1Marker&gt;::from_static_ref(ext)
+                    .wrap_into_any_payload()
+            } <span class="kw">else if </span>key.hashed() == LikelySubtagsForScriptRegionV1Marker::KEY.hashed() {
+                DataPayload::&lt;LikelySubtagsForScriptRegionV1Marker&gt;::from_static_ref(sr)
+                    .wrap_into_any_payload()
+            } <span class="kw">else </span>{
+                <span class="kw">return </span><span class="prelude-val">Err</span>(DataErrorKind::MissingDataKey.into_error());
+            };
+
+            <span class="prelude-val">Ok</span>(AnyResponse {
+                payload: <span class="prelude-val">Some</span>(payload),
+                metadata: Default::default(),
+            })
         }
     }
 
@@ -1133,10 +1376,10 @@
             keys: <span class="macro">vec!</span>[
                 LikelySubtagsForLanguageV1Marker::KEY,
                 LikelySubtagsForScriptRegionV1Marker::KEY,
+                LikelySubtagsExtendedV1Marker::KEY,
             ],
-            inner: icu_testdata::buffer(),
         };
-        <span class="kw">let </span>lc = LocaleExpander::try_new_with_buffer_provider(<span class="kw-2">&amp;</span>provider)
+        <span class="kw">let </span>lc = LocaleExpander::try_new_with_any_provider(<span class="kw-2">&amp;</span>provider)
             .expect(<span class="string">&quot;should create with old keys&quot;</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>locale = <span class="macro">locale!</span>(<span class="string">&quot;zh-CN&quot;</span>);
         <span class="macro">assert_eq!</span>(lc.maximize(<span class="kw-2">&amp;mut </span>locale), TransformResult::Modified);
@@ -1147,9 +1390,8 @@
     </span><span class="kw">fn </span>test_new_keys() {
         <span class="kw">let </span>provider = RejectByKeyProvider {
             keys: <span class="macro">vec!</span>[LikelySubtagsV1Marker::KEY],
-            inner: icu_testdata::buffer(),
         };
-        <span class="kw">let </span>lc = LocaleExpander::try_new_with_buffer_provider(<span class="kw-2">&amp;</span>provider)
+        <span class="kw">let </span>lc = LocaleExpander::try_new_with_any_provider(<span class="kw-2">&amp;</span>provider)
             .expect(<span class="string">&quot;should create with new keys&quot;</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>locale = <span class="macro">locale!</span>(<span class="string">&quot;zh-CN&quot;</span>);
         <span class="macro">assert_eq!</span>(lc.maximize(<span class="kw-2">&amp;mut </span>locale), TransformResult::Modified);
@@ -1162,9 +1404,8 @@
         // Not sure if this is a useful test.
         </span><span class="kw">let </span>provider = RejectByKeyProvider {
             keys: <span class="macro">vec!</span>[LikelySubtagsForScriptRegionV1Marker::KEY],
-            inner: icu_testdata::buffer(),
         };
-        <span class="kw">let </span>lc = LocaleExpander::try_new_with_buffer_provider(<span class="kw-2">&amp;</span>provider)
+        <span class="kw">let </span>lc = LocaleExpander::try_new_with_any_provider(<span class="kw-2">&amp;</span>provider)
             .expect(<span class="string">&quot;should create with mixed keys&quot;</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>locale = <span class="macro">locale!</span>(<span class="string">&quot;zh-CN&quot;</span>);
         <span class="macro">assert_eq!</span>(lc.maximize(<span class="kw-2">&amp;mut </span>locale), TransformResult::Modified);
@@ -1179,11 +1420,26 @@
                 LikelySubtagsForScriptRegionV1Marker::KEY,
                 LikelySubtagsV1Marker::KEY,
             ],
-            inner: icu_testdata::buffer(),
         };
-        <span class="kw">if </span>LocaleExpander::try_new_with_buffer_provider(<span class="kw-2">&amp;</span>provider).is_ok() {
+        <span class="kw">if </span>LocaleExpander::try_new_with_any_provider(<span class="kw-2">&amp;</span>provider).is_ok() {
             <span class="macro">panic!</span>(<span class="string">&quot;should not create: no data present&quot;</span>)
         };
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_new_small_keys() {
+        <span class="comment">// Include the new small keys but not the extended key
+        </span><span class="kw">let </span>provider = RejectByKeyProvider {
+            keys: <span class="macro">vec!</span>[
+                LikelySubtagsExtendedV1Marker::KEY,
+                LikelySubtagsV1Marker::KEY,
+            ],
+        };
+        <span class="kw">let </span>lc = LocaleExpander::try_new_with_any_provider(<span class="kw-2">&amp;</span>provider)
+            .expect(<span class="string">&quot;should create with mixed keys&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>locale = <span class="macro">locale!</span>(<span class="string">&quot;zh-CN&quot;</span>);
+        <span class="macro">assert_eq!</span>(lc.maximize(<span class="kw-2">&amp;mut </span>locale), TransformResult::Modified);
+        <span class="macro">assert_eq!</span>(locale, <span class="macro">locale!</span>(<span class="string">&quot;zh-Hans-CN&quot;</span>));
     }
 }
 </code></pre></div></section></main></body></html>

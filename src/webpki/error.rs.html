@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-webpki-0.101.4/src/error.rs`."><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="webpki" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../webpki/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-webpki-0.101.6/src/error.rs`."><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="webpki" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../webpki/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -247,6 +247,45 @@
 <a href="#247" id="247">247</a>
 <a href="#248" id="248">248</a>
 <a href="#249" id="249">249</a>
+<a href="#250" id="250">250</a>
+<a href="#251" id="251">251</a>
+<a href="#252" id="252">252</a>
+<a href="#253" id="253">253</a>
+<a href="#254" id="254">254</a>
+<a href="#255" id="255">255</a>
+<a href="#256" id="256">256</a>
+<a href="#257" id="257">257</a>
+<a href="#258" id="258">258</a>
+<a href="#259" id="259">259</a>
+<a href="#260" id="260">260</a>
+<a href="#261" id="261">261</a>
+<a href="#262" id="262">262</a>
+<a href="#263" id="263">263</a>
+<a href="#264" id="264">264</a>
+<a href="#265" id="265">265</a>
+<a href="#266" id="266">266</a>
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright 2015 Brian Smith.
 //
 // Permission to use, copy, modify, and/or distribute this software for any
@@ -262,6 +301,7 @@
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 </span><span class="kw">use </span>core::fmt;
+<span class="kw">use </span>core::ops::ControlFlow;
 
 <span class="doccomment">/// An error that occurs during certificate validation or name validation.
 </span><span class="attr">#[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -341,6 +381,15 @@
     <span class="doccomment">/// A name constraint was malformed, potentially containing invalid characters or
     /// invalid labels.
     </span>MalformedNameConstraint,
+
+    <span class="doccomment">/// The maximum number of name constraint comparisons has been reached.
+    </span>MaximumNameConstraintComparisonsExceeded,
+
+    <span class="doccomment">/// The maximum number of internal path building calls has been reached. Path complexity is too great.
+    </span>MaximumPathBuildCallsExceeded,
+
+    <span class="doccomment">/// The path search was terminated because it became too deep.
+    </span>MaximumPathDepthExceeded,
 
     <span class="doccomment">/// The maximum number of signature checks has been reached. Path complexity is too great.
     </span>MaximumSignatureChecksExceeded,
@@ -434,49 +483,78 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>rank(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self </span>{
             <span class="comment">// Errors related to certificate validity
-            </span>Error::CertNotValidYet | Error::CertExpired =&gt; <span class="number">27</span>,
-            Error::CertNotValidForName =&gt; <span class="number">26</span>,
-            Error::CertRevoked =&gt; <span class="number">25</span>,
-            Error::InvalidCrlSignatureForPublicKey | Error::InvalidSignatureForPublicKey =&gt; <span class="number">24</span>,
-            Error::SignatureAlgorithmMismatch =&gt; <span class="number">23</span>,
-            Error::RequiredEkuNotFound =&gt; <span class="number">22</span>,
-            Error::NameConstraintViolation =&gt; <span class="number">21</span>,
-            Error::PathLenConstraintViolated =&gt; <span class="number">20</span>,
-            Error::CaUsedAsEndEntity | Error::EndEntityUsedAsCa =&gt; <span class="number">19</span>,
-            Error::IssuerNotCrlSigner =&gt; <span class="number">18</span>,
+            </span>Error::CertNotValidYet | Error::CertExpired =&gt; <span class="number">290</span>,
+            Error::CertNotValidForName =&gt; <span class="number">280</span>,
+            Error::CertRevoked =&gt; <span class="number">270</span>,
+            Error::InvalidCrlSignatureForPublicKey | Error::InvalidSignatureForPublicKey =&gt; <span class="number">260</span>,
+            Error::SignatureAlgorithmMismatch =&gt; <span class="number">250</span>,
+            Error::RequiredEkuNotFound =&gt; <span class="number">240</span>,
+            Error::NameConstraintViolation =&gt; <span class="number">230</span>,
+            Error::PathLenConstraintViolated =&gt; <span class="number">220</span>,
+            Error::CaUsedAsEndEntity | Error::EndEntityUsedAsCa =&gt; <span class="number">210</span>,
+            Error::IssuerNotCrlSigner =&gt; <span class="number">200</span>,
 
             <span class="comment">// Errors related to supported features used in an invalid way.
-            </span>Error::InvalidCertValidity =&gt; <span class="number">17</span>,
-            Error::InvalidNetworkMaskConstraint =&gt; <span class="number">16</span>,
-            Error::InvalidSerialNumber =&gt; <span class="number">15</span>,
-            Error::InvalidCrlNumber =&gt; <span class="number">14</span>,
+            </span>Error::InvalidCertValidity =&gt; <span class="number">190</span>,
+            Error::InvalidNetworkMaskConstraint =&gt; <span class="number">180</span>,
+            Error::InvalidSerialNumber =&gt; <span class="number">170</span>,
+            Error::InvalidCrlNumber =&gt; <span class="number">160</span>,
 
             <span class="comment">// Errors related to unsupported features.
             </span>Error::UnsupportedCrlSignatureAlgorithmForPublicKey
-            | Error::UnsupportedSignatureAlgorithmForPublicKey =&gt; <span class="number">13</span>,
-            Error::UnsupportedCrlSignatureAlgorithm | Error::UnsupportedSignatureAlgorithm =&gt; <span class="number">12</span>,
-            Error::UnsupportedCriticalExtension =&gt; <span class="number">11</span>,
-            Error::UnsupportedCertVersion =&gt; <span class="number">11</span>,
-            Error::UnsupportedCrlVersion =&gt; <span class="number">10</span>,
-            Error::UnsupportedDeltaCrl =&gt; <span class="number">9</span>,
-            Error::UnsupportedIndirectCrl =&gt; <span class="number">8</span>,
-            Error::UnsupportedRevocationReason =&gt; <span class="number">7</span>,
+            | Error::UnsupportedSignatureAlgorithmForPublicKey =&gt; <span class="number">150</span>,
+            Error::UnsupportedCrlSignatureAlgorithm | Error::UnsupportedSignatureAlgorithm =&gt; <span class="number">140</span>,
+            Error::UnsupportedCriticalExtension =&gt; <span class="number">130</span>,
+            Error::UnsupportedCertVersion =&gt; <span class="number">130</span>,
+            Error::UnsupportedCrlVersion =&gt; <span class="number">120</span>,
+            Error::UnsupportedDeltaCrl =&gt; <span class="number">110</span>,
+            Error::UnsupportedIndirectCrl =&gt; <span class="number">100</span>,
+            Error::UnsupportedRevocationReason =&gt; <span class="number">90</span>,
+            <span class="comment">// Reserved for webpki 0.102.0+ usages:
+            // Error::UnsupportedRevocationReasonsPartitioning =&gt; 80,
+            // Error::UnsupportedCrlIssuingDistributionPoint =&gt; 70,
+            </span>Error::MaximumPathDepthExceeded =&gt; <span class="number">61</span>,
 
             <span class="comment">// Errors related to malformed data.
-            </span>Error::MalformedDnsIdentifier =&gt; <span class="number">6</span>,
-            Error::MalformedNameConstraint =&gt; <span class="number">5</span>,
-            Error::MalformedExtensions =&gt; <span class="number">4</span>,
-            Error::ExtensionValueInvalid =&gt; <span class="number">3</span>,
+            </span>Error::MalformedDnsIdentifier =&gt; <span class="number">60</span>,
+            Error::MalformedNameConstraint =&gt; <span class="number">50</span>,
+            Error::MalformedExtensions =&gt; <span class="number">40</span>,
+            Error::ExtensionValueInvalid =&gt; <span class="number">30</span>,
 
             <span class="comment">// Generic DER errors.
-            </span>Error::BadDerTime =&gt; <span class="number">2</span>,
-            Error::BadDer =&gt; <span class="number">1</span>,
+            </span>Error::BadDerTime =&gt; <span class="number">20</span>,
+            Error::BadDer =&gt; <span class="number">10</span>,
 
-            <span class="comment">// Special case error - not subject to ranking.
+            <span class="comment">// Special case errors - not subject to ranking.
             </span>Error::MaximumSignatureChecksExceeded =&gt; <span class="number">0</span>,
+            Error::MaximumPathBuildCallsExceeded =&gt; <span class="number">0</span>,
+            Error::MaximumNameConstraintComparisonsExceeded =&gt; <span class="number">0</span>,
 
             <span class="comment">// Default catch all error - should be renamed in the future.
             </span>Error::UnknownIssuer =&gt; <span class="number">0</span>,
+        }
+    }
+
+    <span class="doccomment">/// Returns true for errors that should be considered fatal during path building. Errors of
+    /// this class should halt any further path building and be returned immediately.
+    </span><span class="attr">#[inline]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>is_fatal(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="macro">matches!</span>(
+            <span class="self">self</span>,
+            Error::MaximumSignatureChecksExceeded
+                | Error::MaximumPathBuildCallsExceeded
+                | Error::MaximumNameConstraintComparisonsExceeded
+        )
+    }
+}
+
+<span class="kw">impl </span>From&lt;Error&gt; <span class="kw">for </span>ControlFlow&lt;Error, Error&gt; {
+    <span class="kw">fn </span>from(value: Error) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span>value {
+            <span class="comment">// If an error is fatal, we&#39;ve exhausted the potential for continued search.
+            </span>err <span class="kw">if </span>err.is_fatal() =&gt; <span class="self">Self</span>::Break(err),
+            <span class="comment">// Otherwise we&#39;ve rejected one candidate chain, but may continue to search for others.
+            </span>err =&gt; <span class="self">Self</span>::Continue(err),
         }
     }
 }

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["LeadingAdjustment","TrailingCase"],"struct":["TitlecaseMapper","TitlecaseOptions"]};

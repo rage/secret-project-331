@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.7.0/src/complex/hangul.rs`."><title>hangul.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../rustybuzz/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.10.0/src/complex/hangul.rs`."><title>hangul.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../rustybuzz/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -366,14 +366,23 @@
 <a href="#366" id="366">366</a>
 <a href="#367" id="367">367</a>
 <a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>alloc::boxed::Box;
 
-<span class="kw">use crate</span>::{Face, GlyphInfo, Mask};
-<span class="kw">use </span><span class="kw">crate</span>::buffer::{Buffer, BufferFlags, BufferClusterLevel};
+<span class="kw">use super</span>::<span class="kw-2">*</span>;
+<span class="kw">use </span><span class="kw">crate</span>::buffer::{Buffer, BufferClusterLevel, BufferFlags};
 <span class="kw">use </span><span class="kw">crate</span>::ot::{feature, FeatureFlags, Map};
 <span class="kw">use </span><span class="kw">crate</span>::plan::{ShapePlan, ShapePlanner};
-<span class="kw">use super</span>::<span class="kw-2">*</span>;
-
+<span class="kw">use crate</span>::{Face, GlyphInfo, Mask};
 
 <span class="kw">pub const </span>HANGUL_SHAPER: ComplexShaper = ComplexShaper {
     collect_features: <span class="prelude-val">Some</span>(collect_features),
@@ -391,7 +400,6 @@
     fallback_position: <span class="bool-val">false</span>,
 };
 
-
 <span class="kw">const </span>L_BASE: u32 = <span class="number">0x1100</span>;
 <span class="kw">const </span>V_BASE: u32 = <span class="number">0x1161</span>;
 <span class="kw">const </span>T_BASE: u32 = <span class="number">0x11A7</span>;
@@ -406,19 +414,15 @@
 <span class="kw">const </span>VJMO: u8 = <span class="number">2</span>;
 <span class="kw">const </span>TJMO: u8 = <span class="number">3</span>;
 
-
 <span class="kw">impl </span>GlyphInfo {
     <span class="kw">fn </span>hangul_shaping_feature(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8 {
-        <span class="kw">let </span>v: <span class="kw-2">&amp;</span>[u8; <span class="number">4</span>] = bytemuck::cast_ref(<span class="kw-2">&amp;</span><span class="self">self</span>.var2);
-        v[<span class="number">2</span>]
+        <span class="self">self</span>.complex_var_u8_auxiliary()
     }
 
     <span class="kw">fn </span>set_hangul_shaping_feature(<span class="kw-2">&amp;mut </span><span class="self">self</span>, feature: u8) {
-        <span class="kw">let </span>v: <span class="kw-2">&amp;mut </span>[u8; <span class="number">4</span>] = bytemuck::cast_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>.var2);
-        v[<span class="number">2</span>] = feature;
+        <span class="self">self</span>.set_complex_var_u8_auxiliary(feature)
     }
 }
-
 
 <span class="kw">struct </span>HangulShapePlan {
     mask_array: [Mask; <span class="number">4</span>],
@@ -432,23 +436,30 @@
                 map.one_mask(feature::LEADING_JAMO_FORMS),
                 map.one_mask(feature::VOWEL_JAMO_FORMS),
                 map.one_mask(feature::TRAILING_JAMO_FORMS),
-            ]
+            ],
         }
     }
 }
 
-
 <span class="kw">fn </span>collect_features(planner: <span class="kw-2">&amp;mut </span>ShapePlanner) {
-    planner.ot_map.add_feature(feature::LEADING_JAMO_FORMS, FeatureFlags::empty(), <span class="number">1</span>);
-    planner.ot_map.add_feature(feature::VOWEL_JAMO_FORMS, FeatureFlags::empty(), <span class="number">1</span>);
-    planner.ot_map.add_feature(feature::TRAILING_JAMO_FORMS, FeatureFlags::empty(), <span class="number">1</span>);
+    planner
+        .ot_map
+        .add_feature(feature::LEADING_JAMO_FORMS, FeatureFlags::empty(), <span class="number">1</span>);
+    planner
+        .ot_map
+        .add_feature(feature::VOWEL_JAMO_FORMS, FeatureFlags::empty(), <span class="number">1</span>);
+    planner
+        .ot_map
+        .add_feature(feature::TRAILING_JAMO_FORMS, FeatureFlags::empty(), <span class="number">1</span>);
 }
 
 <span class="kw">fn </span>override_features(planner: <span class="kw-2">&amp;mut </span>ShapePlanner) {
     <span class="comment">// Uniscribe does not apply &#39;calt&#39; for Hangul, and certain fonts
     // (Noto Sans CJK, Source Sans Han, etc) apply all of jamo lookups
     // in calt, which is not desirable.
-    </span>planner.ot_map.disable_feature(feature::CONTEXTUAL_ALTERNATES);
+    </span>planner
+        .ot_map
+        .disable_feature(feature::CONTEXTUAL_ALTERNATES);
 }
 
 <span class="kw">fn </span>preprocess_text(<span class="kw">_</span>: <span class="kw-2">&amp;</span>ShapePlan, face: <span class="kw-2">&amp;</span>Face, buffer: <span class="kw-2">&amp;mut </span>Buffer) {
@@ -520,14 +531,18 @@
                     buffer.merge_out_clusters(start, end + <span class="number">1</span>);
                     <span class="kw">let </span>out_info = buffer.out_info_mut();
                     <span class="kw">let </span>tone = out_info[end];
-                    <span class="kw">for </span>i <span class="kw">in </span>(<span class="number">0</span>..end-start).rev() {
+                    <span class="kw">for </span>i <span class="kw">in </span>(<span class="number">0</span>..end - start).rev() {
                         out_info[i + start + <span class="number">1</span>] = out_info[i + start];
                     }
                     out_info[start] = tone;
                 }
             } <span class="kw">else </span>{
                 <span class="comment">// No valid syllable as base for tone mark; try to insert dotted circle.
-                </span><span class="kw">if </span>!buffer.flags.contains(BufferFlags::DO_NOT_INSERT_DOTTED_CIRCLE) &amp;&amp; face.has_glyph(<span class="number">0x25CC</span>) {
+                </span><span class="kw">if </span>!buffer
+                    .flags
+                    .contains(BufferFlags::DO_NOT_INSERT_DOTTED_CIRCLE)
+                    &amp;&amp; face.has_glyph(<span class="number">0x25CC</span>)
+                {
                     <span class="kw">let </span><span class="kw-2">mut </span>chars = [<span class="number">0</span>; <span class="number">2</span>];
                     <span class="kw">if </span>!is_zero_width_char(face, c) {
                         chars[<span class="number">0</span>] = u;
@@ -618,7 +633,8 @@
             <span class="kw">let </span>vindex = nindex / T_COUNT;
             <span class="kw">let </span>tindex = nindex % T_COUNT;
 
-            <span class="kw">if </span>tindex == <span class="number">0 </span>&amp;&amp; buffer.idx + <span class="number">1 </span>&lt; buffer.len &amp;&amp; is_combining_t(buffer.cur(<span class="number">1</span>).glyph_id) {
+            <span class="kw">if </span>tindex == <span class="number">0 </span>&amp;&amp; buffer.idx + <span class="number">1 </span>&lt; buffer.len &amp;&amp; is_combining_t(buffer.cur(<span class="number">1</span>).glyph_id)
+            {
                 <span class="comment">// &lt;LV,T&gt;, try to combine.
                 </span><span class="kw">let </span>new_tindex = buffer.cur(<span class="number">1</span>).glyph_id - T_BASE;
                 <span class="kw">let </span>new_s = s + new_tindex;
@@ -636,10 +652,13 @@
             <span class="comment">// Otherwise, decompose if font doesn&#39;t support &lt;LV&gt; or &lt;LVT&gt;,
             // or if having non-combining &lt;LV,T&gt;.  Note that we already handled
             // combining &lt;LV,T&gt; above.
-            </span><span class="kw">if </span>!has_glyph || (tindex == <span class="number">0 </span>&amp;&amp; buffer.idx + <span class="number">1 </span>&lt; buffer.len &amp;&amp; is_t(buffer.cur(<span class="number">1</span>).glyph_id)) {
+            </span><span class="kw">if </span>!has_glyph
+                || (tindex == <span class="number">0 </span>&amp;&amp; buffer.idx + <span class="number">1 </span>&lt; buffer.len &amp;&amp; is_t(buffer.cur(<span class="number">1</span>).glyph_id))
+            {
                 <span class="kw">let </span>decomposed = [L_BASE + lindex, V_BASE + vindex, T_BASE + tindex];
-                <span class="kw">if </span>face.has_glyph(decomposed[<span class="number">0</span>]) &amp;&amp; face.has_glyph(decomposed[<span class="number">1</span>]) &amp;&amp;
-                    (tindex == <span class="number">0 </span>|| face.has_glyph(decomposed[<span class="number">2</span>]))
+                <span class="kw">if </span>face.has_glyph(decomposed[<span class="number">0</span>])
+                    &amp;&amp; face.has_glyph(decomposed[<span class="number">1</span>])
+                    &amp;&amp; (tindex == <span class="number">0 </span>|| face.has_glyph(decomposed[<span class="number">2</span>]))
                 {
                     <span class="kw">let </span><span class="kw-2">mut </span>s_len = <span class="kw">if </span>tindex != <span class="number">0 </span>{ <span class="number">3 </span>} <span class="kw">else </span>{ <span class="number">2 </span>};
                     buffer.replace_glyphs(<span class="number">1</span>, s_len, <span class="kw-2">&amp;</span>decomposed);
@@ -666,7 +685,8 @@
                     }
 
                     <span class="kw">continue</span>;
-                } <span class="kw">else if </span>tindex == <span class="number">0 </span>&amp;&amp; buffer.idx + <span class="number">1 </span>&gt; buffer.len &amp;&amp; is_t(buffer.cur(<span class="number">1</span>).glyph_id) {
+                } <span class="kw">else if </span>tindex == <span class="number">0 </span>&amp;&amp; buffer.idx + <span class="number">1 </span>&gt; buffer.len &amp;&amp; is_t(buffer.cur(<span class="number">1</span>).glyph_id)
+                {
                     <span class="comment">// Mark unsafe between LV and T.
                     </span>buffer.unsafe_to_break(buffer.idx, buffer.idx + <span class="number">2</span>);
                 }
@@ -713,19 +733,19 @@
 }
 
 <span class="kw">fn </span>is_combining_l(u: u32) -&gt; bool {
-    (L_BASE ..= L_BASE + L_COUNT - <span class="number">1</span>).contains(<span class="kw-2">&amp;</span>u)
+    (L_BASE..=L_BASE + L_COUNT - <span class="number">1</span>).contains(<span class="kw-2">&amp;</span>u)
 }
 
 <span class="kw">fn </span>is_combining_v(u: u32) -&gt; bool {
-    (V_BASE ..= V_BASE + V_COUNT - <span class="number">1</span>).contains(<span class="kw-2">&amp;</span>u)
+    (V_BASE..=V_BASE + V_COUNT - <span class="number">1</span>).contains(<span class="kw-2">&amp;</span>u)
 }
 
 <span class="kw">fn </span>is_combining_t(u: u32) -&gt; bool {
-    (T_BASE + <span class="number">1 </span>..= T_BASE + T_COUNT - <span class="number">1</span>).contains(<span class="kw-2">&amp;</span>u)
+    (T_BASE + <span class="number">1</span>..=T_BASE + T_COUNT - <span class="number">1</span>).contains(<span class="kw-2">&amp;</span>u)
 }
 
 <span class="kw">fn </span>is_combined_s(u: u32) -&gt; bool {
-    (S_BASE ..= S_BASE + S_COUNT - <span class="number">1</span>).contains(<span class="kw-2">&amp;</span>u)
+    (S_BASE..=S_BASE + S_COUNT - <span class="number">1</span>).contains(<span class="kw-2">&amp;</span>u)
 }
 
 <span class="kw">fn </span>setup_masks(plan: <span class="kw-2">&amp;</span>ShapePlan, <span class="kw">_</span>: <span class="kw-2">&amp;</span>Face, buffer: <span class="kw-2">&amp;mut </span>Buffer) {

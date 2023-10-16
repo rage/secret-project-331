@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/blake3-1.4.1/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="blake3" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../blake3/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/blake3-1.5.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="blake3" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../blake3/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1477,6 +1477,172 @@
 <a href="#1477" id="1477">1477</a>
 <a href="#1478" id="1478">1478</a>
 <a href="#1479" id="1479">1479</a>
+<a href="#1480" id="1480">1480</a>
+<a href="#1481" id="1481">1481</a>
+<a href="#1482" id="1482">1482</a>
+<a href="#1483" id="1483">1483</a>
+<a href="#1484" id="1484">1484</a>
+<a href="#1485" id="1485">1485</a>
+<a href="#1486" id="1486">1486</a>
+<a href="#1487" id="1487">1487</a>
+<a href="#1488" id="1488">1488</a>
+<a href="#1489" id="1489">1489</a>
+<a href="#1490" id="1490">1490</a>
+<a href="#1491" id="1491">1491</a>
+<a href="#1492" id="1492">1492</a>
+<a href="#1493" id="1493">1493</a>
+<a href="#1494" id="1494">1494</a>
+<a href="#1495" id="1495">1495</a>
+<a href="#1496" id="1496">1496</a>
+<a href="#1497" id="1497">1497</a>
+<a href="#1498" id="1498">1498</a>
+<a href="#1499" id="1499">1499</a>
+<a href="#1500" id="1500">1500</a>
+<a href="#1501" id="1501">1501</a>
+<a href="#1502" id="1502">1502</a>
+<a href="#1503" id="1503">1503</a>
+<a href="#1504" id="1504">1504</a>
+<a href="#1505" id="1505">1505</a>
+<a href="#1506" id="1506">1506</a>
+<a href="#1507" id="1507">1507</a>
+<a href="#1508" id="1508">1508</a>
+<a href="#1509" id="1509">1509</a>
+<a href="#1510" id="1510">1510</a>
+<a href="#1511" id="1511">1511</a>
+<a href="#1512" id="1512">1512</a>
+<a href="#1513" id="1513">1513</a>
+<a href="#1514" id="1514">1514</a>
+<a href="#1515" id="1515">1515</a>
+<a href="#1516" id="1516">1516</a>
+<a href="#1517" id="1517">1517</a>
+<a href="#1518" id="1518">1518</a>
+<a href="#1519" id="1519">1519</a>
+<a href="#1520" id="1520">1520</a>
+<a href="#1521" id="1521">1521</a>
+<a href="#1522" id="1522">1522</a>
+<a href="#1523" id="1523">1523</a>
+<a href="#1524" id="1524">1524</a>
+<a href="#1525" id="1525">1525</a>
+<a href="#1526" id="1526">1526</a>
+<a href="#1527" id="1527">1527</a>
+<a href="#1528" id="1528">1528</a>
+<a href="#1529" id="1529">1529</a>
+<a href="#1530" id="1530">1530</a>
+<a href="#1531" id="1531">1531</a>
+<a href="#1532" id="1532">1532</a>
+<a href="#1533" id="1533">1533</a>
+<a href="#1534" id="1534">1534</a>
+<a href="#1535" id="1535">1535</a>
+<a href="#1536" id="1536">1536</a>
+<a href="#1537" id="1537">1537</a>
+<a href="#1538" id="1538">1538</a>
+<a href="#1539" id="1539">1539</a>
+<a href="#1540" id="1540">1540</a>
+<a href="#1541" id="1541">1541</a>
+<a href="#1542" id="1542">1542</a>
+<a href="#1543" id="1543">1543</a>
+<a href="#1544" id="1544">1544</a>
+<a href="#1545" id="1545">1545</a>
+<a href="#1546" id="1546">1546</a>
+<a href="#1547" id="1547">1547</a>
+<a href="#1548" id="1548">1548</a>
+<a href="#1549" id="1549">1549</a>
+<a href="#1550" id="1550">1550</a>
+<a href="#1551" id="1551">1551</a>
+<a href="#1552" id="1552">1552</a>
+<a href="#1553" id="1553">1553</a>
+<a href="#1554" id="1554">1554</a>
+<a href="#1555" id="1555">1555</a>
+<a href="#1556" id="1556">1556</a>
+<a href="#1557" id="1557">1557</a>
+<a href="#1558" id="1558">1558</a>
+<a href="#1559" id="1559">1559</a>
+<a href="#1560" id="1560">1560</a>
+<a href="#1561" id="1561">1561</a>
+<a href="#1562" id="1562">1562</a>
+<a href="#1563" id="1563">1563</a>
+<a href="#1564" id="1564">1564</a>
+<a href="#1565" id="1565">1565</a>
+<a href="#1566" id="1566">1566</a>
+<a href="#1567" id="1567">1567</a>
+<a href="#1568" id="1568">1568</a>
+<a href="#1569" id="1569">1569</a>
+<a href="#1570" id="1570">1570</a>
+<a href="#1571" id="1571">1571</a>
+<a href="#1572" id="1572">1572</a>
+<a href="#1573" id="1573">1573</a>
+<a href="#1574" id="1574">1574</a>
+<a href="#1575" id="1575">1575</a>
+<a href="#1576" id="1576">1576</a>
+<a href="#1577" id="1577">1577</a>
+<a href="#1578" id="1578">1578</a>
+<a href="#1579" id="1579">1579</a>
+<a href="#1580" id="1580">1580</a>
+<a href="#1581" id="1581">1581</a>
+<a href="#1582" id="1582">1582</a>
+<a href="#1583" id="1583">1583</a>
+<a href="#1584" id="1584">1584</a>
+<a href="#1585" id="1585">1585</a>
+<a href="#1586" id="1586">1586</a>
+<a href="#1587" id="1587">1587</a>
+<a href="#1588" id="1588">1588</a>
+<a href="#1589" id="1589">1589</a>
+<a href="#1590" id="1590">1590</a>
+<a href="#1591" id="1591">1591</a>
+<a href="#1592" id="1592">1592</a>
+<a href="#1593" id="1593">1593</a>
+<a href="#1594" id="1594">1594</a>
+<a href="#1595" id="1595">1595</a>
+<a href="#1596" id="1596">1596</a>
+<a href="#1597" id="1597">1597</a>
+<a href="#1598" id="1598">1598</a>
+<a href="#1599" id="1599">1599</a>
+<a href="#1600" id="1600">1600</a>
+<a href="#1601" id="1601">1601</a>
+<a href="#1602" id="1602">1602</a>
+<a href="#1603" id="1603">1603</a>
+<a href="#1604" id="1604">1604</a>
+<a href="#1605" id="1605">1605</a>
+<a href="#1606" id="1606">1606</a>
+<a href="#1607" id="1607">1607</a>
+<a href="#1608" id="1608">1608</a>
+<a href="#1609" id="1609">1609</a>
+<a href="#1610" id="1610">1610</a>
+<a href="#1611" id="1611">1611</a>
+<a href="#1612" id="1612">1612</a>
+<a href="#1613" id="1613">1613</a>
+<a href="#1614" id="1614">1614</a>
+<a href="#1615" id="1615">1615</a>
+<a href="#1616" id="1616">1616</a>
+<a href="#1617" id="1617">1617</a>
+<a href="#1618" id="1618">1618</a>
+<a href="#1619" id="1619">1619</a>
+<a href="#1620" id="1620">1620</a>
+<a href="#1621" id="1621">1621</a>
+<a href="#1622" id="1622">1622</a>
+<a href="#1623" id="1623">1623</a>
+<a href="#1624" id="1624">1624</a>
+<a href="#1625" id="1625">1625</a>
+<a href="#1626" id="1626">1626</a>
+<a href="#1627" id="1627">1627</a>
+<a href="#1628" id="1628">1628</a>
+<a href="#1629" id="1629">1629</a>
+<a href="#1630" id="1630">1630</a>
+<a href="#1631" id="1631">1631</a>
+<a href="#1632" id="1632">1632</a>
+<a href="#1633" id="1633">1633</a>
+<a href="#1634" id="1634">1634</a>
+<a href="#1635" id="1635">1635</a>
+<a href="#1636" id="1636">1636</a>
+<a href="#1637" id="1637">1637</a>
+<a href="#1638" id="1638">1638</a>
+<a href="#1639" id="1639">1639</a>
+<a href="#1640" id="1640">1640</a>
+<a href="#1641" id="1641">1641</a>
+<a href="#1642" id="1642">1642</a>
+<a href="#1643" id="1643">1643</a>
+<a href="#1644" id="1644">1644</a>
+<a href="#1645" id="1645">1645</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! The official Rust implementation of the [BLAKE3] cryptographic hash
 //! function.
 //!
@@ -1512,15 +1678,33 @@
 //! # Cargo Features
 //!
 //! The `std` feature (the only feature enabled by default) is required for
-//! implementations of the [`Write`] and [`Seek`] traits, and also for runtime
-//! CPU feature detection on x86. If this feature is disabled, the only way to
-//! use the x86 SIMD implementations is to enable the corresponding instruction
-//! sets globally, with e.g. `RUSTFLAGS=&quot;-C target-cpu=native&quot;`. The resulting
-//! binary will not be portable to other machines.
+//! implementations of the [`Write`] and [`Seek`] traits, the
+//! [`update_reader`](Hasher::update_reader) helper method, and runtime CPU
+//! feature detection on x86. If this feature is disabled, the only way to use
+//! the x86 SIMD implementations is to enable the corresponding instruction sets
+//! globally, with e.g. `RUSTFLAGS=&quot;-C target-cpu=native&quot;`. The resulting binary
+//! will not be portable to other machines.
 //!
 //! The `rayon` feature (disabled by default, but enabled for [docs.rs]) adds
-//! the [`Hasher::update_rayon`] method, for multithreaded hashing. However,
-//! even if this feature is enabled, all other APIs remain single-threaded.
+//! the [`update_rayon`](Hasher::update_rayon) and (in combination with `mmap`
+//! below) [`update_mmap_rayon`](Hasher::update_mmap_rayon) methods, for
+//! multithreaded hashing. However, even if this feature is enabled, all other
+//! APIs remain single-threaded.
+//!
+//! The `mmap` feature (disabled by default, but enabled for [docs.rs]) adds the
+//! [`update_mmap`](Hasher::update_mmap) and (in combination with `rayon` above)
+//! [`update_mmap_rayon`](Hasher::update_mmap_rayon) helper methods for
+//! memory-mapped IO.
+//!
+//! The `zeroize` feature (disabled by default, but enabled for [docs.rs])
+//! implements
+//! [`Zeroize`](https://docs.rs/zeroize/latest/zeroize/trait.Zeroize.html) for
+//! this crate&#39;s types.
+//!
+//! The `serde` feature (disabled by default, but enabled for [docs.rs]) implements
+//! [`serde::Serialize`](https://docs.rs/serde/latest/serde/trait.Serialize.html) and
+//! [`serde::Deserialize`](https://docs.rs/serde/latest/serde/trait.Deserialize.html)
+//! for [`Hash`](struct@Hash).
 //!
 //! The NEON implementation is enabled by default for AArch64 but requires the
 //! `neon` feature for other ARM targets. Not all ARMv7 CPUs support NEON, and
@@ -1528,12 +1712,12 @@
 //! without NEON support.
 //!
 //! The `traits-preview` feature enables implementations of traits from the
-//! RustCrypto [`digest`] crate, and re-exports that crate as
-//! `traits::digest`. However, the traits aren&#39;t stable, and they&#39;re expected to
-//! change in incompatible ways before that crate reaches 1.0. For that reason,
-//! this crate makes no SemVer guarantees for this feature, and callers who use
-//! it should expect breaking changes between patch versions. (The &quot;-preview&quot;
-//! feature name follows the conventions of the RustCrypto [`signature`] crate.)
+//! RustCrypto [`digest`] crate, and re-exports that crate as `traits::digest`.
+//! However, the traits aren&#39;t stable, and they&#39;re expected to change in
+//! incompatible ways before that crate reaches 1.0. For that reason, this crate
+//! makes no SemVer guarantees for this feature, and callers who use it should
+//! expect breaking changes between patch versions. (The &quot;-preview&quot; feature name
+//! follows the conventions of the RustCrypto [`signature`] crate.)
 //!
 //! [`Hasher::update_rayon`]: struct.Hasher.html#method.update_rayon
 //! [BLAKE3]: https://blake3.io
@@ -1591,6 +1775,7 @@
 <span class="attr">#[cfg(feature = <span class="string">&quot;traits-preview&quot;</span>)]
 </span><span class="kw">pub mod </span>traits;
 
+<span class="kw">mod </span>io;
 <span class="kw">mod </span>join;
 
 <span class="kw">use </span>arrayref::{array_mut_ref, array_ref};
@@ -1676,7 +1861,9 @@
 /// [`from_hex`]: #method.from_hex
 /// [`Display`]: https://doc.rust-lang.org/std/fmt/trait.Display.html
 /// [`FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
-</span><span class="attr">#[derive(Clone, Copy, Hash)]
+</span><span class="attr">#[cfg_attr(feature = <span class="string">&quot;zeroize&quot;</span>, derive(zeroize::Zeroize))]
+#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Deserialize, serde::Serialize))]
+#[derive(Clone, Copy, Hash)]
 </span><span class="kw">pub struct </span>Hash([u8; OUT_LEN]);
 
 <span class="kw">impl </span>Hash {
@@ -1850,14 +2037,16 @@
 <span class="comment">// Each chunk or parent node can produce either a 32-byte chaining value or, by
 // setting the ROOT flag, any number of final output bytes. The Output struct
 // captures the state just prior to choosing between those two possibilities.
-</span><span class="attr">#[derive(Clone)]
+</span><span class="attr">#[cfg_attr(feature = <span class="string">&quot;zeroize&quot;</span>, derive(zeroize::Zeroize))]
+#[derive(Clone)]
 </span><span class="kw">struct </span>Output {
     input_chaining_value: CVWords,
     block: [u8; <span class="number">64</span>],
     block_len: u8,
     counter: u64,
     flags: u8,
-    platform: Platform,
+    <span class="attr">#[cfg_attr(feature = <span class="string">&quot;zeroize&quot;</span>, zeroize(skip))]
+    </span>platform: Platform,
 }
 
 <span class="kw">impl </span>Output {
@@ -1893,6 +2082,7 @@
 }
 
 <span class="attr">#[derive(Clone)]
+#[cfg_attr(feature = <span class="string">&quot;zeroize&quot;</span>, derive(zeroize::Zeroize))]
 </span><span class="kw">struct </span>ChunkState {
     cv: CVWords,
     chunk_counter: u64,
@@ -1900,7 +2090,8 @@
     buf_len: u8,
     blocks_compressed: u8,
     flags: u8,
-    platform: Platform,
+    <span class="attr">#[cfg_attr(feature = <span class="string">&quot;zeroize&quot;</span>, zeroize(skip))]
+    </span>platform: Platform,
 }
 
 <span class="kw">impl </span>ChunkState {
@@ -2382,6 +2573,9 @@
 
 <span class="doccomment">/// An incremental hash state that can accept any number of writes.
 ///
+/// The `rayon` and `mmap` Cargo features enable additional methods on this
+/// type related to multithreading and memory-mapped IO.
+///
 /// When the `traits-preview` Cargo feature is enabled, this type implements
 /// several commonly used traits from the
 /// [`digest`](https://crates.io/crates/digest) crate. However, those
@@ -2389,15 +2583,6 @@
 /// before that crate reaches 1.0. For that reason, this crate makes no SemVer
 /// guarantees for this feature, and callers who use it should expect breaking
 /// changes between patch versions.
-///
-/// When the `rayon` Cargo feature is enabled, the
-/// [`update_rayon`](#method.update_rayon) method is available for multithreaded
-/// hashing.
-///
-/// **Performance note:** The [`update`](#method.update) method can&#39;t take full
-/// advantage of SIMD optimizations if its input buffer is too small or oddly
-/// sized. Using a 16 KiB buffer, or any multiple of that, enables all currently
-/// supported SIMD instruction sets.
 ///
 /// # Examples
 ///
@@ -2421,6 +2606,7 @@
 /// # }
 /// ```
 </span><span class="attr">#[derive(Clone)]
+#[cfg_attr(feature = <span class="string">&quot;zeroize&quot;</span>, derive(zeroize::Zeroize))]
 </span><span class="kw">pub struct </span>Hasher {
     key: CVWords,
     chunk_state: ChunkState,
@@ -2548,46 +2734,15 @@
         <span class="self">self</span>.cv_stack.push(<span class="kw-2">*</span>new_cv);
     }
 
-    <span class="doccomment">/// Add input bytes to the hash state. You can call this any number of
-    /// times.
+    <span class="doccomment">/// Add input bytes to the hash state. You can call this any number of times.
     ///
     /// This method is always single-threaded. For multithreading support, see
-    /// [`update_rayon`](#method.update_rayon) below (enabled with the `rayon`
-    /// Cargo feature).
+    /// [`update_rayon`](#method.update_rayon) (enabled with the `rayon` Cargo feature).
     ///
-    /// Note that the degree of SIMD parallelism that `update` can use is
-    /// limited by the size of this input buffer. The 8 KiB buffer currently
-    /// used by [`std::io::copy`] is enough to leverage AVX2, for example, but
-    /// not enough to leverage AVX-512. A 16 KiB buffer is large enough to
-    /// leverage all currently supported SIMD instruction sets.
-    ///
-    /// [`std::io::copy`]: https://doc.rust-lang.org/std/io/fn.copy.html
+    /// Note that the degree of SIMD parallelism that `update` can use is limited by the size of
+    /// this input buffer. See [`update_reader`](#method.update_reader).
     </span><span class="kw">pub fn </span>update(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
         <span class="self">self</span>.update_with_join::&lt;join::SerialJoin&gt;(input)
-    }
-
-    <span class="doccomment">/// Identical to [`update`](Hasher::update), but using Rayon-based
-    /// multithreading internally.
-    ///
-    /// This method is gated by the `rayon` Cargo feature, which is disabled by
-    /// default but enabled on [docs.rs](https://docs.rs).
-    ///
-    /// To get any performance benefit from multithreading, the input buffer
-    /// needs to be large. As a rule of thumb on x86_64, `update_rayon` is
-    /// _slower_ than `update` for inputs under 128 KiB. That threshold varies
-    /// quite a lot across different processors, and it&#39;s important to benchmark
-    /// your specific use case.
-    ///
-    /// Memory mapping an entire input file is a simple way to take advantage of
-    /// multithreading without needing to carefully tune your buffer size or
-    /// offload IO. However, on spinning disks where random access is expensive,
-    /// that approach can lead to disk thrashing and terrible IO performance.
-    /// Note that OS page caching can mask this problem, in which case it might
-    /// only appear for files larger than available RAM. Again, benchmarking
-    /// your specific use case is important.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;rayon&quot;</span>)]
-    </span><span class="kw">pub fn </span>update_rayon(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
-        <span class="self">self</span>.update_with_join::&lt;join::RayonJoin&gt;(input)
     }
 
     <span class="kw">fn </span>update_with_join&lt;J: join::Join&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>input: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
@@ -2788,6 +2943,182 @@
     </span><span class="kw">pub fn </span>count(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
         <span class="self">self</span>.chunk_state.chunk_counter * CHUNK_LEN <span class="kw">as </span>u64 + <span class="self">self</span>.chunk_state.len() <span class="kw">as </span>u64
     }
+
+    <span class="doccomment">/// As [`update`](Hasher::update), but reading from a
+    /// [`std::io::Read`](https://doc.rust-lang.org/std/io/trait.Read.html) implementation.
+    ///
+    /// [`Hasher`] implements
+    /// [`std::io::Write`](https://doc.rust-lang.org/std/io/trait.Write.html), so it&#39;s possible to
+    /// use [`std::io::copy`](https://doc.rust-lang.org/std/io/fn.copy.html) to update a [`Hasher`]
+    /// from any reader. Unfortunately, this standard approach can limit performance, because
+    /// `copy` currently uses an internal 8 KiB buffer that isn&#39;t big enough to take advantage of
+    /// all SIMD instruction sets. (In particular, [AVX-512](https://en.wikipedia.org/wiki/AVX-512)
+    /// needs a 16 KiB buffer.) `update_reader` avoids this performance problem and is slightly
+    /// more convenient.
+    ///
+    /// The internal buffer size this method uses may change at any time, and it may be different
+    /// for different targets. The only guarantee is that it will be large enough for all of this
+    /// crate&#39;s SIMD implementations on the current platform.
+    ///
+    /// The most common implementer of
+    /// [`std::io::Read`](https://doc.rust-lang.org/std/io/trait.Read.html) might be
+    /// [`std::fs::File`](https://doc.rust-lang.org/std/fs/struct.File.html), but note that memory
+    /// mapping can be faster than this method for hashing large files. See
+    /// [`update_mmap`](Hasher::update_mmap) and [`update_mmap_rayon`](Hasher::update_mmap_rayon),
+    /// which require the `mmap` and (for the latter) `rayon` Cargo features.
+    ///
+    /// This method requires the `std` Cargo feature, which is enabled by default.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use std::fs::File;
+    /// # use std::io;
+    /// # fn main() -&gt; io::Result&lt;()&gt; {
+    /// // Hash standard input.
+    /// let mut hasher = blake3::Hasher::new();
+    /// hasher.update_reader(std::io::stdin().lock())?;
+    /// println!(&quot;{}&quot;, hasher.finalize());
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+    </span><span class="kw">pub fn </span>update_reader(<span class="kw-2">&amp;mut </span><span class="self">self</span>, reader: <span class="kw">impl </span>std::io::Read) -&gt; std::io::Result&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt; {
+        io::copy_wide(reader, <span class="self">self</span>)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>)
+    }
+
+    <span class="doccomment">/// As [`update`](Hasher::update), but using Rayon-based multithreading
+    /// internally.
+    ///
+    /// This method is gated by the `rayon` Cargo feature, which is disabled by
+    /// default but enabled on [docs.rs](https://docs.rs).
+    ///
+    /// To get any performance benefit from multithreading, the input buffer
+    /// needs to be large. As a rule of thumb on x86_64, `update_rayon` is
+    /// _slower_ than `update` for inputs under 128 KiB. That threshold varies
+    /// quite a lot across different processors, and it&#39;s important to benchmark
+    /// your specific use case. See also the performance warning associated with
+    /// [`update_mmap_rayon`](Hasher::update_mmap_rayon).
+    ///
+    /// If you already have a large buffer in memory, and you want to hash it
+    /// with multiple threads, this method is a good option. However, reading a
+    /// file into memory just to call this method can be a performance mistake,
+    /// both because it requires lots of memory and because single-threaded
+    /// reads can be slow. For hashing whole files, see
+    /// [`update_mmap_rayon`](Hasher::update_mmap_rayon), which is gated by both
+    /// the `rayon` and `mmap` Cargo features.
+    </span><span class="attr">#[cfg(feature = <span class="string">&quot;rayon&quot;</span>)]
+    </span><span class="kw">pub fn </span>update_rayon(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
+        <span class="self">self</span>.update_with_join::&lt;join::RayonJoin&gt;(input)
+    }
+
+    <span class="doccomment">/// As [`update`](Hasher::update), but reading the contents of a file using memory mapping.
+    ///
+    /// Not all files can be memory mapped, and memory mapping small files can be slower than
+    /// reading them the usual way. In those cases, this method will fall back to standard file IO.
+    /// The heuristic for whether to use memory mapping is currently very simple (file size &gt;=
+    /// 16 KiB), and it might change at any time.
+    ///
+    /// Like [`update`](Hasher::update), this method is single-threaded. In this author&#39;s
+    /// experience, memory mapping improves single-threaded performance by ~10% for large files
+    /// that are already in cache. This probably varies between platforms, and as always it&#39;s a
+    /// good idea to benchmark your own use case. In comparison, the multithreaded
+    /// [`update_mmap_rayon`](Hasher::update_mmap_rayon) method can have a much larger impact on
+    /// performance.
+    ///
+    /// There&#39;s a correctness reason that this method takes
+    /// [`Path`](https://doc.rust-lang.org/stable/std/path/struct.Path.html) instead of
+    /// [`File`](https://doc.rust-lang.org/std/fs/struct.File.html): reading from a memory-mapped
+    /// file ignores the seek position of the original file handle (it neither respects the current
+    /// position nor updates the position). This difference in behavior would&#39;ve caused
+    /// `update_mmap` and [`update_reader`](Hasher::update_reader) to give different answers and
+    /// have different side effects in some cases. Taking a
+    /// [`Path`](https://doc.rust-lang.org/stable/std/path/struct.Path.html) avoids this problem by
+    /// making it clear that a new [`File`](https://doc.rust-lang.org/std/fs/struct.File.html) is
+    /// opened internally.
+    ///
+    /// This method requires the `mmap` Cargo feature, which is disabled by default but enabled on
+    /// [docs.rs](https://docs.rs).
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use std::io;
+    /// # use std::path::Path;
+    /// # fn main() -&gt; io::Result&lt;()&gt; {
+    /// let path = Path::new(&quot;file.dat&quot;);
+    /// let mut hasher = blake3::Hasher::new();
+    /// hasher.update_mmap(path)?;
+    /// println!(&quot;{}&quot;, hasher.finalize());
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="attr">#[cfg(feature = <span class="string">&quot;mmap&quot;</span>)]
+    </span><span class="kw">pub fn </span>update_mmap(<span class="kw-2">&amp;mut </span><span class="self">self</span>, path: <span class="kw">impl </span>AsRef&lt;std::path::Path&gt;) -&gt; std::io::Result&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt; {
+        <span class="kw">let </span>file = std::fs::File::open(path.as_ref())<span class="question-mark">?</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(mmap) = io::maybe_mmap_file(<span class="kw-2">&amp;</span>file)<span class="question-mark">? </span>{
+            <span class="self">self</span>.update(<span class="kw-2">&amp;</span>mmap);
+        } <span class="kw">else </span>{
+            io::copy_wide(<span class="kw-2">&amp;</span>file, <span class="self">self</span>)<span class="question-mark">?</span>;
+        }
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>)
+    }
+
+    <span class="doccomment">/// As [`update_rayon`](Hasher::update_rayon), but reading the contents of a file using
+    /// memory mapping. This is the default behavior of `b3sum`.
+    ///
+    /// For large files that are likely to be in cache, this can be much faster than
+    /// single-threaded hashing. When benchmarks report that BLAKE3 is 10x or 20x faster than other
+    /// cryptographic hashes, this is usually what they&#39;re measuring. However...
+    ///
+    /// **Performance Warning:** There are cases where multithreading hurts performance. The worst
+    /// case is [a large file on a spinning disk](https://github.com/BLAKE3-team/BLAKE3/issues/31),
+    /// where simultaneous reads from multiple threads can cause &quot;thrashing&quot; (i.e. the disk spends
+    /// more time seeking around than reading data). Windows tends to be somewhat worse about this,
+    /// in part because it&#39;s less likely than Linux to keep very large files in cache. More
+    /// generally, if your CPU cores are already busy, then multithreading will add overhead
+    /// without improving performance. If your code runs in different environments that you don&#39;t
+    /// control and can&#39;t measure, then unfortunately there&#39;s no one-size-fits-all answer for
+    /// whether multithreading is a good idea.
+    ///
+    /// The memory mapping behavior of this function is the same as
+    /// [`update_mmap`](Hasher::update_mmap), and the heuristic for when to fall back to standard
+    /// file IO might change at any time.
+    ///
+    /// This method requires both the `mmap` and `rayon` Cargo features, which are disabled by
+    /// default but enabled on [docs.rs](https://docs.rs).
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use std::io;
+    /// # use std::path::Path;
+    /// # fn main() -&gt; io::Result&lt;()&gt; {
+    /// # #[cfg(feature = &quot;rayon&quot;)]
+    /// # {
+    /// let path = Path::new(&quot;big_file.dat&quot;);
+    /// let mut hasher = blake3::Hasher::new();
+    /// hasher.update_mmap_rayon(path)?;
+    /// println!(&quot;{}&quot;, hasher.finalize());
+    /// # }
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="attr">#[cfg(feature = <span class="string">&quot;mmap&quot;</span>)]
+    #[cfg(feature = <span class="string">&quot;rayon&quot;</span>)]
+    </span><span class="kw">pub fn </span>update_mmap_rayon(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        path: <span class="kw">impl </span>AsRef&lt;std::path::Path&gt;,
+    ) -&gt; std::io::Result&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt; {
+        <span class="kw">let </span>file = std::fs::File::open(path.as_ref())<span class="question-mark">?</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(mmap) = io::maybe_mmap_file(<span class="kw-2">&amp;</span>file)<span class="question-mark">? </span>{
+            <span class="self">self</span>.update_rayon(<span class="kw-2">&amp;</span>mmap);
+        } <span class="kw">else </span>{
+            io::copy_wide(<span class="kw-2">&amp;</span>file, <span class="self">self</span>)<span class="question-mark">?</span>;
+        }
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>)
+    }
 }
 
 <span class="comment">// Don&#39;t derive(Debug), because the state may be secret.
@@ -2845,7 +3176,8 @@
 /// from an unknown position in the output stream to recover its block index. Callers with strong
 /// secret keys aren&#39;t affected in practice, but secret offsets are a [design
 /// smell](https://en.wikipedia.org/wiki/Design_smell) in any case.
-</span><span class="attr">#[derive(Clone)]
+</span><span class="attr">#[cfg_attr(feature = <span class="string">&quot;zeroize&quot;</span>, derive(zeroize::Zeroize))]
+#[derive(Clone)]
 </span><span class="kw">pub struct </span>OutputReader {
     inner: Output,
     position_within_block: u8,

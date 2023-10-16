@@ -130,9 +130,9 @@ and so cannot bind by-reference.</p>
 <span class="comment">// This would normally produce values forever!
 </span><span class="kw">let </span>users = (<span class="number">0</span>..).map(|i| User {
     id: i,
-    username: <span class="macro">format!</span>(<span class="string">&quot;test_user_{}&quot;</span>, i),
-    email: <span class="macro">format!</span>(<span class="string">&quot;test-user-{}@example.com&quot;</span>, i),
-    password: <span class="macro">format!</span>(<span class="string">&quot;Test!User@Password#{}&quot;</span>, i),
+    username: <span class="macro">format!</span>(<span class="string">&quot;test_user_{i}&quot;</span>),
+    email: <span class="macro">format!</span>(<span class="string">&quot;test-user-{i}@example.com&quot;</span>),
+    password: <span class="macro">format!</span>(<span class="string">&quot;Test!User@Password#{i}&quot;</span>),
 });
 
 <span class="kw">let </span><span class="kw-2">mut </span>query_builder: QueryBuilder&lt;MySql&gt; = QueryBuilder::new(
@@ -203,9 +203,9 @@ this will ensure that you don’t exceed the limit.</p>
 <span class="comment">// This would normally produce values forever!
 </span><span class="kw">let </span>users = (<span class="number">0</span>..).map(|i| User {
     id: i,
-    username: <span class="macro">format!</span>(<span class="string">&quot;test_user_{}&quot;</span>, i),
-    email: <span class="macro">format!</span>(<span class="string">&quot;test-user-{}@example.com&quot;</span>, i),
-    password: <span class="macro">format!</span>(<span class="string">&quot;Test!User@Password#{}&quot;</span>, i),
+    username: <span class="macro">format!</span>(<span class="string">&quot;test_user_{i}&quot;</span>),
+    email: <span class="macro">format!</span>(<span class="string">&quot;test-user-{i}@example.com&quot;</span>),
+    password: <span class="macro">format!</span>(<span class="string">&quot;Test!User@Password#{i}&quot;</span>),
 });
 
 <span class="kw">let </span><span class="kw-2">mut </span>query_builder: QueryBuilder&lt;MySql&gt; = QueryBuilder::new(

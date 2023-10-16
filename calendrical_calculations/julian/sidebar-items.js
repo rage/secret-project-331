@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["fixed_from_julian","fixed_from_julian_book_version","is_leap_year","julian_from_fixed"]};

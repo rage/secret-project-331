@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_collator-1.2.0/src/comparison.rs`."><title>comparison.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_collator" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../icu_collator/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_collator-1.3.2/src/comparison.rs`."><title>comparison.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_collator" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../icu_collator/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -828,6 +828,16 @@
 <a href="#828" id="828">828</a>
 <a href="#829" id="829">829</a>
 <a href="#830" id="830">830</a>
+<a href="#831" id="831">831</a>
+<a href="#832" id="832">832</a>
+<a href="#833" id="833">833</a>
+<a href="#834" id="834">834</a>
+<a href="#835" id="835">835</a>
+<a href="#836" id="836">836</a>
+<a href="#837" id="837">837</a>
+<a href="#838" id="838">838</a>
+<a href="#839" id="839">839</a>
+<a href="#840" id="840">840</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
@@ -854,7 +864,6 @@
 <span class="kw">use crate</span>::{AlternateHandling, CollatorOptions, MaxVariable, Strength};
 <span class="kw">use </span>core::cmp::Ordering;
 <span class="kw">use </span>core::convert::TryFrom;
-<span class="kw">use </span>icu_locid::extensions_unicode_value <span class="kw">as </span>value;
 <span class="kw">use </span>icu_normalizer::provider::CanonicalDecompositionDataV1Marker;
 <span class="kw">use </span>icu_normalizer::provider::CanonicalDecompositionTablesV1Marker;
 <span class="kw">use </span>icu_normalizer::Decomposition;
@@ -899,14 +908,38 @@
 }
 
 <span class="kw">impl </span>Collator {
-    <span class="doccomment">/// Instantiates a collator for a given locale with the given options
-    ///
-    /// [📚 Help choosing a constructor](icu_provider::constructors)
-    /// &lt;div class=&quot;stab unstable&quot;&gt;
-    /// ⚠️ The bounds on this function may change over time, including in SemVer minor releases.
-    /// &lt;/div&gt;
+    <span class="doccomment">/// Creates a collator for the given locale and options from compiled data.
+    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    </span><span class="kw">pub fn </span>try_new(locale: <span class="kw-2">&amp;</span>DataLocale, options: CollatorOptions) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, CollatorError&gt; {
+        <span class="self">Self</span>::try_new_unstable_internal(
+            <span class="kw-2">&amp;</span><span class="kw">crate</span>::provider::Baked,
+            DataPayload::from_static_ref(
+                icu_normalizer::provider::Baked::SINGLETON_NORMALIZER_NFD_V1,
+            ),
+            DataPayload::from_static_ref(
+                icu_normalizer::provider::Baked::SINGLETON_NORMALIZER_NFDEX_V1,
+            ),
+            DataPayload::from_static_ref(<span class="kw">crate</span>::provider::Baked::SINGLETON_COLLATOR_JAMO_V1),
+            || {
+                <span class="prelude-val">Ok</span>(DataPayload::from_static_ref(
+                    <span class="kw">crate</span>::provider::Baked::SINGLETON_COLLATOR_PRIM_V1,
+                ))
+            },
+            locale,
+            options,
+        )
+    }
+
+    <span class="macro">icu_provider::gen_any_buffer_data_constructors!</span>(
+        locale: include,
+        options: CollatorOptions,
+        error: CollatorError,
+        <span class="attr">#[cfg(skip)]
+    </span>);
+
+    <span class="attr">#[doc = <span class="macro">icu_provider::gen_any_buffer_unstable_docs!</span>(UNSTABLE, <span class="self">Self</span>::try_new)]
     </span><span class="kw">pub fn </span>try_new_unstable&lt;D&gt;(
-        data_provider: <span class="kw-2">&amp;</span>D,
+        provider: <span class="kw-2">&amp;</span>D,
         locale: <span class="kw-2">&amp;</span>DataLocale,
         options: CollatorOptions,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, CollatorError&gt;
@@ -921,53 +954,56 @@
             + DataProvider&lt;CanonicalDecompositionTablesV1Marker&gt;
             + <span class="question-mark">?</span>Sized,
     {
-        <span class="kw">let </span>locale = {
-            <span class="comment">// Remove irrelevant extensions, i.e. everything but -u-co-.
-            //
-            // TODO: Revisit at least the default mapping here
-            // once the provider can perform fallback into more
-            // general locale. Once the provider can fall back to
-            // the default, the code here that omits the explicit
-            // variant if it matches the default should become
-            // unnecessary.
-            </span><span class="kw">let </span>original_locale = locale;
-            <span class="kw">let </span><span class="kw-2">mut </span>filtered_locale = alloc::borrow::Cow::Borrowed(locale);
+        <span class="self">Self</span>::try_new_unstable_internal(
+            provider,
+            provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>,
+            provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>,
+            provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>,
+            || provider.load(Default::default())<span class="question-mark">?</span>.take_payload(),
+            locale,
+            options,
+        )
+    }
 
-            <span class="kw">let </span>key = <span class="macro">icu_locid::extensions_unicode_key!</span>(<span class="string">&quot;co&quot;</span>);
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(variant) = original_locale.get_unicode_ext(<span class="kw-2">&amp;</span>key) {
-                <span class="kw">let </span>zh = filtered_locale.language() == <span class="macro">icu_locid::subtags_language!</span>(<span class="string">&quot;zh&quot;</span>);
-                <span class="kw">let </span>sv = filtered_locale.language() == <span class="macro">icu_locid::subtags_language!</span>(<span class="string">&quot;sv&quot;</span>);
-                <span class="comment">// Omit the explicit collation variant if it is the default.
-                // &quot;standard&quot; is the default for all languages except zh and sv.
-                </span><span class="kw">if </span>!((!zh &amp;&amp; !sv &amp;&amp; variant == <span class="macro">value!</span>(<span class="string">&quot;standard&quot;</span>))
-                    || (zh &amp;&amp; variant == <span class="macro">value!</span>(<span class="string">&quot;pinyin&quot;</span>))
-                    || (sv &amp;&amp; variant == <span class="macro">value!</span>(<span class="string">&quot;reformed&quot;</span>)))
-                {
-                    filtered_locale.to_mut().set_unicode_ext(key, variant);
-                }
-            }
-            filtered_locale
-        };
+    <span class="kw">fn </span>try_new_unstable_internal&lt;D&gt;(
+        provider: <span class="kw-2">&amp;</span>D,
+        decompositions: DataPayload&lt;CanonicalDecompositionDataV1Marker&gt;,
+        tables: DataPayload&lt;CanonicalDecompositionTablesV1Marker&gt;,
+        jamo: DataPayload&lt;CollationJamoV1Marker&gt;,
+        special_primaries: <span class="kw">impl </span>FnOnce() -&gt; <span class="prelude-ty">Result</span>&lt;
+            DataPayload&lt;CollationSpecialPrimariesV1Marker&gt;,
+            DataError,
+        &gt;,
+        locale: <span class="kw-2">&amp;</span>DataLocale,
+        options: CollatorOptions,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, CollatorError&gt;
+    <span class="kw">where
+        </span>D: DataProvider&lt;CollationDataV1Marker&gt;
+            + DataProvider&lt;CollationDiacriticsV1Marker&gt;
+            + DataProvider&lt;CollationMetadataV1Marker&gt;
+            + DataProvider&lt;CollationReorderingV1Marker&gt;
+            + <span class="question-mark">?</span>Sized,
+    {
         <span class="kw">let </span>req = DataRequest {
-            locale: <span class="kw-2">&amp;</span>locale,
+            locale,
             metadata: Default::default(),
         };
 
         <span class="kw">let </span>metadata_payload: DataPayload&lt;<span class="kw">crate</span>::provider::CollationMetadataV1Marker&gt; =
-            data_provider.load(req)<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>;
+            provider.load(req)<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>;
 
         <span class="kw">let </span>metadata = metadata_payload.get();
 
         <span class="kw">let </span>tailoring: <span class="prelude-ty">Option</span>&lt;DataPayload&lt;<span class="kw">crate</span>::provider::CollationDataV1Marker&gt;&gt; =
             <span class="kw">if </span>metadata.tailored() {
-                <span class="prelude-val">Some</span>(data_provider.load(req)<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>)
+                <span class="prelude-val">Some</span>(provider.load(req)<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>)
             } <span class="kw">else </span>{
                 <span class="prelude-val">None
             </span>};
 
         <span class="kw">let </span>reordering: <span class="prelude-ty">Option</span>&lt;DataPayload&lt;<span class="kw">crate</span>::provider::CollationReorderingV1Marker&gt;&gt; =
             <span class="kw">if </span>metadata.reordering() {
-                <span class="prelude-val">Some</span>(data_provider.load(req)<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>)
+                <span class="prelude-val">Some</span>(provider.load(req)<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>)
             } <span class="kw">else </span>{
                 <span class="prelude-val">None
             </span>};
@@ -979,10 +1015,10 @@
         }
 
         <span class="kw">let </span>root: DataPayload&lt;CollationDataV1Marker&gt; =
-            data_provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>;
+            provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>;
 
         <span class="kw">let </span>tailored_diacritics = metadata.tailored_diacritics();
-        <span class="kw">let </span>diacritics: DataPayload&lt;CollationDiacriticsV1Marker&gt; = data_provider
+        <span class="kw">let </span>diacritics: DataPayload&lt;CollationDiacriticsV1Marker&gt; = provider
             .load(<span class="kw">if </span>tailored_diacritics {
                 req
             } <span class="kw">else </span>{
@@ -1003,19 +1039,10 @@
             <span class="kw">return </span><span class="prelude-val">Err</span>(CollatorError::MalformedData);
         }
 
-        <span class="kw">let </span>jamo: DataPayload&lt;CollationJamoV1Marker&gt; = data_provider
-            .load(Default::default())<span class="question-mark">? </span><span class="comment">// TODO: redesign Korean search collation handling
-            </span>.take_payload()<span class="question-mark">?</span>;
-
-        <span class="kw">if </span>jamo.get().ce32s.len() != JAMO_COUNT {
+        <span class="comment">// TODO: redesign Korean search collation handling
+        </span><span class="kw">if </span>jamo.get().ce32s.len() != JAMO_COUNT {
             <span class="kw">return </span><span class="prelude-val">Err</span>(CollatorError::MalformedData);
         }
-
-        <span class="kw">let </span>decompositions: DataPayload&lt;CanonicalDecompositionDataV1Marker&gt; =
-            data_provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>;
-
-        <span class="kw">let </span>tables: DataPayload&lt;CanonicalDecompositionTablesV1Marker&gt; =
-            data_provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>;
 
         <span class="kw">let </span><span class="kw-2">mut </span>altered_defaults = CollatorOptionsBitField::new();
 
@@ -1035,8 +1062,7 @@
         <span class="kw">let </span>special_primaries = <span class="kw">if </span>merged_options.alternate_handling() == AlternateHandling::Shifted
             || merged_options.numeric()
         {
-            <span class="kw">let </span>special_primaries: DataPayload&lt;CollationSpecialPrimariesV1Marker&gt; =
-                data_provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>;
+            <span class="kw">let </span>special_primaries = special_primaries()<span class="question-mark">?</span>;
             <span class="comment">// `variant_count` isn&#39;t stable yet:
             // https://github.com/rust-lang/rust/issues/73662
             </span><span class="kw">if </span>special_primaries.get().last_primaries.len() &lt;= (MaxVariable::Currency <span class="kw">as </span>usize) {
@@ -1060,12 +1086,6 @@
             lithuanian_dot_above: metadata.lithuanian_dot_above(),
         })
     }
-
-    <span class="macro">icu_provider::gen_any_buffer_constructors!</span>(
-        locale: include,
-        options: CollatorOptions,
-        error: CollatorError
-    );
 
     <span class="doccomment">/// Compare potentially ill-formed UTF-16 slices. Unpaired surrogates
     /// are compared as if each one was a REPLACEMENT CHARACTER.

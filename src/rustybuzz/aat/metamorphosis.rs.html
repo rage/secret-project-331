@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.7.0/src/aat/metamorphosis.rs`."><title>metamorphosis.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../rustybuzz/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.10.0/src/aat/metamorphosis.rs`."><title>metamorphosis.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../rustybuzz/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -649,13 +649,106 @@
 <a href="#649" id="649">649</a>
 <a href="#650" id="650">650</a>
 <a href="#651" id="651">651</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>ttf_parser::{apple_layout, morx, GlyphId, FromData, LazyArray32};
+<a href="#652" id="652">652</a>
+<a href="#653" id="653">653</a>
+<a href="#654" id="654">654</a>
+<a href="#655" id="655">655</a>
+<a href="#656" id="656">656</a>
+<a href="#657" id="657">657</a>
+<a href="#658" id="658">658</a>
+<a href="#659" id="659">659</a>
+<a href="#660" id="660">660</a>
+<a href="#661" id="661">661</a>
+<a href="#662" id="662">662</a>
+<a href="#663" id="663">663</a>
+<a href="#664" id="664">664</a>
+<a href="#665" id="665">665</a>
+<a href="#666" id="666">666</a>
+<a href="#667" id="667">667</a>
+<a href="#668" id="668">668</a>
+<a href="#669" id="669">669</a>
+<a href="#670" id="670">670</a>
+<a href="#671" id="671">671</a>
+<a href="#672" id="672">672</a>
+<a href="#673" id="673">673</a>
+<a href="#674" id="674">674</a>
+<a href="#675" id="675">675</a>
+<a href="#676" id="676">676</a>
+<a href="#677" id="677">677</a>
+<a href="#678" id="678">678</a>
+<a href="#679" id="679">679</a>
+<a href="#680" id="680">680</a>
+<a href="#681" id="681">681</a>
+<a href="#682" id="682">682</a>
+<a href="#683" id="683">683</a>
+<a href="#684" id="684">684</a>
+<a href="#685" id="685">685</a>
+<a href="#686" id="686">686</a>
+<a href="#687" id="687">687</a>
+<a href="#688" id="688">688</a>
+<a href="#689" id="689">689</a>
+<a href="#690" id="690">690</a>
+<a href="#691" id="691">691</a>
+<a href="#692" id="692">692</a>
+<a href="#693" id="693">693</a>
+<a href="#694" id="694">694</a>
+<a href="#695" id="695">695</a>
+<a href="#696" id="696">696</a>
+<a href="#697" id="697">697</a>
+<a href="#698" id="698">698</a>
+<a href="#699" id="699">699</a>
+<a href="#700" id="700">700</a>
+<a href="#701" id="701">701</a>
+<a href="#702" id="702">702</a>
+<a href="#703" id="703">703</a>
+<a href="#704" id="704">704</a>
+<a href="#705" id="705">705</a>
+<a href="#706" id="706">706</a>
+<a href="#707" id="707">707</a>
+<a href="#708" id="708">708</a>
+<a href="#709" id="709">709</a>
+<a href="#710" id="710">710</a>
+<a href="#711" id="711">711</a>
+<a href="#712" id="712">712</a>
+<a href="#713" id="713">713</a>
+<a href="#714" id="714">714</a>
+<a href="#715" id="715">715</a>
+<a href="#716" id="716">716</a>
+<a href="#717" id="717">717</a>
+<a href="#718" id="718">718</a>
+<a href="#719" id="719">719</a>
+<a href="#720" id="720">720</a>
+<a href="#721" id="721">721</a>
+<a href="#722" id="722">722</a>
+<a href="#723" id="723">723</a>
+<a href="#724" id="724">724</a>
+<a href="#725" id="725">725</a>
+<a href="#726" id="726">726</a>
+<a href="#727" id="727">727</a>
+<a href="#728" id="728">728</a>
+<a href="#729" id="729">729</a>
+<a href="#730" id="730">730</a>
+<a href="#731" id="731">731</a>
+<a href="#732" id="732">732</a>
+<a href="#733" id="733">733</a>
+<a href="#734" id="734">734</a>
+<a href="#735" id="735">735</a>
+<a href="#736" id="736">736</a>
+<a href="#737" id="737">737</a>
+<a href="#738" id="738">738</a>
+<a href="#739" id="739">739</a>
+<a href="#740" id="740">740</a>
+<a href="#741" id="741">741</a>
+<a href="#742" id="742">742</a>
+<a href="#743" id="743">743</a>
+<a href="#744" id="744">744</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>ttf_parser::{apple_layout, morx, FromData, GlyphId, LazyArray32};
 
-<span class="kw">use crate</span>::{Face, GlyphInfo};
+<span class="kw">use </span><span class="kw">crate</span>::aat::feature_selector;
+<span class="kw">use </span><span class="kw">crate</span>::aat::{FeatureType, Map, MapBuilder};
 <span class="kw">use </span><span class="kw">crate</span>::buffer::Buffer;
 <span class="kw">use </span><span class="kw">crate</span>::plan::ShapePlan;
-<span class="kw">use </span><span class="kw">crate</span>::aat::{Map, MapBuilder, FeatureType};
-<span class="kw">use </span><span class="kw">crate</span>::aat::feature_selector;
+<span class="kw">use crate</span>::{Face, GlyphInfo};
 
 <span class="kw">pub fn </span>compile_flags(face: <span class="kw-2">&amp;</span>Face, builder: <span class="kw-2">&amp;</span>MapBuilder) -&gt; <span class="prelude-ty">Option</span>&lt;Map&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>map = Map::default();
@@ -669,9 +762,9 @@
             </span><span class="kw">if </span>builder.has_feature(feature.kind, feature.setting) {
                 flags &amp;= feature.disable_flags;
                 flags |= feature.enable_flags;
-            } <span class="kw">else if </span>feature.kind == FeatureType::LetterCase <span class="kw">as </span>u16 &amp;&amp;
-                feature.setting == u16::from(feature_selector::SMALL_CAPS) {
-
+            } <span class="kw">else if </span>feature.kind == FeatureType::LetterCase <span class="kw">as </span>u16
+                &amp;&amp; feature.setting == u16::from(feature_selector::SMALL_CAPS)
+            {
                 <span class="comment">// Deprecated. https://github.com/harfbuzz/harfbuzz/issues/1342
                 </span><span class="kw">let </span>ok = builder.has_feature(
                     FeatureType::LowerCase <span class="kw">as </span>u16,
@@ -698,8 +791,8 @@
                 <span class="kw">continue</span>;
             }
 
-            <span class="kw">if </span>!subtable.coverage.is_all_directions() &amp;&amp;
-                buffer.direction.is_vertical() != subtable.coverage.is_vertical()
+            <span class="kw">if </span>!subtable.coverage.is_all_directions()
+                &amp;&amp; buffer.direction.is_vertical() != subtable.coverage.is_vertical()
             {
                 <span class="kw">continue</span>;
             }
@@ -756,12 +849,20 @@
     <span class="kw">fn </span>in_place(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
     <span class="kw">fn </span>can_advance(<span class="kw-2">&amp;</span><span class="self">self</span>, entry: <span class="kw-2">&amp;</span>apple_layout::GenericStateEntry&lt;T&gt;) -&gt; bool;
     <span class="kw">fn </span>is_actionable(<span class="kw-2">&amp;</span><span class="self">self</span>, entry: <span class="kw-2">&amp;</span>apple_layout::GenericStateEntry&lt;T&gt;, buffer: <span class="kw-2">&amp;</span>Buffer) -&gt; bool;
-    <span class="kw">fn </span>transition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, entry: <span class="kw-2">&amp;</span>apple_layout::GenericStateEntry&lt;T&gt;, buffer: <span class="kw-2">&amp;mut </span>Buffer) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt;;
+    <span class="kw">fn </span>transition(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        entry: <span class="kw-2">&amp;</span>apple_layout::GenericStateEntry&lt;T&gt;,
+        buffer: <span class="kw-2">&amp;mut </span>Buffer,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt;;
 }
 
 <span class="kw">const </span>START_OF_TEXT: u16 = <span class="number">0</span>;
 
-<span class="kw">fn </span>drive&lt;T: FromData&gt;(machine: <span class="kw-2">&amp;</span>apple_layout::ExtendedStateTable&lt;T&gt;, c: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>Driver&lt;T&gt;, buffer: <span class="kw-2">&amp;mut </span>Buffer) {
+<span class="kw">fn </span>drive&lt;T: FromData&gt;(
+    machine: <span class="kw-2">&amp;</span>apple_layout::ExtendedStateTable&lt;T&gt;,
+    c: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>Driver&lt;T&gt;,
+    buffer: <span class="kw-2">&amp;mut </span>Buffer,
+) {
     <span class="kw">if </span>!c.in_place() {
         buffer.clear_output();
     }
@@ -770,7 +871,9 @@
     buffer.idx = <span class="number">0</span>;
     <span class="kw">loop </span>{
         <span class="kw">let </span>class = <span class="kw">if </span>buffer.idx &lt; buffer.len {
-            machine.class(buffer.info[buffer.idx].as_glyph()).unwrap_or(<span class="number">1</span>)
+            machine
+                .class(buffer.info[buffer.idx].as_glyph())
+                .unwrap_or(<span class="number">1</span>)
         } <span class="kw">else </span>{
             u16::from(apple_layout::class::END_OF_TEXT)
         };
@@ -780,37 +883,85 @@
             <span class="prelude-val">None </span>=&gt; <span class="kw">break</span>,
         };
 
-        <span class="comment">// Unsafe-to-break before this if not in state 0, as things might
-        // go differently if we start from state 0 here.
-        </span><span class="kw">if </span>state != START_OF_TEXT &amp;&amp;
-            buffer.backtrack_len() != <span class="number">0 </span>&amp;&amp;
-            buffer.idx &lt; buffer.len
-        {
-            <span class="comment">// If there&#39;s no value and we&#39;re just epsilon-transitioning to state 0, safe to break.
-            </span><span class="kw">if  </span>c.is_actionable(<span class="kw-2">&amp;</span>entry, buffer) ||
-                !(entry.new_state == START_OF_TEXT &amp;&amp; !c.can_advance(<span class="kw-2">&amp;</span>entry))
-            {
-                buffer.unsafe_to_break_from_outbuffer(buffer.backtrack_len() - <span class="number">1</span>, buffer.idx + <span class="number">1</span>);
-            }
-        }
+        <span class="kw">let </span>next_state = entry.new_state;
 
-        <span class="comment">// Unsafe-to-break if end-of-text would kick in here.
-        </span><span class="kw">if </span>buffer.idx + <span class="number">2 </span>&lt;= buffer.len {
-            <span class="kw">let </span>end_entry: apple_layout::GenericStateEntry&lt;T&gt; = <span class="kw">match </span>machine.entry(state, u16::from(apple_layout::class::END_OF_TEXT)) {
+        <span class="comment">// Conditions under which it&#39;s guaranteed safe-to-break before current glyph:
+        //
+        // 1. There was no action in this transition; and
+        //
+        // 2. If we break before current glyph, the results will be the same. That
+        //    is guaranteed if:
+        //
+        //    2a. We were already in start-of-text state; or
+        //
+        //    2b. We are epsilon-transitioning to start-of-text state; or
+        //
+        //    2c. Starting from start-of-text state seeing current glyph:
+        //
+        //        2c&#39;. There won&#39;t be any actions; and
+        //
+        //        2c&quot;. We would end up in the same state that we were going to end up
+        //             in now, including whether epsilon-transitioning.
+        //
+        //    and
+        //
+        // 3. If we break before current glyph, there won&#39;t be any end-of-text action
+        //    after previous glyph.
+        //
+        // This triples the transitions we need to look up, but is worth returning
+        // granular unsafe-to-break results. See eg.:
+        //
+        //   https://github.com/harfbuzz/harfbuzz/issues/2860
+
+        </span><span class="kw">let </span>is_safe_to_break_extra = || {
+            <span class="comment">// 2c
+            </span><span class="kw">let </span>wouldbe_entry = <span class="kw">match </span>machine.entry(START_OF_TEXT, class) {
                 <span class="prelude-val">Some</span>(v) =&gt; v,
-                <span class="prelude-val">None </span>=&gt; <span class="kw">break</span>,
+                <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="bool-val">false</span>,
             };
 
-            <span class="kw">if </span>c.is_actionable(<span class="kw-2">&amp;</span>end_entry, buffer) {
-                buffer.unsafe_to_break(buffer.idx, buffer.idx + <span class="number">2</span>);
+            <span class="comment">// 2c&#39;
+            </span><span class="kw">if </span>c.is_actionable(<span class="kw-2">&amp;</span>wouldbe_entry, <span class="kw-2">&amp;</span>buffer) {
+                <span class="kw">return </span><span class="bool-val">false</span>;
             }
+
+            <span class="comment">// 2c&quot;
+            </span><span class="kw">return </span>next_state == wouldbe_entry.new_state
+                &amp;&amp; c.can_advance(<span class="kw-2">&amp;</span>entry) == c.can_advance(<span class="kw-2">&amp;</span>wouldbe_entry);
+        };
+
+        <span class="kw">let </span>is_safe_to_break = || {
+            <span class="comment">// 1
+            </span><span class="kw">if </span>c.is_actionable(<span class="kw-2">&amp;</span>entry, <span class="kw-2">&amp;</span>buffer) {
+                <span class="kw">return </span><span class="bool-val">false</span>;
+            }
+
+            <span class="comment">// 2
+            </span><span class="kw">let </span>ok = state == START_OF_TEXT
+                || (!c.can_advance(<span class="kw-2">&amp;</span>entry) &amp;&amp; next_state == START_OF_TEXT)
+                || is_safe_to_break_extra();
+            <span class="kw">if </span>!ok {
+                <span class="kw">return </span><span class="bool-val">false</span>;
+            }
+
+            <span class="comment">// 3
+            </span><span class="kw">let </span>end_entry = <span class="kw">match </span>machine.entry(state, u16::from(apple_layout::class::END_OF_TEXT))
+            {
+                <span class="prelude-val">Some</span>(v) =&gt; v,
+                <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="bool-val">false</span>,
+            };
+            <span class="kw">return </span>!c.is_actionable(<span class="kw-2">&amp;</span>end_entry, <span class="kw-2">&amp;</span>buffer);
+        };
+
+        <span class="kw">if </span>!is_safe_to_break() &amp;&amp; buffer.backtrack_len() &gt; <span class="number">0 </span>&amp;&amp; buffer.idx &lt; buffer.len {
+            buffer.unsafe_to_break_from_outbuffer(buffer.backtrack_len() - <span class="number">1</span>, buffer.idx + <span class="number">1</span>);
         }
 
         c.transition(<span class="kw-2">&amp;</span>entry, buffer);
 
-        state = entry.new_state;
+        state = next_state;
 
-        <span class="kw">if </span>buffer.idx &gt;= buffer.len {
+        <span class="kw">if </span>buffer.idx &gt;= buffer.len || !buffer.successful {
             <span class="kw">break</span>;
         }
 
@@ -825,10 +976,6 @@
     }
 
     <span class="kw">if </span>!c.in_place() {
-        <span class="kw">while </span>buffer.idx &lt; buffer.len {
-            buffer.next_glyph();
-        }
-
         buffer.swap_buffers();
     }
 }
@@ -836,10 +983,7 @@
 <span class="kw">fn </span>apply_subtable(kind: <span class="kw-2">&amp;</span>morx::SubtableKind, buffer: <span class="kw-2">&amp;mut </span>Buffer) {
     <span class="kw">match </span>kind {
         morx::SubtableKind::Rearrangement(<span class="kw-2">ref </span>table) =&gt; {
-            <span class="kw">let </span><span class="kw-2">mut </span>c = RearrangementCtx {
-                start: <span class="number">0</span>,
-                end: <span class="number">0</span>,
-            };
+            <span class="kw">let </span><span class="kw-2">mut </span>c = RearrangementCtx { start: <span class="number">0</span>, end: <span class="number">0 </span>};
 
             drive::&lt;()&gt;(table, <span class="kw-2">&amp;mut </span>c, buffer);
         }
@@ -879,17 +1023,16 @@
     }
 }
 
-
 <span class="kw">struct </span>RearrangementCtx {
     start: usize,
     end: usize,
 }
 
 <span class="kw">impl </span>RearrangementCtx {
-    <span class="kw">const </span>MARK_FIRST: u16   = <span class="number">0x8000</span>;
+    <span class="kw">const </span>MARK_FIRST: u16 = <span class="number">0x8000</span>;
     <span class="kw">const </span>DONT_ADVANCE: u16 = <span class="number">0x4000</span>;
-    <span class="kw">const </span>MARK_LAST: u16    = <span class="number">0x2000</span>;
-    <span class="kw">const </span>VERB: u16         = <span class="number">0x000F</span>;
+    <span class="kw">const </span>MARK_LAST: u16 = <span class="number">0x2000</span>;
+    <span class="kw">const </span>VERB: u16 = <span class="number">0x000F</span>;
 }
 
 <span class="kw">impl </span>Driver&lt;()&gt; <span class="kw">for </span>RearrangementCtx {
@@ -905,7 +1048,11 @@
         entry.flags &amp; <span class="self">Self</span>::VERB != <span class="number">0 </span>&amp;&amp; <span class="self">self</span>.start &lt; <span class="self">self</span>.end
     }
 
-    <span class="kw">fn </span>transition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, entry: <span class="kw-2">&amp;</span>apple_layout::GenericStateEntry&lt;()&gt;, buffer: <span class="kw-2">&amp;mut </span>Buffer) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
+    <span class="kw">fn </span>transition(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        entry: <span class="kw-2">&amp;</span>apple_layout::GenericStateEntry&lt;()&gt;,
+        buffer: <span class="kw-2">&amp;mut </span>Buffer,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
         <span class="kw">let </span>flags = entry.flags;
 
         <span class="kw">if </span>flags &amp; <span class="self">Self</span>::MARK_FIRST != <span class="number">0 </span>{
@@ -992,7 +1139,6 @@
     }
 }
 
-
 <span class="kw">struct </span>ContextualCtx&lt;<span class="lifetime">&#39;a</span>&gt; {
     mark_set: bool,
     mark: usize,
@@ -1000,8 +1146,8 @@
 }
 
 <span class="kw">impl </span>ContextualCtx&lt;<span class="lifetime">&#39;_</span>&gt; {
-    <span class="kw">const </span>SET_MARK: u16         = <span class="number">0x8000</span>;
-    <span class="kw">const </span>DONT_ADVANCE: u16     = <span class="number">0x4000</span>;
+    <span class="kw">const </span>SET_MARK: u16 = <span class="number">0x8000</span>;
+    <span class="kw">const </span>DONT_ADVANCE: u16 = <span class="number">0x4000</span>;
 }
 
 <span class="kw">impl </span>Driver&lt;morx::ContextualEntryData&gt; <span class="kw">for </span>ContextualCtx&lt;<span class="lifetime">&#39;_</span>&gt; {
@@ -1009,11 +1155,18 @@
         <span class="bool-val">true
     </span>}
 
-    <span class="kw">fn </span>can_advance(<span class="kw-2">&amp;</span><span class="self">self</span>, entry: <span class="kw-2">&amp;</span>apple_layout::GenericStateEntry&lt;morx::ContextualEntryData&gt;) -&gt; bool {
+    <span class="kw">fn </span>can_advance(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        entry: <span class="kw-2">&amp;</span>apple_layout::GenericStateEntry&lt;morx::ContextualEntryData&gt;,
+    ) -&gt; bool {
         entry.flags &amp; <span class="self">Self</span>::DONT_ADVANCE == <span class="number">0
     </span>}
 
-    <span class="kw">fn </span>is_actionable(<span class="kw-2">&amp;</span><span class="self">self</span>, entry: <span class="kw-2">&amp;</span>apple_layout::GenericStateEntry&lt;morx::ContextualEntryData&gt;, buffer: <span class="kw-2">&amp;</span>Buffer) -&gt; bool {
+    <span class="kw">fn </span>is_actionable(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        entry: <span class="kw-2">&amp;</span>apple_layout::GenericStateEntry&lt;morx::ContextualEntryData&gt;,
+        buffer: <span class="kw-2">&amp;</span>Buffer,
+    ) -&gt; bool {
         <span class="kw">if </span>buffer.idx == buffer.len &amp;&amp; !<span class="self">self</span>.mark_set {
             <span class="kw">return </span><span class="bool-val">false</span>;
         }
@@ -1021,7 +1174,11 @@
         entry.extra.mark_index != <span class="number">0xFFFF </span>|| entry.extra.current_index != <span class="number">0xFFFF
     </span>}
 
-    <span class="kw">fn </span>transition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, entry: <span class="kw-2">&amp;</span>apple_layout::GenericStateEntry&lt;morx::ContextualEntryData&gt;, buffer: <span class="kw-2">&amp;mut </span>Buffer) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
+    <span class="kw">fn </span>transition(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        entry: <span class="kw-2">&amp;</span>apple_layout::GenericStateEntry&lt;morx::ContextualEntryData&gt;,
+        buffer: <span class="kw-2">&amp;mut </span>Buffer,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
         <span class="comment">// Looks like CoreText applies neither mark nor current substitution for
         // end-of-text if mark was not explicitly set.
         </span><span class="kw">if </span>buffer.idx == buffer.len &amp;&amp; !<span class="self">self</span>.mark_set {
@@ -1036,7 +1193,7 @@
         }
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(replacement) = replacement {
-            buffer.unsafe_to_break(<span class="self">self</span>.mark, (buffer.idx +<span class="number">1 </span>).min(buffer.len));
+            buffer.unsafe_to_break(<span class="self">self</span>.mark, (buffer.idx + <span class="number">1</span>).min(buffer.len));
             buffer.info[<span class="self">self</span>.mark].glyph_id = u32::from(replacement);
         }
 
@@ -1066,12 +1223,12 @@
 }
 
 <span class="kw">impl </span>InsertionCtx&lt;<span class="lifetime">&#39;_</span>&gt; {
-    <span class="kw">const </span>SET_MARK: u16                 = <span class="number">0x8000</span>;
-    <span class="kw">const </span>DONT_ADVANCE: u16             = <span class="number">0x4000</span>;
-    <span class="kw">const </span>CURRENT_INSERT_BEFORE: u16    = <span class="number">0x0800</span>;
-    <span class="kw">const </span>MARKED_INSERT_BEFORE: u16     = <span class="number">0x0400</span>;
-    <span class="kw">const </span>CURRENT_INSERT_COUNT: u16     = <span class="number">0x03E0</span>;
-    <span class="kw">const </span>MARKED_INSERT_COUNT: u16      = <span class="number">0x001F</span>;
+    <span class="kw">const </span>SET_MARK: u16 = <span class="number">0x8000</span>;
+    <span class="kw">const </span>DONT_ADVANCE: u16 = <span class="number">0x4000</span>;
+    <span class="kw">const </span>CURRENT_INSERT_BEFORE: u16 = <span class="number">0x0800</span>;
+    <span class="kw">const </span>MARKED_INSERT_BEFORE: u16 = <span class="number">0x0400</span>;
+    <span class="kw">const </span>CURRENT_INSERT_COUNT: u16 = <span class="number">0x03E0</span>;
+    <span class="kw">const </span>MARKED_INSERT_COUNT: u16 = <span class="number">0x001F</span>;
 }
 
 <span class="kw">impl </span>Driver&lt;morx::InsertionEntryData&gt; <span class="kw">for </span>InsertionCtx&lt;<span class="lifetime">&#39;_</span>&gt; {
@@ -1079,16 +1236,28 @@
         <span class="bool-val">false
     </span>}
 
-    <span class="kw">fn </span>can_advance(<span class="kw-2">&amp;</span><span class="self">self</span>, entry: <span class="kw-2">&amp;</span>apple_layout::GenericStateEntry&lt;morx::InsertionEntryData&gt;) -&gt; bool {
+    <span class="kw">fn </span>can_advance(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        entry: <span class="kw-2">&amp;</span>apple_layout::GenericStateEntry&lt;morx::InsertionEntryData&gt;,
+    ) -&gt; bool {
         entry.flags &amp; <span class="self">Self</span>::DONT_ADVANCE == <span class="number">0
     </span>}
 
-    <span class="kw">fn </span>is_actionable(<span class="kw-2">&amp;</span><span class="self">self</span>, entry: <span class="kw-2">&amp;</span>apple_layout::GenericStateEntry&lt;morx::InsertionEntryData&gt;, <span class="kw">_</span>: <span class="kw-2">&amp;</span>Buffer) -&gt; bool {
-        (entry.flags &amp; (<span class="self">Self</span>::CURRENT_INSERT_COUNT | <span class="self">Self</span>::MARKED_INSERT_COUNT) != <span class="number">0</span>) &amp;&amp;
-            (entry.extra.current_insert_index != <span class="number">0xFFFF </span>|| entry.extra.marked_insert_index != <span class="number">0xFFFF</span>)
+    <span class="kw">fn </span>is_actionable(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        entry: <span class="kw-2">&amp;</span>apple_layout::GenericStateEntry&lt;morx::InsertionEntryData&gt;,
+        <span class="kw">_</span>: <span class="kw-2">&amp;</span>Buffer,
+    ) -&gt; bool {
+        (entry.flags &amp; (<span class="self">Self</span>::CURRENT_INSERT_COUNT | <span class="self">Self</span>::MARKED_INSERT_COUNT) != <span class="number">0</span>)
+            &amp;&amp; (entry.extra.current_insert_index != <span class="number">0xFFFF
+                </span>|| entry.extra.marked_insert_index != <span class="number">0xFFFF</span>)
     }
 
-    <span class="kw">fn </span>transition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, entry: <span class="kw-2">&amp;</span>apple_layout::GenericStateEntry&lt;morx::InsertionEntryData&gt;, buffer: <span class="kw-2">&amp;mut </span>Buffer) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
+    <span class="kw">fn </span>transition(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        entry: <span class="kw-2">&amp;</span>apple_layout::GenericStateEntry&lt;morx::InsertionEntryData&gt;,
+        buffer: <span class="kw-2">&amp;mut </span>Buffer,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
         <span class="kw">let </span>flags = entry.flags;
         <span class="kw">let </span>mark_loc = buffer.out_len;
 
@@ -1121,7 +1290,10 @@
 
             buffer.move_to(end + usize::from(count));
 
-            buffer.unsafe_to_break_from_outbuffer(<span class="self">self</span>.mark <span class="kw">as </span>usize, (buffer.idx + <span class="number">1</span>).min(buffer.len));
+            buffer.unsafe_to_break_from_outbuffer(
+                <span class="self">self</span>.mark <span class="kw">as </span>usize,
+                (buffer.idx + <span class="number">1</span>).min(buffer.len),
+            );
         }
 
         <span class="kw">if </span>flags &amp; <span class="self">Self</span>::SET_MARK != <span class="number">0 </span>{
@@ -1167,14 +1339,16 @@
             // glyphs are now visible.
             //
             // https://github.com/harfbuzz/harfbuzz/issues/1224#issuecomment-427691417
-            </span>buffer.move_to(<span class="kw">if </span>flags &amp; <span class="self">Self</span>::DONT_ADVANCE != <span class="number">0 </span>{ end } <span class="kw">else </span>{ end + usize::from(count) });
+            </span>buffer.move_to(<span class="kw">if </span>flags &amp; <span class="self">Self</span>::DONT_ADVANCE != <span class="number">0 </span>{
+                end
+            } <span class="kw">else </span>{
+                end + usize::from(count)
+            });
         }
 
         <span class="prelude-val">Some</span>(())
     }
 }
-
-
 
 <span class="kw">const </span>LIGATURE_MAX_MATCHES: usize = <span class="number">64</span>;
 
@@ -1185,13 +1359,13 @@
 }
 
 <span class="kw">impl </span>LigatureCtx&lt;<span class="lifetime">&#39;_</span>&gt; {
-    <span class="kw">const </span>SET_COMPONENT: u16    = <span class="number">0x8000</span>;
-    <span class="kw">const </span>DONT_ADVANCE: u16     = <span class="number">0x4000</span>;
-    <span class="kw">const </span>PERFORM_ACTION: u16   = <span class="number">0x2000</span>;
+    <span class="kw">const </span>SET_COMPONENT: u16 = <span class="number">0x8000</span>;
+    <span class="kw">const </span>DONT_ADVANCE: u16 = <span class="number">0x4000</span>;
+    <span class="kw">const </span>PERFORM_ACTION: u16 = <span class="number">0x2000</span>;
 
-    <span class="kw">const </span>LIG_ACTION_LAST: u32      = <span class="number">0x80000000</span>;
-    <span class="kw">const </span>LIG_ACTION_STORE: u32     = <span class="number">0x40000000</span>;
-    <span class="kw">const </span>LIG_ACTION_OFFSET: u32    = <span class="number">0x3FFFFFFF</span>;
+    <span class="kw">const </span>LIG_ACTION_LAST: u32 = <span class="number">0x80000000</span>;
+    <span class="kw">const </span>LIG_ACTION_STORE: u32 = <span class="number">0x40000000</span>;
+    <span class="kw">const </span>LIG_ACTION_OFFSET: u32 = <span class="number">0x3FFFFFFF</span>;
 }
 
 <span class="kw">impl </span>Driver&lt;u16&gt; <span class="kw">for </span>LigatureCtx&lt;<span class="lifetime">&#39;_</span>&gt; {
@@ -1207,11 +1381,16 @@
         entry.flags &amp; <span class="self">Self</span>::PERFORM_ACTION != <span class="number">0
     </span>}
 
-    <span class="kw">fn </span>transition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, entry: <span class="kw-2">&amp;</span>apple_layout::GenericStateEntry&lt;u16&gt;, buffer: <span class="kw-2">&amp;mut </span>Buffer) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
+    <span class="kw">fn </span>transition(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        entry: <span class="kw-2">&amp;</span>apple_layout::GenericStateEntry&lt;u16&gt;,
+        buffer: <span class="kw-2">&amp;mut </span>Buffer,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
         <span class="kw">if </span>entry.flags &amp; <span class="self">Self</span>::SET_COMPONENT != <span class="number">0 </span>{
             <span class="comment">// Never mark same index twice, in case DONT_ADVANCE was used...
-            </span><span class="kw">if </span><span class="self">self</span>.match_length != <span class="number">0 </span>&amp;&amp;
-                <span class="self">self</span>.match_positions[(<span class="self">self</span>.match_length - <span class="number">1</span>) % LIGATURE_MAX_MATCHES] == buffer.out_len
+            </span><span class="kw">if </span><span class="self">self</span>.match_length != <span class="number">0
+                </span>&amp;&amp; <span class="self">self</span>.match_positions[(<span class="self">self</span>.match_length - <span class="number">1</span>) % LIGATURE_MAX_MATCHES]
+                    == buffer.out_len
             {
                 <span class="self">self</span>.match_length -= <span class="number">1</span>;
             }
@@ -1247,7 +1426,11 @@
 
                 <span class="comment">// We cannot use ? in this loop, because we must call
                 // buffer.move_to(end) in the end.
-                </span><span class="kw">let </span>action = <span class="kw">match </span><span class="self">self</span>.table.ligature_actions.get(u32::from(ligature_actions_index)) {
+                </span><span class="kw">let </span>action = <span class="kw">match </span><span class="self">self
+                    </span>.table
+                    .ligature_actions
+                    .get(u32::from(ligature_actions_index))
+                {
                     <span class="prelude-val">Some</span>(v) =&gt; v,
                     <span class="prelude-val">None </span>=&gt; <span class="kw">break</span>,
                 };
@@ -1272,11 +1455,14 @@
 
                     buffer.replace_glyph(u32::from(lig.<span class="number">0</span>));
 
-                    <span class="kw">let </span>lig_end = <span class="self">self</span>.match_positions[(<span class="self">self</span>.match_length - <span class="number">1</span>) % LIGATURE_MAX_MATCHES] + <span class="number">1</span>;
+                    <span class="kw">let </span>lig_end =
+                        <span class="self">self</span>.match_positions[(<span class="self">self</span>.match_length - <span class="number">1</span>) % LIGATURE_MAX_MATCHES] + <span class="number">1</span>;
                     <span class="comment">// Now go and delete all subsequent components.
                     </span><span class="kw">while </span><span class="self">self</span>.match_length - <span class="number">1 </span>&gt; cursor {
                         <span class="self">self</span>.match_length -= <span class="number">1</span>;
-                        buffer.move_to(<span class="self">self</span>.match_positions[<span class="self">self</span>.match_length % LIGATURE_MAX_MATCHES]);
+                        buffer.move_to(
+                            <span class="self">self</span>.match_positions[<span class="self">self</span>.match_length % LIGATURE_MAX_MATCHES],
+                        );
                         buffer.replace_glyph(<span class="number">0xFFFF</span>);
                     }
 

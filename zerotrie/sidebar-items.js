@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["ZeroTrieError"],"struct":["ZeroTrie","ZeroTrieExtendedCapacity","ZeroTriePerfectHash","ZeroTrieSimpleAscii"]};

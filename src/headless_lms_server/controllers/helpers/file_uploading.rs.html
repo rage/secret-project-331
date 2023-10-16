@@ -614,7 +614,7 @@
     </span><span class="kw">let </span>mime_type = field
         .content_type()
         .map(|ct| ct.to_string())
-        .unwrap_or_else(|| <span class="string">&quot;&quot;</span>.to_string());
+        .unwrap_or_default();
     <span class="kw">let </span>name = field.name().to_string();
 
     <span class="kw">let </span>contents = Box::pin(field.map_err(|orig| anyhow::Error::msg(orig.to_string())));
@@ -747,7 +747,7 @@
     <span class="kw">let </span>extension = <span class="kw">match </span>field
         .content_type()
         .map(|ct| ct.to_string())
-        .unwrap_or_else(|| <span class="string">&quot;&quot;</span>.to_string())
+        .unwrap_or_default()
         .as_str()
     {
         <span class="string">&quot;audio/aac&quot; </span>=&gt; <span class="string">&quot;.aac&quot;</span>,
@@ -798,7 +798,7 @@
     <span class="kw">let </span>extension = <span class="kw">match </span>field
         .content_type()
         .map(|ct| ct.to_string())
-        .unwrap_or_else(|| <span class="string">&quot;&quot;</span>.to_string())
+        .unwrap_or_default()
         .as_str()
     {
         <span class="string">&quot;image/jpeg&quot; </span>=&gt; <span class="string">&quot;.jpg&quot;</span>,

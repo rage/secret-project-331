@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["fixed_from_islamic_civil","fixed_from_islamic_observational","fixed_from_islamic_tabular","fixed_from_saudi_islamic","islamic_civil_from_fixed","islamic_tabular_from_fixed","observational_islamic_from_fixed","observational_islamic_month_days","saudi_islamic_from_fixed","saudi_islamic_month_days","saudi_new_month_on_or_before"]};

@@ -28,9 +28,9 @@ It’s way slower, but easier to implement.</p>
 )</h4></section></summary><div class="docblock"><p>Draws a filled path onto the mask.</p>
 <p>In terms of RGB (no alpha) image, draws a white path on top of black mask.</p>
 <p>Doesn’t reset the existing mask content and draws the path on top of existing data.</p>
-<p>If the above behavior is undesired, [<code>clear()</code>] should be called first.</p>
+<p>If the above behavior is undesired, <a href="struct.Mask.html#method.clear" title="method tiny_skia::Mask::clear"><code>Mask::clear()</code></a> should be called first.</p>
 <p>This method is intended to be used for simple cases. For more complex masks
-prefer [<code>from_pixmap()</code>].</p>
+prefer <a href="struct.Mask.html#method.from_pixmap" title="associated function tiny_skia::Mask::from_pixmap"><code>Mask::from_pixmap()</code></a>.</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.intersect_path" class="method"><a class="src rightside" href="../src/tiny_skia/mask.rs.html#346-359">source</a><h4 class="code-header">pub fn <a href="#method.intersect_path" class="fn">intersect_path</a>(
     &amp;mut self,
     path: &amp;<a class="struct" href="struct.Path.html" title="struct tiny_skia::Path">Path</a>,

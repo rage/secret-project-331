@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerovec-derive-0.9.4/src/make_varule.rs`."><title>make_varule.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zerovec_derive" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../zerovec_derive/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerovec-derive-0.10.0/src/make_varule.rs`."><title>make_varule.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zerovec_derive" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../zerovec_derive/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -737,6 +737,30 @@
 <a href="#737" id="737">737</a>
 <a href="#738" id="738">738</a>
 <a href="#739" id="739">739</a>
+<a href="#740" id="740">740</a>
+<a href="#741" id="741">741</a>
+<a href="#742" id="742">742</a>
+<a href="#743" id="743">743</a>
+<a href="#744" id="744">744</a>
+<a href="#745" id="745">745</a>
+<a href="#746" id="746">746</a>
+<a href="#747" id="747">747</a>
+<a href="#748" id="748">748</a>
+<a href="#749" id="749">749</a>
+<a href="#750" id="750">750</a>
+<a href="#751" id="751">751</a>
+<a href="#752" id="752">752</a>
+<a href="#753" id="753">753</a>
+<a href="#754" id="754">754</a>
+<a href="#755" id="755">755</a>
+<a href="#756" id="756">756</a>
+<a href="#757" id="757">757</a>
+<a href="#758" id="758">758</a>
+<a href="#759" id="759">759</a>
+<a href="#760" id="760">760</a>
+<a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
+<a href="#763" id="763">763</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
@@ -747,11 +771,11 @@
 <span class="kw">use </span>quote::{quote, ToTokens};
 <span class="kw">use </span>syn::spanned::Spanned;
 <span class="kw">use </span>syn::{
-    parse_quote, AttributeArgs, Data, DeriveInput, Error, Field, Fields, GenericArgument, Ident,
-    Lifetime, PathArguments, Type,
+    parse_quote, Data, DeriveInput, Error, Field, Fields, GenericArgument, Ident, Lifetime,
+    PathArguments, Type, TypePath,
 };
 
-<span class="kw">pub fn </span>make_varule_impl(attr: AttributeArgs, <span class="kw-2">mut </span>input: DeriveInput) -&gt; TokenStream2 {
+<span class="kw">pub fn </span>make_varule_impl(ule_name: Ident, <span class="kw-2">mut </span>input: DeriveInput) -&gt; TokenStream2 {
     <span class="kw">if </span>input.generics.type_params().next().is_some()
         || input.generics.const_params().next().is_some()
         || input.generics.lifetimes().count() &gt; <span class="number">1
@@ -783,20 +807,11 @@
 
     <span class="kw">let </span>lt = lt.map(|l| <span class="kw-2">&amp;</span>l.lifetime);
 
-    <span class="kw">if </span>attr.len() != <span class="number">1 </span>{
-        <span class="kw">return </span>Error::new(
-            input.span(),
-            <span class="string">&quot;#[make_ule] takes one argument for the name of the ULE type it produces&quot;</span>,
-        )
-        .to_compile_error();
-    }
-    <span class="kw">let </span>arg = <span class="kw-2">&amp;</span>attr[<span class="number">0</span>];
-    <span class="kw">let </span>ule_name: Ident = <span class="macro">parse_quote!</span>(#arg);
-
     <span class="kw">let </span>name = <span class="kw-2">&amp;</span>input.ident;
+    <span class="kw">let </span>input_span = input.span();
 
     <span class="kw">let </span>fields = <span class="kw">match </span>input.data {
-        Data::Struct(<span class="kw-2">ref </span>s) =&gt; <span class="kw-2">&amp;</span>s.fields,
+        Data::Struct(<span class="kw-2">ref mut </span>s) =&gt; <span class="kw-2">&amp;mut </span>s.fields,
         <span class="kw">_ </span>=&gt; {
             <span class="kw">return </span>Error::new(input.span(), <span class="string">&quot;#[make_varule] must be applied to a struct&quot;</span>)
                 .to_compile_error();
@@ -814,16 +829,32 @@
     <span class="kw">let </span><span class="kw-2">mut </span>sized_fields = <span class="macro">vec!</span>[];
     <span class="kw">let </span><span class="kw-2">mut </span>unsized_fields = <span class="macro">vec!</span>[];
 
+    <span class="kw">let </span><span class="kw-2">mut </span>custom_varule_idents = <span class="macro">vec!</span>[];
+
+    <span class="kw">for </span>field <span class="kw">in </span>fields.iter_mut() {
+        <span class="kw">match </span>utils::extract_field_attributes(<span class="kw-2">&amp;mut </span>field.attrs) {
+            <span class="prelude-val">Ok</span>(i) =&gt; custom_varule_idents.push(i),
+            <span class="prelude-val">Err</span>(e) =&gt; <span class="kw">return </span>e.to_compile_error(),
+        }
+    }
+
     <span class="kw">for </span>(i, field) <span class="kw">in </span>fields.iter().enumerate() {
-        <span class="kw">match </span>UnsizedField::new(field, i) {
+        <span class="kw">match </span>UnsizedField::new(field, i, custom_varule_idents[i].clone()) {
             <span class="prelude-val">Ok</span>(o) =&gt; unsized_fields.push(o),
             <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; sized_fields.push(FieldInfo::new_for_field(field, i)),
         }
     }
 
     <span class="kw">if </span>unsized_fields.is_empty() {
+        <span class="kw">let </span>last_field_index = fields.len() - <span class="number">1</span>;
         <span class="kw">let </span>last_field = fields.iter().next_back().unwrap();
-        <span class="kw">let </span>e = UnsizedField::new(last_field, fields.len() - <span class="number">1</span>).unwrap_err();
+
+        <span class="kw">let </span>e = UnsizedField::new(
+            last_field,
+            last_field_index,
+            custom_varule_idents[last_field_index].clone(),
+        )
+        .unwrap_err();
         <span class="kw">return </span>Error::new(last_field.span(), e).to_compile_error();
     }
 
@@ -851,10 +882,13 @@
     <span class="kw">let </span>field_inits = utils::wrap_field_inits(<span class="kw-2">&amp;</span>field_inits, fields);
     <span class="kw">let </span>vis = <span class="kw-2">&amp;</span>input.vis;
 
-    <span class="kw">let </span>doc = <span class="macro">format!</span>(<span class="string">&quot;[`VarULE`](zerovec::ule::VarULE) type for {name}&quot;</span>);
+    <span class="kw">let </span>doc = <span class="macro">format!</span>(
+        <span class="string">&quot;[`VarULE`](zerovec::ule::VarULE) type for [`{name}`]. See [`{name}`] for documentation.&quot;
+    </span>);
     <span class="kw">let </span>varule_struct: DeriveInput = <span class="macro">parse_quote!</span>(
         <span class="attr">#[repr(#repr_attr)]
         #[doc = #doc]
+        #[allow(missing_docs)]
         </span>#vis <span class="kw">struct </span>#ule_name #field_inits #semi
     );
 
@@ -877,7 +911,7 @@
         name,
         <span class="kw-2">&amp;</span>ule_name,
         lt,
-        input.span(),
+        input_span,
     );
 
     <span class="kw">let </span>eq_impl = <span class="macro">quote!</span>(
@@ -1148,11 +1182,13 @@
 }
 
 <span class="doccomment">/// Represents the type of the last field of the struct
-</span><span class="attr">#[derive(Copy, Clone, Debug)]
+</span><span class="attr">#[derive(Clone, Debug)]
 </span><span class="kw">enum </span>UnsizedFieldKind&lt;<span class="lifetime">&#39;a</span>&gt; {
     Cow(OwnULETy&lt;<span class="lifetime">&#39;a</span>&gt;),
     ZeroVec(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Type),
     VarZeroVec(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Type),
+    <span class="doccomment">/// Custom VarULE type, and the identifier corresponding to the VarULE type
+    </span>Custom(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TypePath, Ident),
 
     <span class="comment">// Generally you should be using the above ones for maximum zero-copy, but these will still work
     </span>Growable(OwnULETy&lt;<span class="lifetime">&#39;a</span>&gt;),
@@ -1307,9 +1343,13 @@
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; UnsizedField&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>new(field: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Field, index: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, String&gt; {
+    <span class="kw">fn </span>new(
+        field: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Field,
+        index: usize,
+        custom_varule_ident: <span class="prelude-ty">Option</span>&lt;Ident&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, String&gt; {
         <span class="prelude-val">Ok</span>(UnsizedField {
-            kind: UnsizedFieldKind::new(<span class="kw-2">&amp;</span>field.ty)<span class="question-mark">?</span>,
+            kind: UnsizedFieldKind::new(<span class="kw-2">&amp;</span>field.ty, custom_varule_ident)<span class="question-mark">?</span>,
             field: FieldInfo::new_for_field(field, index),
         })
     }
@@ -1335,7 +1375,10 @@
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; UnsizedFieldKind&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="doccomment">/// Construct a UnsizedFieldKind for the type of a UnsizedFieldKind if possible
-    </span><span class="kw">fn </span>new(ty: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Type) -&gt; <span class="prelude-ty">Result</span>&lt;UnsizedFieldKind&lt;<span class="lifetime">&#39;a</span>&gt;, String&gt; {
+    </span><span class="kw">fn </span>new(
+        ty: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Type,
+        custom_varule_ident: <span class="prelude-ty">Option</span>&lt;Ident&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;UnsizedFieldKind&lt;<span class="lifetime">&#39;a</span>&gt;, String&gt; {
         <span class="kw">static </span>PATH_TYPE_IDENTITY_ERROR: <span class="kw-2">&amp;</span>str =
             <span class="string">&quot;Can only automatically detect corresponding VarULE types for path types \
             that are Cow, ZeroVec, VarZeroVec, Box, String, or Vec&quot;</span>;
@@ -1346,6 +1389,9 @@
         <span class="kw">match </span><span class="kw-2">*</span>ty {
             Type::Reference(<span class="kw-2">ref </span>tyref) =&gt; OwnULETy::new(<span class="kw-2">&amp;</span>tyref.elem, <span class="string">&quot;reference&quot;</span>).map(UnsizedFieldKind::Ref),
             Type::Path(<span class="kw-2">ref </span>typath) =&gt; {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(custom_varule_ident) = custom_varule_ident {
+                    <span class="kw">return </span><span class="prelude-val">Ok</span>(UnsizedFieldKind::Custom(typath, custom_varule_ident));
+                }
                 <span class="kw">if </span>typath.path.segments.len() != <span class="number">1 </span>{
                     <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="string">&quot;Can only automatically detect corresponding VarULE types for \
                                 path types with a single path segment&quot;</span>.into());
@@ -1417,6 +1463,7 @@
                 <span class="kw">let </span>inner_ule = inner.varule_ty();
                 <span class="macro">quote!</span>(#inner_ule)
             }
+            <span class="self">Self</span>::Custom(<span class="kw">_</span>, <span class="kw-2">ref </span>name) =&gt; <span class="macro">quote!</span>(#name),
             <span class="self">Self</span>::ZeroVec(<span class="kw-2">ref </span>inner) =&gt; <span class="macro">quote!</span>(zerovec::ZeroSlice&lt;#inner&gt;),
             <span class="self">Self</span>::VarZeroVec(<span class="kw-2">ref </span>inner) =&gt; <span class="macro">quote!</span>(zerovec::VarZeroSlice&lt;#inner&gt;),
         }
@@ -1427,8 +1474,8 @@
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
             <span class="self">Self</span>::Ref(<span class="kw">_</span>) | <span class="self">Self</span>::Cow(<span class="kw">_</span>) | <span class="self">Self</span>::Growable(<span class="kw">_</span>) | <span class="self">Self</span>::Boxed(<span class="kw">_</span>) =&gt; <span class="macro">quote!</span>(<span class="kw-2">&amp;*</span>#value),
 
-            <span class="self">Self</span>::ZeroVec(<span class="kw">_</span>) =&gt; <span class="macro">quote!</span>(<span class="kw-2">&amp;*</span>#value),
-            <span class="self">Self</span>::VarZeroVec(<span class="kw">_</span>) =&gt; <span class="macro">quote!</span>(<span class="kw-2">&amp;*</span>#value),
+            <span class="self">Self</span>::Custom(..) =&gt; <span class="macro">quote!</span>(<span class="kw-2">&amp;</span>#value),
+            <span class="self">Self</span>::ZeroVec(<span class="kw">_</span>) | <span class="self">Self</span>::VarZeroVec(<span class="kw">_</span>) =&gt; <span class="macro">quote!</span>(<span class="kw-2">&amp;*</span>#value),
         }
     }
 
@@ -1440,15 +1487,16 @@
             | <span class="self">Self</span>::Growable(<span class="kw-2">ref </span>inner)
             | <span class="self">Self</span>::Boxed(<span class="kw-2">ref </span>inner) =&gt; inner.varule_ty(),
 
-            <span class="self">Self</span>::ZeroVec(ty) =&gt; <span class="macro">quote!</span>(zerovec::ZeroSlice&lt;#ty&gt;),
-            <span class="self">Self</span>::VarZeroVec(ty) =&gt; <span class="macro">quote!</span>(zerovec::VarZeroSlice&lt;#ty&gt;),
+            <span class="self">Self</span>::Custom(<span class="kw-2">ref </span>path, <span class="kw">_</span>) =&gt; <span class="macro">quote!</span>(#path),
+            <span class="self">Self</span>::ZeroVec(<span class="kw-2">ref </span>ty) =&gt; <span class="macro">quote!</span>(zerovec::ZeroSlice&lt;#ty&gt;),
+            <span class="self">Self</span>::VarZeroVec(<span class="kw-2">ref </span>ty) =&gt; <span class="macro">quote!</span>(zerovec::VarZeroSlice&lt;#ty&gt;),
         }
     }
 
     <span class="kw">fn </span>has_zf(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(
             <span class="kw-2">*</span><span class="self">self</span>,
-            <span class="self">Self</span>::Ref(<span class="kw">_</span>) | <span class="self">Self</span>::Cow(<span class="kw">_</span>) | <span class="self">Self</span>::ZeroVec(<span class="kw">_</span>) | <span class="self">Self</span>::VarZeroVec(<span class="kw">_</span>)
+            <span class="self">Self</span>::Ref(<span class="kw">_</span>) | <span class="self">Self</span>::Cow(<span class="kw">_</span>) | <span class="self">Self</span>::ZeroVec(<span class="kw">_</span>) | <span class="self">Self</span>::VarZeroVec(<span class="kw">_</span>) | <span class="self">Self</span>::Custom(..)
         )
     }
 }

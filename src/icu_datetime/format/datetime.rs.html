@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_datetime-1.2.1/src/format/datetime.rs`."><title>datetime.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_datetime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../icu_datetime/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_datetime-1.3.2/src/format/datetime.rs`."><title>datetime.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_datetime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../icu_datetime/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -609,6 +609,67 @@
 <a href="#609" id="609">609</a>
 <a href="#610" id="610">610</a>
 <a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
+<a href="#614" id="614">614</a>
+<a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
+<a href="#618" id="618">618</a>
+<a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a>
+<a href="#624" id="624">624</a>
+<a href="#625" id="625">625</a>
+<a href="#626" id="626">626</a>
+<a href="#627" id="627">627</a>
+<a href="#628" id="628">628</a>
+<a href="#629" id="629">629</a>
+<a href="#630" id="630">630</a>
+<a href="#631" id="631">631</a>
+<a href="#632" id="632">632</a>
+<a href="#633" id="633">633</a>
+<a href="#634" id="634">634</a>
+<a href="#635" id="635">635</a>
+<a href="#636" id="636">636</a>
+<a href="#637" id="637">637</a>
+<a href="#638" id="638">638</a>
+<a href="#639" id="639">639</a>
+<a href="#640" id="640">640</a>
+<a href="#641" id="641">641</a>
+<a href="#642" id="642">642</a>
+<a href="#643" id="643">643</a>
+<a href="#644" id="644">644</a>
+<a href="#645" id="645">645</a>
+<a href="#646" id="646">646</a>
+<a href="#647" id="647">647</a>
+<a href="#648" id="648">648</a>
+<a href="#649" id="649">649</a>
+<a href="#650" id="650">650</a>
+<a href="#651" id="651">651</a>
+<a href="#652" id="652">652</a>
+<a href="#653" id="653">653</a>
+<a href="#654" id="654">654</a>
+<a href="#655" id="655">655</a>
+<a href="#656" id="656">656</a>
+<a href="#657" id="657">657</a>
+<a href="#658" id="658">658</a>
+<a href="#659" id="659">659</a>
+<a href="#660" id="660">660</a>
+<a href="#661" id="661">661</a>
+<a href="#662" id="662">662</a>
+<a href="#663" id="663">663</a>
+<a href="#664" id="664">664</a>
+<a href="#665" id="665">665</a>
+<a href="#666" id="666">666</a>
+<a href="#667" id="667">667</a>
+<a href="#668" id="668">668</a>
+<a href="#669" id="669">669</a>
+<a href="#670" id="670">670</a>
+<a href="#671" id="671">671</a>
+<a href="#672" id="672">672</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
@@ -628,7 +689,8 @@
 
 <span class="kw">use </span>core::fmt;
 <span class="kw">use </span>fixed_decimal::FixedDecimal;
-<span class="kw">use </span>icu_calendar::provider::WeekDataV1;
+<span class="kw">use </span>icu_calendar::week::WeekCalculator;
+<span class="kw">use </span>icu_calendar::AnyCalendarKind;
 <span class="kw">use </span>icu_decimal::FixedDecimalFormatter;
 <span class="kw">use </span>icu_plurals::PluralRules;
 <span class="kw">use </span>icu_provider::DataPayload;
@@ -647,8 +709,7 @@
 /// use icu::calendar::{DateTime, Gregorian};
 /// use icu::datetime::TypedDateTimeFormatter;
 /// use icu::locid::locale;
-/// let dtf = TypedDateTimeFormatter::&lt;Gregorian&gt;::try_new_unstable(
-///     &amp;icu_testdata::unstable(),
+/// let dtf = TypedDateTimeFormatter::&lt;Gregorian&gt;::try_new(
 ///     &amp;locale!(&quot;en&quot;).into(),
 ///     Default::default(),
 /// )
@@ -667,7 +728,7 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) date_symbols: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;l </span>provider::calendar::DateSymbolsV1&lt;<span class="lifetime">&#39;l</span>&gt;&gt;,
     <span class="kw">pub</span>(<span class="kw">crate</span>) time_symbols: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;l </span>provider::calendar::TimeSymbolsV1&lt;<span class="lifetime">&#39;l</span>&gt;&gt;,
     <span class="kw">pub</span>(<span class="kw">crate</span>) datetime: ExtractedDateTimeInput,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) week_data: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;l </span>WeekDataV1&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) week_data: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;l </span>WeekCalculator&gt;,
     <span class="kw">pub</span>(<span class="kw">crate</span>) ordinal_rules: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;l </span>PluralRules&gt;,
     <span class="kw">pub</span>(<span class="kw">crate</span>) fixed_decimal_format: <span class="kw-2">&amp;</span><span class="lifetime">&#39;l </span>FixedDecimalFormatter,
 }
@@ -772,7 +833,7 @@
     date_symbols: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>provider::calendar::DateSymbolsV1&gt;,
     time_symbols: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>provider::calendar::TimeSymbolsV1&gt;,
     datetime: <span class="kw-2">&amp;</span>T,
-    week_data: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>WeekDataV1&gt;,
+    week_data: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>WeekCalculator&gt;,
     ordinal_rules: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>PluralRules&gt;,
     fixed_decimal_format: <span class="kw-2">&amp;</span>FixedDecimalFormatter,
     w: <span class="kw-2">&amp;mut </span>W,
@@ -781,7 +842,7 @@
     </span>T: DateTimeInput,
     W: fmt::Write + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">let </span>loc_datetime = DateTimeInputWithWeekConfig::new(datetime, week_data.map(|v| v.into()));
+    <span class="kw">let </span>loc_datetime = DateTimeInputWithWeekConfig::new(datetime, week_data);
     <span class="kw">let </span>pattern = patterns.select(<span class="kw-2">&amp;</span>loc_datetime, ordinal_rules)<span class="question-mark">?</span>;
     write_pattern(
         pattern,
@@ -793,6 +854,24 @@
     )
 }
 
+<span class="kw">const </span>CHINESE_CYCLIC_YEARS: [<span class="kw-2">&amp;</span>str; <span class="number">60</span>] = [
+    <span class="string">&quot;甲子&quot;</span>, <span class="string">&quot;乙丑&quot;</span>, <span class="string">&quot;丙寅&quot;</span>, <span class="string">&quot;丁卯&quot;</span>, <span class="string">&quot;戊辰&quot;</span>, <span class="string">&quot;己巳&quot;</span>, <span class="string">&quot;庚午&quot;</span>, <span class="string">&quot;辛未&quot;</span>, <span class="string">&quot;壬申&quot;</span>, <span class="string">&quot;癸酉&quot;</span>, <span class="string">&quot;甲戌&quot;</span>, <span class="string">&quot;乙亥&quot;</span>,
+    <span class="string">&quot;丙子&quot;</span>, <span class="string">&quot;丁丑&quot;</span>, <span class="string">&quot;戊寅&quot;</span>, <span class="string">&quot;己卯&quot;</span>, <span class="string">&quot;庚辰&quot;</span>, <span class="string">&quot;辛巳&quot;</span>, <span class="string">&quot;壬午&quot;</span>, <span class="string">&quot;癸未&quot;</span>, <span class="string">&quot;甲申&quot;</span>, <span class="string">&quot;乙酉&quot;</span>, <span class="string">&quot;丙戌&quot;</span>, <span class="string">&quot;丁亥&quot;</span>,
+    <span class="string">&quot;戊子&quot;</span>, <span class="string">&quot;己丑&quot;</span>, <span class="string">&quot;庚寅&quot;</span>, <span class="string">&quot;辛卯&quot;</span>, <span class="string">&quot;壬辰&quot;</span>, <span class="string">&quot;癸巳&quot;</span>, <span class="string">&quot;甲午&quot;</span>, <span class="string">&quot;乙未&quot;</span>, <span class="string">&quot;丙申&quot;</span>, <span class="string">&quot;丁酉&quot;</span>, <span class="string">&quot;戊戌&quot;</span>, <span class="string">&quot;己亥&quot;</span>,
+    <span class="string">&quot;庚子&quot;</span>, <span class="string">&quot;辛丑&quot;</span>, <span class="string">&quot;壬寅&quot;</span>, <span class="string">&quot;癸卯&quot;</span>, <span class="string">&quot;甲辰&quot;</span>, <span class="string">&quot;乙巳&quot;</span>, <span class="string">&quot;丙午&quot;</span>, <span class="string">&quot;丁未&quot;</span>, <span class="string">&quot;戊申&quot;</span>, <span class="string">&quot;己酉&quot;</span>, <span class="string">&quot;庚戌&quot;</span>, <span class="string">&quot;辛亥&quot;</span>,
+    <span class="string">&quot;壬子&quot;</span>, <span class="string">&quot;癸丑&quot;</span>, <span class="string">&quot;甲寅&quot;</span>, <span class="string">&quot;乙卯&quot;</span>, <span class="string">&quot;丙辰&quot;</span>, <span class="string">&quot;丁巳&quot;</span>, <span class="string">&quot;戊午&quot;</span>, <span class="string">&quot;己未&quot;</span>, <span class="string">&quot;庚申&quot;</span>, <span class="string">&quot;辛酉&quot;</span>, <span class="string">&quot;壬戌&quot;</span>, <span class="string">&quot;癸亥&quot;</span>,
+];
+<span class="kw">const </span>DANGI_CYCLIC_YEARS: [<span class="kw-2">&amp;</span>str; <span class="number">60</span>] = [
+    <span class="string">&quot;갑자&quot;</span>, <span class="string">&quot;을축&quot;</span>, <span class="string">&quot;병인&quot;</span>, <span class="string">&quot;정묘&quot;</span>, <span class="string">&quot;무진&quot;</span>, <span class="string">&quot;기사&quot;</span>, <span class="string">&quot;경오&quot;</span>, <span class="string">&quot;신미&quot;</span>, <span class="string">&quot;임신&quot;</span>, <span class="string">&quot;계유&quot;</span>, <span class="string">&quot;갑술&quot;</span>, <span class="string">&quot;을해&quot;</span>,
+    <span class="string">&quot;병자&quot;</span>, <span class="string">&quot;정축&quot;</span>, <span class="string">&quot;무인&quot;</span>, <span class="string">&quot;기묘&quot;</span>, <span class="string">&quot;경진&quot;</span>, <span class="string">&quot;신사&quot;</span>, <span class="string">&quot;임오&quot;</span>, <span class="string">&quot;계미&quot;</span>, <span class="string">&quot;갑신&quot;</span>, <span class="string">&quot;을유&quot;</span>, <span class="string">&quot;병술&quot;</span>, <span class="string">&quot;정해&quot;</span>,
+    <span class="string">&quot;무자&quot;</span>, <span class="string">&quot;기축&quot;</span>, <span class="string">&quot;경인&quot;</span>, <span class="string">&quot;신묘&quot;</span>, <span class="string">&quot;임진&quot;</span>, <span class="string">&quot;계사&quot;</span>, <span class="string">&quot;갑오&quot;</span>, <span class="string">&quot;을미&quot;</span>, <span class="string">&quot;병신&quot;</span>, <span class="string">&quot;정유&quot;</span>, <span class="string">&quot;무술&quot;</span>, <span class="string">&quot;기해&quot;</span>,
+    <span class="string">&quot;경자&quot;</span>, <span class="string">&quot;신축&quot;</span>, <span class="string">&quot;임인&quot;</span>, <span class="string">&quot;계묘&quot;</span>, <span class="string">&quot;갑진&quot;</span>, <span class="string">&quot;을사&quot;</span>, <span class="string">&quot;병오&quot;</span>, <span class="string">&quot;정미&quot;</span>, <span class="string">&quot;무신&quot;</span>, <span class="string">&quot;기유&quot;</span>, <span class="string">&quot;경술&quot;</span>, <span class="string">&quot;신해&quot;</span>,
+    <span class="string">&quot;임자&quot;</span>, <span class="string">&quot;계축&quot;</span>, <span class="string">&quot;갑인&quot;</span>, <span class="string">&quot;을묘&quot;</span>, <span class="string">&quot;병진&quot;</span>, <span class="string">&quot;정사&quot;</span>, <span class="string">&quot;무오&quot;</span>, <span class="string">&quot;기미&quot;</span>, <span class="string">&quot;경신&quot;</span>, <span class="string">&quot;신유&quot;</span>, <span class="string">&quot;임술&quot;</span>, <span class="string">&quot;계해&quot;</span>,
+];
+
+<span class="kw">const </span>CHINESE_LEAP_PREFIX: <span class="kw-2">&amp;</span>str = <span class="string">&quot;閏&quot;</span>;
+<span class="kw">const </span>DANGI_LEAP_PREFIX: <span class="kw-2">&amp;</span>str = <span class="string">&quot;윤&quot;</span>;
+<span class="kw">const </span>PLACEHOLDER_LEAP_PREFIX: <span class="kw-2">&amp;</span>str = <span class="string">&quot;(leap)&quot;</span>;
 <span class="comment">// This function assumes that the correct decision has been
 // made regarding availability of symbols in the caller.
 //
@@ -844,6 +923,41 @@
                 FixedDecimal::from(datetime.week_of_year()<span class="question-mark">?</span>.<span class="number">0</span>.number),
                 field.length,
             )<span class="question-mark">?</span>,
+            Year::Cyclic =&gt; {
+                <span class="kw">let </span>datetime = datetime.datetime();
+                <span class="kw">let </span>cyclic = datetime
+                    .year()
+                    .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">&quot;year&quot;</span>)))<span class="question-mark">?
+                    </span>.cyclic
+                    .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">&quot;cyclic&quot;</span>)))<span class="question-mark">?</span>;
+                <span class="comment">// TODO(#3761): This is a hack, we should use actual data for cyclic years
+                </span><span class="kw">let </span>cyclics = <span class="kw">match </span>datetime.any_calendar_kind() {
+                    <span class="prelude-val">Some</span>(AnyCalendarKind::Dangi) =&gt; <span class="kw-2">&amp;</span>DANGI_CYCLIC_YEARS,
+                    <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>CHINESE_CYCLIC_YEARS, <span class="comment">/* for now assume all other calendars use the stem-branch model */
+                </span>};
+                <span class="kw">let </span>cyclic_str = cyclics.get(usize::from(cyclic.get()) - <span class="number">1</span>).ok_or(
+                    icu_calendar::CalendarError::Overflow {
+                        field: <span class="string">&quot;cyclic&quot;</span>,
+                        max: <span class="number">60</span>,
+                    },
+                )<span class="question-mark">?</span>;
+                w.write_str(cyclic_str)<span class="question-mark">?</span>;
+            }
+            Year::RelatedIso =&gt; {
+                format_number(
+                    w,
+                    fixed_decimal_format,
+                    FixedDecimal::from(
+                        datetime
+                            .datetime()
+                            .year()
+                            .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">&quot;year&quot;</span>)))<span class="question-mark">?
+                            </span>.related_iso
+                            .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">&quot;related_iso&quot;</span>)))<span class="question-mark">?</span>,
+                    ),
+                    field.length,
+                )<span class="question-mark">?</span>;
+            }
         },
         FieldSymbol::Month(month) =&gt; <span class="kw">match </span>field.length {
             FieldLength::One | FieldLength::TwoDigit =&gt; format_number(
@@ -859,19 +973,37 @@
                 field.length,
             )<span class="question-mark">?</span>,
             length =&gt; {
-                <span class="kw">let </span>symbol = date_symbols
+                <span class="kw">let </span>datetime = datetime.datetime();
+                <span class="kw">let </span>code = datetime
+                    .month()
+                    .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">&quot;month&quot;</span>)))<span class="question-mark">?
+                    </span>.code;
+
+                <span class="kw">let </span>symbols = date_symbols
                     .ok_or(Error::MissingDateSymbols)<span class="question-mark">?
-                    </span>.get_symbol_for_month(
-                        month,
-                        length,
-                        datetime
-                            .datetime()
-                            .month()
-                            .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">&quot;month&quot;</span>)))<span class="question-mark">?
-                            </span>.code,
-                    )<span class="question-mark">?</span>;
-                w.write_str(symbol)<span class="question-mark">?
-            </span>}
+                    </span>.get_symbols_for_month(month, length)<span class="question-mark">?</span>;
+
+                <span class="kw">let </span>symbol_option = symbols.get(code);
+                <span class="kw">if </span>symbol_option.is_some() {
+                    w.write_str(symbol_option.ok_or(Error::MissingMonthSymbol(code))<span class="question-mark">?</span>)<span class="question-mark">?</span>;
+                } <span class="kw">else </span>{
+                    <span class="kw">let </span>code = code
+                        .get_normal_if_leap()
+                        .ok_or(Error::MissingMonthSymbol(code))<span class="question-mark">?</span>;
+                    <span class="kw">let </span>symbols = date_symbols
+                        .ok_or(Error::MissingDateSymbols)<span class="question-mark">?
+                        </span>.get_symbols_for_month(month, length)<span class="question-mark">?</span>;
+                    <span class="kw">let </span>symbol = symbols.get(code).ok_or(Error::MissingMonthSymbol(code))<span class="question-mark">?</span>;
+                    <span class="comment">// FIXME (#3766) this should be using actual data for leap months
+                    </span><span class="kw">let </span>leap_str = <span class="kw">match </span>datetime.any_calendar_kind() {
+                        <span class="prelude-val">Some</span>(AnyCalendarKind::Chinese) =&gt; CHINESE_LEAP_PREFIX,
+                        <span class="prelude-val">Some</span>(AnyCalendarKind::Dangi) =&gt; DANGI_LEAP_PREFIX,
+                        <span class="kw">_ </span>=&gt; PLACEHOLDER_LEAP_PREFIX,
+                    };
+                    w.write_str(leap_str)<span class="question-mark">?</span>;
+                    w.write_str(symbol)<span class="question-mark">?</span>;
+                }
+            }
         },
         FieldSymbol::Week(week) =&gt; <span class="kw">match </span>week {
             Week::WeekOfYear =&gt; format_number(
@@ -1121,17 +1253,14 @@
         <span class="kw">use </span>icu::datetime::DateFormatter;
 
         <span class="kw">let </span>locale: Locale = <span class="string">&quot;en-u-ca-japanese&quot;</span>.parse().unwrap();
-        <span class="kw">let </span>dtf = DateFormatter::try_new_with_length_unstable(
-            <span class="kw-2">&amp;</span>icu_testdata::unstable(),
-            <span class="kw-2">&amp;</span>locale.into(),
-            length::Date::Medium,
-        )
-        .expect(<span class="string">&quot;DateTimeFormat construction succeeds&quot;</span>);
+        <span class="kw">let </span>dtf = DateFormatter::try_new_with_length(<span class="kw-2">&amp;</span>locale.into(), length::Date::Medium)
+            .expect(<span class="string">&quot;DateTimeFormat construction succeeds&quot;</span>);
 
-        <span class="kw">let </span>japanext = JapaneseExtended::try_new_unstable(<span class="kw-2">&amp;</span>icu_testdata::unstable())
-            .expect(<span class="string">&quot;Cannot load japanext data&quot;</span>);
         <span class="kw">let </span>date = Date::try_new_gregorian_date(<span class="number">1800</span>, <span class="number">9</span>, <span class="number">1</span>).expect(<span class="string">&quot;Failed to construct Date.&quot;</span>);
-        <span class="kw">let </span>date = date.to_calendar(japanext).into_japanese_date().to_any();
+        <span class="kw">let </span>date = date
+            .to_calendar(JapaneseExtended::new())
+            .into_japanese_date()
+            .to_any();
 
         <span class="macro">writeable::assert_writeable_eq!</span>(dtf.format(<span class="kw-2">&amp;</span>date).unwrap(), <span class="string">&quot;Sep 1, 12 kansei-1789&quot;</span>)
     }
@@ -1148,26 +1277,20 @@
             locale: <span class="kw-2">&amp;</span>locale,
             metadata: Default::default(),
         };
-        <span class="kw">let </span>date_data: DataPayload&lt;GregorianDateSymbolsV1Marker&gt; = icu_testdata::buffer()
-            .as_deserializing()
+        <span class="kw">let </span>date_data: DataPayload&lt;GregorianDateSymbolsV1Marker&gt; = <span class="kw">crate</span>::provider::Baked
             .load(req)
             .unwrap()
             .take_payload()
             .unwrap();
-        <span class="kw">let </span>time_data: DataPayload&lt;TimeSymbolsV1Marker&gt; = icu_testdata::buffer()
-            .as_deserializing()
+        <span class="kw">let </span>time_data: DataPayload&lt;TimeSymbolsV1Marker&gt; = <span class="kw">crate</span>::provider::Baked
             .load(req)
             .unwrap()
             .take_payload()
             .unwrap();
         <span class="kw">let </span>pattern = <span class="string">&quot;MMM&quot;</span>.parse().unwrap();
         <span class="kw">let </span>datetime = DateTime::try_new_gregorian_datetime(<span class="number">2020</span>, <span class="number">8</span>, <span class="number">1</span>, <span class="number">12</span>, <span class="number">34</span>, <span class="number">28</span>).unwrap();
-        <span class="kw">let </span>fixed_decimal_format = FixedDecimalFormatter::try_new_unstable(
-            <span class="kw-2">&amp;</span>icu_testdata::unstable(),
-            <span class="kw-2">&amp;</span>locale,
-            Default::default(),
-        )
-        .unwrap();
+        <span class="kw">let </span>fixed_decimal_format =
+            FixedDecimalFormatter::try_new(<span class="kw-2">&amp;</span>locale, Default::default()).unwrap();
 
         <span class="kw">let </span><span class="kw-2">mut </span>sink = String::new();
         <span class="kw">let </span>loc_datetime = DateTimeInputWithWeekConfig::new(<span class="kw-2">&amp;</span>datetime, <span class="prelude-val">None</span>);
@@ -1198,8 +1321,7 @@
 
         <span class="kw">let </span><span class="kw-2">mut </span>fixed_decimal_format_options = FixedDecimalFormatterOptions::default();
         fixed_decimal_format_options.grouping_strategy = GroupingStrategy::Never;
-        <span class="kw">let </span>fixed_decimal_format = FixedDecimalFormatter::try_new_unstable(
-            <span class="kw-2">&amp;</span>icu_testdata::unstable(),
+        <span class="kw">let </span>fixed_decimal_format = FixedDecimalFormatter::try_new(
             <span class="kw-2">&amp;</span><span class="macro">icu_locid::locale!</span>(<span class="string">&quot;en&quot;</span>).into(),
             fixed_decimal_format_options,
         )

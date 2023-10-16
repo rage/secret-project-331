@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["AllocVec","Cobs","Size","Slice"],"trait":["Flavor"]};
+window.SIDEBAR_ITEMS = {"mod":["eio"],"struct":["AllocVec","Cobs","ExtendFlavor","Size","Slice"],"trait":["Flavor"]};

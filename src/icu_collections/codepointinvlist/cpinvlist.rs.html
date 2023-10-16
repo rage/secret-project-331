@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_collections-1.2.0/src/codepointinvlist/cpinvlist.rs`."><title>cpinvlist.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_collections" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../icu_collections/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_collections-1.3.2/src/codepointinvlist/cpinvlist.rs`."><title>cpinvlist.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_collections" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../icu_collections/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1006,17 +1006,84 @@
 <a href="#1006" id="1006">1006</a>
 <a href="#1007" id="1007">1007</a>
 <a href="#1008" id="1008">1008</a>
+<a href="#1009" id="1009">1009</a>
+<a href="#1010" id="1010">1010</a>
+<a href="#1011" id="1011">1011</a>
+<a href="#1012" id="1012">1012</a>
+<a href="#1013" id="1013">1013</a>
+<a href="#1014" id="1014">1014</a>
+<a href="#1015" id="1015">1015</a>
+<a href="#1016" id="1016">1016</a>
+<a href="#1017" id="1017">1017</a>
+<a href="#1018" id="1018">1018</a>
+<a href="#1019" id="1019">1019</a>
+<a href="#1020" id="1020">1020</a>
+<a href="#1021" id="1021">1021</a>
+<a href="#1022" id="1022">1022</a>
+<a href="#1023" id="1023">1023</a>
+<a href="#1024" id="1024">1024</a>
+<a href="#1025" id="1025">1025</a>
+<a href="#1026" id="1026">1026</a>
+<a href="#1027" id="1027">1027</a>
+<a href="#1028" id="1028">1028</a>
+<a href="#1029" id="1029">1029</a>
+<a href="#1030" id="1030">1030</a>
+<a href="#1031" id="1031">1031</a>
+<a href="#1032" id="1032">1032</a>
+<a href="#1033" id="1033">1033</a>
+<a href="#1034" id="1034">1034</a>
+<a href="#1035" id="1035">1035</a>
+<a href="#1036" id="1036">1036</a>
+<a href="#1037" id="1037">1037</a>
+<a href="#1038" id="1038">1038</a>
+<a href="#1039" id="1039">1039</a>
+<a href="#1040" id="1040">1040</a>
+<a href="#1041" id="1041">1041</a>
+<a href="#1042" id="1042">1042</a>
+<a href="#1043" id="1043">1043</a>
+<a href="#1044" id="1044">1044</a>
+<a href="#1045" id="1045">1045</a>
+<a href="#1046" id="1046">1046</a>
+<a href="#1047" id="1047">1047</a>
+<a href="#1048" id="1048">1048</a>
+<a href="#1049" id="1049">1049</a>
+<a href="#1050" id="1050">1050</a>
+<a href="#1051" id="1051">1051</a>
+<a href="#1052" id="1052">1052</a>
+<a href="#1053" id="1053">1053</a>
+<a href="#1054" id="1054">1054</a>
+<a href="#1055" id="1055">1055</a>
+<a href="#1056" id="1056">1056</a>
+<a href="#1057" id="1057">1057</a>
+<a href="#1058" id="1058">1058</a>
+<a href="#1059" id="1059">1059</a>
+<a href="#1060" id="1060">1060</a>
+<a href="#1061" id="1061">1061</a>
+<a href="#1062" id="1062">1062</a>
+<a href="#1063" id="1063">1063</a>
+<a href="#1064" id="1064">1064</a>
+<a href="#1065" id="1065">1065</a>
+<a href="#1066" id="1066">1066</a>
+<a href="#1067" id="1067">1067</a>
+<a href="#1068" id="1068">1068</a>
+<a href="#1069" id="1069">1069</a>
+<a href="#1070" id="1070">1070</a>
+<a href="#1071" id="1071">1071</a>
+<a href="#1072" id="1072">1072</a>
+<a href="#1073" id="1073">1073</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
 
 </span><span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
 </span><span class="kw">use </span>alloc::format;
+<span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+</span><span class="kw">use </span>alloc::string::String;
 <span class="kw">use </span>alloc::vec::Vec;
 <span class="kw">use </span>core::{char, ops::RangeBounds, ops::RangeInclusive};
 <span class="kw">use </span>yoke::Yokeable;
 <span class="kw">use </span>zerofrom::ZeroFrom;
-<span class="kw">use </span>zerovec::{ule::AsULE, ZeroSlice, ZeroVec};
+<span class="kw">use </span>zerovec::{ule::AsULE, zerovec, ZeroVec};
 
 <span class="kw">use </span><span class="kw">super</span>::CodePointInversionListError;
 <span class="kw">use </span><span class="kw">crate</span>::codepointinvlist::utils::{deconstruct_range, is_valid_zv};
@@ -1025,21 +1092,21 @@
 </span><span class="kw">const </span>BMP_MAX: u32 = <span class="number">0xFFFF</span>;
 
 <span class="doccomment">/// Represents the inversion list for a set of all code points in the Basic Multilingual Plane.
-</span><span class="kw">const </span>BMP_INV_LIST_SLICE: <span class="kw-2">&amp;</span>ZeroSlice&lt;u32&gt; =
-    ZeroSlice::&lt;u32&gt;::from_ule_slice(<span class="kw-2">&amp;</span>&lt;u32 <span class="kw">as </span>AsULE&gt;::ULE::from_array([<span class="number">0x0</span>, BMP_MAX + <span class="number">1</span>]));
+</span><span class="kw">const </span>BMP_INV_LIST_VEC: ZeroVec&lt;u32&gt; =
+    <span class="macro">zerovec!</span>(u32; &lt;u32 <span class="kw">as </span>AsULE&gt;::ULE::from_unsigned; [<span class="number">0x0</span>, BMP_MAX + <span class="number">1</span>]);
 
 <span class="doccomment">/// Represents the inversion list for all of the code points in the Unicode range.
-</span><span class="kw">const </span>ALL_SLICE: <span class="kw-2">&amp;</span>ZeroSlice&lt;u32&gt; =
-    ZeroSlice::&lt;u32&gt;::from_ule_slice(<span class="kw-2">&amp;</span>&lt;u32 <span class="kw">as </span>AsULE&gt;::ULE::from_array([
-        <span class="number">0x0</span>,
-        (char::MAX <span class="kw">as </span>u32) + <span class="number">1</span>,
-    ]));
+</span><span class="kw">const </span>ALL_VEC: ZeroVec&lt;u32&gt; =
+    <span class="macro">zerovec!</span>(u32; &lt;u32 <span class="kw">as </span>AsULE&gt;::ULE::from_unsigned; [<span class="number">0x0</span>, (char::MAX <span class="kw">as </span>u32) + <span class="number">1</span>]);
 
 <span class="doccomment">/// A membership wrapper for [`CodePointInversionList`].
 ///
 /// Provides exposure to membership functions and constructors from serialized `CodePointSet`s (sets of code points)
 /// and predefined ranges.
-</span><span class="attr">#[derive(Debug, Eq, PartialEq, Clone, Yokeable, ZeroFrom)]
+</span><span class="attr">#[zerovec::make_varule(CodePointInversionListULE)]
+#[zerovec::skip_derive(Ord)]
+#[zerovec::derive(Debug)]
+#[derive(Debug, Eq, PartialEq, Clone, Yokeable, ZeroFrom)]
 </span><span class="kw">pub struct </span>CodePointInversionList&lt;<span class="lifetime">&#39;data</span>&gt; {
     <span class="comment">// If we wanted to use an array to keep the memory on the stack, there is an unsafe nightly feature
     // https://doc.rust-lang.org/nightly/core/array/trait.FixedSizeArray.html
@@ -1047,7 +1114,7 @@
 
     // Implements an [inversion list.](https://en.wikipedia.org/wiki/Inversion_list)
     </span>inv_list: ZeroVec&lt;<span class="lifetime">&#39;data</span>, u32&gt;,
-    size: usize,
+    size: u32,
 }
 
 <span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
@@ -1075,17 +1142,24 @@
                     <span class="kw">let </span><span class="kw-2">mut </span>inv_list =
                         ZeroVec::new_owned(Vec::with_capacity(parsed_strings.len() * <span class="number">2</span>));
                     <span class="kw">for </span>range <span class="kw">in </span>parsed_strings {
-                        <span class="kw">let </span><span class="kw-2">mut </span>chars = range.chars();
-                        <span class="kw">let </span>(start, end) = <span class="kw">match </span>(chars.next(), chars.next(), chars.next(), chars.next()) {
-                            (<span class="prelude-val">Some</span>(single), <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; (single <span class="kw">as </span>u32, single <span class="kw">as </span>u32 + <span class="number">1</span>),
-                            (<span class="prelude-val">Some</span>(start), <span class="prelude-val">Some</span>(<span class="string">&#39;-&#39;</span>), <span class="prelude-val">Some</span>(end), <span class="prelude-val">None</span>) =&gt; (start <span class="kw">as </span>u32, end <span class="kw">as </span>u32 + <span class="number">1</span>),
-                            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error::custom(<span class="macro">format!</span>(
-                                <span class="string">&quot;Cannot deserialize invalid inversion list for CodePointInversionList: {range:?}&quot;
-                            </span>)))
-                        };
+                        <span class="kw">fn </span>internal(range: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;(u32, u32)&gt; {
+                            <span class="kw">let </span>(start, range) = UnicodeCodePoint::parse(range)<span class="question-mark">?</span>;
+                            <span class="kw">if </span>range.is_empty() {
+                                <span class="kw">return </span><span class="prelude-val">Some</span>((start.<span class="number">0</span>, start.<span class="number">0</span>));
+                            }
+                            <span class="kw">let </span>(hyphen, range) = UnicodeCodePoint::parse(range)<span class="question-mark">?</span>;
+                            <span class="kw">if </span>hyphen.<span class="number">0 </span>!= <span class="string">&#39;-&#39; </span><span class="kw">as </span>u32 {
+                                <span class="kw">return </span><span class="prelude-val">None</span>;
+                            }
+                            <span class="kw">let </span>(end, range) = UnicodeCodePoint::parse(range)<span class="question-mark">?</span>;
+                            range.is_empty().then_some((start.<span class="number">0</span>, end.<span class="number">0</span>))
+                        }
+                        <span class="kw">let </span>(start, end) = internal(<span class="kw-2">&amp;</span>range).ok_or_else(|| Error::custom(<span class="macro">format!</span>(
+                            <span class="string">&quot;Cannot deserialize invalid inversion list for CodePointInversionList: {range:?}&quot;
+                        </span>)))<span class="question-mark">?</span>;
                         inv_list.with_mut(|v| {
                             v.push(start.to_unaligned());
-                            v.push(end.to_unaligned());
+                            v.push((end + <span class="number">1</span>).to_unaligned());
                         });
                     }
                     inv_list
@@ -1111,8 +1185,44 @@
         <span class="comment">// Safe because our parts are safe.
         </span><span class="macro">databake::quote! </span>{ <span class="kw">unsafe </span>{
             <span class="attr">#[allow(unused_unsafe)]
-            </span>::icu_collections::codepointinvlist::CodePointInversionList::from_parts_unchecked(#inv_list, #size)
+            </span>icu_collections::codepointinvlist::CodePointInversionList::from_parts_unchecked(#inv_list, #size)
         }}
+    }
+}
+
+<span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+#[derive(Debug, Copy, Clone)]
+</span><span class="kw">struct </span>UnicodeCodePoint(u32);
+
+<span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+</span><span class="kw">impl </span>UnicodeCodePoint {
+    <span class="kw">fn </span>from_u32(cp: u32) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, String&gt; {
+        <span class="kw">if </span>cp &lt;= char::MAX <span class="kw">as </span>u32 {
+            <span class="prelude-val">Ok</span>(<span class="self">Self</span>(cp))
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Not a Unicode code point {}&quot;</span>, cp))
+        }
+    }
+
+    <span class="kw">fn </span>parse(value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="self">Self</span>, <span class="kw-2">&amp;</span>str)&gt; {
+        <span class="prelude-val">Some</span>(<span class="kw">if let </span><span class="prelude-val">Some</span>(hex) = value.strip_prefix(<span class="string">&quot;U+&quot;</span>) {
+            <span class="kw">let </span>(escape, remainder) = (hex.get(..<span class="number">4</span>)<span class="question-mark">?</span>, hex.get(<span class="number">4</span>..)<span class="question-mark">?</span>);
+            (<span class="self">Self</span>(u32::from_str_radix(escape, <span class="number">16</span>).ok()<span class="question-mark">?</span>), remainder)
+        } <span class="kw">else </span>{
+            <span class="kw">let </span>c = value.chars().next()<span class="question-mark">?</span>;
+            (<span class="self">Self</span>(c <span class="kw">as </span>u32), value.get(c.len_utf8()..)<span class="question-mark">?</span>)
+        })
+    }
+}
+
+<span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+</span><span class="kw">impl </span>core::fmt::Display <span class="kw">for </span>UnicodeCodePoint {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; core::fmt::Result {
+        <span class="kw">match </span><span class="self">self</span>.<span class="number">0 </span>{
+            s @ <span class="number">0xD800</span>..=<span class="number">0xDFFF </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;U+{s:X}&quot;</span>),
+            <span class="comment">// SAFETY: c &lt;= char::MAX by construction, and not a surrogate
+            </span>c =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="kw">unsafe </span>{ char::from_u32_unchecked(c) }),
+        }
     }
 }
 
@@ -1127,16 +1237,12 @@
             <span class="kw">use </span>serde::ser::SerializeSeq;
             <span class="kw">let </span><span class="kw-2">mut </span>seq = serializer.serialize_seq(<span class="prelude-val">Some</span>(<span class="self">self</span>.inv_list.len() / <span class="number">2</span>))<span class="question-mark">?</span>;
             <span class="kw">for </span>range <span class="kw">in </span><span class="self">self</span>.iter_ranges() {
-                <span class="kw">let </span>start = char::from_u32(<span class="kw-2">*</span>range.start()).ok_or_else(|| {
-                    S::Error::custom(<span class="macro">format!</span>(<span class="string">&quot;Invalid code point {}&quot;</span>, range.start()))
-                })<span class="question-mark">?</span>;
-                <span class="kw">let </span>end = char::from_u32(<span class="kw-2">*</span>range.end()).ok_or_else(|| {
-                    S::Error::custom(<span class="macro">format!</span>(<span class="string">&quot;Invalid code point {}&quot;</span>, range.end()))
-                })<span class="question-mark">?</span>;
-                <span class="kw">if </span>start == end {
-                    seq.serialize_element(<span class="kw-2">&amp;</span>start)<span class="question-mark">?</span>;
+                <span class="kw">let </span>start = UnicodeCodePoint::from_u32(<span class="kw-2">*</span>range.start()).map_err(S::Error::custom)<span class="question-mark">?</span>;
+                <span class="kw">if </span>range.start() == range.end() {
+                    seq.serialize_element(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{start}&quot;</span>))<span class="question-mark">?</span>;
                 } <span class="kw">else </span>{
-                    seq.serialize_element(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{start}-{end}&quot;</span>))<span class="question-mark">?</span>;
+                    <span class="kw">let </span>end = UnicodeCodePoint::from_u32(<span class="kw-2">*</span>range.end()).map_err(S::Error::custom)<span class="question-mark">?</span>;
+                    seq.serialize_element(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{start}-{end}&quot;</span>,))<span class="question-mark">?</span>;
                 }
             }
             seq.end()
@@ -1190,7 +1296,7 @@
                     &lt;u32 <span class="kw">as </span>AsULE&gt;::from_unaligned(end_points[<span class="number">1</span>])
                         - &lt;u32 <span class="kw">as </span>AsULE&gt;::from_unaligned(end_points[<span class="number">0</span>])
                 })
-                .sum::&lt;u32&gt;() <span class="kw">as </span>usize;
+                .sum::&lt;u32&gt;();
             <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ inv_list, size })
         } <span class="kw">else </span>{
             <span class="prelude-val">Err</span>(CodePointInversionListError::InvalidSet(inv_list.to_vec()))
@@ -1198,7 +1304,7 @@
     }
 
     <span class="attr">#[doc(hidden)] </span><span class="comment">// databake internal
-    </span><span class="kw">pub const unsafe fn </span>from_parts_unchecked(inv_list: ZeroVec&lt;<span class="lifetime">&#39;data</span>, u32&gt;, size: usize) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub const unsafe fn </span>from_parts_unchecked(inv_list: ZeroVec&lt;<span class="lifetime">&#39;data</span>, u32&gt;, size: u32) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{ inv_list, size }
     }
 
@@ -1277,6 +1383,14 @@
         CodePointInversionList::try_from_inversion_list(inv_list_zv)
     }
 
+    <span class="doccomment">/// Attempts to convert this list into a fully-owned one. No-op if already fully owned
+    </span><span class="kw">pub fn </span>into_owned(<span class="self">self</span>) -&gt; CodePointInversionList&lt;<span class="lifetime">&#39;static</span>&gt; {
+        CodePointInversionList {
+            inv_list: <span class="self">self</span>.inv_list.into_owned(),
+            size: <span class="self">self</span>.size,
+        }
+    }
+
     <span class="doccomment">/// Returns an owned inversion list representing the current [`CodePointInversionList`]
     </span><span class="kw">pub fn </span>get_inversion_list_vec(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;u32&gt; {
         <span class="kw">let </span>result: Vec&lt;u32&gt; = <span class="self">self</span>.as_inversion_list().to_vec(); <span class="comment">// Only crate public, to not leak impl
@@ -1293,7 +1407,7 @@
     /// use icu_collections::codepointinvlist::CodePointInversionList;
     /// use zerovec::ZeroVec;
     ///
-    /// let expected = vec![0x0, (char::MAX as u32) + 1];
+    /// let expected = [0x0, (char::MAX as u32) + 1];
     /// assert_eq!(
     ///     CodePointInversionList::all().get_inversion_list_vec(),
     ///     expected
@@ -1305,8 +1419,8 @@
     /// ```
     </span><span class="kw">pub fn </span>all() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
-            inv_list: ALL_SLICE.as_zerovec(),
-            size: (char::MAX <span class="kw">as </span>usize) + <span class="number">1</span>,
+            inv_list: ALL_VEC,
+            size: (char::MAX <span class="kw">as </span>u32) + <span class="number">1</span>,
         }
     }
 
@@ -1322,7 +1436,7 @@
     ///
     /// const BMP_MAX: u32 = 0xFFFF;
     ///
-    /// let expected = vec![0x0, BMP_MAX + 1];
+    /// let expected = [0x0, BMP_MAX + 1];
     /// assert_eq!(
     ///     CodePointInversionList::bmp().get_inversion_list_vec(),
     ///     expected
@@ -1334,8 +1448,8 @@
     /// ```
     </span><span class="kw">pub fn </span>bmp() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
-            inv_list: BMP_INV_LIST_SLICE.as_zerovec(),
-            size: (BMP_MAX <span class="kw">as </span>usize) + <span class="number">1</span>,
+            inv_list: BMP_INV_LIST_VEC,
+            size: BMP_MAX + <span class="number">1</span>,
         }
     }
 
@@ -1449,7 +1563,7 @@
             <span class="kw">let </span>range_limit: u32 = AsULE::from_unaligned(pair[<span class="number">1</span>]);
             RangeInclusive::new(range_start, range_limit - <span class="number">1</span>)
         });
-        beginning.into_iter().chain(chunks).chain(end.into_iter())
+        beginning.into_iter().chain(chunks).chain(end)
     }
 
     <span class="doccomment">/// Returns the number of ranges contained in this [`CodePointInversionList`]
@@ -1472,7 +1586,7 @@
         <span class="kw">if </span><span class="self">self</span>.is_empty() {
             <span class="kw">return </span><span class="number">0</span>;
         }
-        <span class="self">self</span>.size
+        <span class="self">self</span>.size <span class="kw">as </span>usize
     }
 
     <span class="doccomment">/// Returns whether or not the [`CodePointInversionList`] is empty
@@ -1954,9 +2068,27 @@
     }
 
     <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_serde_serialize_surrogates() {
+        <span class="kw">let </span>inv_list = [<span class="number">0xDFAB</span>, <span class="number">0xDFFF</span>];
+        <span class="kw">let </span>uniset = CodePointInversionList::try_from_inversion_list_slice(<span class="kw-2">&amp;</span>inv_list).unwrap();
+        <span class="kw">let </span>json_str = serde_json::to_string(<span class="kw-2">&amp;</span>uniset).unwrap();
+        <span class="macro">assert_eq!</span>(json_str, <span class="string">r#&quot;[&quot;U+DFAB-U+DFFE&quot;]&quot;#</span>);
+    }
+
+    <span class="attr">#[test]
     </span><span class="kw">fn </span>test_serde_deserialize() {
         <span class="kw">let </span>inv_list_str = <span class="string">r#&quot;[&quot;A-E&quot;,&quot;K-T&quot;]&quot;#</span>;
         <span class="kw">let </span>exp_inv_list = [<span class="number">0x41</span>, <span class="number">0x46</span>, <span class="number">0x4B</span>, <span class="number">0x55</span>];
+        <span class="kw">let </span>exp_uniset =
+            CodePointInversionList::try_from_inversion_list_slice(<span class="kw-2">&amp;</span>exp_inv_list).unwrap();
+        <span class="kw">let </span>act_uniset: CodePointInversionList = serde_json::from_str(inv_list_str).unwrap();
+        <span class="macro">assert_eq!</span>(act_uniset, exp_uniset);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_serde_deserialize_surrogates() {
+        <span class="kw">let </span>inv_list_str = <span class="string">r#&quot;[&quot;U+DFAB-U+DFFE&quot;]&quot;#</span>;
+        <span class="kw">let </span>exp_inv_list = [<span class="number">0xDFAB</span>, <span class="number">0xDFFF</span>];
         <span class="kw">let </span>exp_uniset =
             CodePointInversionList::try_from_inversion_list_slice(<span class="kw-2">&amp;</span>exp_inv_list).unwrap();
         <span class="kw">let </span>act_uniset: CodePointInversionList = serde_json::from_str(inv_list_str).unwrap();
@@ -1975,10 +2107,8 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_serde_deserialize_invalid() {
-        <span class="kw">let </span>inv_list_str = <span class="string">&quot;[65,70,98775,85]&quot;</span>;
-        <span class="kw">let </span>act_result: <span class="prelude-ty">Result</span>&lt;CodePointInversionList, serde_json::Error&gt; =
-            serde_json::from_str(inv_list_str);
-        <span class="macro">assert!</span>(<span class="macro">matches!</span>(act_result, <span class="prelude-val">Err</span>(<span class="kw">_</span>)));
+        <span class="macro">assert!</span>(serde_json::from_str::&lt;CodePointInversionList&gt;(<span class="string">&quot;[65,70,98775,85]&quot;</span>).is_err());
+        <span class="macro">assert!</span>(serde_json::from_str::&lt;CodePointInversionList&gt;(<span class="string">&quot;[65,70,U+FFFFFFFFFF,85]&quot;</span>).is_err());
     }
 
     <span class="attr">#[test]
@@ -2002,11 +2132,11 @@
                 <span class="attr">#[allow(unused_unsafe)]
                 </span><span class="kw">crate</span>::codepointinvlist::CodePointInversionList::from_parts_unchecked(
                     <span class="kw">unsafe </span>{
-                        ::zerovec::ZeroVec::from_bytes_unchecked(
+                        zerovec::ZeroVec::from_bytes_unchecked(
                             <span class="string">b&quot;0\0\0\0:\0\0\0A\0\0\0G\0\0\0a\0\0\0g\0\0\0&quot;
                         </span>)
                     },
-                    <span class="number">22usize</span>,
+                    <span class="number">22u32</span>,
                 )
             },
             icu_collections,

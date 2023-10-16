@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.7.0/src/complex/universal.rs`."><title>universal.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../rustybuzz/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.10.0/src/complex/universal.rs`."><title>universal.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../rustybuzz/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -538,29 +538,13 @@
 <a href="#538" id="538">538</a>
 <a href="#539" id="539">539</a>
 <a href="#540" id="540">540</a>
-<a href="#541" id="541">541</a>
-<a href="#542" id="542">542</a>
-<a href="#543" id="543">543</a>
-<a href="#544" id="544">544</a>
-<a href="#545" id="545">545</a>
-<a href="#546" id="546">546</a>
-<a href="#547" id="547">547</a>
-<a href="#548" id="548">548</a>
-<a href="#549" id="549">549</a>
-<a href="#550" id="550">550</a>
-<a href="#551" id="551">551</a>
-<a href="#552" id="552">552</a>
-<a href="#553" id="553">553</a>
-<a href="#554" id="554">554</a>
-<a href="#555" id="555">555</a>
-</pre></div><pre class="rust"><code><span class="kw">use crate</span>::{script, Tag, Face, GlyphInfo, Mask, Script};
-<span class="kw">use </span><span class="kw">crate</span>::buffer::{Buffer, BufferFlags};
+</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::arabic::ArabicShapePlan;
+<span class="kw">use super</span>::<span class="kw-2">*</span>;
+<span class="kw">use </span><span class="kw">crate</span>::buffer::Buffer;
 <span class="kw">use </span><span class="kw">crate</span>::ot::{feature, FeatureFlags};
 <span class="kw">use </span><span class="kw">crate</span>::plan::{ShapePlan, ShapePlanner};
 <span class="kw">use </span><span class="kw">crate</span>::unicode::{CharExt, GeneralCategoryExt};
-<span class="kw">use super</span>::<span class="kw-2">*</span>;
-<span class="kw">use </span><span class="kw">super</span>::arabic::ArabicShapePlan;
-
+<span class="kw">use crate</span>::{script, Face, GlyphInfo, Mask, Script, Tag};
 
 <span class="kw">pub const </span>UNIVERSAL_SHAPER: ComplexShaper = ComplexShaper {
     collect_features: <span class="prelude-val">Some</span>(collect_features),
@@ -578,63 +562,74 @@
     fallback_position: <span class="bool-val">false</span>,
 };
 
-
 <span class="kw">pub type </span>Category = u8;
 <span class="kw">pub mod </span>category {
-    <span class="kw">pub const </span>O: u8       = <span class="number">0</span>;    <span class="comment">// OTHER
+    <span class="kw">pub const </span>O: u8 = <span class="number">0</span>; <span class="comment">// OTHER
 
-    </span><span class="kw">pub const </span>B: u8       = <span class="number">1</span>;    <span class="comment">// BASE
-    </span><span class="kw">pub const </span>IND: u8     = <span class="number">3</span>;    <span class="comment">// BASE_IND
-    </span><span class="kw">pub const </span>N: u8       = <span class="number">4</span>;    <span class="comment">// BASE_NUM
-    </span><span class="kw">pub const </span>GB: u8      = <span class="number">5</span>;    <span class="comment">// BASE_OTHER
-    </span><span class="kw">pub const </span>CGJ: u8     = <span class="number">6</span>;    <span class="comment">// CGJ
+    </span><span class="kw">pub const </span>B: u8 = <span class="number">1</span>; <span class="comment">// BASE
+
+    // pub const IND: u8     = 3;    // BASE_IND
+
+    </span><span class="kw">pub const </span>N: u8 = <span class="number">4</span>; <span class="comment">// BASE_NUM
+    </span><span class="kw">pub const </span>GB: u8 = <span class="number">5</span>; <span class="comment">// BASE_OTHER
+
+    // pub const CGJ: u8     = 6;    // CGJ
     // pub const F: u8       = 7;    // CONS_FINAL
-    </span><span class="kw">pub const </span>FM: u8      = <span class="number">8</span>;    <span class="comment">// CONS_FINAL_MOD
+    // pub const FM: u8 = 8;         // CONS_FINAL_MOD
     // pub const M: u8       = 9;    // CONS_MED
     // pub const CM: u8      = 10;   // CONS_MOD
-    </span><span class="kw">pub const </span>SUB: u8     = <span class="number">11</span>;   <span class="comment">// CONS_SUB
-    </span><span class="kw">pub const </span>H: u8       = <span class="number">12</span>;   <span class="comment">// HALANT
 
-    </span><span class="kw">pub const </span>HN: u8      = <span class="number">13</span>;   <span class="comment">// HALANT_NUM
-    </span><span class="kw">pub const </span>ZWNJ: u8    = <span class="number">14</span>;   <span class="comment">// Zero width non-joiner
-    </span><span class="kw">pub const </span>ZWJ: u8     = <span class="number">15</span>;   <span class="comment">// Zero width joiner
-    </span><span class="kw">pub const </span>WJ: u8      = <span class="number">16</span>;   <span class="comment">// Word joiner
-    // pub const RSV: u8     = 17;   // Reserved characters
-    </span><span class="kw">pub const </span>R: u8       = <span class="number">18</span>;   <span class="comment">// REPHA
-    </span><span class="kw">pub const </span>S: u8       = <span class="number">19</span>;   <span class="comment">// SYM
+    </span><span class="kw">pub const </span>SUB: u8 = <span class="number">11</span>; <span class="comment">// CONS_SUB
+    </span><span class="kw">pub const </span>H: u8 = <span class="number">12</span>; <span class="comment">// HALANT
+
+    </span><span class="kw">pub const </span>HN: u8 = <span class="number">13</span>; <span class="comment">// HALANT_NUM
+    </span><span class="kw">pub const </span>ZWNJ: u8 = <span class="number">14</span>; <span class="comment">// Zero width non-joiner
+
+    // pub const ZWJ: u8     = 15;   // Zero width joiner
+    // pub const WJ: u8      = 16;   // Word joiner
+
+    </span><span class="kw">pub const </span>RSV: u8 = <span class="number">17</span>; <span class="comment">// Reserved characters
+    </span><span class="kw">pub const </span>R: u8 = <span class="number">18</span>; <span class="comment">// REPHA
+    </span><span class="kw">pub const </span>S: u8 = <span class="number">19</span>; <span class="comment">// SYM
+
     // pub const SM: u8      = 20;   // SYM_MOD
-    </span><span class="kw">pub const </span>VS: u8      = <span class="number">21</span>;   <span class="comment">// VARIATION_SELECTOR
+    // pub const VS: u8      = 21;   // VARIATION_SELECTOR
     // pub const V: u8       = 36;   // VOWEL
     // pub const VM: u8      = 40;   // VOWEL_MOD
-    </span><span class="kw">pub const </span>CS: u8      = <span class="number">43</span>;   <span class="comment">// CONS_WITH_STACKER
+
+    </span><span class="kw">pub const </span>CS: u8 = <span class="number">43</span>; <span class="comment">// CONS_WITH_STACKER
 
     // https://github.com/harfbuzz/harfbuzz/issues/1102
-    </span><span class="kw">pub const </span>HVM: u8     = <span class="number">44</span>;   <span class="comment">// HALANT_OR_VOWEL_MODIFIER
+    </span><span class="kw">pub const </span>HVM: u8 = <span class="number">44</span>; <span class="comment">// HALANT_OR_VOWEL_MODIFIER
 
-    </span><span class="kw">pub const </span>SK: u8      = <span class="number">48</span>;   <span class="comment">// SAKOT
+    </span><span class="kw">pub const </span>SK: u8 = <span class="number">48</span>; <span class="comment">// SAKOT
 
-    </span><span class="kw">pub const </span>FABV: u8    = <span class="number">24</span>;   <span class="comment">// CONS_FINAL_ABOVE
-    </span><span class="kw">pub const </span>FBLW: u8    = <span class="number">25</span>;   <span class="comment">// CONS_FINAL_BELOW
-    </span><span class="kw">pub const </span>FPST: u8    = <span class="number">26</span>;   <span class="comment">// CONS_FINAL_POST
-    </span><span class="kw">pub const </span>MABV: u8    = <span class="number">27</span>;   <span class="comment">// CONS_MED_ABOVE
-    </span><span class="kw">pub const </span>MBLW: u8    = <span class="number">28</span>;   <span class="comment">// CONS_MED_BELOW
-    </span><span class="kw">pub const </span>MPST: u8    = <span class="number">29</span>;   <span class="comment">// CONS_MED_POST
-    </span><span class="kw">pub const </span>MPRE: u8    = <span class="number">30</span>;   <span class="comment">// CONS_MED_PRE
-    </span><span class="kw">pub const </span>CMABV: u8   = <span class="number">31</span>;   <span class="comment">// CONS_MOD_ABOVE
-    </span><span class="kw">pub const </span>CMBLW: u8   = <span class="number">32</span>;   <span class="comment">// CONS_MOD_BELOW
-    </span><span class="kw">pub const </span>VABV: u8    = <span class="number">33</span>;   <span class="comment">// VOWEL_ABOVE / VOWEL_ABOVE_BELOW / VOWEL_ABOVE_BELOW_POST / VOWEL_ABOVE_POST
-    </span><span class="kw">pub const </span>VBLW: u8    = <span class="number">34</span>;   <span class="comment">// VOWEL_BELOW / VOWEL_BELOW_POST
-    </span><span class="kw">pub const </span>VPST: u8    = <span class="number">35</span>;   <span class="comment">// VOWEL_POST UIPC = Right
-    </span><span class="kw">pub const </span>VPRE: u8    = <span class="number">22</span>;   <span class="comment">// VOWEL_PRE / VOWEL_PRE_ABOVE / VOWEL_PRE_ABOVE_POST / VOWEL_PRE_POST
-    </span><span class="kw">pub const </span>VMABV: u8   = <span class="number">37</span>;   <span class="comment">// VOWEL_MOD_ABOVE
-    </span><span class="kw">pub const </span>VMBLW: u8   = <span class="number">38</span>;   <span class="comment">// VOWEL_MOD_BELOW
-    </span><span class="kw">pub const </span>VMPST: u8   = <span class="number">39</span>;   <span class="comment">// VOWEL_MOD_POST
-    </span><span class="kw">pub const </span>VMPRE: u8   = <span class="number">23</span>;   <span class="comment">// VOWEL_MOD_PRE
-    </span><span class="kw">pub const </span>SMABV: u8   = <span class="number">41</span>;   <span class="comment">// SYM_MOD_ABOVE
-    </span><span class="kw">pub const </span>SMBLW: u8   = <span class="number">42</span>;   <span class="comment">// SYM_MOD_BELOW
-    </span><span class="kw">pub const </span>FMABV: u8   = <span class="number">45</span>;   <span class="comment">// CONS_FINAL_MOD UIPC = Top
-    </span><span class="kw">pub const </span>FMBLW: u8   = <span class="number">46</span>;   <span class="comment">// CONS_FINAL_MOD UIPC = Bottom
-    </span><span class="kw">pub const </span>FMPST: u8   = <span class="number">47</span>;   <span class="comment">// CONS_FINAL_MOD UIPC = Not_Applicable
+    </span><span class="kw">pub const </span>FABV: u8 = <span class="number">24</span>; <span class="comment">// CONS_FINAL_ABOVE
+    </span><span class="kw">pub const </span>FBLW: u8 = <span class="number">25</span>; <span class="comment">// CONS_FINAL_BELOW
+    </span><span class="kw">pub const </span>FPST: u8 = <span class="number">26</span>; <span class="comment">// CONS_FINAL_POST
+    </span><span class="kw">pub const </span>MABV: u8 = <span class="number">27</span>; <span class="comment">// CONS_MED_ABOVE
+    </span><span class="kw">pub const </span>MBLW: u8 = <span class="number">28</span>; <span class="comment">// CONS_MED_BELOW
+    </span><span class="kw">pub const </span>MPST: u8 = <span class="number">29</span>; <span class="comment">// CONS_MED_POST
+    </span><span class="kw">pub const </span>MPRE: u8 = <span class="number">30</span>; <span class="comment">// CONS_MED_PRE
+    </span><span class="kw">pub const </span>CMABV: u8 = <span class="number">31</span>; <span class="comment">// CONS_MOD_ABOVE
+    </span><span class="kw">pub const </span>CMBLW: u8 = <span class="number">32</span>; <span class="comment">// CONS_MOD_BELOW
+    </span><span class="kw">pub const </span>VABV: u8 = <span class="number">33</span>; <span class="comment">// VOWEL_ABOVE / VOWEL_ABOVE_BELOW / VOWEL_ABOVE_BELOW_POST / VOWEL_ABOVE_POST
+    </span><span class="kw">pub const </span>VBLW: u8 = <span class="number">34</span>; <span class="comment">// VOWEL_BELOW / VOWEL_BELOW_POST
+    </span><span class="kw">pub const </span>VPST: u8 = <span class="number">35</span>; <span class="comment">// VOWEL_POST UIPC = Right
+    </span><span class="kw">pub const </span>VPRE: u8 = <span class="number">22</span>; <span class="comment">// VOWEL_PRE / VOWEL_PRE_ABOVE / VOWEL_PRE_ABOVE_POST / VOWEL_PRE_POST
+    </span><span class="kw">pub const </span>VMABV: u8 = <span class="number">37</span>; <span class="comment">// VOWEL_MOD_ABOVE
+    </span><span class="kw">pub const </span>VMBLW: u8 = <span class="number">38</span>; <span class="comment">// VOWEL_MOD_BELOW
+    </span><span class="kw">pub const </span>VMPST: u8 = <span class="number">39</span>; <span class="comment">// VOWEL_MOD_POST
+    </span><span class="kw">pub const </span>VMPRE: u8 = <span class="number">23</span>; <span class="comment">// VOWEL_MOD_PRE
+    </span><span class="kw">pub const </span>SMABV: u8 = <span class="number">41</span>; <span class="comment">// SYM_MOD_ABOVE
+    </span><span class="kw">pub const </span>SMBLW: u8 = <span class="number">42</span>; <span class="comment">// SYM_MOD_BELOW
+    </span><span class="kw">pub const </span>FMABV: u8 = <span class="number">45</span>; <span class="comment">// CONS_FINAL_MOD UIPC = Top
+    </span><span class="kw">pub const </span>FMBLW: u8 = <span class="number">46</span>; <span class="comment">// CONS_FINAL_MOD UIPC = Bottom
+    </span><span class="kw">pub const </span>FMPST: u8 = <span class="number">47</span>; <span class="comment">// CONS_FINAL_MOD UIPC = Not_Applicable
+    </span><span class="kw">pub const </span>G: u8 = <span class="number">49</span>; <span class="comment">// HIEROGLYPH
+    </span><span class="kw">pub const </span>J: u8 = <span class="number">50</span>; <span class="comment">// HIEROGLYPH_JOINER
+    </span><span class="kw">pub const </span>SB: u8 = <span class="number">51</span>; <span class="comment">// HIEROGLYPH_SEGMENT_BEGIN
+    </span><span class="kw">pub const </span>SE: u8 = <span class="number">52</span>; <span class="comment">// HIEROGLYPH_SEGMENT_END
 </span>}
 
 <span class="comment">// These features are applied all at once, before reordering.
@@ -674,14 +669,12 @@
 ];
 
 <span class="kw">impl </span>GlyphInfo {
-    <span class="kw">fn </span>use_category(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Category {
-        <span class="kw">let </span>v: <span class="kw-2">&amp;</span>[u8; <span class="number">4</span>] = bytemuck::cast_ref(<span class="kw-2">&amp;</span><span class="self">self</span>.var2);
-        v[<span class="number">2</span>]
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>use_category(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Category {
+        <span class="self">self</span>.complex_var_u8_category()
     }
 
     <span class="kw">fn </span>set_use_category(<span class="kw-2">&amp;mut </span><span class="self">self</span>, c: Category) {
-        <span class="kw">let </span>v: <span class="kw-2">&amp;mut </span>[u8; <span class="number">4</span>] = bytemuck::cast_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>.var2);
-        v[<span class="number">2</span>] = c;
+        <span class="self">self</span>.set_complex_var_u8_category(c)
     }
 
     <span class="kw">fn </span>is_halant_use(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
@@ -714,36 +707,62 @@
     </span>planner.ot_map.add_gsub_pause(<span class="prelude-val">Some</span>(setup_syllables));
 
     <span class="comment">// Default glyph pre-processing group
-    </span>planner.ot_map.enable_feature(feature::LOCALIZED_FORMS, FeatureFlags::empty(), <span class="number">1</span>);
-    planner.ot_map.enable_feature(feature::GLYPH_COMPOSITION_DECOMPOSITION, FeatureFlags::empty(), <span class="number">1</span>);
-    planner.ot_map.enable_feature(feature::NUKTA_FORMS, FeatureFlags::empty(), <span class="number">1</span>);
-    planner.ot_map.enable_feature(feature::AKHANDS, FeatureFlags::MANUAL_ZWJ, <span class="number">1</span>);
+    </span>planner
+        .ot_map
+        .enable_feature(feature::LOCALIZED_FORMS, FeatureFlags::empty(), <span class="number">1</span>);
+    planner.ot_map.enable_feature(
+        feature::GLYPH_COMPOSITION_DECOMPOSITION,
+        FeatureFlags::empty(),
+        <span class="number">1</span>,
+    );
+    planner
+        .ot_map
+        .enable_feature(feature::NUKTA_FORMS, FeatureFlags::empty(), <span class="number">1</span>);
+    planner
+        .ot_map
+        .enable_feature(feature::AKHANDS, FeatureFlags::MANUAL_ZWJ, <span class="number">1</span>);
 
     <span class="comment">// Reordering group
-    </span>planner.ot_map.add_gsub_pause(<span class="prelude-val">Some</span>(<span class="kw">crate</span>::ot::clear_substitution_flags));
-    planner.ot_map.add_feature(feature::REPH_FORMS, FeatureFlags::MANUAL_ZWJ, <span class="number">1</span>);
+    </span>planner
+        .ot_map
+        .add_gsub_pause(<span class="prelude-val">Some</span>(<span class="kw">crate</span>::ot::clear_substitution_flags));
+    planner
+        .ot_map
+        .add_feature(feature::REPH_FORMS, FeatureFlags::MANUAL_ZWJ, <span class="number">1</span>);
     planner.ot_map.add_gsub_pause(<span class="prelude-val">Some</span>(record_rphf));
-    planner.ot_map.add_gsub_pause(<span class="prelude-val">Some</span>(<span class="kw">crate</span>::ot::clear_substitution_flags));
-    planner.ot_map.enable_feature(feature::PRE_BASE_FORMS, FeatureFlags::MANUAL_ZWJ, <span class="number">1</span>);
+    planner
+        .ot_map
+        .add_gsub_pause(<span class="prelude-val">Some</span>(<span class="kw">crate</span>::ot::clear_substitution_flags));
+    planner
+        .ot_map
+        .enable_feature(feature::PRE_BASE_FORMS, FeatureFlags::MANUAL_ZWJ, <span class="number">1</span>);
     planner.ot_map.add_gsub_pause(<span class="prelude-val">Some</span>(record_pref));
 
     <span class="comment">// Orthographic unit shaping group
     </span><span class="kw">for </span>feature <span class="kw">in </span>BASIC_FEATURES {
-        planner.ot_map.enable_feature(<span class="kw-2">*</span>feature, FeatureFlags::MANUAL_ZWJ, <span class="number">1</span>);
+        planner
+            .ot_map
+            .enable_feature(<span class="kw-2">*</span>feature, FeatureFlags::MANUAL_ZWJ, <span class="number">1</span>);
     }
 
     planner.ot_map.add_gsub_pause(<span class="prelude-val">Some</span>(reorder));
-    planner.ot_map.add_gsub_pause(<span class="prelude-val">Some</span>(<span class="kw">crate</span>::ot::clear_syllables));
+    planner
+        .ot_map
+        .add_gsub_pause(<span class="prelude-val">Some</span>(<span class="kw">crate</span>::ot::clear_syllables));
 
     <span class="comment">// Topographical features
     </span><span class="kw">for </span>feature <span class="kw">in </span>TOPOGRAPHICAL_FEATURES {
-        planner.ot_map.add_feature(<span class="kw-2">*</span>feature, FeatureFlags::empty(), <span class="number">1</span>);
+        planner
+            .ot_map
+            .add_feature(<span class="kw-2">*</span>feature, FeatureFlags::empty(), <span class="number">1</span>);
     }
     planner.ot_map.add_gsub_pause(<span class="prelude-val">None</span>);
 
     <span class="comment">// Standard typographic presentation
     </span><span class="kw">for </span>feature <span class="kw">in </span>OTHER_FEATURES {
-        planner.ot_map.enable_feature(<span class="kw-2">*</span>feature, FeatureFlags::empty(), <span class="number">1</span>);
+        planner
+            .ot_map
+            .enable_feature(<span class="kw-2">*</span>feature, FeatureFlags::empty(), <span class="number">1</span>);
     }
 }
 
@@ -775,7 +794,7 @@
             core::cmp::min(<span class="number">3</span>, end - start)
         };
 
-        <span class="kw">for </span>i <span class="kw">in </span>start..start+limit {
+        <span class="kw">for </span>i <span class="kw">in </span>start..start + limit {
             buffer.info[i].mask |= mask;
         }
 
@@ -786,6 +805,10 @@
 
 <span class="kw">fn </span>setup_topographical_masks(plan: <span class="kw-2">&amp;</span>ShapePlan, buffer: <span class="kw-2">&amp;mut </span>Buffer) {
     <span class="kw">use </span><span class="kw">super</span>::universal_machine::SyllableType;
+
+    <span class="kw">if </span>plan.data::&lt;UniversalShapePlan&gt;().arabic_plan.is_some() {
+        <span class="kw">return</span>;
+    }
 
     <span class="kw">let </span><span class="kw-2">mut </span>masks = [<span class="number">0</span>; <span class="number">4</span>];
     <span class="kw">let </span><span class="kw-2">mut </span>all_masks = <span class="number">0</span>;
@@ -810,13 +833,15 @@
     <span class="kw">let </span><span class="kw-2">mut </span>end = buffer.next_syllable(<span class="number">0</span>);
     <span class="kw">while </span>start &lt; buffer.len {
         <span class="kw">let </span>syllable = buffer.info[start].syllable() &amp; <span class="number">0x0F</span>;
-        <span class="kw">if </span>syllable == SyllableType::IndependentCluster <span class="kw">as </span>u8 ||
-            syllable == SyllableType::SymbolCluster <span class="kw">as </span>u8 ||
-            syllable == SyllableType::NonCluster <span class="kw">as </span>u8
+        <span class="kw">if </span>syllable == SyllableType::IndependentCluster <span class="kw">as </span>u8
+            || syllable == SyllableType::SymbolCluster <span class="kw">as </span>u8
+            || syllable == SyllableType::HieroglyphCluster <span class="kw">as </span>u8
+            || syllable == SyllableType::NonCluster <span class="kw">as </span>u8
         {
             last_form = <span class="prelude-val">None</span>;
         } <span class="kw">else </span>{
-            <span class="kw">let </span>join = last_form == <span class="prelude-val">Some</span>(JoiningForm::Terminal) || last_form == <span class="prelude-val">Some</span>(JoiningForm::Isolated);
+            <span class="kw">let </span>join = last_form == <span class="prelude-val">Some</span>(JoiningForm::Terminal)
+                || last_form == <span class="prelude-val">Some</span>(JoiningForm::Isolated);
 
             <span class="kw">if </span>join {
                 <span class="comment">// Fixup previous syllable&#39;s form.
@@ -827,12 +852,17 @@
                 };
 
                 <span class="kw">for </span>i <span class="kw">in </span>last_start..start {
-                    buffer.info[i].mask = (buffer.info[i].mask &amp; other_masks) | masks[form <span class="kw">as </span>usize];
+                    buffer.info[i].mask =
+                        (buffer.info[i].mask &amp; other_masks) | masks[form <span class="kw">as </span>usize];
                 }
             }
 
             <span class="comment">// Form for this syllable.
-            </span><span class="kw">let </span>form = <span class="kw">if </span>join { JoiningForm::Terminal } <span class="kw">else </span>{ JoiningForm::Isolated };
+            </span><span class="kw">let </span>form = <span class="kw">if </span>join {
+                JoiningForm::Terminal
+            } <span class="kw">else </span>{
+                JoiningForm::Isolated
+            };
             last_form = <span class="prelude-val">Some</span>(form);
             <span class="kw">for </span>i <span class="kw">in </span>start..end {
                 buffer.info[i].mask = (buffer.info[i].mask &amp; other_masks) | masks[form <span class="kw">as </span>usize];
@@ -874,7 +904,15 @@
 }
 
 <span class="kw">fn </span>reorder(<span class="kw">_</span>: <span class="kw-2">&amp;</span>ShapePlan, face: <span class="kw-2">&amp;</span>Face, buffer: <span class="kw-2">&amp;mut </span>Buffer) {
-    insert_dotted_circles(face, buffer);
+    <span class="kw">use </span><span class="kw">super</span>::universal_machine::SyllableType;
+
+    syllabic::insert_dotted_circles(
+        face,
+        buffer,
+        SyllableType::BrokenCluster <span class="kw">as </span>u8,
+        category::B,
+        <span class="prelude-val">Some</span>(category::R),
+    );
 
     <span class="kw">let </span><span class="kw-2">mut </span>start = <span class="number">0</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>end = buffer.next_syllable(<span class="number">0</span>);
@@ -885,65 +923,6 @@
     }
 }
 
-<span class="kw">fn </span>insert_dotted_circles(face: <span class="kw-2">&amp;</span>Face, buffer: <span class="kw-2">&amp;mut </span>Buffer) {
-    <span class="kw">use </span><span class="kw">super</span>::universal_machine::SyllableType;
-
-    <span class="kw">if </span>buffer.flags.contains(BufferFlags::DO_NOT_INSERT_DOTTED_CIRCLE) {
-        <span class="kw">return</span>;
-    }
-
-    <span class="comment">// Note: This loop is extra overhead, but should not be measurable.
-    // TODO Use a buffer scratch flag to remove the loop.
-    </span><span class="kw">let </span>has_broken_syllables = buffer.info_slice().iter()
-        .any(|info| info.syllable() &amp; <span class="number">0x0F </span>== SyllableType::BrokenCluster <span class="kw">as </span>u8);
-
-    <span class="kw">if </span>!has_broken_syllables {
-        <span class="kw">return</span>;
-    }
-
-    <span class="kw">let </span>dottedcircle_glyph = <span class="kw">match </span>face.glyph_index(<span class="number">0x25CC</span>) {
-        <span class="prelude-val">Some</span>(g) =&gt; g.<span class="number">0 </span><span class="kw">as </span>u32,
-        <span class="prelude-val">None </span>=&gt; <span class="kw">return</span>,
-    };
-
-    <span class="kw">let </span><span class="kw-2">mut </span>dottedcircle = GlyphInfo {
-        glyph_id: dottedcircle_glyph,
-        ..GlyphInfo::default()
-    };
-    dottedcircle.set_use_category(<span class="kw">super</span>::universal_table::get_category(<span class="number">0x25CC</span>));
-
-    buffer.clear_output();
-
-    buffer.idx = <span class="number">0</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>last_syllable = <span class="number">0</span>;
-    <span class="kw">while </span>buffer.idx &lt; buffer.len {
-        <span class="kw">let </span>syllable = buffer.cur(<span class="number">0</span>).syllable();
-        <span class="kw">let </span>syllable_type = syllable &amp; <span class="number">0x0F</span>;
-        <span class="kw">if </span>last_syllable != syllable &amp;&amp; syllable_type == SyllableType::BrokenCluster <span class="kw">as </span>u8 {
-            last_syllable = syllable;
-
-            <span class="kw">let </span><span class="kw-2">mut </span>ginfo = dottedcircle;
-            ginfo.cluster = buffer.cur(<span class="number">0</span>).cluster;
-            ginfo.mask = buffer.cur(<span class="number">0</span>).mask;
-            ginfo.set_syllable(buffer.cur(<span class="number">0</span>).syllable());
-
-            <span class="comment">// Insert dottedcircle after possible Repha.
-            </span><span class="kw">while </span>buffer.idx &lt; buffer.len &amp;&amp;
-                last_syllable == buffer.cur(<span class="number">0</span>).syllable() &amp;&amp;
-                buffer.cur(<span class="number">0</span>).use_category() == category::R
-            {
-                buffer.next_glyph();
-            }
-
-            buffer.output_info(ginfo);
-        } <span class="kw">else </span>{
-            buffer.next_glyph();
-        }
-    }
-
-    buffer.swap_buffers();
-}
-
 <span class="kw">const fn </span>category_flag(c: Category) -&gt; u32 {
     rb_flag(c <span class="kw">as </span>u32)
 }
@@ -952,35 +931,34 @@
     rb_flag64(c <span class="kw">as </span>u32)
 }
 
-<span class="kw">const </span>BASE_FLAGS: u64 =
-    category_flag64(category::FM) |
-    category_flag64(category::FABV) |
-    category_flag64(category::FBLW) |
-    category_flag64(category::FPST) |
-    category_flag64(category::MABV) |
-    category_flag64(category::MBLW) |
-    category_flag64(category::MPST) |
-    category_flag64(category::MPRE) |
-    category_flag64(category::VABV) |
-    category_flag64(category::VBLW) |
-    category_flag64(category::VPST) |
-    category_flag64(category::VPRE) |
-    category_flag64(category::VMABV) |
-    category_flag64(category::VMBLW) |
-    category_flag64(category::VMPST) |
-    category_flag64(category::VMPRE);
+<span class="kw">const </span>BASE_FLAGS: u64 = category_flag64(category::FABV)
+    | category_flag64(category::FBLW)
+    | category_flag64(category::FPST)
+    | category_flag64(category::MABV)
+    | category_flag64(category::MBLW)
+    | category_flag64(category::MPST)
+    | category_flag64(category::MPRE)
+    | category_flag64(category::VABV)
+    | category_flag64(category::VBLW)
+    | category_flag64(category::VPST)
+    | category_flag64(category::VPRE)
+    | category_flag64(category::VMABV)
+    | category_flag64(category::VMBLW)
+    | category_flag64(category::VMPST)
+    | category_flag64(category::VMPRE);
 
 <span class="kw">fn </span>reorder_syllable(start: usize, end: usize, buffer: <span class="kw-2">&amp;mut </span>Buffer) {
     <span class="kw">use </span><span class="kw">super</span>::universal_machine::SyllableType;
 
     <span class="kw">let </span>syllable_type = (buffer.info[start].syllable() &amp; <span class="number">0x0F</span>) <span class="kw">as </span>u32;
     <span class="comment">// Only a few syllable types need reordering.
-    </span><span class="kw">if </span>(rb_flag_unsafe(syllable_type) &amp;
-        (rb_flag(SyllableType::ViramaTerminatedCluster <span class="kw">as </span>u32) |
-         rb_flag(SyllableType::SakotTerminatedCluster <span class="kw">as </span>u32) |
-         rb_flag(SyllableType::StandardCluster <span class="kw">as </span>u32) |
-         rb_flag(SyllableType::BrokenCluster <span class="kw">as </span>u32) |
-            <span class="number">0</span>)) == <span class="number">0
+    </span><span class="kw">if </span>(rb_flag_unsafe(syllable_type)
+        &amp; (rb_flag(SyllableType::ViramaTerminatedCluster <span class="kw">as </span>u32)
+            | rb_flag(SyllableType::SakotTerminatedCluster <span class="kw">as </span>u32)
+            | rb_flag(SyllableType::StandardCluster <span class="kw">as </span>u32)
+            | rb_flag(SyllableType::BrokenCluster <span class="kw">as </span>u32)
+            | <span class="number">0</span>))
+        == <span class="number">0
     </span>{
         <span class="kw">return</span>;
     }
@@ -988,10 +966,10 @@
     <span class="comment">// Move things forward.
     </span><span class="kw">if </span>buffer.info[start].use_category() == category::R &amp;&amp; end - start &gt; <span class="number">1 </span>{
         <span class="comment">// Got a repha.  Reorder it towards the end, but before the first post-base glyph.
-        </span><span class="kw">for </span>i <span class="kw">in </span>start+<span class="number">1</span>..end {
+        </span><span class="kw">for </span>i <span class="kw">in </span>start + <span class="number">1</span>..end {
             <span class="kw">let </span>is_post_base_glyph =
-                (rb_flag64_unsafe(buffer.info[i].use_category() <span class="kw">as </span>u32) &amp; BASE_FLAGS) != <span class="number">0 </span>||
-                    buffer.info[i].is_halant_use();
+                (rb_flag64_unsafe(buffer.info[i].use_category() <span class="kw">as </span>u32) &amp; BASE_FLAGS) != <span class="number">0
+                    </span>|| buffer.info[i].is_halant_use();
 
             <span class="kw">if </span>is_post_base_glyph || i == end - <span class="number">1 </span>{
                 <span class="comment">// If we hit a post-base glyph, move before it; otherwise move to the
@@ -1004,7 +982,7 @@
 
                 buffer.merge_clusters(start, i + <span class="number">1</span>);
                 <span class="kw">let </span>t = buffer.info[start];
-                <span class="kw">for </span>k <span class="kw">in </span><span class="number">0</span>..i-start {
+                <span class="kw">for </span>k <span class="kw">in </span><span class="number">0</span>..i - start {
                     buffer.info[k + start] = buffer.info[k + start + <span class="number">1</span>];
                 }
                 buffer.info[i] = t;
@@ -1022,13 +1000,14 @@
             <span class="comment">// If we hit a halant, move after it; otherwise move to the beginning, and
             // shift things in between forward.
             </span>j = i + <span class="number">1</span>;
-        } <span class="kw">else if </span>(flag &amp; (category_flag(category::VPRE) | category_flag(category::VMPRE))) != <span class="number">0 </span>&amp;&amp;
-            buffer.info[i].lig_comp() == <span class="number">0 </span>&amp;&amp; j &lt; i
+        } <span class="kw">else if </span>(flag &amp; (category_flag(category::VPRE) | category_flag(category::VMPRE))) != <span class="number">0
+            </span>&amp;&amp; buffer.info[i].lig_comp() == <span class="number">0
+            </span>&amp;&amp; j &lt; i
         {
             <span class="comment">// Only move the first component of a MultipleSubst.
             </span>buffer.merge_clusters(j, i + <span class="number">1</span>);
             <span class="kw">let </span>t = buffer.info[i];
-            <span class="kw">for </span>k <span class="kw">in </span>(<span class="number">0</span>..i-j).rev() {
+            <span class="kw">for </span>k <span class="kw">in </span>(<span class="number">0</span>..i - j).rev() {
                 buffer.info[k + j + <span class="number">1</span>] = buffer.info[k + j];
             }
             buffer.info[j] = t;
@@ -1055,30 +1034,21 @@
 
 <span class="kw">fn </span>has_arabic_joining(script: Script) -&gt; bool {
     <span class="comment">// List of scripts that have data in arabic-table.
-    </span><span class="kw">match </span>script {
-        <span class="comment">// Unicode-1.1 additions.
-        </span>script::ARABIC |
-
-        <span class="comment">// Unicode-3.0 additions.
-        </span>script::MONGOLIAN |
-        script::SYRIAC |
-
-        <span class="comment">// Unicode-5.0 additions.
-        </span>script::NKO |
-        script::PHAGS_PA |
-
-        <span class="comment">// Unicode-6.0 additions.
-        </span>script::MANDAIC |
-
-        <span class="comment">// Unicode-7.0 additions.
-        </span>script::MANICHAEAN |
-        script::PSALTER_PAHLAVI |
-
-        <span class="comment">// Unicode-9.0 additions.
-        </span>script::ADLAM =&gt; <span class="bool-val">true</span>,
-
-        <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
-    }
+    </span><span class="macro">matches!</span>(
+        script,
+        script::ADLAM
+            | script::ARABIC
+            | script::CHORASMIAN
+            | script::HANIFI_ROHINGYA
+            | script::MANDAIC
+            | script::MANICHAEAN
+            | script::MONGOLIAN
+            | script::NKO
+            | script::PHAGS_PA
+            | script::PSALTER_PAHLAVI
+            | script::SOGDIAN
+            | script::SYRIAC
+    )
 }
 
 <span class="kw">fn </span>preprocess_text(<span class="kw">_</span>: <span class="kw-2">&amp;</span>ShapePlan, <span class="kw">_</span>: <span class="kw-2">&amp;</span>Face, buffer: <span class="kw-2">&amp;mut </span>Buffer) {

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["TimeZoneError"],"mod":["provider"],"struct":["CustomTimeZone","GmtOffset","MetazoneCalculator","ZoneVariant"]};
+window.SIDEBAR_ITEMS = {"enum":["TimeZoneError"],"mod":["provider"],"struct":["CustomTimeZone","GmtOffset","IanaBcp47RoundTripMapper","IanaToBcp47Mapper","MetazoneCalculator","ZoneVariant"]};

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_calendar-1.2.0/src/types.rs`."><title>types.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_calendar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../icu_calendar/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_calendar-1.3.2/src/types.rs`."><title>types.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_calendar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../icu_calendar/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -696,6 +696,70 @@
 <a href="#696" id="696">696</a>
 <a href="#697" id="697">697</a>
 <a href="#698" id="698">698</a>
+<a href="#699" id="699">699</a>
+<a href="#700" id="700">700</a>
+<a href="#701" id="701">701</a>
+<a href="#702" id="702">702</a>
+<a href="#703" id="703">703</a>
+<a href="#704" id="704">704</a>
+<a href="#705" id="705">705</a>
+<a href="#706" id="706">706</a>
+<a href="#707" id="707">707</a>
+<a href="#708" id="708">708</a>
+<a href="#709" id="709">709</a>
+<a href="#710" id="710">710</a>
+<a href="#711" id="711">711</a>
+<a href="#712" id="712">712</a>
+<a href="#713" id="713">713</a>
+<a href="#714" id="714">714</a>
+<a href="#715" id="715">715</a>
+<a href="#716" id="716">716</a>
+<a href="#717" id="717">717</a>
+<a href="#718" id="718">718</a>
+<a href="#719" id="719">719</a>
+<a href="#720" id="720">720</a>
+<a href="#721" id="721">721</a>
+<a href="#722" id="722">722</a>
+<a href="#723" id="723">723</a>
+<a href="#724" id="724">724</a>
+<a href="#725" id="725">725</a>
+<a href="#726" id="726">726</a>
+<a href="#727" id="727">727</a>
+<a href="#728" id="728">728</a>
+<a href="#729" id="729">729</a>
+<a href="#730" id="730">730</a>
+<a href="#731" id="731">731</a>
+<a href="#732" id="732">732</a>
+<a href="#733" id="733">733</a>
+<a href="#734" id="734">734</a>
+<a href="#735" id="735">735</a>
+<a href="#736" id="736">736</a>
+<a href="#737" id="737">737</a>
+<a href="#738" id="738">738</a>
+<a href="#739" id="739">739</a>
+<a href="#740" id="740">740</a>
+<a href="#741" id="741">741</a>
+<a href="#742" id="742">742</a>
+<a href="#743" id="743">743</a>
+<a href="#744" id="744">744</a>
+<a href="#745" id="745">745</a>
+<a href="#746" id="746">746</a>
+<a href="#747" id="747">747</a>
+<a href="#748" id="748">748</a>
+<a href="#749" id="749">749</a>
+<a href="#750" id="750">750</a>
+<a href="#751" id="751">751</a>
+<a href="#752" id="752">752</a>
+<a href="#753" id="753">753</a>
+<a href="#754" id="754">754</a>
+<a href="#755" id="755">755</a>
+<a href="#756" id="756">756</a>
+<a href="#757" id="757">757</a>
+<a href="#758" id="758">758</a>
+<a href="#759" id="759">759</a>
+<a href="#760" id="760">760</a>
+<a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
@@ -703,11 +767,12 @@
 </span><span class="doccomment">//! This module contains various types used by `icu_calendar` and `icu_datetime`
 
 </span><span class="kw">use </span><span class="kw">crate</span>::error::CalendarError;
-<span class="kw">use </span><span class="kw">crate</span>::helpers;
 <span class="kw">use </span>core::convert::TryFrom;
 <span class="kw">use </span>core::convert::TryInto;
 <span class="kw">use </span>core::fmt;
+<span class="kw">use </span>core::num::NonZeroU8;
 <span class="kw">use </span>core::str::FromStr;
+<span class="kw">use </span>tinystr::TinyAsciiStr;
 <span class="kw">use </span>tinystr::{TinyStr16, TinyStr4};
 <span class="kw">use </span>zerovec::maps::ZeroMapKV;
 <span class="kw">use </span>zerovec::ule::AsULE;
@@ -716,6 +781,10 @@
 ///
 /// Different calendars use different era codes, see their documentation
 /// for details.
+///
+/// Era codes are shared with Temporal, [see Temporal proposal][era-proposal].
+///
+/// [era-proposal]: https://tc39.es/proposal-intl-era-monthcode/
 </span><span class="attr">#[derive(Copy, Clone, Debug, PartialEq)]
 #[allow(clippy::exhaustive_structs)] </span><span class="comment">// this is a newtype
 </span><span class="kw">pub struct </span>Era(<span class="kw">pub </span>TinyStr16);
@@ -735,21 +804,31 @@
 
 <span class="doccomment">/// Representation of a formattable year.
 ///
-/// More fields may be added in the future, for things like
-/// the cyclic or extended year
+/// More fields may be added in the future for things like extended year
 </span><span class="attr">#[derive(Copy, Clone, Debug, PartialEq)]
 #[non_exhaustive]
 </span><span class="kw">pub struct </span>FormattableYear {
     <span class="doccomment">/// The era containing the year.
+    ///
+    /// This may not always be the canonical era for the calendar and could be an alias,
+    /// for example all `islamic` calendars return `islamic` as the formattable era code
+    /// which allows them to share data.
     </span><span class="kw">pub </span>era: Era,
 
     <span class="doccomment">/// The year number in the current era (usually 1-based).
     </span><span class="kw">pub </span>number: i32,
 
+    <span class="doccomment">/// The year in the current cycle for cyclic calendars (1-indexed)
+    /// can be set to `None` for non-cyclic calendars
+    ///
+    /// For chinese and dangi it will be
+    /// a number between 1 and 60, for hypothetical other calendars it may be something else.
+    </span><span class="kw">pub </span>cyclic: <span class="prelude-ty">Option</span>&lt;NonZeroU8&gt;,
+
     <span class="doccomment">/// The related ISO year. This is normally the ISO (proleptic Gregorian) year having the greatest
     /// overlap with the calendar year. It is used in certain date formatting patterns.
     ///
-    /// Can be None if the calendar does not typically use related_iso (and CLDR does not contain patterns
+    /// Can be `None` if the calendar does not typically use `related_iso` (and CLDR does not contain patterns
     /// using it)
     </span><span class="kw">pub </span>related_iso: <span class="prelude-ty">Option</span>&lt;i32&gt;,
 }
@@ -759,10 +838,11 @@
     ///
     /// Other fields can be set mutably after construction
     /// as needed
-    </span><span class="kw">pub fn </span>new(era: Era, number: i32) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(era: Era, number: i32, cyclic: <span class="prelude-ty">Option</span>&lt;NonZeroU8&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             era,
             number,
+            cyclic,
             related_iso: <span class="prelude-val">None</span>,
         }
     }
@@ -774,6 +854,10 @@
 /// (`M03L`) in lunar calendars. Solar calendars will have codes between `M01` and `M12`
 /// potentially with an `M13` for epagomenal months. Check the docs for a particular calendar
 /// for details on what its month codes are.
+///
+/// Month codes are shared with Temporal, [see Temporal proposal][era-proposal].
+///
+/// [era-proposal]: https://tc39.es/proposal-intl-era-monthcode/
 </span><span class="attr">#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[allow(clippy::exhaustive_structs)] </span><span class="comment">// this is a newtype
 </span><span class="attr">#[cfg_attr(
@@ -783,6 +867,35 @@
 )]
 #[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Deserialize))]
 </span><span class="kw">pub struct </span>MonthCode(<span class="kw">pub </span>TinyStr4);
+
+<span class="kw">impl </span>MonthCode {
+    <span class="doccomment">/// Returns an option which is `Some` containing the non-month version of a leap month
+    /// if the [`MonthCode`] this method is called upon is a leap month, and `None` otherwise.
+    /// This method assumes the [`MonthCode`] is valid.
+    </span><span class="kw">pub fn </span>get_normal_if_leap(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;MonthCode&gt; {
+        <span class="kw">let </span>bytes = <span class="self">self</span>.<span class="number">0</span>.all_bytes();
+        <span class="kw">if </span>bytes[<span class="number">3</span>] == <span class="string">b&#39;L&#39; </span>{
+            <span class="prelude-val">Some</span>(MonthCode(TinyAsciiStr::from_bytes(<span class="kw-2">&amp;</span>bytes[<span class="number">0</span>..<span class="number">3</span>]).ok()<span class="question-mark">?</span>))
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>}
+    }
+}
+
+<span class="attr">#[test]
+</span><span class="kw">fn </span>test_get_normal_month_code_if_leap() {
+    <span class="kw">let </span>mc1 = MonthCode(<span class="macro">tinystr::tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M01L&quot;</span>));
+    <span class="kw">let </span>result1 = mc1.get_normal_if_leap();
+    <span class="macro">assert_eq!</span>(result1, <span class="prelude-val">Some</span>(MonthCode(<span class="macro">tinystr::tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M01&quot;</span>))));
+
+    <span class="kw">let </span>mc2 = MonthCode(<span class="macro">tinystr::tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M11L&quot;</span>));
+    <span class="kw">let </span>result2 = mc2.get_normal_if_leap();
+    <span class="macro">assert_eq!</span>(result2, <span class="prelude-val">Some</span>(MonthCode(<span class="macro">tinystr::tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M11&quot;</span>))));
+
+    <span class="kw">let </span>mc_invalid = MonthCode(<span class="macro">tinystr::tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M10&quot;</span>));
+    <span class="kw">let </span>result_invalid = mc_invalid.get_normal_if_leap();
+    <span class="macro">assert_eq!</span>(result_invalid, <span class="prelude-val">None</span>);
+}
 
 <span class="kw">impl </span>AsULE <span class="kw">for </span>MonthCode {
     <span class="kw">type </span>ULE = TinyStr4;
@@ -830,6 +943,11 @@
     </span><span class="kw">pub </span>ordinal: u32,
 
     <span class="doccomment">/// The month code, used to distinguish months during leap years.
+    ///
+    /// This may not necessarily be the canonical month code for a month in cases where a month has different
+    /// formatting in a leap year, for example Adar/Adar II in the Hebrew calendar in a leap year has
+    /// the code M06, but for formatting specifically the Hebrew calendar will return M06L since it is formatted
+    /// differently.
     </span><span class="kw">pub </span>code: MonthCode,
 }
 
@@ -840,13 +958,13 @@
 #[allow(clippy::exhaustive_structs)] </span><span class="comment">// this type is stable
 </span><span class="kw">pub struct </span>DayOfYearInfo {
     <span class="doccomment">/// The current day of the year, 1-based.
-    </span><span class="kw">pub </span>day_of_year: u32,
+    </span><span class="kw">pub </span>day_of_year: u16,
     <span class="doccomment">/// The number of days in a year.
-    </span><span class="kw">pub </span>days_in_year: u32,
+    </span><span class="kw">pub </span>days_in_year: u16,
     <span class="doccomment">/// The previous year.
     </span><span class="kw">pub </span>prev_year: FormattableYear,
     <span class="doccomment">/// The number of days in the previous year.
-    </span><span class="kw">pub </span>days_in_prev_year: u32,
+    </span><span class="kw">pub </span>days_in_prev_year: u16,
     <span class="doccomment">/// The next year.
     </span><span class="kw">pub </span>next_year: FormattableYear,
 }
@@ -1015,7 +1133,7 @@ to the same time as 13:00:00. This is an extension to ISO 8601.&quot;
     <span class="number">61</span>,
     <span class="string">&quot;An ISO-8601 second component, for use with ISO calendars.
 
-Must be within inclusive bounds `[0, 61]`. `60` accomodates for leap seconds.
+Must be within inclusive bounds `[0, 61]`. `60` accommodates for leap seconds.
 
 The value could also be equal to 60 or 61, to indicate the end of a leap second,
 with the writing `23:59:61.000000000Z` or `23:59:60.000000000Z`. These examples,
@@ -1177,6 +1295,16 @@ Must be within inclusive bounds `[0, 999_999_999]`.&quot;
         }
     }
 
+    <span class="doccomment">/// Construct a new [`Time`] representing midnight (00:00.000)
+    </span><span class="kw">pub const fn </span>midnight() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            hour: IsoHour::zero(),
+            minute: IsoMinute::zero(),
+            second: IsoSecond::zero(),
+            nanosecond: NanoSecond::zero(),
+        }
+    }
+
     <span class="doccomment">/// Construct a new [`Time`], whilst validating that all components are in range
     </span><span class="kw">pub fn </span>try_new(
         hour: u8,
@@ -1195,7 +1323,7 @@ Must be within inclusive bounds `[0, 999_999_999]`.&quot;
     <span class="doccomment">/// Takes a number of minutes, which could be positive or negative, and returns the Time
     /// and the day number, which could be positive or negative.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_minute_with_remainder_days(minute: i32) -&gt; (Time, i32) {
-        <span class="kw">let </span>(extra_days, minute_in_day) = helpers::div_rem_euclid(minute, <span class="number">1440</span>);
+        <span class="kw">let </span>(extra_days, minute_in_day) = (minute.div_euclid(<span class="number">1440</span>), minute.rem_euclid(<span class="number">1440</span>));
         <span class="kw">let </span>(hours, minutes) = (minute_in_day / <span class="number">60</span>, minute_in_day % <span class="number">60</span>);
         <span class="attr">#[allow(clippy::unwrap_used)] </span><span class="comment">// values are moduloed to be in range
         </span>(

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_normalizer-1.2.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_normalizer" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../icu_normalizer/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_normalizer-1.3.2/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_normalizer" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../icu_normalizer/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -2561,6 +2561,188 @@
 <a href="#2561" id="2561">2561</a>
 <a href="#2562" id="2562">2562</a>
 <a href="#2563" id="2563">2563</a>
+<a href="#2564" id="2564">2564</a>
+<a href="#2565" id="2565">2565</a>
+<a href="#2566" id="2566">2566</a>
+<a href="#2567" id="2567">2567</a>
+<a href="#2568" id="2568">2568</a>
+<a href="#2569" id="2569">2569</a>
+<a href="#2570" id="2570">2570</a>
+<a href="#2571" id="2571">2571</a>
+<a href="#2572" id="2572">2572</a>
+<a href="#2573" id="2573">2573</a>
+<a href="#2574" id="2574">2574</a>
+<a href="#2575" id="2575">2575</a>
+<a href="#2576" id="2576">2576</a>
+<a href="#2577" id="2577">2577</a>
+<a href="#2578" id="2578">2578</a>
+<a href="#2579" id="2579">2579</a>
+<a href="#2580" id="2580">2580</a>
+<a href="#2581" id="2581">2581</a>
+<a href="#2582" id="2582">2582</a>
+<a href="#2583" id="2583">2583</a>
+<a href="#2584" id="2584">2584</a>
+<a href="#2585" id="2585">2585</a>
+<a href="#2586" id="2586">2586</a>
+<a href="#2587" id="2587">2587</a>
+<a href="#2588" id="2588">2588</a>
+<a href="#2589" id="2589">2589</a>
+<a href="#2590" id="2590">2590</a>
+<a href="#2591" id="2591">2591</a>
+<a href="#2592" id="2592">2592</a>
+<a href="#2593" id="2593">2593</a>
+<a href="#2594" id="2594">2594</a>
+<a href="#2595" id="2595">2595</a>
+<a href="#2596" id="2596">2596</a>
+<a href="#2597" id="2597">2597</a>
+<a href="#2598" id="2598">2598</a>
+<a href="#2599" id="2599">2599</a>
+<a href="#2600" id="2600">2600</a>
+<a href="#2601" id="2601">2601</a>
+<a href="#2602" id="2602">2602</a>
+<a href="#2603" id="2603">2603</a>
+<a href="#2604" id="2604">2604</a>
+<a href="#2605" id="2605">2605</a>
+<a href="#2606" id="2606">2606</a>
+<a href="#2607" id="2607">2607</a>
+<a href="#2608" id="2608">2608</a>
+<a href="#2609" id="2609">2609</a>
+<a href="#2610" id="2610">2610</a>
+<a href="#2611" id="2611">2611</a>
+<a href="#2612" id="2612">2612</a>
+<a href="#2613" id="2613">2613</a>
+<a href="#2614" id="2614">2614</a>
+<a href="#2615" id="2615">2615</a>
+<a href="#2616" id="2616">2616</a>
+<a href="#2617" id="2617">2617</a>
+<a href="#2618" id="2618">2618</a>
+<a href="#2619" id="2619">2619</a>
+<a href="#2620" id="2620">2620</a>
+<a href="#2621" id="2621">2621</a>
+<a href="#2622" id="2622">2622</a>
+<a href="#2623" id="2623">2623</a>
+<a href="#2624" id="2624">2624</a>
+<a href="#2625" id="2625">2625</a>
+<a href="#2626" id="2626">2626</a>
+<a href="#2627" id="2627">2627</a>
+<a href="#2628" id="2628">2628</a>
+<a href="#2629" id="2629">2629</a>
+<a href="#2630" id="2630">2630</a>
+<a href="#2631" id="2631">2631</a>
+<a href="#2632" id="2632">2632</a>
+<a href="#2633" id="2633">2633</a>
+<a href="#2634" id="2634">2634</a>
+<a href="#2635" id="2635">2635</a>
+<a href="#2636" id="2636">2636</a>
+<a href="#2637" id="2637">2637</a>
+<a href="#2638" id="2638">2638</a>
+<a href="#2639" id="2639">2639</a>
+<a href="#2640" id="2640">2640</a>
+<a href="#2641" id="2641">2641</a>
+<a href="#2642" id="2642">2642</a>
+<a href="#2643" id="2643">2643</a>
+<a href="#2644" id="2644">2644</a>
+<a href="#2645" id="2645">2645</a>
+<a href="#2646" id="2646">2646</a>
+<a href="#2647" id="2647">2647</a>
+<a href="#2648" id="2648">2648</a>
+<a href="#2649" id="2649">2649</a>
+<a href="#2650" id="2650">2650</a>
+<a href="#2651" id="2651">2651</a>
+<a href="#2652" id="2652">2652</a>
+<a href="#2653" id="2653">2653</a>
+<a href="#2654" id="2654">2654</a>
+<a href="#2655" id="2655">2655</a>
+<a href="#2656" id="2656">2656</a>
+<a href="#2657" id="2657">2657</a>
+<a href="#2658" id="2658">2658</a>
+<a href="#2659" id="2659">2659</a>
+<a href="#2660" id="2660">2660</a>
+<a href="#2661" id="2661">2661</a>
+<a href="#2662" id="2662">2662</a>
+<a href="#2663" id="2663">2663</a>
+<a href="#2664" id="2664">2664</a>
+<a href="#2665" id="2665">2665</a>
+<a href="#2666" id="2666">2666</a>
+<a href="#2667" id="2667">2667</a>
+<a href="#2668" id="2668">2668</a>
+<a href="#2669" id="2669">2669</a>
+<a href="#2670" id="2670">2670</a>
+<a href="#2671" id="2671">2671</a>
+<a href="#2672" id="2672">2672</a>
+<a href="#2673" id="2673">2673</a>
+<a href="#2674" id="2674">2674</a>
+<a href="#2675" id="2675">2675</a>
+<a href="#2676" id="2676">2676</a>
+<a href="#2677" id="2677">2677</a>
+<a href="#2678" id="2678">2678</a>
+<a href="#2679" id="2679">2679</a>
+<a href="#2680" id="2680">2680</a>
+<a href="#2681" id="2681">2681</a>
+<a href="#2682" id="2682">2682</a>
+<a href="#2683" id="2683">2683</a>
+<a href="#2684" id="2684">2684</a>
+<a href="#2685" id="2685">2685</a>
+<a href="#2686" id="2686">2686</a>
+<a href="#2687" id="2687">2687</a>
+<a href="#2688" id="2688">2688</a>
+<a href="#2689" id="2689">2689</a>
+<a href="#2690" id="2690">2690</a>
+<a href="#2691" id="2691">2691</a>
+<a href="#2692" id="2692">2692</a>
+<a href="#2693" id="2693">2693</a>
+<a href="#2694" id="2694">2694</a>
+<a href="#2695" id="2695">2695</a>
+<a href="#2696" id="2696">2696</a>
+<a href="#2697" id="2697">2697</a>
+<a href="#2698" id="2698">2698</a>
+<a href="#2699" id="2699">2699</a>
+<a href="#2700" id="2700">2700</a>
+<a href="#2701" id="2701">2701</a>
+<a href="#2702" id="2702">2702</a>
+<a href="#2703" id="2703">2703</a>
+<a href="#2704" id="2704">2704</a>
+<a href="#2705" id="2705">2705</a>
+<a href="#2706" id="2706">2706</a>
+<a href="#2707" id="2707">2707</a>
+<a href="#2708" id="2708">2708</a>
+<a href="#2709" id="2709">2709</a>
+<a href="#2710" id="2710">2710</a>
+<a href="#2711" id="2711">2711</a>
+<a href="#2712" id="2712">2712</a>
+<a href="#2713" id="2713">2713</a>
+<a href="#2714" id="2714">2714</a>
+<a href="#2715" id="2715">2715</a>
+<a href="#2716" id="2716">2716</a>
+<a href="#2717" id="2717">2717</a>
+<a href="#2718" id="2718">2718</a>
+<a href="#2719" id="2719">2719</a>
+<a href="#2720" id="2720">2720</a>
+<a href="#2721" id="2721">2721</a>
+<a href="#2722" id="2722">2722</a>
+<a href="#2723" id="2723">2723</a>
+<a href="#2724" id="2724">2724</a>
+<a href="#2725" id="2725">2725</a>
+<a href="#2726" id="2726">2726</a>
+<a href="#2727" id="2727">2727</a>
+<a href="#2728" id="2728">2728</a>
+<a href="#2729" id="2729">2729</a>
+<a href="#2730" id="2730">2730</a>
+<a href="#2731" id="2731">2731</a>
+<a href="#2732" id="2732">2732</a>
+<a href="#2733" id="2733">2733</a>
+<a href="#2734" id="2734">2734</a>
+<a href="#2735" id="2735">2735</a>
+<a href="#2736" id="2736">2736</a>
+<a href="#2737" id="2737">2737</a>
+<a href="#2738" id="2738">2738</a>
+<a href="#2739" id="2739">2739</a>
+<a href="#2740" id="2740">2740</a>
+<a href="#2741" id="2741">2741</a>
+<a href="#2742" id="2742">2742</a>
+<a href="#2743" id="2743">2743</a>
+<a href="#2744" id="2744">2744</a>
+<a href="#2745" id="2745">2745</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
@@ -2664,8 +2846,7 @@
 <span class="kw">use </span>utf8_iter::Utf8CharsEx;
 <span class="kw">use </span>write16::Write16;
 <span class="kw">use </span>zerofrom::ZeroFrom;
-<span class="kw">use </span>zerovec::ule::AsULE;
-<span class="kw">use </span>zerovec::ZeroSlice;
+<span class="kw">use </span>zerovec::{zeroslice, ZeroSlice};
 
 <span class="attr">#[derive(Debug)]
 </span><span class="kw">enum </span>SupplementPayloadHolder {
@@ -2807,10 +2988,9 @@
     char_from_u32(u32::from(u))
 }
 
-<span class="kw">const </span>EMPTY_U16: <span class="kw-2">&amp;</span>ZeroSlice&lt;u16&gt; =
-    ZeroSlice::&lt;u16&gt;::from_ule_slice(<span class="kw-2">&amp;</span>&lt;u16 <span class="kw">as </span>AsULE&gt;::ULE::from_array([]));
+<span class="kw">const </span>EMPTY_U16: <span class="kw-2">&amp;</span>ZeroSlice&lt;u16&gt; = <span class="macro">zeroslice!</span>[];
 
-<span class="kw">const </span>EMPTY_CHAR: <span class="kw-2">&amp;</span>ZeroSlice&lt;char&gt; = ZeroSlice::new_empty();
+<span class="kw">const </span>EMPTY_CHAR: <span class="kw-2">&amp;</span>ZeroSlice&lt;char&gt; = <span class="macro">zeroslice!</span>[];
 
 <span class="attr">#[inline(always)]
 </span><span class="kw">fn </span>in_inclusive_range(c: char, start: char, end: char) -&gt; bool {
@@ -3994,7 +4174,7 @@
                 } <span class="kw">else </span>{
                     <span class="kw">return </span><span class="prelude-val">Ok</span>(());
                 };
-                <span class="comment">// Allowing indexed slicing, because the a failure would be a code bug and
+                <span class="comment">// Allowing indexed slicing, because a failure would be a code bug and
                 // not a data issue.
                 </span><span class="attr">#[allow(clippy::indexing_slicing)]
                 </span><span class="kw">if </span><span class="macro-nonterminal">$undecomposed_starter</span>.starter_and_decomposes_to_self() {
@@ -4089,22 +4269,63 @@
 </span>}
 
 <span class="kw">impl </span>DecomposingNormalizer {
-    <span class="doccomment">/// NFD constructor.
+    <span class="doccomment">/// NFD constructor using compiled data.
+    ///
+    /// ✨ *Enabled with the `compiled_data` Cargo feature.*
     ///
     /// [📚 Help choosing a constructor](icu_provider::constructors)
-    /// &lt;div class=&quot;stab unstable&quot;&gt;
-    /// ⚠️ The bounds on this function may change over time, including in SemVer minor releases.
-    /// &lt;/div&gt;
-    </span><span class="kw">pub fn </span>try_new_nfd_unstable&lt;D&gt;(data_provider: <span class="kw-2">&amp;</span>D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, NormalizerError&gt;
+    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    </span><span class="kw">pub const fn </span>new_nfd() -&gt; <span class="self">Self </span>{
+        <span class="kw">const _</span>: () = <span class="macro">assert!</span>(
+            <span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_NFDEX_V1
+                .scalars16
+                .const_len()
+                + <span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_NFDEX_V1
+                    .scalars24
+                    .const_len()
+                &lt;= <span class="number">0xFFF</span>,
+            <span class="string">&quot;NormalizerError::FutureExtension&quot;
+        </span>);
+
+        DecomposingNormalizer {
+            decompositions: DataPayload::from_static_ref(
+                <span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_NFD_V1,
+            ),
+            supplementary_decompositions: <span class="prelude-val">None</span>,
+            tables: DataPayload::from_static_ref(
+                <span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_NFDEX_V1,
+            ),
+            supplementary_tables: <span class="prelude-val">None</span>,
+            decomposition_passthrough_bound: <span class="number">0xC0</span>,
+            composition_passthrough_bound: <span class="number">0x0300</span>,
+        }
+    }
+
+    <span class="macro">icu_provider::gen_any_buffer_data_constructors!</span>(
+        locale: skip,
+        options: skip,
+        error: NormalizerError,
+        <span class="attr">#[cfg(skip)]
+        </span>functions: [
+            new_nfd,
+            try_new_nfd_with_any_provider,
+            try_new_nfd_with_buffer_provider,
+            try_new_nfd_unstable,
+            <span class="self">Self</span>,
+        ]
+    );
+
+    <span class="attr">#[doc = <span class="macro">icu_provider::gen_any_buffer_unstable_docs!</span>(UNSTABLE, <span class="self">Self</span>::new_nfd)]
+    </span><span class="kw">pub fn </span>try_new_nfd_unstable&lt;D&gt;(provider: <span class="kw-2">&amp;</span>D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, NormalizerError&gt;
     <span class="kw">where
         </span>D: DataProvider&lt;CanonicalDecompositionDataV1Marker&gt;
             + DataProvider&lt;CanonicalDecompositionTablesV1Marker&gt;
             + <span class="question-mark">?</span>Sized,
     {
         <span class="kw">let </span>decompositions: DataPayload&lt;CanonicalDecompositionDataV1Marker&gt; =
-            data_provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>;
+            provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>;
         <span class="kw">let </span>tables: DataPayload&lt;CanonicalDecompositionTablesV1Marker&gt; =
-            data_provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>;
+            provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>;
 
         <span class="kw">if </span>tables.get().scalars16.len() + tables.get().scalars24.len() &gt; <span class="number">0xFFF </span>{
             <span class="comment">// The data is from a future where there exists a normalization flavor whose
@@ -4126,24 +4347,82 @@
         })
     }
 
-    <span class="macro">icu_provider::gen_any_buffer_constructors!</span>(
+    <span class="doccomment">/// NFKD constructor using compiled data.
+    ///
+    /// ✨ *Enabled with the `compiled_data` Cargo feature.*
+    ///
+    /// [📚 Help choosing a constructor](icu_provider::constructors)
+    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    </span><span class="kw">pub const fn </span>new_nfkd() -&gt; <span class="self">Self </span>{
+        <span class="kw">const _</span>: () = <span class="macro">assert!</span>(
+            <span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_NFDEX_V1
+                .scalars16
+                .const_len()
+                + <span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_NFDEX_V1
+                    .scalars24
+                    .const_len()
+                + <span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_NFKDEX_V1
+                    .scalars16
+                    .const_len()
+                + <span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_NFKDEX_V1
+                    .scalars24
+                    .const_len()
+                &lt;= <span class="number">0xFFF</span>,
+            <span class="string">&quot;NormalizerError::FutureExtension&quot;
+        </span>);
+
+        <span class="kw">const _</span>: () = <span class="macro">assert!</span>(
+            <span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_NFKD_V1.passthrough_cap &lt;= <span class="number">0x0300</span>,
+            <span class="string">&quot;NormalizerError::ValidationError&quot;
+        </span>);
+
+        <span class="kw">let </span>decomposition_capped =
+            <span class="kw">if </span><span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_NFKD_V1.passthrough_cap &lt; <span class="number">0xC0 </span>{
+                <span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_NFKD_V1.passthrough_cap
+            } <span class="kw">else </span>{
+                <span class="number">0xC0
+            </span>};
+        <span class="kw">let </span>composition_capped =
+            <span class="kw">if </span><span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_NFKD_V1.passthrough_cap &lt; <span class="number">0x0300 </span>{
+                <span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_NFKD_V1.passthrough_cap
+            } <span class="kw">else </span>{
+                <span class="number">0x0300
+            </span>};
+
+        DecomposingNormalizer {
+            decompositions: DataPayload::from_static_ref(
+                <span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_NFD_V1,
+            ),
+            supplementary_decompositions: <span class="prelude-val">Some</span>(SupplementPayloadHolder::Compatibility(
+                DataPayload::from_static_ref(<span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_NFKD_V1),
+            )),
+            tables: DataPayload::from_static_ref(
+                <span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_NFDEX_V1,
+            ),
+            supplementary_tables: <span class="prelude-val">Some</span>(DataPayload::from_static_ref(
+                <span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_NFKDEX_V1,
+            )),
+            decomposition_passthrough_bound: decomposition_capped <span class="kw">as </span>u8,
+            composition_passthrough_bound: composition_capped,
+        }
+    }
+
+    <span class="macro">icu_provider::gen_any_buffer_data_constructors!</span>(
         locale: skip,
         options: skip,
         error: NormalizerError,
-        functions: [
-            <span class="self">Self</span>::try_new_nfd_unstable,
-            try_new_nfd_with_any_provider,
-            try_new_nfd_with_buffer_provider
+        <span class="attr">#[cfg(skip)]
+        </span>functions: [
+            new_nfkd,
+            try_new_nfkd_with_any_provider,
+            try_new_nfkd_with_buffer_provider,
+            try_new_nfkd_unstable,
+            <span class="self">Self</span>,
         ]
     );
 
-    <span class="doccomment">/// NFKD constructor.
-    ///
-    /// [📚 Help choosing a constructor](icu_provider::constructors)
-    /// &lt;div class=&quot;stab unstable&quot;&gt;
-    /// ⚠️ The bounds on this function may change over time, including in SemVer minor releases.
-    /// &lt;/div&gt;
-    </span><span class="kw">pub fn </span>try_new_nfkd_unstable&lt;D&gt;(data_provider: <span class="kw-2">&amp;</span>D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, NormalizerError&gt;
+    <span class="attr">#[doc = <span class="macro">icu_provider::gen_any_buffer_unstable_docs!</span>(UNSTABLE, <span class="self">Self</span>::new_nfkd)]
+    </span><span class="kw">pub fn </span>try_new_nfkd_unstable&lt;D&gt;(provider: <span class="kw-2">&amp;</span>D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, NormalizerError&gt;
     <span class="kw">where
         </span>D: DataProvider&lt;CanonicalDecompositionDataV1Marker&gt;
             + DataProvider&lt;CompatibilityDecompositionSupplementV1Marker&gt;
@@ -4152,14 +4431,14 @@
             + <span class="question-mark">?</span>Sized,
     {
         <span class="kw">let </span>decompositions: DataPayload&lt;CanonicalDecompositionDataV1Marker&gt; =
-            data_provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>;
+            provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>;
         <span class="kw">let </span>supplementary_decompositions: DataPayload&lt;
             CompatibilityDecompositionSupplementV1Marker,
-        &gt; = data_provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>;
+        &gt; = provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>;
         <span class="kw">let </span>tables: DataPayload&lt;CanonicalDecompositionTablesV1Marker&gt; =
-            data_provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>;
+            provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>;
         <span class="kw">let </span>supplementary_tables: DataPayload&lt;CompatibilityDecompositionTablesV1Marker&gt; =
-            data_provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>;
+            provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>;
 
         <span class="kw">if </span>tables.get().scalars16.len()
             + tables.get().scalars24.len()
@@ -4195,16 +4474,63 @@
         })
     }
 
-    <span class="macro">icu_provider::gen_any_buffer_constructors!</span>(
-        locale: skip,
-        options: skip,
-        error: NormalizerError,
-        functions: [
-            <span class="self">Self</span>::try_new_nfkd_unstable,
-            try_new_nfkd_with_any_provider,
-            try_new_nfkd_with_buffer_provider
-        ]
-    );
+    <span class="attr">#[doc(hidden)]
+    #[cfg(all(feature = <span class="string">&quot;experimental&quot;</span>, feature = <span class="string">&quot;compiled_data&quot;</span>))]
+    </span><span class="kw">pub const fn </span>new_uts46_decomposed_without_ignored_and_disallowed() -&gt; <span class="self">Self </span>{
+        <span class="kw">const _</span>: () = <span class="macro">assert!</span>(
+            <span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_NFDEX_V1
+                .scalars16
+                .const_len()
+                + <span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_NFDEX_V1
+                    .scalars24
+                    .const_len()
+                + <span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_NFKDEX_V1
+                    .scalars16
+                    .const_len()
+                + <span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_NFKDEX_V1
+                    .scalars24
+                    .const_len()
+                &lt;= <span class="number">0xFFF</span>,
+            <span class="string">&quot;NormalizerError::FutureExtension&quot;
+        </span>);
+
+        <span class="kw">const _</span>: () = <span class="macro">assert!</span>(
+            <span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_UTS46D_V1.passthrough_cap &lt;= <span class="number">0x0300</span>,
+            <span class="string">&quot;NormalizerError::ValidationError&quot;
+        </span>);
+
+        <span class="kw">let </span>decomposition_capped =
+            <span class="kw">if </span><span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_UTS46D_V1.passthrough_cap &lt; <span class="number">0xC0 </span>{
+                <span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_UTS46D_V1.passthrough_cap
+            } <span class="kw">else </span>{
+                <span class="number">0xC0
+            </span>};
+        <span class="kw">let </span>composition_capped =
+            <span class="kw">if </span><span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_UTS46D_V1.passthrough_cap &lt; <span class="number">0x0300 </span>{
+                <span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_UTS46D_V1.passthrough_cap
+            } <span class="kw">else </span>{
+                <span class="number">0x0300
+            </span>};
+
+        DecomposingNormalizer {
+            decompositions: DataPayload::from_static_ref(
+                <span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_NFD_V1,
+            ),
+            supplementary_decompositions: <span class="prelude-val">Some</span>(SupplementPayloadHolder::Uts46(
+                DataPayload::from_static_ref(
+                    <span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_UTS46D_V1,
+                ),
+            )),
+            tables: DataPayload::from_static_ref(
+                <span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_NFDEX_V1,
+            ),
+            supplementary_tables: <span class="prelude-val">Some</span>(DataPayload::from_static_ref(
+                <span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_NFKDEX_V1,
+            )),
+            decomposition_passthrough_bound: decomposition_capped <span class="kw">as </span>u8,
+            composition_passthrough_bound: composition_capped,
+        }
+    }
 
     <span class="doccomment">/// UTS 46 decomposed constructor (testing only)
     ///
@@ -4221,14 +4547,14 @@
     /// that no character in Unicode exhibits in NFD, NFKD, NFC, or NFKC: Case folding turns
     /// U+0345 from a reordered character into a non-reordered character before reordering happens.
     /// Therefore, the output of this normalization may differ for different inputs that are
-    /// canonically equivant with each other if they differ by how U+0345 is ordered relative
+    /// canonically equivalent with each other if they differ by how U+0345 is ordered relative
     /// to other reorderable characters.
     ///
     /// Public for testing only.
     </span><span class="attr">#[doc(hidden)]
     #[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-    </span><span class="kw">pub fn </span>try_new_uts46_decomposed_without_ignored_and_disallowed&lt;D&gt;(
-        data_provider: <span class="kw-2">&amp;</span>D,
+    </span><span class="kw">pub fn </span>try_new_uts46_decomposed_without_ignored_and_disallowed_unstable&lt;D&gt;(
+        provider: <span class="kw-2">&amp;</span>D,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, NormalizerError&gt;
     <span class="kw">where
         </span>D: DataProvider&lt;CanonicalDecompositionDataV1Marker&gt;
@@ -4239,13 +4565,13 @@
             </span>+ <span class="question-mark">?</span>Sized,
     {
         <span class="kw">let </span>decompositions: DataPayload&lt;CanonicalDecompositionDataV1Marker&gt; =
-            data_provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>;
+            provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>;
         <span class="kw">let </span>supplementary_decompositions: DataPayload&lt;Uts46DecompositionSupplementV1Marker&gt; =
-            data_provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>;
+            provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>;
         <span class="kw">let </span>tables: DataPayload&lt;CanonicalDecompositionTablesV1Marker&gt; =
-            data_provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>;
+            provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>;
         <span class="kw">let </span>supplementary_tables: DataPayload&lt;CompatibilityDecompositionTablesV1Marker&gt; =
-            data_provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>;
+            provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>;
 
         <span class="kw">if </span>tables.get().scalars16.len()
             + tables.get().scalars24.len()
@@ -4562,23 +4888,47 @@
 }
 
 <span class="kw">impl </span>ComposingNormalizer {
-    <span class="doccomment">/// NFC constructor.
+    <span class="doccomment">/// NFC constructor using compiled data.
+    ///
+    /// ✨ *Enabled with the `compiled_data` Cargo feature.*
     ///
     /// [📚 Help choosing a constructor](icu_provider::constructors)
-    /// &lt;div class=&quot;stab unstable&quot;&gt;
-    /// ⚠️ The bounds on this function may change over time, including in SemVer minor releases.
-    /// &lt;/div&gt;
-    </span><span class="kw">pub fn </span>try_new_nfc_unstable&lt;D&gt;(data_provider: <span class="kw-2">&amp;</span>D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, NormalizerError&gt;
+    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    </span><span class="kw">pub const fn </span>new_nfc() -&gt; <span class="self">Self </span>{
+        ComposingNormalizer {
+            decomposing_normalizer: DecomposingNormalizer::new_nfd(),
+            canonical_compositions: DataPayload::from_static_ref(
+                <span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_COMP_V1,
+            ),
+        }
+    }
+
+    <span class="macro">icu_provider::gen_any_buffer_data_constructors!</span>(
+        locale: skip,
+        options: skip,
+        error: NormalizerError,
+        <span class="attr">#[cfg(skip)]
+        </span>functions: [
+            new_nfc,
+            try_new_nfc_with_any_provider,
+            try_new_nfc_with_buffer_provider,
+            try_new_nfc_unstable,
+            <span class="self">Self</span>,
+        ]
+    );
+
+    <span class="attr">#[doc = <span class="macro">icu_provider::gen_any_buffer_unstable_docs!</span>(UNSTABLE, <span class="self">Self</span>::new_nfc)]
+    </span><span class="kw">pub fn </span>try_new_nfc_unstable&lt;D&gt;(provider: <span class="kw-2">&amp;</span>D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, NormalizerError&gt;
     <span class="kw">where
         </span>D: DataProvider&lt;CanonicalDecompositionDataV1Marker&gt;
             + DataProvider&lt;CanonicalDecompositionTablesV1Marker&gt;
             + DataProvider&lt;CanonicalCompositionsV1Marker&gt;
             + <span class="question-mark">?</span>Sized,
     {
-        <span class="kw">let </span>decomposing_normalizer = DecomposingNormalizer::try_new_nfd_unstable(data_provider)<span class="question-mark">?</span>;
+        <span class="kw">let </span>decomposing_normalizer = DecomposingNormalizer::try_new_nfd_unstable(provider)<span class="question-mark">?</span>;
 
         <span class="kw">let </span>canonical_compositions: DataPayload&lt;CanonicalCompositionsV1Marker&gt; =
-            data_provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>;
+            provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(ComposingNormalizer {
             decomposing_normalizer,
@@ -4586,24 +4936,37 @@
         })
     }
 
-    <span class="macro">icu_provider::gen_any_buffer_constructors!</span>(
+    <span class="doccomment">/// NFKC constructor using compiled data.
+    ///
+    /// ✨ *Enabled with the `compiled_data` Cargo feature.*
+    ///
+    /// [📚 Help choosing a constructor](icu_provider::constructors)
+    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    </span><span class="kw">pub const fn </span>new_nfkc() -&gt; <span class="self">Self </span>{
+        ComposingNormalizer {
+            decomposing_normalizer: DecomposingNormalizer::new_nfkd(),
+            canonical_compositions: DataPayload::from_static_ref(
+                <span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_COMP_V1,
+            ),
+        }
+    }
+
+    <span class="macro">icu_provider::gen_any_buffer_data_constructors!</span>(
         locale: skip,
         options: skip,
         error: NormalizerError,
-        functions: [
-            <span class="self">Self</span>::try_new_nfc_unstable,
-            try_new_nfc_with_any_provider,
-            try_new_nfc_with_buffer_provider
+        <span class="attr">#[cfg(skip)]
+        </span>functions: [
+            new_nfkc,
+            try_new_nfkc_with_any_provider,
+            try_new_nfkc_with_buffer_provider,
+            try_new_nfkc_unstable,
+            <span class="self">Self</span>,
         ]
     );
 
-    <span class="doccomment">/// NFKC constructor.
-    ///
-    /// [📚 Help choosing a constructor](icu_provider::constructors)
-    /// &lt;div class=&quot;stab unstable&quot;&gt;
-    /// ⚠️ The bounds on this function may change over time, including in SemVer minor releases.
-    /// &lt;/div&gt;
-    </span><span class="kw">pub fn </span>try_new_nfkc_unstable&lt;D&gt;(data_provider: <span class="kw-2">&amp;</span>D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, NormalizerError&gt;
+    <span class="attr">#[doc = <span class="macro">icu_provider::gen_any_buffer_unstable_docs!</span>(UNSTABLE, <span class="self">Self</span>::new_nfkc)]
+    </span><span class="kw">pub fn </span>try_new_nfkc_unstable&lt;D&gt;(provider: <span class="kw-2">&amp;</span>D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, NormalizerError&gt;
     <span class="kw">where
         </span>D: DataProvider&lt;CanonicalDecompositionDataV1Marker&gt;
             + DataProvider&lt;CompatibilityDecompositionSupplementV1Marker&gt;
@@ -4612,10 +4975,10 @@
             + DataProvider&lt;CanonicalCompositionsV1Marker&gt;
             + <span class="question-mark">?</span>Sized,
     {
-        <span class="kw">let </span>decomposing_normalizer = DecomposingNormalizer::try_new_nfkd_unstable(data_provider)<span class="question-mark">?</span>;
+        <span class="kw">let </span>decomposing_normalizer = DecomposingNormalizer::try_new_nfkd_unstable(provider)<span class="question-mark">?</span>;
 
         <span class="kw">let </span>canonical_compositions: DataPayload&lt;CanonicalCompositionsV1Marker&gt; =
-            data_provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>;
+            provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(ComposingNormalizer {
             decomposing_normalizer,
@@ -4623,16 +4986,17 @@
         })
     }
 
-    <span class="macro">icu_provider::gen_any_buffer_constructors!</span>(
-        locale: skip,
-        options: skip,
-        error: NormalizerError,
-        functions: [
-            <span class="self">Self</span>::try_new_nfkc_unstable,
-            try_new_nfkc_with_any_provider,
-            try_new_nfkc_with_buffer_provider
-        ]
-    );
+    <span class="doccomment">/// See [`Self::try_new_uts46_without_ignored_and_disallowed_unstable`].
+    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;experimental&quot;</span>, feature = <span class="string">&quot;compiled_data&quot;</span>))]
+    </span><span class="kw">pub const fn </span>new_uts46_without_ignored_and_disallowed() -&gt; <span class="self">Self </span>{
+        ComposingNormalizer {
+            decomposing_normalizer:
+                DecomposingNormalizer::new_uts46_decomposed_without_ignored_and_disallowed(),
+            canonical_compositions: DataPayload::from_static_ref(
+                <span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_COMP_V1,
+            ),
+        }
+    }
 
     <span class="doccomment">/// 🚧 \[Experimental\] UTS 46 constructor
     ///
@@ -4652,7 +5016,7 @@
     /// that no character in Unicode exhibits in NFD, NFKD, NFC, or NFKC: Case folding turns
     /// U+0345 from a reordered character into a non-reordered character before reordering happens.
     /// Therefore, the output of this normalization may differ for different inputs that are
-    /// canonically equivant with each other if they differ by how U+0345 is ordered relative
+    /// canonically equivalents with each other if they differ by how U+0345 is ordered relative
     /// to other reorderable characters.
     ///
     /// NOTE: This method remains experimental until suitability of this feature as part of
@@ -4666,7 +5030,7 @@
     /// &lt;/div&gt;
     </span><span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
     </span><span class="kw">pub fn </span>try_new_uts46_without_ignored_and_disallowed_unstable&lt;D&gt;(
-        data_provider: <span class="kw-2">&amp;</span>D,
+        provider: <span class="kw-2">&amp;</span>D,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, NormalizerError&gt;
     <span class="kw">where
         </span>D: DataProvider&lt;CanonicalDecompositionDataV1Marker&gt;
@@ -4678,12 +5042,12 @@
             + <span class="question-mark">?</span>Sized,
     {
         <span class="kw">let </span>decomposing_normalizer =
-            DecomposingNormalizer::try_new_uts46_decomposed_without_ignored_and_disallowed(
-                data_provider,
+            DecomposingNormalizer::try_new_uts46_decomposed_without_ignored_and_disallowed_unstable(
+                provider,
             )<span class="question-mark">?</span>;
 
         <span class="kw">let </span>canonical_compositions: DataPayload&lt;CanonicalCompositionsV1Marker&gt; =
-            data_provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>;
+            provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(ComposingNormalizer {
             decomposing_normalizer,

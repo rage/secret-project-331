@@ -11,9 +11,9 @@ license.workspace = true
 # and the comment from there.
 [dependencies]
 # An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
-tokio = { version = "1.32.0", features = ["fs", "io-util"] }
+tokio = { version = "1.33.0", features = ["fs", "io-util"] }
 # Additional utilities for working with Tokio.
-tokio-util = { version = "0.7.8", features = ["io"] }
+tokio-util = { version = "0.7.9", features = ["io"] }
 # Utilities to work with `Stream` and `tokio`.
 tokio-stream = "0.1.14"
 # An implementation of future and streams featuring zero allocations, composability, and itera…
@@ -23,9 +23,9 @@ uuid = { version = "1.4.1", features = ["serde", "v4", "v5"] }
 # A generic serialization/deserialization framework
 serde = { version = "1.0.188", features = ["derive"] }
 # Date and time library for Rust
-chrono = { version = "0.4.30", features = ["serde"] }
+chrono = { version = "0.4.31", features = ["serde"] }
 # A JSON serialization file format
-serde_json = "1.0.105"
+serde_json = "1.0.107"
 # A crate for uploading files to Google cloud storage, and for generating download urls.
 cloud-storage = { version = "0.11.1", default-features = false, features = ["rustls-tls"] }
 # A library for managing a temporary directory and deleting all contents when it's dropped.
@@ -37,7 +37,7 @@ bytes = "1.5.0"
 # Random number generators and other randomness functionality.
 rand = "0.8.5"
 # the BLAKE3 hash function
-blake3 = "1.4.1"
+blake3 = "1.5.0"
 # Recursively walk a directory.
 walkdir = "2.4.0"
 # URL library for Rust, based on the WHATWG URL Standard
@@ -56,13 +56,13 @@ ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "07712bf04007472aeeb0
   "uuid-impl",
 ], optional = true }
 # An implementation of regular expressions for Rust.
-regex = "1.9.5"
+regex = "1.10.0"
 # Single assignment cells and lazy values.
 once_cell = "1.18.0"
 # An LCS based slice and string diffing implementation.
 diff = "0.1.13"
 # This library provides a convenient derive macro for the standard library's std::error::Error trait.
-thiserror = "1.0.48"
+thiserror = "1.0.49"
 # Percent encoding and decoding
 percent-encoding = "2.3.0"
 # Provides types and useful methods for working with IPv4 and IPv6 network addresses.
@@ -72,7 +72,7 @@ anyhow = "1.0.75"
 # DEFLATE compression and decompression exposed as Read/BufRead/Write streams.
 flate2 = "1.0.27"
 # higher level HTTP client library
-reqwest = "0.11.20"
+reqwest = "0.11.22"
 # Redis driver for Rust.
 redis = { version = "0.23.3", features = ["aio", "tokio-comp"] }
 

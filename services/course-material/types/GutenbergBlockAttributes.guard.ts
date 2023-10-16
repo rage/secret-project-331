@@ -82,6 +82,8 @@ export function isButtonAttributes(obj: unknown): obj is ButtonAttributes {
   const typedObj = obj as ButtonAttributes
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typedObj["tagName"] === "a" || typedObj["tagName"] === "button") &&
+    typeof typedObj["type"] === "string" &&
     (typeof typedObj["textAlign"] === "undefined" || typeof typedObj["textAlign"] === "string") &&
     (typeof typedObj["url"] === "undefined" || typeof typedObj["url"] === "string") &&
     (typeof typedObj["title"] === "undefined" || typeof typedObj["title"] === "string") &&
@@ -397,6 +399,12 @@ export function isImageAttributes(obj: unknown): obj is ImageAttributes {
     (typeof typedObj["url"] === "undefined" || typeof typedObj["url"] === "string") &&
     typeof typedObj["alt"] === "string" &&
     (typeof typedObj["caption"] === "undefined" || typeof typedObj["caption"] === "string") &&
+    (typeof typedObj["lightbox"] === "undefined" ||
+      (((typedObj["lightbox"] !== null && typeof typedObj["lightbox"] === "object") ||
+        typeof typedObj["lightbox"] === "function") &&
+        Object.entries<any>(typedObj["lightbox"]).every(
+          ([key, _value]) => typeof key === "string",
+        ))) &&
     (typeof typedObj["title"] === "undefined" || typeof typedObj["title"] === "string") &&
     (typeof typedObj["href"] === "undefined" || typeof typedObj["href"] === "string") &&
     (typeof typedObj["rel"] === "undefined" || typeof typedObj["rel"] === "string") &&

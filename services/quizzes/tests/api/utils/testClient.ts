@@ -1,6 +1,6 @@
 import { createServer, RequestListener } from "http"
 import { NextApiHandler } from "next"
-import { apiResolver } from "next/dist/server/api-utils/node"
+import { apiResolver } from "next/dist/server/api-utils/node/api-resolver"
 import request from "supertest"
 
 const testClient = (handler: NextApiHandler) => {

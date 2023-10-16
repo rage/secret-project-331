@@ -34,6 +34,8 @@ export interface BlockAttributes {
 }
 
 export interface ButtonAttributes {
+  tagName: "a" | "button"
+  type: string
   textAlign?: string
   url?: string
   title?: string
@@ -220,6 +222,9 @@ export interface ImageAttributes {
   url?: string
   alt: string
   caption?: string
+  lightbox?: {
+    [k: string]: unknown
+  }
   title?: string
   href?: string
   rel?: string

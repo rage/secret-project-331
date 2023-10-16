@@ -160,7 +160,7 @@ async fn upload_field_to_storage(
     let mime_type = field
         .content_type()
         .map(|ct| ct.to_string())
-        .unwrap_or_else(|| "".to_string());
+        .unwrap_or_default();
     let name = field.name().to_string();
 
     let contents = Box::pin(field.map_err(|orig| anyhow::Error::msg(orig.to_string())));
@@ -293,7 +293,7 @@ fn generate_audio_path(field: &Field, store_kind: StoreKind) -> Result<PathBuf, 
     let extension = match field
         .content_type()
         .map(|ct| ct.to_string())
-        .unwrap_or_else(|| "".to_string())
+        .unwrap_or_default()
         .as_str()
     {
         "audio/aac" => ".aac",
@@ -344,7 +344,7 @@ fn generate_image_path(field: &Field, store_kind: StoreKind) -> Result<PathBuf, 
     let extension = match field
         .content_type()
         .map(|ct| ct.to_string())
-        .unwrap_or_else(|| "".to_string())
+        .unwrap_or_default()
         .as_str()
     {
         "image/jpeg" => ".jpg",

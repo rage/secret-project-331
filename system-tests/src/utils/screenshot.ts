@@ -326,14 +326,10 @@ export async function takeScreenshotAndComparetoSnapshot(
     }
   } catch (e: unknown) {
     testInfo.config.updateSnapshots = originalUpdateSnapshotsSetting
-    // sometimes snapshots have wild race conditions, lets try again in a moment
-    console.warn(
-      "Screenshot did not match snapshots retrying... Note that if this passes, the test is unstable",
-    )
     const savedYCoordinate = await imageSavedPageYCoordinate(pathToImage)
     if (savedYCoordinate !== null) {
       console.log(
-        `Found a saved y coordinate of ${savedYCoordinate}. Trying to scroll to it in case it helps to fix the test.`,
+        `Found a saved y coordinate of ${savedYCoordinate}. Scrolling to it for the screenshot comparison.`,
       )
       page.evaluate((savedYCoordinate) => {
         window.scrollTo(0, savedYCoordinate)

@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import React, { useState } from "react"
+import React, { useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Course, NewCourse } from "../../shared-module/bindings"
@@ -53,6 +53,7 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
   const [submitDisabled, setSubmitDisabled] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [copyCourseUserPermissions, setCopyUserCoursePermissions] = useState<boolean>(false)
+  const formRef = useRef<HTMLFormElement>(null)
 
   const handleDuplicateMenu = (e: string, coursesData: Course[]) => {
     const findCourse = coursesData.find((course) => course.id === e)
@@ -131,6 +132,9 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
 
   const mutation = useToastMutation(
     () => {
+      if (formRef.current && !formRef.current?.checkValidity()) {
+        return Promise.reject()
+      }
       if (createDuplicate) {
         return handleCreateNewLanguageVersion()
       }
@@ -149,9 +153,9 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
   }
 
   return (
-    <div
+    <form
+      ref={formRef}
       className={css`
-        width: 500px;
         padding: 1rem 0;
       `}
     >
@@ -192,6 +196,7 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
           <TextField
             required
             label={t("teacher-in-charge-email")}
+            type="email"
             value={teacherInChargeEmail}
             onChangeByValue={(value) => {
               setTeacherInChargeEmail(value)
@@ -200,7 +205,6 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
         </FieldContainer>
         <FieldContainer>
           <TextArea
-            required
             label={t("text-field-label-description")}
             value={description}
             onChangeByValue={(value) => {
@@ -335,7 +339,7 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
           {t("button-text-close")}
         </Button>
       </div>
-    </div>
+    </form>
   )
 }
 

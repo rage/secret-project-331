@@ -18,7 +18,10 @@ test("exam list renders, can create exam", async ({ page, headless }, testInfo) 
 
   await page.locator("text=Exams").nth(1).click()
 
+  await page.getByText("Introduction to Everything").first().waitFor()
+  await page.getByRole("link", { name: "Automatic course exam" }).last().waitFor()
   await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
+
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,

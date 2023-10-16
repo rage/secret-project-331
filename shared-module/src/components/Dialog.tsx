@@ -9,6 +9,7 @@ interface DialogExtraProps {
   onClose?: () => void
   closeable?: boolean
   noPadding?: boolean
+  width?: "normal" | "wide"
 }
 
 const Dialog: React.FC<React.HTMLAttributes<HTMLDialogElement> & DialogExtraProps> = ({
@@ -17,6 +18,7 @@ const Dialog: React.FC<React.HTMLAttributes<HTMLDialogElement> & DialogExtraProp
   onClose,
   closeable = true,
   noPadding = false,
+  width = "normal",
   ...rest
 }) => {
   const ref = useRef<HTMLDialogElement>(null)
@@ -74,7 +76,7 @@ const Dialog: React.FC<React.HTMLAttributes<HTMLDialogElement> & DialogExtraProp
         border-radius: 5px;
         padding: 0;
         width: 95%;
-        max-width: 700px;
+        max-width: ${width === "normal" ? "700px" : "1200px"};
 
         h1 {
           font-size: ${typography.h5};

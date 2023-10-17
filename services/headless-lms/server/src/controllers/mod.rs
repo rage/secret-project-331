@@ -52,7 +52,7 @@ pub fn configure_controllers(cfg: &mut ServiceConfig) {
         )
         .service(web::scope("/healthz").configure(healthz::_add_routes))
         .service(web::scope("/langs").configure(langs::_add_routes))
-        .service(web::scope("/tmc-server").configure(langs::_add_routes))
+        .service(web::scope("/tmc-server").configure(tmc_server::_add_routes))
         .default_service(web::to(not_found));
 }
 

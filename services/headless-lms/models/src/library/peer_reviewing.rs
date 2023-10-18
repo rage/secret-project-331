@@ -684,6 +684,7 @@ mod tests {
                 question: "".to_string(),
                 question_type: PeerReviewQuestionType::Essay,
                 answer_required,
+                points_percentage: None,
             })
         }
 

@@ -5,14 +5,15 @@ use sqlx::{Postgres, QueryBuilder, Row};
 use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
-#[sqlx(type_name = "peer_review_question_type", rename_all = "snake_case")]
+#[sqlx(type_name = "peer_review_question_type", rename_all = "kebab-case")]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub enum PeerReviewQuestionType {
     Essay,
-    Scale,
+    StatementLikertScale,
+    GivePoints,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CmsPeerReviewQuestion {
     pub id: Uuid,
@@ -21,6 +22,7 @@ pub struct CmsPeerReviewQuestion {
     pub question: String,
     pub question_type: PeerReviewQuestionType,
     pub answer_required: bool,
+    pub points_percentage: Option<f32>,
 }
 
 impl From<PeerReviewQuestion> for CmsPeerReviewQuestion {
@@ -32,11 +34,12 @@ impl From<PeerReviewQuestion> for CmsPeerReviewQuestion {
             question: prq.question,
             question_type: prq.question_type,
             answer_required: prq.answer_required,
+            points_percentage: prq.points_percentage,
         }
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PeerReviewQuestion {
     pub id: Uuid,
@@ -48,6 +51,7 @@ pub struct PeerReviewQuestion {
     pub question: String,
     pub question_type: PeerReviewQuestionType,
     pub answer_required: bool,
+    pub points_percentage: Option<f32>,
 }
 
 pub async fn insert(
@@ -90,7 +94,8 @@ SELECT id,
   order_number,
   question,
   question_type AS "question_type: _",
-  answer_required
+  answer_required,
+  points_percentage
 FROM peer_review_questions
 WHERE id = $1
   AND deleted_at IS NULL;
@@ -117,7 +122,8 @@ SELECT id,
   order_number,
   question,
   question_type AS "question_type: _",
-  answer_required
+  answer_required,
+  points_percentage
 FROM peer_review_questions
 WHERE id IN (
     SELECT UNNEST($1::uuid [])
@@ -146,7 +152,8 @@ SELECT id,
     order_number,
     question,
     question_type AS "question_type: _",
-    answer_required
+    answer_required,
+    points_percentage
 FROM peer_review_questions
 WHERE peer_review_config_id = $1
   AND deleted_at IS NULL;
@@ -173,7 +180,8 @@ SELECT id,
     order_number,
     question,
     question_type AS "question_type: _",
-    answer_required
+    answer_required,
+    points_percentage
 FROM peer_review_questions
 WHERE peer_review_config_id = $1
     AND deleted_at IS NULL;
@@ -209,7 +217,8 @@ SELECT prq.id as id,
   prq.order_number as order_number,
   prq.question as question,
   prq.question_type AS "question_type: _",
-  prq.answer_required as answer_required
+  prq.answer_required as answer_required,
+  prq.points_percentage as points_percentage
 from pages p
   join exercises e on p.id = e.page_id
   join peer_review_configs pr on e.id = pr.exercise_id
@@ -262,7 +271,8 @@ SELECT id,
   order_number,
   question_type AS "question_type: _",
   question,
-  answer_required
+  answer_required,
+  points_percentage
 FROM peer_review_questions
 where peer_review_config_id = $1
   AND deleted_at IS NULL;
@@ -279,7 +289,7 @@ pub async fn upsert_multiple_peer_review_questions(
     conn: &mut PgConnection,
     peer_review_questions: &[CmsPeerReviewQuestion],
 ) -> ModelResult<Vec<CmsPeerReviewQuestion>> {
-    let mut sql:QueryBuilder<Postgres> = sqlx::QueryBuilder::new("INSERT INTO peer_review_questions (id, peer_review_config_id, order_number, question_type, question, answer_required) ");
+    let mut sql:QueryBuilder<Postgres> = sqlx::QueryBuilder::new("INSERT INTO peer_review_questions (id, peer_review_config_id, order_number, question_type, question, answer_required, points_percentage) ");
 
     sql.push_values(peer_review_questions, |mut x, prq| {
         x.push_bind(prq.id)
@@ -287,7 +297,8 @@ pub async fn upsert_multiple_peer_review_questions(
             .push_bind(prq.order_number)
             .push_bind(prq.question_type)
             .push_bind(prq.question.as_str())
-            .push_bind(prq.answer_required);
+            .push_bind(prq.answer_required)
+            .push_bind(prq.points_percentage);
     });
     sql.push(
         r#" ON CONFLICT (id) DO
@@ -297,6 +308,7 @@ SET peer_review_config_id = excluded.peer_review_config_id,
   question_type = excluded.question_type,
   question = excluded.question,
   answer_required = excluded.answer_required,
+  points_percentage = excluded.points_percentage,
   deleted_at = NULL
 RETURNING id;
 "#,
@@ -318,7 +330,8 @@ SELECT id,
   order_number,
   question,
   question_type AS "question_type: _",
-  answer_required
+  answer_required,
+  points_percentage
 from peer_review_questions
 WHERE id IN (
     SELECT UNNEST($1::uuid [])

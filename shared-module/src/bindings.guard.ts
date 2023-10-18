@@ -161,7 +161,6 @@ import {
   Pagination,
   PaperSize,
   PeerReviewAcceptingStrategy,
-  PeerReviewAnswer,
   PeerReviewConfig,
   PeerReviewQuestion,
   PeerReviewQuestionAndAnswer,
@@ -223,6 +222,7 @@ import {
   UserResearchConsent,
   UserRole,
   UserWithModuleCompletions,
+  ValidatedPeerReviewQuestionAnswer,
 } from "./bindings"
 
 export function isAction(obj: unknown): obj is Action {
@@ -2285,8 +2285,10 @@ export function isPeerReviewSubmission(obj: unknown): obj is PeerReviewSubmissio
   )
 }
 
-export function isPeerReviewAnswer(obj: unknown): obj is PeerReviewAnswer {
-  const typedObj = obj as PeerReviewAnswer
+export function isValidatedPeerReviewQuestionAnswer(
+  obj: unknown,
+): obj is ValidatedPeerReviewQuestionAnswer {
+  const typedObj = obj as ValidatedPeerReviewQuestionAnswer
   return (
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
       typedObj["type"] === "no-answer") ||
@@ -2294,7 +2296,10 @@ export function isPeerReviewAnswer(obj: unknown): obj is PeerReviewAnswer {
       typedObj["type"] === "essay" &&
       typeof typedObj["value"] === "string") ||
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-      typedObj["type"] === "scale" &&
+      typedObj["type"] === "statement-likert-scale" &&
+      typeof typedObj["value"] === "number") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["type"] === "give-points" &&
       typeof typedObj["value"] === "number")
   )
 }
@@ -2309,7 +2314,7 @@ export function isPeerReviewQuestionAndAnswer(obj: unknown): obj is PeerReviewQu
     typeof typedObj["peer_review_question_submission_id"] === "string" &&
     typeof typedObj["order_number"] === "number" &&
     typeof typedObj["question"] === "string" &&
-    (isPeerReviewAnswer(typedObj["answer"]) as boolean) &&
+    (isValidatedPeerReviewQuestionAnswer(typedObj["answer"]) as boolean) &&
     typeof typedObj["answer_required"] === "boolean"
   )
 }
@@ -2368,7 +2373,8 @@ export function isCmsPeerReviewQuestion(obj: unknown): obj is CmsPeerReviewQuest
     typeof typedObj["order_number"] === "number" &&
     typeof typedObj["question"] === "string" &&
     (isPeerReviewQuestionType(typedObj["question_type"]) as boolean) &&
-    typeof typedObj["answer_required"] === "boolean"
+    typeof typedObj["answer_required"] === "boolean" &&
+    (typedObj["points_percentage"] === null || typeof typedObj["points_percentage"] === "number")
   )
 }
 
@@ -2384,13 +2390,14 @@ export function isPeerReviewQuestion(obj: unknown): obj is PeerReviewQuestion {
     typeof typedObj["order_number"] === "number" &&
     typeof typedObj["question"] === "string" &&
     (isPeerReviewQuestionType(typedObj["question_type"]) as boolean) &&
-    typeof typedObj["answer_required"] === "boolean"
+    typeof typedObj["answer_required"] === "boolean" &&
+    (typedObj["points_percentage"] === null || typeof typedObj["points_percentage"] === "number")
   )
 }
 
 export function isPeerReviewQuestionType(obj: unknown): obj is PeerReviewQuestionType {
   const typedObj = obj as PeerReviewQuestionType
-  return typedObj === "Essay" || typedObj === "Scale"
+  return typedObj === "Essay" || typedObj === "StatementLikertScale" || typedObj === "GivePoints"
 }
 
 export function isPendingRole(obj: unknown): obj is PendingRole {

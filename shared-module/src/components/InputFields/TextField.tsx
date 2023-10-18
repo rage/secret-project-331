@@ -125,19 +125,11 @@ const TextField: React.FC<TextFieldProps> = forwardRef<HTMLInputElement, TextFie
           />
         </label>
 
-        <span
-          className={
-            error
-              ? cx(errorClass)
-              : css`
-                  visibility: hidden;
-                `
-          }
-          id={`${rest.id ?? rest.label}_error`}
-          role="alert"
-        >
-          {errorToDescription(error)}
-        </span>
+        {error && (
+          <span className={errorClass} id={`${rest.id ?? rest.label}_error`} role="alert">
+            {errorToDescription(error)}
+          </span>
+        )}
       </div>
     )
   },

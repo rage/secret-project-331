@@ -4,7 +4,7 @@ import {
 } from "../../../../../../shared-module/bindings"
 
 import EssayPeerReviewQuestion from "./EssayPeerReviewQuestion"
-import ScalePeerReviewQuestion from "./ScalePeerReviewQuestion"
+import StatementLikertScalePeerReviewQuestion from "./StatementLikertScalePeerReviewQuestion"
 
 export interface PeerReviewQuestionProps {
   question: PeerReviewQuestionType
@@ -19,9 +19,9 @@ const PeerReviewQuestion: React.FC<React.PropsWithChildren<PeerReviewQuestionPro
   setPeerReviewQuestionAnswer,
   peerReviewQuestionAnswer,
 }) => {
-  if (question.question_type === "Scale") {
+  if (question.question_type === "StatementLikertScale") {
     return (
-      <ScalePeerReviewQuestion
+      <StatementLikertScalePeerReviewQuestion
         question={question}
         setPeerReviewQuestionAnswer={setPeerReviewQuestionAnswer}
         peerReviewQuestionAnswer={peerReviewQuestionAnswer}

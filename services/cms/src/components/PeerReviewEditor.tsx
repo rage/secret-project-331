@@ -75,6 +75,9 @@ const StyledQuestion = styled.div`
   width: 100%;
   padding: 0.4rem 1rem;
   border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   @media (max-width: 767.98px) {
     width: 100%;
   }
@@ -154,7 +157,8 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
 
   const peerReviewQuestionTypeoptions: { label: string; value: PeerReviewQuestionType }[] = [
     { label: t("essay"), value: "Essay" },
-    { label: t("likert-scale"), value: "Scale" },
+    { label: t("statement-likert-scale"), value: "StatementLikertScale" },
+    { label: t("give-points"), value: "GivePoints" },
   ]
 
   const peerReviewAcceptingStrategyOptions: {
@@ -212,7 +216,23 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
             case "question":
               return { ...prq, question: event.target.value }
             case "question_type":
+              if (event.target.value === "GivePoints") {
+                return {
+                  ...prq,
+                  question_type: event.target.value as PeerReviewQuestionType,
+                  answer_required: true,
+                }
+              }
+              if (event.target.value === "StatementLikertScale") {
+                return {
+                  ...prq,
+                  question_type: event.target.value as PeerReviewQuestionType,
+                  points_percentage: null,
+                }
+              }
               return { ...prq, question_type: event.target.value as PeerReviewQuestionType }
+            case "points_percentage":
+              return { ...prq, points_percentage: Number(event.target.value) }
             case "answer_required":
               // @ts-expect-error: in this case the event is from a checkbox
               return { ...prq, answer_required: Boolean(event.target.checked) }
@@ -224,6 +244,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
         }
       },
     )
+
     setExerciseAttributes({
       ...exerciseAttributes,
       peer_review_config: JSON.stringify(parsedPeerReviewConfig),
@@ -405,11 +426,11 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                     handlePeerReviewValueChange(value, "accepting_threshold")
                   }}
                 />
-                <h2>{t("configure-review-answers-option")}</h2>
+                <h2>{t("peer-review-questions")}</h2>
                 {parsedPeerReviewQuestionConfig &&
                   parsedPeerReviewQuestionConfig
                     .sort((o1, o2) => o1.order_number - o2.order_number)
-                    .map(({ id, question, question_type, answer_required }) => (
+                    .map(({ id, question, question_type, answer_required, points_percentage }) => (
                       <List key={id} id={id}>
                         <StyledQuestion>
                           <StyledSelectField
@@ -434,13 +455,28 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                           />
                         </StyledQuestionType>
                         <StyledQuestion>
-                          <CheckBox
-                            label={t("answer-required")}
-                            checked={answer_required}
-                            onChange={(e) =>
-                              handlePeerReviewQuestionValueChange(id, e, "answer_required")
-                            }
-                          />
+                          {question_type !== "GivePoints" && (
+                            <CheckBox
+                              label={t("answer-required")}
+                              checked={answer_required}
+                              onChange={(e) =>
+                                handlePeerReviewQuestionValueChange(id, e, "answer_required")
+                              }
+                              noMargin
+                            />
+                          )}
+                          {question_type === "GivePoints" && (
+                            <TextField
+                              label="Percentage of points"
+                              type="number"
+                              min="1"
+                              max="100"
+                              defaultValue={points_percentage ?? undefined}
+                              onChange={(e) => {
+                                handlePeerReviewQuestionValueChange(id, e, "points_percentage")
+                              }}
+                            />
+                          )}
                         </StyledQuestion>
                         <DeleteBtn
                           aria-label={t("delete")}

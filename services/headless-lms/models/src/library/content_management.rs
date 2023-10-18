@@ -116,22 +116,27 @@ pub async fn create_new_course(
                 question: "General comments".to_string(),
                 question_type: crate::peer_review_questions::PeerReviewQuestionType::Essay,
                 answer_required: false,
+                points_percentage: None,
             },
             CmsPeerReviewQuestion {
                 id: Uuid::new_v4(),
                 peer_review_config_id,
                 order_number: 1,
                 question: "The answer was correct".to_string(),
-                question_type: crate::peer_review_questions::PeerReviewQuestionType::Scale,
+                question_type:
+                    crate::peer_review_questions::PeerReviewQuestionType::StatementLikertScale,
                 answer_required: true,
+                points_percentage: None,
             },
             CmsPeerReviewQuestion {
                 id: Uuid::new_v4(),
                 peer_review_config_id,
                 order_number: 2,
                 question: "The answer was easy to read".to_string(),
-                question_type: crate::peer_review_questions::PeerReviewQuestionType::Scale,
+                question_type:
+                    crate::peer_review_questions::PeerReviewQuestionType::StatementLikertScale,
                 answer_required: true,
+                points_percentage: None,
             },
         ],
     )

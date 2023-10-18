@@ -131,7 +131,8 @@ use headless_lms_models::{
     page_visit_datum_summary_by_pages::PageVisitDatumSummaryByPages,
     peer_review_configs::CourseMaterialPeerReviewConfig,
     peer_review_question_submissions::{
-        PeerReviewAnswer, PeerReviewQuestionAndAnswer, PeerReviewQuestionSubmission,
+        PeerReviewQuestionAndAnswer, PeerReviewQuestionSubmission,
+        ValidatedPeerReviewQuestionAnswer,
     },
     peer_review_queue_entries::PeerReviewQueueEntry,
     peer_review_submissions::PeerReviewSubmission,
@@ -448,7 +449,7 @@ fn models() {
         peer_review_submission_id,
         order_number: 0,
         question: "Was the answer well thought out?".to_string(),
-        answer: PeerReviewAnswer::Essay {
+        answer: ValidatedPeerReviewQuestionAnswer::Essay {
             value: "I think that the answer was well thought out.".to_string()
         },
         answer_required: true,
@@ -575,8 +576,9 @@ fn models() {
         answer_required: true,
         order_number: 1,
         peer_review_config_id,
-        question: "what?".to_string(),
-        question_type: PeerReviewQuestionType::Essay
+        question: "General comments".to_string(),
+        question_type: PeerReviewQuestionType::Essay,
+        points_percentage: None
     });
     example!(CourseMaterialExerciseSlide { id, exercise_tasks });
     example!(ExerciseStatus {
@@ -778,6 +780,7 @@ fn models() {
             question: "Was the answer well thought out?".to_string(),
             question_type: PeerReviewQuestionType::Essay,
             answer_required: true,
+            points_percentage: None,
         }
     );
     doc!(Vec, PageWithExercises { page, exercises });

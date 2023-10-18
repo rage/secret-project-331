@@ -12,12 +12,12 @@ export const fillPeerReview = async (page: Page, options: string[]) => {
   await page.getByPlaceholder("Write a review").fill("It was hard to understand")
   await page
     .locator(
-      `:nth-match(p:text-is('${options[0]}'):below(span:has-text('Was the answer correct? *')), 1)`,
+      `:nth-match(p:text-is('${options[0]}'):below(span:has-text('The answer is correct *')), 1)`,
     )
     .click()
   await page
     .locator(
-      `:nth-match(p:text-is('${options[1]}'):below(span:has-text('Was the answer good? *')), 1)`,
+      `:nth-match(p:text-is('${options[1]}'):below(span:has-text('The answer is good *')), 1)`,
     )
     .click()
   await page.getByRole("button", { name: "Submit" }).first().click()

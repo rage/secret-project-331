@@ -1820,7 +1820,8 @@ SELECT id AS "id!",
   order_number AS "order_number!",
   peer_review_config_id AS "peer_review_config_id!",
   question AS "question!",
-  question_type AS "question_type!: _"
+  question_type AS "question_type!: _",
+  points_percentage
 FROM peer_review_questions
 WHERE id IN (
     SELECT UNNEST($1::uuid [])
@@ -3381,6 +3382,7 @@ mod test {
             order_number: 0,
             question: "juu".to_string(),
             question_type: crate::peer_review_questions::PeerReviewQuestionType::Essay,
+            points_percentage: None,
         };
         let mut remapped_exercises = HashMap::new();
         remapped_exercises.insert(exercise_id, exercise);
@@ -3421,6 +3423,7 @@ mod test {
             order_number: 0,
             question: "juu".to_string(),
             question_type: crate::peer_review_questions::PeerReviewQuestionType::Essay,
+            points_percentage: None,
         };
         let mut remapped_exercises = HashMap::new();
         remapped_exercises.insert(exercise_id, exercise);

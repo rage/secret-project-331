@@ -184,7 +184,7 @@ fn models(target: &mut File) {
         peer_review_configs::PeerReviewAcceptingStrategy,
         peer_review_configs::PeerReviewConfig,
         peer_review_submissions::PeerReviewSubmission,
-        peer_review_question_submissions::PeerReviewAnswer,
+        peer_review_question_submissions::ValidatedPeerReviewQuestionAnswer,
         peer_review_question_submissions::PeerReviewQuestionAndAnswer,
         peer_review_question_submissions::PeerReviewQuestionSubmission,
         peer_review_queue_entries::PeerReviewQueueEntry,

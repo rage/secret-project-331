@@ -4,8 +4,8 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import {
-  PeerReviewAnswer,
   PeerReviewWithQuestionsAndAnswers,
+  ValidatedPeerReviewQuestionAnswer,
 } from "../../../../../../shared-module/bindings"
 import Accordion from "../../../../../../shared-module/components/Accordion"
 import LikertScale from "../../../../../../shared-module/components/PeerReview/LikertScale"
@@ -27,7 +27,7 @@ const Question = styled.div`
 const PeerReviewAccordion: React.FC<PeerReviewAccordionProps> = ({ peerReviews, title }) => {
   const { t } = useTranslation()
 
-  const mapToAnswer = (question: string, answer: PeerReviewAnswer) => {
+  const mapToAnswer = (question: string, answer: ValidatedPeerReviewQuestionAnswer) => {
     switch (answer.type) {
       case "essay":
         return (
@@ -36,7 +36,7 @@ const PeerReviewAccordion: React.FC<PeerReviewAccordionProps> = ({ peerReviews, 
             <p>{answer.value}</p>
           </div>
         )
-      case "scale":
+      case "statement-likert-scale":
         return (
           <div>
             <LikertScale
@@ -50,6 +50,8 @@ const PeerReviewAccordion: React.FC<PeerReviewAccordionProps> = ({ peerReviews, 
             />
           </div>
         )
+      case "give-points":
+        return <>TODO: show the answer here</>
       default:
         return (
           <div>

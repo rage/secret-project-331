@@ -78,10 +78,14 @@ export interface CheckboxProps extends InputHTMLAttributes<HTMLInputElement> {
   error?: boolean
   checked?: boolean
   onChangeByValue?: (checked: boolean, name?: string) => void
+  noMargin?: boolean
 }
 
 const CheckBox = forwardRef<HTMLInputElement, CheckboxProps>(
-  ({ onChangeByValue, onChange, className, checked, ...rest }: CheckboxProps, ref) => {
+  (
+    { onChangeByValue, onChange, className, checked, noMargin = false, ...rest }: CheckboxProps,
+    ref,
+  ) => {
     const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       if (onChangeByValue) {
         const {
@@ -97,7 +101,7 @@ const CheckBox = forwardRef<HTMLInputElement, CheckboxProps>(
       <div
         className={cx(
           css`
-            margin-bottom: 1rem;
+            ${!noMargin && `margin-bottom: 1rem;`}
           `,
           className,
         )}

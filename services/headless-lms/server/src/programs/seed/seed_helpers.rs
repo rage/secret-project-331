@@ -591,6 +591,7 @@ pub async fn create_best_peer_review(
             question: "What are your thoughts on the answer".to_string(),
             question_type: peer_review_questions::PeerReviewQuestionType::Essay,
             answer_required: true,
+            points_percentage: None,
         },
     )
     .await?;
@@ -602,9 +603,10 @@ pub async fn create_best_peer_review(
             id: Uuid::new_v4(),
             peer_review_config_id: prc.id,
             order_number: 1,
-            question: "Was the answer correct?".to_string(),
-            question_type: peer_review_questions::PeerReviewQuestionType::Scale,
+            question: "The answer is correct".to_string(),
+            question_type: peer_review_questions::PeerReviewQuestionType::StatementLikertScale,
             answer_required: true,
+            points_percentage: None,
         },
     )
     .await?;
@@ -616,9 +618,10 @@ pub async fn create_best_peer_review(
             id: Uuid::new_v4(),
             peer_review_config_id: prc.id,
             order_number: 2,
-            question: "Was the answer good?".to_string(),
-            question_type: peer_review_questions::PeerReviewQuestionType::Scale,
+            question: "The answer is good".to_string(),
+            question_type: peer_review_questions::PeerReviewQuestionType::StatementLikertScale,
             answer_required: true,
+            points_percentage: None,
         },
     )
     .await?;

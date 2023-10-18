@@ -1250,10 +1250,11 @@ export interface PeerReviewSubmission {
   exercise_slide_submission_id: string
 }
 
-export type PeerReviewAnswer =
+export type ValidatedPeerReviewQuestionAnswer =
   | { type: "no-answer" }
   | { type: "essay"; value: string }
-  | { type: "scale"; value: number }
+  | { type: "statement-likert-scale"; value: number }
+  | { type: "give-points"; value: number }
 
 export interface PeerReviewQuestionAndAnswer {
   peer_review_config_id: string
@@ -1262,7 +1263,7 @@ export interface PeerReviewQuestionAndAnswer {
   peer_review_question_submission_id: string
   order_number: number
   question: string
-  answer: PeerReviewAnswer
+  answer: ValidatedPeerReviewQuestionAnswer
   answer_required: boolean
 }
 
@@ -1303,6 +1304,7 @@ export interface CmsPeerReviewQuestion {
   question: string
   question_type: PeerReviewQuestionType
   answer_required: boolean
+  points_percentage: number | null
 }
 
 export interface PeerReviewQuestion {
@@ -1315,9 +1317,10 @@ export interface PeerReviewQuestion {
   question: string
   question_type: PeerReviewQuestionType
   answer_required: boolean
+  points_percentage: number | null
 }
 
-export type PeerReviewQuestionType = "Essay" | "Scale"
+export type PeerReviewQuestionType = "Essay" | "StatementLikertScale" | "GivePoints"
 
 export interface PendingRole {
   id: string

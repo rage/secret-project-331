@@ -67,7 +67,7 @@ test("default peer review editing", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "default-peer-review-editor",
-    waitForTheseToBeVisibleAndStable: [page1.locator('text="Configure review answers option"')],
+    waitForTheseToBeVisibleAndStable: [page1.locator('text="Peer review questions"')],
   })
 
   await page1.locator('input[type="number"]').first().click()

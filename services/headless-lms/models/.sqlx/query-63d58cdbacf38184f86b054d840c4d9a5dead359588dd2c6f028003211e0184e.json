@@ -19,7 +19,7 @@
           "Custom": {
             "name": "peer_review_question_type",
             "kind": {
-              "Enum": ["essay", "scale"]
+              "Enum": ["essay", "statement-likert-scale", "give-points"]
             }
           }
         }

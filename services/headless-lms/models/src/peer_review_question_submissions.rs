@@ -129,23 +129,37 @@ WHERE peer_review_submission_id IN (
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 #[serde(tag = "type", rename_all = "kebab-case")]
-pub enum PeerReviewAnswer {
+pub enum ValidatedPeerReviewQuestionAnswer {
     NoAnswer,
     Essay { value: String },
-    Scale { value: f32 },
+    StatementLikertScale { value: f32 },
+    GivePoints { value: f32 },
 }
 
-impl PeerReviewAnswer {
+impl ValidatedPeerReviewQuestionAnswer {
     fn new(
         question_type: PeerReviewQuestionType,
         text_data: Option<String>,
         number_data: Option<f32>,
     ) -> Self {
-        match (question_type, text_data, number_data) {
-            (PeerReviewQuestionType::Essay, Some(value), _) => Self::Essay { value },
-            (PeerReviewQuestionType::Scale, _, Some(value)) => Self::Scale { value },
-            _ => Self::NoAnswer,
+        match question_type {
+            PeerReviewQuestionType::Essay => {
+                if let Some(text_data) = text_data {
+                    return Self::Essay { value: text_data };
+                }
+            }
+            PeerReviewQuestionType::StatementLikertScale => {
+                if let Some(number_data) = number_data {
+                    return Self::StatementLikertScale { value: number_data };
+                }
+            }
+            PeerReviewQuestionType::GivePoints => {
+                if let Some(number_data) = number_data {
+                    return Self::GivePoints { value: number_data };
+                }
+            }
         }
+        Self::NoAnswer
     }
 }
 
@@ -158,7 +172,7 @@ pub struct PeerReviewQuestionAndAnswer {
     pub peer_review_question_submission_id: Uuid,
     pub order_number: i32,
     pub question: String,
-    pub answer: PeerReviewAnswer,
+    pub answer: ValidatedPeerReviewQuestionAnswer,
     pub answer_required: bool,
 }
 
@@ -206,7 +220,7 @@ WHERE submissions.exercise_slide_submission_id = $1
         peer_review_submission_id: x.peer_review_submission_id,
         order_number: x.order_number,
         question: x.question,
-        answer: PeerReviewAnswer::new(x.question_type, x.text_data, x.number_data),
+        answer: ValidatedPeerReviewQuestionAnswer::new(x.question_type, x.text_data, x.number_data),
         answer_required: x.answer_required,
     })
     .fetch_all(conn)
@@ -257,7 +271,7 @@ WHERE submissions.user_id = $1
         peer_review_submission_id: x.peer_review_submission_id,
         order_number: x.order_number,
         question: x.question,
-        answer: PeerReviewAnswer::new(x.question_type, x.text_data, x.number_data),
+        answer: ValidatedPeerReviewQuestionAnswer::new(x.question_type, x.text_data, x.number_data),
         answer_required: x.answer_required,
     })
     .fetch_all(conn)

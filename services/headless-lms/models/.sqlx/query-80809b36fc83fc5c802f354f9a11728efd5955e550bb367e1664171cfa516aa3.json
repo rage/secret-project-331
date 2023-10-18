@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  peer_review_config_id,\n  order_number,\n  question,\n  question_type AS \"question_type: _\",\n  answer_required\nfrom peer_review_questions\nWHERE id IN (\n    SELECT UNNEST($1::uuid [])\n  )\n  AND deleted_at IS NULL;\n    ",
+  "query": "\nSELECT id,\n  peer_review_config_id,\n  order_number,\n  question,\n  question_type AS \"question_type: _\",\n  answer_required,\n  points_percentage\nfrom peer_review_questions\nWHERE id IN (\n    SELECT UNNEST($1::uuid [])\n  )\n  AND deleted_at IS NULL;\n    ",
   "describe": {
     "columns": [
       {
@@ -30,7 +30,7 @@
           "Custom": {
             "name": "peer_review_question_type",
             "kind": {
-              "Enum": ["essay", "scale"]
+              "Enum": ["essay", "statement-likert-scale", "give-points"]
             }
           }
         }
@@ -39,12 +39,17 @@
         "ordinal": 5,
         "name": "answer_required",
         "type_info": "Bool"
+      },
+      {
+        "ordinal": 6,
+        "name": "points_percentage",
+        "type_info": "Float4"
       }
     ],
     "parameters": {
       "Left": ["UuidArray"]
     },
-    "nullable": [false, false, false, false, false, false]
+    "nullable": [false, false, false, false, false, false, true]
   },
-  "hash": "bd50f023d1ba361909f97b6a357d1381d7790e227f3c18314cf73864c40730c3"
+  "hash": "80809b36fc83fc5c802f354f9a11728efd5955e550bb367e1664171cfa516aa3"
 }

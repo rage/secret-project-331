@@ -2,6 +2,7 @@
 /* eslint-disable i18next/no-literal-string */
 import { migratePrivateSpecQuiz } from "../../../src/util/migration/privateSpecQuiz"
 import migrateQuizAnswer from "../../../src/util/migration/userAnswerSpec"
+import { QuizItem } from "../../../types/oldQuizTypes"
 import {
   UserItemAnswer,
   UserItemAnswerCheckbox,
@@ -16,7 +17,6 @@ import {
   PrivateSpecQuizItemScale,
   PrivateSpecQuizItemTimeline,
 } from "../../../types/quizTypes/privateSpec"
-import { QuizItem } from "../../../types/types"
 
 import { compareUserItemAnswer } from "./utils/comparison"
 import {

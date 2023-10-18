@@ -69,8 +69,10 @@ const DebugModal: React.FC<React.PropsWithChildren<React.PropsWithChildren<Debug
         <FontAwesomeIcon icon={faIcon} />
       </Button>
       <Dialog
+        width="wide"
         open={open}
         onClose={closeModal}
+        noPadding
         className={css`
           overflow: hidden;
         `}
@@ -90,7 +92,6 @@ const DebugModal: React.FC<React.PropsWithChildren<React.PropsWithChildren<Debug
         </HeaderBar>
         <MonacoEditor
           height="90vh"
-          width="80vw"
           defaultLanguage="json"
           // eslint-disable-next-line i18next/no-literal-string
           options={{ wordWrap: "on", readOnly }}

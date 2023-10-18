@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test"
 
 import { downloadToString } from "../../utils/download"
+import { showNextToastsInfinitely, showToastsNormally } from "../../utils/notificationUtils"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
 test.use({
@@ -39,7 +40,7 @@ test("test", async ({ page, headless }, testInfo) => {
 
   const submissionsCsvContents = await downloadToString(submissionsDownload)
   expect(submissionsCsvContents).toContain(
-    "exercise_slide_submission_id,id,user_id,created_at,course_instance_id,exercise_id,exercise_task_id,score_given,data_json",
+    "exercise_slide_submission_id,exercise_task_submission_id,user_id,created_at,course_instance_id,exercise_id,exercise_task_id,score_given,data_json",
   )
   expect(submissionsCsvContents).toContain("e10557bd-9835-51b4-b0d9-f1d9689ebc8d")
   expect(submissionsCsvContents).toContain(
@@ -77,6 +78,8 @@ test("test", async ({ page, headless }, testInfo) => {
   await page.fill("#supportEmail", "support@example.com")
   await page.fill("text=Opening time", "2000-01-01T00:00")
   await page.fill("text=Closing time", "2099-01-01T23:59")
+
+  await showNextToastsInfinitely(page)
   await page.locator("text=Submit").click()
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4/course-instances",
@@ -89,6 +92,7 @@ test("test", async ({ page, headless }, testInfo) => {
     waitForTheseToBeVisibleAndStable: [page.getByText("Success").first()],
     screenshotTarget: page,
   })
+  await showToastsNormally(page)
 
   await page.click("text=Default Manage >> a")
   await expect(page).toHaveURL(

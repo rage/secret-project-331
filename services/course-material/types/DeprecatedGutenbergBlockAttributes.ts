@@ -558,6 +558,9 @@ export interface HeadingDeprecated5Attributes {
  */
 export interface ImageDeprecated1Attributes {
   align?: string
+  behaviors?: {
+    [k: string]: unknown
+  }
   url?: string
   alt: string
   caption?: string
@@ -566,8 +569,8 @@ export interface ImageDeprecated1Attributes {
   rel?: string
   linkClass?: string
   id?: number
-  width?: number
-  height?: number
+  width?: string
+  height?: string
   aspectRatio?: string
   scale?: string
   sizeSlug?: string
@@ -632,6 +635,8 @@ export interface ImageDeprecated3Attributes {
   id?: number
   width?: number
   height?: number
+  aspectRatio?: string
+  scale?: string
   sizeSlug?: string
   linkDestination: string
   linkTarget?: string
@@ -640,6 +645,7 @@ export interface ImageDeprecated3Attributes {
   }
   anchor?: string
   className?: string
+  borderColor?: string
   style?: {
     [k: string]: unknown
   }
@@ -669,6 +675,9 @@ export interface ImageDeprecated4Attributes {
   }
   anchor?: string
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
   blurDataUrl: string
 }
 
@@ -676,6 +685,32 @@ export interface ImageDeprecated4Attributes {
  * @deprecated
  */
 export interface ImageDeprecated5Attributes {
+  align?: string
+  url?: string
+  alt: string
+  caption?: string
+  title?: string
+  href?: string
+  rel?: string
+  linkClass?: string
+  id?: number
+  width?: number
+  height?: number
+  sizeSlug?: string
+  linkDestination: string
+  linkTarget?: string
+  lock?: {
+    [k: string]: unknown
+  }
+  anchor?: string
+  className?: string
+  blurDataUrl: string
+}
+
+/**
+ * @deprecated
+ */
+export interface ImageDeprecated6Attributes {
   url?: string
   alt: string
   caption?: unknown[]
@@ -695,7 +730,7 @@ export interface ImageDeprecated5Attributes {
 /**
  * @deprecated
  */
-export interface ImageDeprecated6Attributes {
+export interface ImageDeprecated7Attributes {
   url?: string
   alt: string
   caption?: unknown[]
@@ -714,7 +749,7 @@ export interface ImageDeprecated6Attributes {
 /**
  * @deprecated
  */
-export interface ImageDeprecated7Attributes {
+export interface ImageDeprecated8Attributes {
   url?: string
   alt: string
   caption?: unknown[]
@@ -759,6 +794,31 @@ export interface ListDeprecated1Attributes {
  * @deprecated
  */
 export interface ListDeprecated2Attributes {
+  ordered: boolean
+  values: string
+  type?: string
+  start?: number
+  reversed?: boolean
+  placeholder?: string
+  lock?: {
+    [k: string]: unknown
+  }
+  anchor?: string
+  className?: string
+  backgroundColor?: string
+  textColor?: string
+  gradient?: string
+  fontFamily?: string
+  fontSize?: string
+  style?: {
+    [k: string]: unknown
+  }
+}
+
+/**
+ * @deprecated
+ */
+export interface ListDeprecated3Attributes {
   ordered: boolean
   values: string
   type?: string

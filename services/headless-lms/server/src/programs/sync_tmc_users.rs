@@ -6,9 +6,10 @@ use std::env;
 use crate::setup_tracing;
 use anyhow::Context;
 
+use chrono::DateTime;
 use dotenv::dotenv;
 use headless_lms_models as models;
-use models::users::get_users_ids_in_db_from_upstream_ids;
+use models::users::{get_users_ids_in_db_from_upstream_ids, update_email_for_user};
 
 use serde::{Deserialize, Serialize};
 use sqlx::{PgConnection, PgPool};
@@ -40,6 +41,62 @@ pub async fn main() -> anyhow::Result<()> {
     let db_pool = PgPool::connect(&database_url).await?;
     let mut conn = db_pool.acquire().await?;
     delete_users(&mut conn, &recent_changes).await?;
+    update_users(&mut conn, &recent_changes).await?;
+    Ok(())
+}
+
+pub async fn update_users(
+    conn: &mut PgConnection,
+    recent_changes: &TMCRecentChanges,
+) -> anyhow::Result<()> {
+    let mut email_update_list = recent_changes
+        .changes
+        .iter()
+        .filter(|c| c.change_type == "email_changed")
+        .collect::<Vec<_>>();
+
+    info!("Updating emails for {} users", email_update_list.len());
+    email_update_list.sort_by(|a, b| {
+        let date_a = match DateTime::parse_from_rfc3339(a.created_at.as_str()) {
+            Ok(val) => val,
+            Err(e) => {
+                error!("Error converting date: '{}'", a.created_at);
+                error!("Error: {}", e);
+                DateTime::parse_from_str("01.01.1450", "%d.%m.%Y").unwrap()
+            }
+        };
+
+        let date_b = match DateTime::parse_from_rfc3339(b.created_at.as_str()) {
+            Ok(val) => val,
+            Err(e) => {
+                error!("Error converting date: '{}'", b.created_at);
+                error!("Error: {}", e);
+                DateTime::parse_from_str("01.01.1450", "%d.%m.%Y").unwrap()
+            }
+        };
+
+        date_a.cmp(&date_b)
+    });
+
+    for change in email_update_list {
+        if let Some(user_id) = change.user_id {
+            match update_email_for_user(
+                &mut *conn,
+                &user_id,
+                change.new_value.as_deref().unwrap_or("unknown").to_string(),
+            )
+            .await
+            {
+                Ok(email) => email,
+                Err(e) => {
+                    error!("Error updating user with id {}", user_id);
+                    error!("Error: {}", e);
+                }
+            };
+        };
+    }
+
+    info!("Update done");
     Ok(())
 }
 

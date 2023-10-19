@@ -919,6 +919,109 @@
 <a href="#919" id="919">919</a>
 <a href="#920" id="920">920</a>
 <a href="#921" id="921">921</a>
+<a href="#922" id="922">922</a>
+<a href="#923" id="923">923</a>
+<a href="#924" id="924">924</a>
+<a href="#925" id="925">925</a>
+<a href="#926" id="926">926</a>
+<a href="#927" id="927">927</a>
+<a href="#928" id="928">928</a>
+<a href="#929" id="929">929</a>
+<a href="#930" id="930">930</a>
+<a href="#931" id="931">931</a>
+<a href="#932" id="932">932</a>
+<a href="#933" id="933">933</a>
+<a href="#934" id="934">934</a>
+<a href="#935" id="935">935</a>
+<a href="#936" id="936">936</a>
+<a href="#937" id="937">937</a>
+<a href="#938" id="938">938</a>
+<a href="#939" id="939">939</a>
+<a href="#940" id="940">940</a>
+<a href="#941" id="941">941</a>
+<a href="#942" id="942">942</a>
+<a href="#943" id="943">943</a>
+<a href="#944" id="944">944</a>
+<a href="#945" id="945">945</a>
+<a href="#946" id="946">946</a>
+<a href="#947" id="947">947</a>
+<a href="#948" id="948">948</a>
+<a href="#949" id="949">949</a>
+<a href="#950" id="950">950</a>
+<a href="#951" id="951">951</a>
+<a href="#952" id="952">952</a>
+<a href="#953" id="953">953</a>
+<a href="#954" id="954">954</a>
+<a href="#955" id="955">955</a>
+<a href="#956" id="956">956</a>
+<a href="#957" id="957">957</a>
+<a href="#958" id="958">958</a>
+<a href="#959" id="959">959</a>
+<a href="#960" id="960">960</a>
+<a href="#961" id="961">961</a>
+<a href="#962" id="962">962</a>
+<a href="#963" id="963">963</a>
+<a href="#964" id="964">964</a>
+<a href="#965" id="965">965</a>
+<a href="#966" id="966">966</a>
+<a href="#967" id="967">967</a>
+<a href="#968" id="968">968</a>
+<a href="#969" id="969">969</a>
+<a href="#970" id="970">970</a>
+<a href="#971" id="971">971</a>
+<a href="#972" id="972">972</a>
+<a href="#973" id="973">973</a>
+<a href="#974" id="974">974</a>
+<a href="#975" id="975">975</a>
+<a href="#976" id="976">976</a>
+<a href="#977" id="977">977</a>
+<a href="#978" id="978">978</a>
+<a href="#979" id="979">979</a>
+<a href="#980" id="980">980</a>
+<a href="#981" id="981">981</a>
+<a href="#982" id="982">982</a>
+<a href="#983" id="983">983</a>
+<a href="#984" id="984">984</a>
+<a href="#985" id="985">985</a>
+<a href="#986" id="986">986</a>
+<a href="#987" id="987">987</a>
+<a href="#988" id="988">988</a>
+<a href="#989" id="989">989</a>
+<a href="#990" id="990">990</a>
+<a href="#991" id="991">991</a>
+<a href="#992" id="992">992</a>
+<a href="#993" id="993">993</a>
+<a href="#994" id="994">994</a>
+<a href="#995" id="995">995</a>
+<a href="#996" id="996">996</a>
+<a href="#997" id="997">997</a>
+<a href="#998" id="998">998</a>
+<a href="#999" id="999">999</a>
+<a href="#1000" id="1000">1000</a>
+<a href="#1001" id="1001">1001</a>
+<a href="#1002" id="1002">1002</a>
+<a href="#1003" id="1003">1003</a>
+<a href="#1004" id="1004">1004</a>
+<a href="#1005" id="1005">1005</a>
+<a href="#1006" id="1006">1006</a>
+<a href="#1007" id="1007">1007</a>
+<a href="#1008" id="1008">1008</a>
+<a href="#1009" id="1009">1009</a>
+<a href="#1010" id="1010">1010</a>
+<a href="#1011" id="1011">1011</a>
+<a href="#1012" id="1012">1012</a>
+<a href="#1013" id="1013">1013</a>
+<a href="#1014" id="1014">1014</a>
+<a href="#1015" id="1015">1015</a>
+<a href="#1016" id="1016">1016</a>
+<a href="#1017" id="1017">1017</a>
+<a href="#1018" id="1018">1018</a>
+<a href="#1019" id="1019">1019</a>
+<a href="#1020" id="1020">1020</a>
+<a href="#1021" id="1021">1021</a>
+<a href="#1022" id="1022">1022</a>
+<a href="#1023" id="1023">1023</a>
+<a href="#1024" id="1024">1024</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Common functionality related to authorization
 
 </span><span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
@@ -940,13 +1043,17 @@
 <span class="kw">use </span>oauth2::StandardTokenResponse;
 <span class="kw">use </span>oauth2::TokenResponse;
 <span class="kw">use </span>serde::{Deserialize, Serialize};
+<span class="kw">use </span>serde_json::json;
 <span class="kw">use </span>sqlx::PgConnection;
+<span class="kw">use </span>std::env;
 <span class="kw">use </span>std::pin::Pin;
 <span class="attr">#[cfg(feature = <span class="string">&quot;ts_rs&quot;</span>)]
 </span><span class="kw">pub use </span>ts_rs::TS;
 <span class="kw">use </span>uuid::Uuid;
 
 <span class="kw">const </span>SESSION_KEY: <span class="kw-2">&amp;</span>str = <span class="string">&quot;user&quot;</span>;
+
+<span class="kw">const </span>MOOCFI_GRAPHQL_URL: <span class="kw-2">&amp;</span>str = <span class="string">&quot;https://www.mooc.fi/api&quot;</span>;
 
 <span class="comment">// at least one field should be kept private to prevent initializing the struct outside of this module;
 // this way FromRequest is the only way to create an AuthUser
@@ -1209,6 +1316,43 @@ async fn example_function(
         skip_authorize()
     };
     <span class="prelude-val">Ok</span>(token)
+}
+
+<span class="doccomment">/**  Can be used to check whether user is allowed to view some course material */
+</span><span class="kw">pub async fn </span>authorize_access_to_tmc_server(
+    request: <span class="kw-2">&amp;</span>HttpRequest,
+) -&gt; <span class="prelude-ty">Result</span>&lt;AuthorizationToken, ControllerError&gt; {
+    <span class="kw">let </span>tmc_server_secret_for_communicating_to_secret_project =
+        env::var(<span class="string">&quot;TMC_SERVER_SECRET_FOR_COMMUNICATING_TO_SECRET_PROJECT&quot;</span>)
+            .expect(<span class="string">&quot;TMC_SERVER_SECRET_FOR_COMMUNICATING_TO_SECRET_PROJECT must be defined&quot;</span>);
+    <span class="comment">// check authorization header
+    </span><span class="kw">let </span>auth_header = request
+        .headers()
+        .get(<span class="string">&quot;Authorization&quot;</span>)
+        .ok_or_else(|| {
+            ControllerError::new(
+                ControllerErrorType::Unauthorized,
+                <span class="string">&quot;Unauthorized&quot;</span>.to_string(),
+                <span class="prelude-val">None</span>,
+            )
+        })<span class="question-mark">?
+        </span>.to_str()
+        .map_err(|<span class="kw">_</span>| {
+            ControllerError::new(
+                ControllerErrorType::Unauthorized,
+                <span class="string">&quot;Unauthorized&quot;</span>.to_string(),
+                <span class="prelude-val">None</span>,
+            )
+        })<span class="question-mark">?</span>;
+    <span class="comment">// If auth header correct one, grant access
+    </span><span class="kw">if </span>auth_header == tmc_server_secret_for_communicating_to_secret_project {
+        <span class="kw">return </span><span class="prelude-val">Ok</span>(skip_authorize());
+    }
+    <span class="prelude-val">Err</span>(ControllerError::new(
+        ControllerErrorType::Unauthorized,
+        <span class="string">&quot;Unauthorized&quot;</span>.to_string(),
+        <span class="prelude-val">None</span>,
+    ))
 }
 
 <span class="doccomment">/**  Can be used to check whether user is allowed to view some course material */
@@ -1556,7 +1700,7 @@ token.authorized_ok(web::Json(cms_page_info))
     password: String,
 ) -&gt; anyhow::Result&lt;(User, LoginToken)&gt; {
     <span class="kw">let </span>token = exchange_password_with_moocfi(client, email, password).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>user = get_user_from_moocfi(<span class="kw-2">&amp;</span>token, conn).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>user = get_user_from_moocfi_by_login_token(<span class="kw-2">&amp;</span>token, conn).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>((user, token))
 }
 
@@ -1577,8 +1721,10 @@ token.authorized_ok(web::Json(cms_page_info))
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize)]
-</span><span class="kw">struct </span>GraphQLRquest&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">struct </span>GraphQLRequest&lt;<span class="lifetime">&#39;a</span>&gt; {
     query: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+    <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
+    </span>variables: <span class="prelude-ty">Option</span>&lt;serde_json::Value&gt;,
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize)]
@@ -1601,29 +1747,29 @@ token.authorized_ok(web::Json(cms_page_info))
     <span class="kw">pub </span>upstream_id: i32,
 }
 
-<span class="kw">pub async fn </span>get_user_from_moocfi(
+<span class="kw">pub async fn </span>get_user_from_moocfi_by_login_token(
     token: <span class="kw-2">&amp;</span>LoginToken,
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
 ) -&gt; anyhow::Result&lt;User&gt; {
     <span class="macro">info!</span>(<span class="string">&quot;Getting user details from mooc.fi&quot;</span>);
-    <span class="kw">let </span>moocfi_graphql_url = <span class="string">&quot;https://www.mooc.fi/api&quot;</span>;
+
     <span class="kw">let </span>client = reqwest::Client::default();
     <span class="kw">let </span>res = client
-        .post(moocfi_graphql_url)
+        .post(MOOCFI_GRAPHQL_URL)
         .header(reqwest::header::CONTENT_TYPE, <span class="string">&quot;application/json&quot;</span>)
         .header(reqwest::header::ACCEPT, <span class="string">&quot;application/json&quot;</span>)
-        .json(<span class="kw-2">&amp;</span>GraphQLRquest {
+        .json(<span class="kw-2">&amp;</span>GraphQLRequest {
             query: <span class="string">r#&quot;
 {
     currentUser {
-    id
-    email
-    first_name
-    last_name
-    upstream_id
+      id
+      email
+      first_name
+      last_name
+      upstream_id
     }
-}
-            &quot;#</span>,
+}&quot;#</span>,
+            variables: <span class="prelude-val">None</span>,
         })
         .bearer_auth(token.access_token().secret())
         .send()
@@ -1636,13 +1782,73 @@ token.authorized_ok(web::Json(cms_page_info))
         .json()
         .<span class="kw">await
         </span>.context(<span class="string">&quot;Unexpected response from Mooc.fi&quot;</span>)<span class="question-mark">?</span>;
+
+    <span class="kw">let </span>user = get_or_create_user_from_moocfi_response(
+        <span class="kw-2">&amp;mut *</span>conn,
+        current_user_response.data.current_user,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(user)
+}
+
+<span class="kw">pub async fn </span>get_user_from_moocfi_by_tmc_access_token_and_upstream_id(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    tmc_access_token: <span class="kw-2">&amp;</span>str,
+    upstream_id: <span class="kw-2">&amp;</span>i32,
+) -&gt; anyhow::Result&lt;User&gt; {
+    <span class="macro">info!</span>(<span class="string">&quot;Getting user details from mooc.fi&quot;</span>);
+    <span class="kw">let </span>client = reqwest::Client::default();
+
+    <span class="kw">let </span>res = client
+        .post(MOOCFI_GRAPHQL_URL)
+        .header(reqwest::header::CONTENT_TYPE, <span class="string">&quot;application/json&quot;</span>)
+        .header(reqwest::header::ACCEPT, <span class="string">&quot;application/json&quot;</span>)
+        .bearer_auth(tmc_access_token)
+        .json(<span class="kw-2">&amp;</span>GraphQLRequest {
+            query: <span class="string">r#&quot;
+query ($upstreamId: Int) {
+  user(upstream_id: $upstreamId) {
+    id
+    email
+    first_name
+    last_name
+    upstream_id
+  }
+}&quot;#</span>,
+            variables: <span class="prelude-val">Some</span>(<span class="macro">json!</span>({
+                <span class="string">&quot;upstreamId&quot;</span>: upstream_id
+            })),
+        })
+        .send()
+        .<span class="kw">await
+        </span>.context(<span class="string">&quot;Failed to send request to Mooc.fi&quot;</span>)<span class="question-mark">?</span>;
+    <span class="kw">if </span>!res.status().is_success() {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">anyhow::anyhow!</span>(<span class="string">&quot;Failed to get current user from Mooc.fi&quot;</span>));
+    }
+    <span class="kw">let </span>current_user_response: MoocfiCurrentUserResponse = res
+        .json()
+        .<span class="kw">await
+        </span>.context(<span class="string">&quot;Unexpected response from Mooc.fi&quot;</span>)<span class="question-mark">?</span>;
+
+    <span class="kw">let </span>user = get_or_create_user_from_moocfi_response(
+        <span class="kw-2">&amp;mut *</span>conn,
+        current_user_response.data.current_user,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(user)
+}
+
+<span class="kw">async fn </span>get_or_create_user_from_moocfi_response(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    moocfi_user: MoocfiCurrentUser,
+) -&gt; anyhow::Result&lt;User&gt; {
     <span class="kw">let </span>MoocfiCurrentUser {
         id: moocfi_id,
         first_name,
         last_name,
         email,
         upstream_id,
-    } = current_user_response.data.current_user;
+    } = moocfi_user;
 
     <span class="comment">// fetch existing user or create new one
     </span><span class="kw">let </span>user =

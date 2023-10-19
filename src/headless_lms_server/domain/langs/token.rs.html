@@ -114,6 +114,8 @@
 <a href="#114" id="114">114</a>
 <a href="#115" id="115">115</a>
 <a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
 </pre></div><pre class="rust"><code><span class="kw">use crate</span>::{
     domain::authorization::{<span class="self">self</span>, LoginToken},
     prelude::<span class="kw-2">*</span>,
@@ -195,7 +197,9 @@
                             oauth2::basic::BasicTokenType::Bearer,
                             oauth2::EmptyExtraTokenFields {},
                         );
-                        <span class="kw">let </span>user = authorization::get_user_from_moocfi(<span class="kw-2">&amp;</span>token, <span class="kw-2">&amp;mut </span>conn).<span class="kw">await</span><span class="question-mark">?</span>;
+                        <span class="kw">let </span>user =
+                            authorization::get_user_from_moocfi_by_login_token(<span class="kw-2">&amp;</span>token, <span class="kw-2">&amp;mut </span>conn)
+                                .<span class="kw">await</span><span class="question-mark">?</span>;
                         cache_user(<span class="kw-2">&amp;</span>cache, <span class="kw-2">&amp;</span>token, <span class="kw-2">&amp;</span>user).<span class="kw">await</span>;
                         user
                     }

@@ -150,9 +150,6 @@
 <a href="#150" id="150">150</a>
 <a href="#151" id="151">151</a>
 <a href="#152" id="152">152</a>
-<a href="#153" id="153">153</a>
-<a href="#154" id="154">154</a>
-<a href="#155" id="155">155</a>
 </pre></div><pre class="rust"><code><span class="doccomment">/*!
 Syncs tmc users
 */
@@ -285,10 +282,7 @@ Syncs tmc users
         .header(<span class="string">&quot;RATELIMIT-PROTECTION-SAFE-API-KEY&quot;</span>, ratelimit_api_key)
         .header(reqwest::header::CONTENT_TYPE, <span class="string">&quot;application/json&quot;</span>)
         .header(reqwest::header::ACCEPT, <span class="string">&quot;application/json&quot;</span>)
-        .header(
-            reqwest::header::AUTHORIZATION,
-            <span class="macro">format!</span>(<span class="string">&quot;Bearer {access_token}&quot;</span>),
-        )
+        .bearer_auth(<span class="kw-2">&amp;</span>access_token)
         .send()
         .<span class="kw">await
         </span>.context(<span class="string">&quot;Failed to send request to https://tmc.mooc.fi&quot;</span>)<span class="question-mark">?</span>;

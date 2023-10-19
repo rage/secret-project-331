@@ -1,15 +1,20 @@
-/* eslint-disable */
-import { NonGenericGradingRequest } from "../../../src/shared-module/exercise-service-protocol-types";
-import { COLUMN } from "../../../src/util/constants";
-import { oldMultipleChoiceMultipleOptionsGradingPolicy, OldQuiz, OldQuizAnswer, QuizItem, OldQuizItemAnswer, OldQuizItemOption } from "../../../types/oldQuizTypes";
-
+import { NonGenericGradingRequest } from "../../../src/shared-module/exercise-service-protocol-types"
+import { COLUMN } from "../../../src/util/constants"
+import {
+  oldMultipleChoiceMultipleOptionsGradingPolicy,
+  OldQuiz,
+  OldQuizAnswer,
+  OldQuizItemAnswer,
+  OldQuizItemOption,
+  QuizItem,
+} from "../../../types/oldQuizTypes"
 
 const emptyQuizAnswer = (): OldQuizAnswer => ({
-  createdAt: '',
-  updatedAt: '',
-  id: '',
+  createdAt: "",
+  updatedAt: "",
+  id: "",
   itemAnswers: [],
-  quizId: '',
+  quizId: "",
   status: "open",
 })
 const emptyQuizItemAnswer = (): OldQuizItemAnswer => ({
@@ -27,33 +32,33 @@ const emptyQuizItemAnswer = (): OldQuizItemAnswer => ({
   optionAnswers: null,
   optionCells: null,
   /** Only used for timeline answers. */
-  timelineChoices: null
+  timelineChoices: null,
 })
 
 const emptyQuizItemOption = (): OldQuizItemOption => ({
-  id: 'v4()',
-  title: '',
-  body: '',
+  id: "v4()",
+  title: "",
+  body: "",
   order: 0,
-  quizItemId: 'v4()',
+  quizItemId: "v4()",
   createdAt: new Date(),
   updatedAt: new Date(),
   correct: false,
-  messageAfterSubmissionWhenSelected: '',
-  additionalCorrectnessExplanationOnModelSolution: '',
+  messageAfterSubmissionWhenSelected: "",
+  additionalCorrectnessExplanationOnModelSolution: "",
 })
 
 const emptyQuizItem = (): QuizItem => ({
-  validityRegex: '',
-  id: 'v4()',
+  validityRegex: "",
+  id: "v4()",
   allAnswersCorrect: false,
-  body: '',
+  body: "",
   createdAt: new Date(),
-  direction: 'column',
-  failureMessage: '',
-  formatRegex: '',
-  maxLabel: '',
-  minLabel: '',
+  direction: "column",
+  failureMessage: "",
+  formatRegex: "",
+  maxLabel: "",
+  minLabel: "",
   maxWords: 0,
   minValue: 0,
   maxValue: 0,
@@ -63,26 +68,26 @@ const emptyQuizItem = (): QuizItem => ({
   optionCells: [],
   options: [],
   order: 0,
-  quizId: 'v4()',
+  quizId: "v4()",
   sharedOptionFeedbackMessage: null,
   shuffleOptions: false,
-  successMessage: '',
+  successMessage: "",
   timelineItems: [],
-  title: '',
-  type: '',
+  title: "",
+  type: "",
   updatedAt: new Date(),
-  usesSharedOptionFeedbackMessage: false
+  usesSharedOptionFeedbackMessage: false,
 })
 
 const emptyQuiz = (): OldQuiz => ({
-  id: '',
+  id: "",
   updatedAt: new Date(),
   createdAt: new Date(),
-  courseId: '',
+  courseId: "",
   part: 1,
   section: 1,
-  title: '',
-  body: '',
+  title: "",
+  body: "",
   deadline: new Date(),
   direction: COLUMN,
   open: new Date(),
@@ -95,27 +100,33 @@ const emptyQuiz = (): OldQuiz => ({
   excludedFromScore: false,
   grantPointsPolicy: "grant_only_when_answer_fully_correct",
   points: 0,
-  submitMessage: '',
+  submitMessage: "",
 })
 
 export const generateQuiz = <T extends Partial<OldQuiz>>(initialValues: T): OldQuiz & T => {
-  return Object.assign(emptyQuiz(), initialValues);
+  return Object.assign(emptyQuiz(), initialValues)
 }
 
 export const generateQuizItem = <T extends Partial<QuizItem>>(initialValues: T): QuizItem & T => {
-  return Object.assign(emptyQuizItem(), initialValues);
+  return Object.assign(emptyQuizItem(), initialValues)
 }
 
-export const generateQuizItemOption = <T extends Partial<OldQuizItemOption>>(initialValues: T): OldQuizItemOption & T => {
-  return Object.assign(emptyQuizItemOption(), initialValues);
+export const generateQuizItemOption = <T extends Partial<OldQuizItemOption>>(
+  initialValues: T,
+): OldQuizItemOption & T => {
+  return Object.assign(emptyQuizItemOption(), initialValues)
 }
 
-export const generateQuizAnswer = <T extends Partial<OldQuizAnswer>>(initialValues: T): OldQuizAnswer & T => {
-  return Object.assign(emptyQuizAnswer(), initialValues);
+export const generateQuizAnswer = <T extends Partial<OldQuizAnswer>>(
+  initialValues: T,
+): OldQuizAnswer & T => {
+  return Object.assign(emptyQuizAnswer(), initialValues)
 }
 
-export const generateQuizItemAnswer = <T extends Partial<OldQuizItemAnswer>>(initialValues: T): OldQuizItemAnswer & T => {
-  return Object.assign(emptyQuizItemAnswer(), initialValues);
+export const generateQuizItemAnswer = <T extends Partial<OldQuizItemAnswer>>(
+  initialValues: T,
+): OldQuizItemAnswer & T => {
+  return Object.assign(emptyQuizItemAnswer(), initialValues)
 }
 
 /**
@@ -129,52 +140,54 @@ export const generateQuizItemAnswer = <T extends Partial<OldQuizItemAnswer>>(ini
  * @returns Quiz with multiple-choice exercise
  */
 export const generateMultipleChoiceRequest = (
-    numberOfOptions: number,
-    numberOfCorrectOptions: number,
-    options: string[],
-    multipleChoiceMultipleOptionsGradingPolicy: oldMultipleChoiceMultipleOptionsGradingPolicy,
-    multi=true
+  numberOfOptions: number,
+  numberOfCorrectOptions: number,
+  options: string[],
+  multipleChoiceMultipleOptionsGradingPolicy: oldMultipleChoiceMultipleOptionsGradingPolicy,
+  multi = true,
 ): NonGenericGradingRequest => {
   // Create quiz with multiple choice
-  const quizItemId = 'multiple-choice-test-id'
+  const quizItemId = "multiple-choice-test-id"
 
-  let quizOptions: OldQuizItemOption[] = []
+  const quizOptions: OldQuizItemOption[] = []
   for (let i = 0; i < numberOfOptions; i++) {
-    quizOptions.push(generateQuizItemOption({
-      quizItemId,
-      correct: i < numberOfCorrectOptions,
-      title: `option-${i + 1}`,
-      id: `option-${i + 1}`,
-      order: i + 1
-    }))
+    quizOptions.push(
+      generateQuizItemOption({
+        quizItemId,
+        correct: i < numberOfCorrectOptions,
+        title: `option-${i + 1}`,
+        id: `option-${i + 1}`,
+        order: i + 1,
+      }),
+    )
   }
 
   const multipleChoice = generateQuizItem({
     id: quizItemId,
-    type: 'multiple-choice',
+    type: "multiple-choice",
     multi,
     options: quizOptions,
-    multipleChoiceMultipleOptionsGradingPolicy
+    multipleChoiceMultipleOptionsGradingPolicy,
   })
 
   const publicQuiz = generateQuiz({
-    title: 'Generated Multiple Choice',
-    items: [multipleChoice]
+    title: "Generated Multiple Choice",
+    items: [multipleChoice],
   })
 
   // Create quiz answer
   const quizItemAnswer = generateQuizItemAnswer({
     quizItemId,
-    optionAnswers: options
+    optionAnswers: options,
   })
 
   const quizAnswer = generateQuizAnswer({
-    itemAnswers: [quizItemAnswer]
+    itemAnswers: [quizItemAnswer],
   })
 
   return {
     grading_update_url: "example",
     exercise_spec: publicQuiz,
-    submission_data: quizAnswer
+    submission_data: quizAnswer,
   }
 }

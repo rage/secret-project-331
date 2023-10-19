@@ -130,10 +130,7 @@ pub async fn fetch_recently_changed_user_details() -> anyhow::Result<TMCRecentCh
         .header("RATELIMIT-PROTECTION-SAFE-API-KEY", ratelimit_api_key)
         .header(reqwest::header::CONTENT_TYPE, "application/json")
         .header(reqwest::header::ACCEPT, "application/json")
-        .header(
-            reqwest::header::AUTHORIZATION,
-            format!("Bearer {access_token}"),
-        )
+        .bearer_auth(&access_token)
         .send()
         .await
         .context("Failed to send request to https://tmc.mooc.fi")?;

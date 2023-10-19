@@ -9,7 +9,7 @@ import {
   QuizItem,
 } from "../../../types/oldQuizTypes"
 
-const emptyQuizAnswer = (): OldQuizAnswer => ({
+const oldEmptyQuizAnswer = (): OldQuizAnswer => ({
   createdAt: "",
   updatedAt: "",
   id: "",
@@ -17,7 +17,7 @@ const emptyQuizAnswer = (): OldQuizAnswer => ({
   quizId: "",
   status: "open",
 })
-const emptyQuizItemAnswer = (): OldQuizItemAnswer => ({
+const oldEmptyQuizItemAnswer = (): OldQuizItemAnswer => ({
   id: "v4()",
   quizAnswerId: "v4()",
   quizItemId: "v4()",
@@ -35,7 +35,7 @@ const emptyQuizItemAnswer = (): OldQuizItemAnswer => ({
   timelineChoices: null,
 })
 
-const emptyQuizItemOption = (): OldQuizItemOption => ({
+const oldEmptyQuizItemOption = (): OldQuizItemOption => ({
   id: "v4()",
   title: "",
   body: "",
@@ -48,7 +48,7 @@ const emptyQuizItemOption = (): OldQuizItemOption => ({
   additionalCorrectnessExplanationOnModelSolution: "",
 })
 
-const emptyQuizItem = (): QuizItem => ({
+const oldEmptyQuizItem = (): QuizItem => ({
   validityRegex: "",
   id: "v4()",
   allAnswersCorrect: false,
@@ -79,7 +79,7 @@ const emptyQuizItem = (): QuizItem => ({
   usesSharedOptionFeedbackMessage: false,
 })
 
-const emptyQuiz = (): OldQuiz => ({
+const oldEmptyQuiz = (): OldQuiz => ({
   id: "",
   updatedAt: new Date(),
   createdAt: new Date(),
@@ -103,30 +103,32 @@ const emptyQuiz = (): OldQuiz => ({
   submitMessage: "",
 })
 
-export const generateQuiz = <T extends Partial<OldQuiz>>(initialValues: T): OldQuiz & T => {
-  return Object.assign(emptyQuiz(), initialValues)
+export const oldGenerateQuiz = <T extends Partial<OldQuiz>>(initialValues: T): OldQuiz & T => {
+  return Object.assign(oldEmptyQuiz(), initialValues)
 }
 
-export const generateQuizItem = <T extends Partial<QuizItem>>(initialValues: T): QuizItem & T => {
-  return Object.assign(emptyQuizItem(), initialValues)
+export const oldGenerateQuizItem = <T extends Partial<QuizItem>>(
+  initialValues: T,
+): QuizItem & T => {
+  return Object.assign(oldEmptyQuizItem(), initialValues)
 }
 
-export const generateQuizItemOption = <T extends Partial<OldQuizItemOption>>(
+export const oldGenerateQuizItemOption = <T extends Partial<OldQuizItemOption>>(
   initialValues: T,
 ): OldQuizItemOption & T => {
-  return Object.assign(emptyQuizItemOption(), initialValues)
+  return Object.assign(oldEmptyQuizItemOption(), initialValues)
 }
 
-export const generateQuizAnswer = <T extends Partial<OldQuizAnswer>>(
+export const oldGenerateQuizAnswer = <T extends Partial<OldQuizAnswer>>(
   initialValues: T,
 ): OldQuizAnswer & T => {
-  return Object.assign(emptyQuizAnswer(), initialValues)
+  return Object.assign(oldEmptyQuizAnswer(), initialValues)
 }
 
-export const generateQuizItemAnswer = <T extends Partial<OldQuizItemAnswer>>(
+export const oldGenerateQuizItemAnswer = <T extends Partial<OldQuizItemAnswer>>(
   initialValues: T,
 ): OldQuizItemAnswer & T => {
-  return Object.assign(emptyQuizItemAnswer(), initialValues)
+  return Object.assign(oldEmptyQuizItemAnswer(), initialValues)
 }
 
 /**
@@ -139,7 +141,7 @@ export const generateQuizItemAnswer = <T extends Partial<OldQuizItemAnswer>>(
  * @param multi If set to false, only a single option can be selected. true by default.
  * @returns Quiz with multiple-choice exercise
  */
-export const generateMultipleChoiceRequest = (
+export const oldGenerateMultipleChoiceRequest = (
   numberOfOptions: number,
   numberOfCorrectOptions: number,
   options: string[],
@@ -152,7 +154,7 @@ export const generateMultipleChoiceRequest = (
   const quizOptions: OldQuizItemOption[] = []
   for (let i = 0; i < numberOfOptions; i++) {
     quizOptions.push(
-      generateQuizItemOption({
+      oldGenerateQuizItemOption({
         quizItemId,
         correct: i < numberOfCorrectOptions,
         title: `option-${i + 1}`,
@@ -162,7 +164,7 @@ export const generateMultipleChoiceRequest = (
     )
   }
 
-  const multipleChoice = generateQuizItem({
+  const multipleChoice = oldGenerateQuizItem({
     id: quizItemId,
     type: "multiple-choice",
     multi,
@@ -170,18 +172,18 @@ export const generateMultipleChoiceRequest = (
     multipleChoiceMultipleOptionsGradingPolicy,
   })
 
-  const publicQuiz = generateQuiz({
+  const publicQuiz = oldGenerateQuiz({
     title: "Generated Multiple Choice",
     items: [multipleChoice],
   })
 
   // Create quiz answer
-  const quizItemAnswer = generateQuizItemAnswer({
+  const quizItemAnswer = oldGenerateQuizItemAnswer({
     quizItemId,
     optionAnswers: options,
   })
 
-  const quizAnswer = generateQuizAnswer({
+  const quizAnswer = oldGenerateQuizAnswer({
     itemAnswers: [quizItemAnswer],
   })
 

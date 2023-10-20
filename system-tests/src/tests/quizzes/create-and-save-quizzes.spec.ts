@@ -265,7 +265,7 @@ const createClosedEndedQuestion = async (frame: Locator) => {
   await frame
     .getByRole("group")
     .filter({
-      hasText: "Advanced options Test string Add example string String Format Validation Failed ",
+      hasText: "Advanced options Test string .plus-circle_svg__cls-1{fill:none;stroke:currentCol",
     })
     .locator("summary")
     .click()
@@ -274,9 +274,9 @@ const createClosedEndedQuestion = async (frame: Locator) => {
   await frame
     .getByRole("group")
     .filter({
-      hasText: "Advanced options Test string Add example string String Format Validation 20.09.2",
+      hasText: "Advanced options Test string .plus-circle_svg__cls-1{fill:none;stroke:currentCol",
     })
-    .locator("svg")
+    .locator("button")
     .click()
   await frame.getByLabel("Test string").nth(3).click()
   await frame.getByLabel("Test string").nth(3).fill("20.20.2020")

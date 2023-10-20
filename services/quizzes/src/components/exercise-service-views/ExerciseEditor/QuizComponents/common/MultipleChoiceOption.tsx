@@ -1,12 +1,15 @@
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { faAngleDown, faAngleUp, faCheck, faPen, faX } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { CheckCircle, Pencil, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { QuizItemOption } from "../../../../../../types/quizTypes/privateSpec"
+import Button from "../../../../../shared-module/components/Button"
 import CheckBox from "../../../../../shared-module/components/InputFields/CheckBox"
 import TextField from "../../../../../shared-module/components/InputFields/TextField"
+import ArrowDown from "../../../../../shared-module/img/caret-arrow-down.svg"
+import ArrowUp from "../../../../../shared-module/img/caret-arrow-up.svg"
 import { primaryFont } from "../../../../../shared-module/styles"
 
 const OptionCard = styled.div`
@@ -43,30 +46,6 @@ const CorrectTag = styled.div`
   align-self: center;
   color: #44827e;
   font-family: ${primaryFont};
-`
-
-const ExpandOptionButton = styled(FontAwesomeIcon)`
-  background-color: #d3d7db;
-  height: 16px;
-  width: 16px;
-  padding: 16px;
-  cursor: pointer;
-  color: #6d757b;
-  :hover {
-    background-color: #bcc0c4;
-  }
-`
-
-const EditOptionButton = styled(FontAwesomeIcon)`
-  opacity: 0.7;
-  height: 16px;
-  width: 16px;
-  padding: 16px;
-  cursor: pointer;
-  color: #6d757b;
-  :hover {
-    opacity: 1;
-  }
 `
 
 const CenteredContainer = styled.div`
@@ -110,18 +89,6 @@ const MessageDialogDescription = styled.div`
   color: #535a66;
   padding: 16px;
   height: 60px;
-`
-
-const DeleteOptionButton = styled(FontAwesomeIcon)`
-  height: 16px;
-  width: 16px;
-  padding: 16px;
-  cursor: pointer;
-  background-color: #c4c9cd;
-  color: #333d45;
-  :hover {
-    background-color: #aaafb3;
-  }
 `
 const MultipleChoiceMessageDialogContainer = styled.div`
   margin-bottom: 4px;
@@ -193,12 +160,100 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOption> = ({
         <OptionButtonGroup>
           {option.correct && !editMode && <CorrectTag> {t("label-correct")} </CorrectTag>}
           {editMode ? (
-            <EditOptionButton onClick={saveChanges} icon={faCheck} />
+            <Button
+              className={css`
+                padding: 16px !important;
+              `}
+              variant="icon"
+              size="small"
+              onClick={saveChanges}
+            >
+              <CheckCircle
+                size={16}
+                className={css`
+                  color: #6d757b;
+                  :hover {
+                    opacity: 1;
+                  }
+                `}
+              />
+            </Button>
           ) : (
-            <EditOptionButton onClick={startEditMode} icon={faPen} />
+            <Button
+              className={css`
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 50px;
+                width: 48px;
+              `}
+              variant="icon"
+              size="small"
+              onClick={startEditMode}
+            >
+              <Pencil
+                className={css`
+                  opacity: 0.9;
+                  cursor: pointer;
+                  color: #6d757b;
+                  :hover {
+                    opacity: 1;
+                  }
+                `}
+                size={16}
+              />
+            </Button>
           )}
-          <ExpandOptionButton onClick={handleVisibility} icon={visible ? faAngleDown : faAngleUp} />
-          <DeleteOptionButton onClick={onDelete} icon={faX} />
+          <Button
+            className={css`
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              background-color: #d3d7db !important;
+              height: 50px;
+              width: 48px;
+              cursor: pointer;
+              color: #6d757b;
+              :hover {
+                background-color: #bcc0c4;
+              }
+            `}
+            variant="icon"
+            size="small"
+            onClick={handleVisibility}
+          >
+            {visible ? (
+              <ArrowDown
+                className={css`
+                  margin-bottom: 4px;
+                  transform: scale(1.4);
+                `}
+              />
+            ) : (
+              <ArrowUp
+                className={css`
+                  margin-bottom: 4px;
+                  transform: scale(1.4);
+                `}
+              />
+            )}
+          </Button>
+          <Button
+            className={css`
+              height: 50px;
+              width: 48px;
+              cursor: pointer;
+              background-color: #c4c9cd !important;
+              :hover {
+                background-color: #aaafb3 !important;
+              }
+            `}
+            variant="icon"
+            size="small"
+            onClick={onDelete}
+          >
+            <XmarkCircle size={16} color="#333d45" />
+          </Button>
         </OptionButtonGroup>
       </OptionCard>
       {!visible && (

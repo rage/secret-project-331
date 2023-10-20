@@ -1,7 +1,6 @@
 import { css } from "@emotion/css"
-import { faGlobe } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Placement } from "@popperjs/core"
+import { LanguageTranslation } from "@vectopus/atlas-icons-react"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import OutsideClickHandler from "react-outside-click-handler"
@@ -61,8 +60,8 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
           className={css`
             background: none;
             border: none;
-            padding: 0.5rem 1rem;
-
+            padding: 0.6rem 1rem;
+            margin-bottom: 2px;
             :hover {
               cursor: pointer;
             }
@@ -73,12 +72,12 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
             setVisible(!visible)
           }}
         >
-          <FontAwesomeIcon
+          <LanguageTranslation
+            size={18}
             className={css`
-              margin-right: 0.5rem;
+              margin-right: 0.6rem;
             `}
-            icon={faGlobe}
-          />{" "}
+          />
           {t("language")}
         </button>
         <div

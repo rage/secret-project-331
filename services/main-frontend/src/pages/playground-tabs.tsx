@@ -125,24 +125,41 @@ let PlaygroudTabs = () => {
         ))}
       </div>
       <div>
-        {currentView === "settings" && (
+        <div
+          // Using display: none instead of conditional rendering because we don't want to cause rerenders when the user switches back and forth between tabs.
+          className={css`
+            ${currentView !== "settings" && `display: none;`}
+          `}
+        >
           <PlayGroundSettings
             settingsForm={settingsForm}
             serviceInfoQuery={serviceInfoQuery}
             isValidServiceInfo={isValidServiceInfo}
           />
-        )}
-        {currentView === "specs" && (
+        </div>
+        <div
+          className={css`
+            ${currentView !== "specs" && `display: none;`}
+          `}
+        >
           <PlaygroundSpecs
             settingsForm={settingsForm}
             publicSpecQuery={publicSpecQuery}
             modelSolutionSpecQuery={modelSolutionSpecQuery}
           />
-        )}
-        {currentView === "answers" && (
+        </div>
+        <div
+          className={css`
+            ${currentView !== "answers" && `display: none;`}
+          `}
+        >
           <PlaygroundAnswers userAnswer={userAnswer} submitAnswerMutation={submitAnswerMutation} />
-        )}
-        {currentView === "preview" && (
+        </div>
+        <div
+          className={css`
+            ${currentView !== "preview" && `display: none;`}
+          `}
+        >
           <PlaygroundPreview
             serviceInfoQuery={serviceInfoQuery}
             isValidServiceInfo={isValidServiceInfo}
@@ -155,7 +172,7 @@ let PlaygroudTabs = () => {
             submitAnswerMutation={submitAnswerMutation}
             settingsForm={settingsForm}
           />
-        )}
+        </div>
       </div>
     </div>
   )

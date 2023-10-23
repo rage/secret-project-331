@@ -9,6 +9,8 @@ import ErrorBanner from "../../../shared-module/components/ErrorBanner"
 import TextAreaField from "../../../shared-module/components/InputFields/TextAreaField"
 import Spinner from "../../../shared-module/components/Spinner"
 import { monospaceFont } from "../../../shared-module/styles"
+import { respondToOrLarger } from "../../../shared-module/styles/respond"
+import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 
 export interface PlaygroundSpecsProps {
   settingsForm: UseFormReturn<PlaygroundSettings>
@@ -16,15 +18,12 @@ export interface PlaygroundSpecsProps {
   modelSolutionSpecQuery: UseQueryResult<unknown, unknown>
 }
 
-const FULL_WIDTH = "100vw"
-const HALF_WIDTH = "50vw"
-
-const StyledPre = styled.pre<{ fullWidth: boolean }>`
+const StyledPre = styled.pre`
   background-color: rgba(218, 230, 229, 0.4);
   border-radius: 6px;
   padding: 1rem;
   font-size: 13px;
-  max-width: ${(props) => (props.fullWidth ? FULL_WIDTH : HALF_WIDTH)};
+  width: 100%;
   max-height: 700px;
   overflow: scroll;
   white-space: pre-wrap;
@@ -41,6 +40,7 @@ const PlaygroundSpecs: React.FC<PlaygroundSpecsProps> = ({
   modelSolutionSpecQuery,
 }) => {
   const { t } = useTranslation()
+
   return (
     <div
       className={css`
@@ -84,8 +84,21 @@ const PlaygroundSpecs: React.FC<PlaygroundSpecsProps> = ({
         </div>
       </div>
 
-      <div>
-        <div>
+      <div
+        className={css`
+          margin-top: 1rem;
+          ${respondToOrLarger.lg} {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+          }
+        `}
+      >
+        <div
+          className={css`
+            flex: 1;
+          `}
+        >
           <h3>{t("title-public-spec")}</h3>
 
           <p>{t("public-spec-explanation")}</p>
@@ -101,15 +114,17 @@ const PlaygroundSpecs: React.FC<PlaygroundSpecsProps> = ({
           )}
 
           {publicSpecQuery.isSuccess && (
-            <StyledPre fullWidth={false}>
+            <StyledPre>
               {JSON.stringify(publicSpecQuery.data, undefined, 2).replaceAll("\\n", "\n")}
             </StyledPre>
           )}
         </div>
-      </div>
 
-      <div>
-        <div>
+        <div
+          className={css`
+            flex: 1;
+          `}
+        >
           <h3>{t("title-model-solution-spec")}</h3>
 
           <p>{t("model-solution-spec-explanation")}</p>
@@ -125,7 +140,7 @@ const PlaygroundSpecs: React.FC<PlaygroundSpecsProps> = ({
           )}
 
           {modelSolutionSpecQuery.isSuccess && (
-            <StyledPre fullWidth={false}>
+            <StyledPre>
               {JSON.stringify(modelSolutionSpecQuery.data, undefined, 2).replaceAll("\\n", "\n")}
             </StyledPre>
           )}
@@ -135,4 +150,4 @@ const PlaygroundSpecs: React.FC<PlaygroundSpecsProps> = ({
   )
 }
 
-export default PlaygroundSpecs
+export default withErrorBoundary(PlaygroundSpecs)

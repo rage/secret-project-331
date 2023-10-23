@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next"
 
 import { ExerciseTaskGradingResult } from "../../../shared-module/bindings"
 import DebugModal from "../../../shared-module/components/DebugModal"
+import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 
 interface PlaygroundAnswersProps {
   userAnswer: unknown
@@ -12,15 +13,12 @@ interface PlaygroundAnswersProps {
   submitAnswerMutation: UseMutationResult<ExerciseTaskGradingResult, unknown, any, unknown>
 }
 
-const FULL_WIDTH = "100vw"
-const HALF_WIDTH = "50vw"
-
-const StyledPre = styled.pre<{ fullWidth: boolean }>`
+const StyledPre = styled.pre`
   background-color: rgba(218, 230, 229, 0.4);
   border-radius: 6px;
   padding: 1rem;
   font-size: 13px;
-  max-width: ${(props) => (props.fullWidth ? FULL_WIDTH : HALF_WIDTH)};
+  width: 100%;
   max-height: 700px;
   overflow: scroll;
   white-space: pre-wrap;
@@ -68,7 +66,7 @@ const PlaygroudAnswers: React.FC<PlaygroundAnswersProps> = ({
           {t("user-answer-explanation")}
         </p>
         {userAnswer ? (
-          <StyledPre fullWidth={false}>{JSON.stringify(userAnswer, undefined, 2)}</StyledPre>
+          <StyledPre>{JSON.stringify(userAnswer, undefined, 2)}</StyledPre>
         ) : (
           <div>{t("error-no-user-answer")}</div>
         )}
@@ -86,9 +84,7 @@ const PlaygroudAnswers: React.FC<PlaygroundAnswersProps> = ({
         </p>
 
         {submitAnswerMutation.isSuccess && !submitAnswerMutation.isLoading ? (
-          <StyledPre fullWidth={false}>
-            {JSON.stringify(submitAnswerMutation.data, undefined, 2)}
-          </StyledPre>
+          <StyledPre>{JSON.stringify(submitAnswerMutation.data, undefined, 2)}</StyledPre>
         ) : (
           <div>{t("error-no-grading-long")}</div>
         )}
@@ -97,4 +93,4 @@ const PlaygroudAnswers: React.FC<PlaygroundAnswersProps> = ({
   )
 }
 
-export default PlaygroudAnswers
+export default withErrorBoundary(PlaygroudAnswers)

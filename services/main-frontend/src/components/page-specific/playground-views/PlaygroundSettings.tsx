@@ -12,6 +12,7 @@ import DebugModal from "../../../shared-module/components/DebugModal"
 import CheckBox from "../../../shared-module/components/InputFields/CheckBox"
 import TextField from "../../../shared-module/components/InputFields/TextField"
 import { baseTheme } from "../../../shared-module/styles"
+import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 
 interface PlayGroundSettingsProps {
   settingsForm: UseFormReturn<PlaygroundSettings>
@@ -96,4 +97,4 @@ const PlayGroundSettings: React.FC<PlayGroundSettingsProps> = ({
   )
 }
 
-export default PlayGroundSettings
+export default withErrorBoundary(PlayGroundSettings)

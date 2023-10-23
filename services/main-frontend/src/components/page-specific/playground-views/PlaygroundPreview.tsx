@@ -19,6 +19,7 @@ import {
   UserInformation,
 } from "../../../shared-module/exercise-service-protocol-types"
 import { baseTheme } from "../../../shared-module/styles"
+import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 
 import PlaygroundExerciseEditorIframe from "./PlaygroundExerciseEditorIframe"
 import PlaygroundExerciseIframe from "./PlaygroundExerciseIframe"
@@ -58,6 +59,10 @@ const StyledPre = styled.pre<{ fullWidth: boolean }>`
   &[style*="height"] {
     max-height: unset;
   }
+`
+
+const CheckBoxWrapper = styled.div`
+  margin: 0.5rem;
 `
 
 const PlaygroundPreview: React.FC<PlaygroundPreviewProps> = ({
@@ -108,9 +113,9 @@ const PlaygroundPreview: React.FC<PlaygroundPreviewProps> = ({
             button {
               height: 40px;
             }
+            margin: 0.5rem 1rem;
           `}
         >
-          <h2 id="heading-iframe">{t("title-iframe")}</h2>{" "}
           <Button
             variant={"secondary"}
             size={"small"}
@@ -226,15 +231,17 @@ const PlaygroundPreview: React.FC<PlaygroundPreviewProps> = ({
                 )}
                 {currentView === "answer-exercise" && (
                   <>
-                    <CheckBox
-                      label={t("label-send-previous-submission")}
-                      checked={answerExerciseViewSendPreviousSubmission}
-                      onChange={() => {
-                        setAnswerExerciseViewSendPreviousSubmission(
-                          !answerExerciseViewSendPreviousSubmission,
-                        )
-                      }}
-                    />
+                    <CheckBoxWrapper>
+                      <CheckBox
+                        label={t("label-send-previous-submission")}
+                        checked={answerExerciseViewSendPreviousSubmission}
+                        onChange={() => {
+                          setAnswerExerciseViewSendPreviousSubmission(
+                            !answerExerciseViewSendPreviousSubmission,
+                          )
+                        }}
+                      />
+                    </CheckBoxWrapper>
                     <PlaygroundExerciseIframe
                       url={`${exerciseServiceHost}${serviceInfoQuery.data.user_interface_iframe_path}?width=${width}`}
                       publicSpecQuery={publicSpecQuery}
@@ -266,13 +273,17 @@ const PlaygroundPreview: React.FC<PlaygroundPreviewProps> = ({
                 )}
                 {currentView === "view-submission" && (
                   <>
-                    <CheckBox
-                      label={t("label-send-model-solution-spec")}
-                      checked={submissionViewSendModelsolutionSpec}
-                      onChange={() => {
-                        setSubmissionViewSendModelsolutionSpec(!submissionViewSendModelsolutionSpec)
-                      }}
-                    />
+                    <CheckBoxWrapper>
+                      <CheckBox
+                        label={t("label-send-model-solution-spec")}
+                        checked={submissionViewSendModelsolutionSpec}
+                        onChange={() => {
+                          setSubmissionViewSendModelsolutionSpec(
+                            !submissionViewSendModelsolutionSpec,
+                          )
+                        }}
+                      />
+                    </CheckBoxWrapper>
                     <PlaygroundViewSubmissionIframe
                       url={`${exerciseServiceHost}${serviceInfoQuery.data.user_interface_iframe_path}?width=${width}`}
                       publicSpecQuery={publicSpecQuery}
@@ -291,70 +302,76 @@ const PlaygroundPreview: React.FC<PlaygroundPreviewProps> = ({
             )}
         </div>
       </div>
+      <div
+        className={css`
+          padding: 2rem;
+          padding-top: 0;
+        `}
+      >
+        <div>
+          <h2 id="heading-communication-with-the-iframe">
+            {t("title-communication-with-the-iframe")}
+          </h2>
+        </div>
 
-      <div>
-        <h2 id="heading-communication-with-the-iframe">
-          {t("title-communication-with-the-iframe")}
-        </h2>
-      </div>
+        <div>
+          <div
+            className={css`
+              display: flex;
+              align-items: center;
+              h3 {
+                margin-right: 0.5rem;
+              }
+            `}
+          >
+            <h3>{t("title-current-state-received-from-the-iframe")}</h3>
+            <DebugModal data={currentStateReceivedFromIframe} buttonSize="small" />
+            {currentStateReceivedFromIframe && (
+              <div
+                className={css`
+                  margin: 0 1rem;
+                  flex-grow: 1;
+                `}
+              >
+                {t("label-valid")}: {JSON.stringify(currentStateReceivedFromIframe.valid)}
+              </div>
+            )}
 
-      <div>
-        <div
-          className={css`
-            display: flex;
-            align-items: center;
-            h3 {
-              margin-right: 0.5rem;
-            }
-          `}
-        >
-          <h3>{t("title-current-state-received-from-the-iframe")}</h3>
-          <DebugModal data={currentStateReceivedFromIframe} buttonSize="small" />
-          {currentStateReceivedFromIframe && (
-            <div
-              className={css`
-                margin: 0 1rem;
-                flex-grow: 1;
-              `}
-            >
-              {t("label-valid")}: {JSON.stringify(currentStateReceivedFromIframe.valid)}
-            </div>
-          )}
-
-          {currentView === "exercise-editor" && (
-            <Button
-              size="medium"
-              variant="primary"
-              onClick={() => {
-                settingsForm.setValue(
-                  "private_spec",
-                  JSON.stringify(
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    (currentStateReceivedFromIframe?.data as any)?.private_spec,
-                    undefined,
-                    2,
-                  ),
-                )
-                // Must also reset the user answer because if the spec has changed, the user answer format is likely to be much different and not resetting it now would lead to hard-to-debug errors.
-                setUserAnswer(null)
-              }}
-            >
-              {t("button-set-as-private-spec-input")}
-            </Button>
+            {currentView === "exercise-editor" && (
+              <Button
+                size="medium"
+                variant="primary"
+                onClick={() => {
+                  settingsForm.setValue(
+                    "private_spec",
+                    JSON.stringify(
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      (currentStateReceivedFromIframe?.data as any)?.private_spec,
+                      undefined,
+                      2,
+                    ),
+                  )
+                  // Must also reset the user answer because if the spec has changed, the user answer format is likely to be much different and not resetting it now would lead to hard-to-debug errors.
+                  setUserAnswer(null)
+                }}
+              >
+                {t("button-set-as-private-spec-input")}
+              </Button>
+            )}
+          </div>
+          {currentStateReceivedFromIframe === null ? (
+            <>{t("message-no-current-state-message-received-from-the-iframe-yet")}</>
+          ) : (
+            <>
+              <StyledPre fullWidth>
+                {JSON.stringify(currentStateReceivedFromIframe.data, undefined, 2)}
+              </StyledPre>
+            </>
           )}
         </div>
-        {currentStateReceivedFromIframe === null ? (
-          <>{t("message-no-current-state-message-received-from-the-iframe-yet")}</>
-        ) : (
-          <>
-            <StyledPre fullWidth>
-              {JSON.stringify(currentStateReceivedFromIframe.data, undefined, 2)}
-            </StyledPre>
-          </>
-        )}
       </div>
     </div>
   )
 }
 
-export default PlaygroundPreview
+export default withErrorBoundary(PlaygroundPreview)

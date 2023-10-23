@@ -19,6 +19,8 @@ export default (req: NextApiRequest, res: NextApiResponse): void => {
         error_message: e.message,
         error_stack: e.stack,
       })
+    } else {
+      return res.status(500).json({ error_message: e })
     }
   }
 }
@@ -33,7 +35,7 @@ function handleModelSolutionGeneration(
   const specRequest = req.body
   const quiz = specRequest.private_spec as OldQuiz | null
   if (quiz === null) {
-    throw "Private spec cannot be null"
+    throw new Error("Private spec cannot be null")
   }
 
   const modelSolution = createModelSolution(quiz)

@@ -147,7 +147,11 @@ const SubmissionFeedback: React.FC<{ itemFeedback: ItemAnswerFeedback }> = ({ it
 
   const customItemFeedback = useMemo(() => {
     const customItemFeedback = itemFeedback.quiz_item_feedback?.trim()
-    if (customItemFeedback === "") {
+    if (
+      customItemFeedback === "" ||
+      customItemFeedback === null ||
+      customItemFeedback === undefined
+    ) {
       return null
     }
     if (!customItemFeedback?.endsWith(".")) {

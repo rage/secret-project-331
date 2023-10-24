@@ -1,4 +1,3 @@
-import { config } from "@fortawesome/fontawesome-svg-core"
 import { QueryClientProvider } from "@tanstack/react-query"
 import type { AppProps } from "next/app"
 import Script from "next/script"
@@ -13,8 +12,6 @@ import { OUTDATED_BROWSER_WARNING_SCRIPT } from "../shared-module/utils/constant
 import generateWebVitalsReporter from "../shared-module/utils/generateWebVitalsReporter"
 import initI18n from "../shared-module/utils/initI18n"
 
-import "@fortawesome/fontawesome-svg-core/styles.css"
-config.autoAddCss = false
 import "react-medium-image-zoom/dist/styles.css"
 
 const SERVICE_NAME = "course-material"

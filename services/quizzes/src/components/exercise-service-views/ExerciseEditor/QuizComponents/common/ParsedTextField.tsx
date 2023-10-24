@@ -1,9 +1,10 @@
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { faEye, faPencil } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { Eye, Pencil } from "@vectopus/atlas-icons-react"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import Button from "../../../../../shared-module/components/Button"
 import TextField from "../../../../../shared-module/components/InputFields/TextField"
 import ParsedText from "../../../../ParsedText"
 
@@ -13,19 +14,6 @@ const DisplayContainer = styled.div`
   align-items: center;
   gap: 6px;
   margin-top: 4px;
-`
-const RectangleButton = styled(FontAwesomeIcon)`
-  border: 1px solid #dae6e5;
-  height: 12.6px;
-  width: 22.5px;
-  padding: 4px;
-  display: inline;
-  cursor: pointer;
-  margin-left: 2px;
-
-  :hover {
-    border: 1px solid #bcd1d0;
-  }
 `
 
 const TextfieldContainer = styled.div`
@@ -65,22 +53,51 @@ const ParsedTextField: React.FC<ParsedTextFieldProps> = ({ label, value, onChang
 
   const PreviewButton = preview ? (
     <>
-      <RectangleButton
+      <Button
+        className={css`
+          display: flex !important;
+          align-items: center;
+          border: 1px solid #dae6e5 !important;
+          margin: 2px 0px 4px 0px !important;
+          height: 24px;
+          cursor: pointer;
+          :hover {
+            border: 1px solid #bcd1d0;
+          }
+        `}
+        variant="icon"
+        size="small"
         onClick={() => {
           setPreview(!preview)
         }}
-        icon={faPencil}
-      />
+      >
+        <Pencil size={16} />
+      </Button>
+
       <p> {t("edit-text")} </p>
     </>
   ) : (
     <>
-      <RectangleButton
+      <Button
+        className={css`
+          display: flex !important;
+          align-items: center;
+          border: 1px solid #dae6e5 !important;
+          margin: 2px 0px 4px 0px !important;
+          height: 24px;
+          cursor: pointer;
+          :hover {
+            border: 1px solid #bcd1d0;
+          }
+        `}
+        variant="icon"
+        size="small"
         onClick={() => {
           setPreview(!preview)
         }}
-        icon={faEye}
-      />
+      >
+        <Eye size={18} />
+      </Button>
       <p> {t("preview-rendered-text")} </p>
     </>
   )

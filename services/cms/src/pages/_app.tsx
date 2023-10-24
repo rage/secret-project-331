@@ -1,4 +1,3 @@
-import { config } from "@fortawesome/fontawesome-svg-core"
 import { QueryClientProvider } from "@tanstack/react-query"
 import type { AppProps } from "next/app"
 import Head from "next/head"
@@ -15,9 +14,6 @@ import generateWebVitalsReporter from "../shared-module/utils/generateWebVitalsR
 import initI18n from "../shared-module/utils/initI18n"
 import "../styles/Gutenberg/style.scss"
 import LocalStyles from "../styles/LocalStyles"
-
-import "@fortawesome/fontawesome-svg-core/styles.css"
-config.autoAddCss = false
 
 const SERVICE_NAME = "cms"
 

@@ -154,7 +154,11 @@ const SubmissionFeedback: React.FC<{ itemFeedback: ItemAnswerFeedback }> = ({ it
     ) {
       return null
     }
-    if (!customItemFeedback?.endsWith(".")) {
+    if (
+      !customItemFeedback?.endsWith(".") &&
+      !customItemFeedback?.endsWith("!") &&
+      !customItemFeedback?.endsWith("?")
+    ) {
       return customItemFeedback + "."
     }
     return customItemFeedback

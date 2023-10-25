@@ -1,35 +1,42 @@
-/* eslint-disable */
-import { OldModelSolutionQuiz, OldModelSolutionQuizItem, OldPublicQuiz, OldPublicQuizItem, OldPublicQuizItemOption, OldQuiz, QuizItem, OldQuizItemOption, OldQuizItemTimelineItem } from "../../../../types/oldQuizTypes"
-
-
+import {
+  OldModelSolutionQuiz,
+  OldModelSolutionQuizItem,
+  OldPublicQuiz,
+  OldPublicQuizItem,
+  OldPublicQuizItemOption,
+  OldQuiz,
+  OldQuizItemOption,
+  OldQuizItemTimelineItem,
+  QuizItem,
+} from "../../../../types/oldQuizTypes"
 
 // Content for private quiz item
 
 // Private spec quiz
 const emptyPrivateQuizItemOption = (): OldQuizItemOption => ({
-  id: 'v4()',
-  title: '',
-  body: '',
+  id: "v4()",
+  title: "",
+  body: "",
   order: 0,
-  quizItemId: 'v4()',
+  quizItemId: "v4()",
   createdAt: new Date(),
   updatedAt: new Date(),
   correct: false,
-  messageAfterSubmissionWhenSelected: '',
-  additionalCorrectnessExplanationOnModelSolution: '',
+  messageAfterSubmissionWhenSelected: "",
+  additionalCorrectnessExplanationOnModelSolution: "",
 })
 
 const emptyPrivateQuizItem = (): QuizItem => ({
-  validityRegex: '',
-  id: 'v4()',
+  validityRegex: "",
+  id: "v4()",
   allAnswersCorrect: false,
-  body: '',
+  body: "",
   createdAt: new Date(),
-  direction: 'column',
-  failureMessage: '',
-  formatRegex: '',
-  maxLabel: '',
-  minLabel: '',
+  direction: "column",
+  failureMessage: "",
+  formatRegex: "",
+  maxLabel: "",
+  minLabel: "",
   maxWords: 0,
   minValue: 0,
   maxValue: 0,
@@ -39,26 +46,26 @@ const emptyPrivateQuizItem = (): QuizItem => ({
   optionCells: [],
   options: [],
   order: 0,
-  quizId: 'v4()',
+  quizId: "v4()",
   sharedOptionFeedbackMessage: null,
   shuffleOptions: false,
-  successMessage: '',
+  successMessage: "",
   timelineItems: [],
-  title: '',
-  type: '',
+  title: "",
+  type: "",
   updatedAt: new Date(),
-  usesSharedOptionFeedbackMessage: false
+  usesSharedOptionFeedbackMessage: false,
 })
 
 const emptyPrivateQuiz = (): OldQuiz => ({
-  id: '',
+  id: "",
   updatedAt: new Date(),
   createdAt: new Date(),
-  courseId: '',
+  courseId: "",
   part: 1,
   section: 1,
-  title: '',
-  body: '',
+  title: "",
+  body: "",
   deadline: new Date(),
   direction: "column",
   open: new Date(),
@@ -71,7 +78,7 @@ const emptyPrivateQuiz = (): OldQuiz => ({
   excludedFromScore: false,
   grantPointsPolicy: "grant_only_when_answer_fully_correct",
   points: 0,
-  submitMessage: '',
+  submitMessage: "",
 })
 
 // Public spec quiz
@@ -87,7 +94,7 @@ const emptyPublicQuiz = (): OldPublicQuiz => ({
   section: 0,
   title: "",
   tries: 10,
-  triesLimited: false
+  triesLimited: false,
 })
 
 const emptyPublicQuizItem = (): OldPublicQuizItem => ({
@@ -110,7 +117,7 @@ const emptyPublicQuizItem = (): OldPublicQuizItem => ({
   timelineItemEvents: [],
   timelineItems: [],
   title: "",
-  type: ""
+  type: "",
 })
 
 const emptyPublicQuizItemOption = (): OldPublicQuizItemOption => ({
@@ -118,7 +125,7 @@ const emptyPublicQuizItemOption = (): OldPublicQuizItemOption => ({
   id: "",
   order: 0,
   title: "",
-  quizItemId: ""
+  quizItemId: "",
 })
 
 // Model solution spec
@@ -152,64 +159,77 @@ const emptyModelSolutionQuizItem = (): OldModelSolutionQuizItem => ({
   direction: "column",
   failureMessage: "",
   formatRegex: "",
-  id:"",
-  maxLabel:"",
+  id: "",
+  maxLabel: "",
   maxValue: 0,
-  maxWords:0,
-  minLabel:"",
-  minValue:0,
-  minWords:0,
+  maxWords: 0,
+  minLabel: "",
+  minValue: 0,
+  minWords: 0,
   multi: false,
-  multipleChoiceMultipleOptionsGradingPolicy:"default",
+  multipleChoiceMultipleOptionsGradingPolicy: "default",
   optionCells: [],
-  options:[],
-  order:0,
+  options: [],
+  order: 0,
   quizId: "",
   sharedOptionFeedbackMessage: null,
-  shuffleOptions:false,
+  shuffleOptions: false,
   successMessage: "",
-  timelineItems:[],
+  timelineItems: [],
   title: "",
   type: "",
   updatedAt: new Date(),
-  usesSharedOptionFeedbackMessage: false
+  usesSharedOptionFeedbackMessage: false,
 })
 
 // Generate from templates above
 // Generate private spec quiz and quiz items
 export const generatePrivateQuiz = <T extends Partial<OldQuiz>>(initialValues: T): OldQuiz & T => {
-  return Object.assign(emptyPrivateQuiz(), initialValues);
+  return Object.assign(emptyPrivateQuiz(), initialValues)
 }
 
-export const generatePrivateQuizItem = <T extends Partial<QuizItem>>(initialValues: T): QuizItem & T => {
-  return Object.assign(emptyPrivateQuizItem(), initialValues);
+export const generatePrivateQuizItem = <T extends Partial<QuizItem>>(
+  initialValues: T,
+): QuizItem & T => {
+  return Object.assign(emptyPrivateQuizItem(), initialValues)
 }
 
-export const generatePrivateQuizItemOption = <T extends Partial<OldQuizItemOption>>(initialValues: T): OldQuizItemOption & T => {
-  return Object.assign(emptyPrivateQuizItemOption(), initialValues);
+export const generatePrivateQuizItemOption = <T extends Partial<OldQuizItemOption>>(
+  initialValues: T,
+): OldQuizItemOption & T => {
+  return Object.assign(emptyPrivateQuizItemOption(), initialValues)
 }
-
 
 // Generate public spec quiz and quiz items
-export const generatePublicQuiz = <T extends Partial<OldPublicQuiz>>(initialValues: T): OldPublicQuiz & T => {
-  return Object.assign(emptyPublicQuiz(), initialValues);
+export const generatePublicQuiz = <T extends Partial<OldPublicQuiz>>(
+  initialValues: T,
+): OldPublicQuiz & T => {
+  return Object.assign(emptyPublicQuiz(), initialValues)
 }
 
-export const generatePublicQuizItem = <T extends Partial<OldPublicQuizItem>>(initialValues: T): OldPublicQuizItem & T => {
-  return Object.assign(emptyPublicQuizItem(), initialValues);
+export const generatePublicQuizItem = <T extends Partial<OldPublicQuizItem>>(
+  initialValues: T,
+): OldPublicQuizItem & T => {
+  return Object.assign(emptyPublicQuizItem(), initialValues)
 }
 
-export const generatePublicQuizItemOption = <T extends Partial<OldPublicQuizItemOption>>(initialValues: T): OldPublicQuizItemOption & T => {
-  return Object.assign(emptyPublicQuizItemOption(), initialValues);
+export const generatePublicQuizItemOption = <T extends Partial<OldPublicQuizItemOption>>(
+  initialValues: T,
+): OldPublicQuizItemOption & T => {
+  return Object.assign(emptyPublicQuizItemOption(), initialValues)
 }
 
 // Generate model solution spec quiz and quiz item
-export const generateModelSolutionQuiz = <T extends Partial<OldModelSolutionQuiz>>(initialValues: T): OldModelSolutionQuiz & T => {
-  return Object.assign(emptyModelSolutionQuiz(), initialValues);
+export const generateModelSolutionQuiz = <T extends Partial<OldModelSolutionQuiz>>(
+  initialValues: T,
+): OldModelSolutionQuiz & T => {
+  return Object.assign(emptyModelSolutionQuiz(), initialValues)
 }
 
-export const generateModelSolutionQuizItem = <T extends Partial<OldModelSolutionQuizItem>>(initialValues: T): OldModelSolutionQuizItem & T => {
-  return Object.assign(emptyModelSolutionQuizItem(), initialValues);
+export const generateModelSolutionQuizItem = <T extends Partial<OldModelSolutionQuizItem>>(
+  initialValues: T,
+): OldModelSolutionQuizItem & T => {
+  return Object.assign(emptyModelSolutionQuizItem(), initialValues)
 }
 
 // MULTIPLE CHOICE EXERCISE GENERATION
@@ -309,7 +329,10 @@ const generateMultipleChoiceModelSolutionSpecQuiz = (
   })
 }
 // CHOOSE N -EXERCISE GENERATION
-const generateChooseNForOlderPrivateSpecQuiz = (numberOfOptions: number, order: number): QuizItem => {
+const generateChooseNForOlderPrivateSpecQuiz = (
+  numberOfOptions: number,
+  order: number,
+): QuizItem => {
   const quizOptions: OldQuizItemOption[] = []
   for (let i = 0; i < numberOfOptions; i++) {
     quizOptions.push(
@@ -335,7 +358,10 @@ const generateChooseNForOlderPrivateSpecQuiz = (numberOfOptions: number, order: 
   })
 }
 
-const generateChooseNForOlderPublicSpecQuiz = (numberOfOptions: number, order: number): OldPublicQuizItem => {
+const generateChooseNForOlderPublicSpecQuiz = (
+  numberOfOptions: number,
+  order: number,
+): OldPublicQuizItem => {
   const quizOptions: OldQuizItemOption[] = []
   for (let i = 0; i < numberOfOptions; i++) {
     quizOptions.push(
@@ -361,7 +387,10 @@ const generateChooseNForOlderPublicSpecQuiz = (numberOfOptions: number, order: n
   })
 }
 
-const generateChooseNForOlderModelSolutionSpecQuiz = (numberOfOptions: number, order: number): OldModelSolutionQuizItem => {
+const generateChooseNForOlderModelSolutionSpecQuiz = (
+  numberOfOptions: number,
+  order: number,
+): OldModelSolutionQuizItem => {
   const quizOptions: OldQuizItemOption[] = []
   for (let i = 0; i < numberOfOptions; i++) {
     quizOptions.push(
@@ -540,7 +569,9 @@ const generateClosedEndedForOlderPublicSpecQuiz = (order: number): OldPublicQuiz
   })
 }
 
-const generateClosedEndedForOlderModelSolutionSpecQuiz = (order: number): OldModelSolutionQuizItem => {
+const generateClosedEndedForOlderModelSolutionSpecQuiz = (
+  order: number,
+): OldModelSolutionQuizItem => {
   return generateModelSolutionQuizItem({
     id: "closed-ended-exercise",
     type: "open",
@@ -660,17 +691,13 @@ const generateTimelineForOlderModelSolutionSpecQuiz = (order: number): OldModelS
 
 // Packing the quiz items into the quiz
 
-const packToPrivateSpecQuiz = (
-  quizItems: QuizItem[]
-) => (generatePrivateQuiz({ items: quizItems}))
+const packToPrivateSpecQuiz = (quizItems: QuizItem[]) => generatePrivateQuiz({ items: quizItems })
 
-const packToPublicSpecQuiz = (
-  quizItems: OldPublicQuizItem[]
-) => generatePublicQuiz({ items: quizItems })
+const packToPublicSpecQuiz = (quizItems: OldPublicQuizItem[]) =>
+  generatePublicQuiz({ items: quizItems })
 
-const packToModelSolutionSpecQuiz = (
-  quizItems: OldModelSolutionQuizItem[]
-) => generateModelSolutionQuiz({ items: quizItems })
+const packToModelSolutionSpecQuiz = (quizItems: OldModelSolutionQuizItem[]) =>
+  generateModelSolutionQuiz({ items: quizItems })
 
 export {
   // Checkbox
@@ -710,5 +737,3 @@ export {
   packToPublicSpecQuiz,
   packToModelSolutionSpecQuiz,
 }
-
-

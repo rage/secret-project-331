@@ -247,6 +247,8 @@ pub async fn update_email_for_user(
     .execute(&mut *tx)
     .await?;
 
+    tx.commit().await?;
+
     info!("Email change succeeded");
     Ok(())
 }

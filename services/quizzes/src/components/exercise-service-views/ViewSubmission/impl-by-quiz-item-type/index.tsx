@@ -12,7 +12,7 @@ export interface QuizItemSubmissionComponentProps<
   public_quiz_item: T
   quiz_direction: FlexDirection
   quiz_item_model_solution: ModelSolutionQuizItem | null
-  quiz_item_feedback: ItemAnswerFeedback | null
+  quiz_item_answer_feedback: ItemAnswerFeedback | null
   user_quiz_item_answer: K
   user_information: UserInformation
 }

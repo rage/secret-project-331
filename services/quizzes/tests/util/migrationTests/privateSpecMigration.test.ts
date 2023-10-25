@@ -15,7 +15,7 @@ import {
   PrivateSpecQuizItemScale,
   PrivateSpecQuizItemTimeline,
 } from "../../../types/quizTypes/privateSpec"
-import { generateQuiz } from "../../api/utils/quizGenerator"
+import { oldGenerateQuiz } from "../../api/utils/oldQuizGenerator"
 
 import { comparePrivateSpecQuizItem, expectPrivateSpecMetadataToMatch } from "./utils/comparison"
 import {
@@ -32,7 +32,7 @@ import {
 
 describe("private spec", () => {
   test("distinguishes between old and new quiz", () => {
-    const oldQuiz: OldQuiz = generateQuiz({
+    const oldQuiz: OldQuiz = oldGenerateQuiz({
       id: "example-quiz",
     })
     const newQuiz: PrivateSpecQuiz = migratePrivateSpecQuiz(oldQuiz)!

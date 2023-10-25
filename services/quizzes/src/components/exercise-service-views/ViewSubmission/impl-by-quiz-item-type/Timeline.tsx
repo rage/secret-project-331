@@ -131,7 +131,12 @@ const Timeline: React.FunctionComponent<
   React.PropsWithChildren<
     QuizItemSubmissionComponentProps<PublicSpecQuizItemTimeline, UserItemAnswerTimeline>
   >
-> = ({ public_quiz_item, quiz_item_model_solution, user_quiz_item_answer, quiz_item_feedback }) => {
+> = ({
+  public_quiz_item,
+  quiz_item_model_solution,
+  user_quiz_item_answer,
+  quiz_item_answer_feedback,
+}) => {
   const { t } = useTranslation()
 
   const modelSolution = quiz_item_model_solution as ModelSolutionQuizItemTimeline
@@ -149,7 +154,7 @@ const Timeline: React.FunctionComponent<
             (te) => te.eventId === selectedTimelineItem?.chosenEventId,
           )
 
-          const timelinemItemFeedback = quiz_item_feedback?.timeline_item_feedbacks?.find(
+          const timelinemItemFeedback = quiz_item_answer_feedback?.timeline_item_feedbacks?.find(
             (tif) => tif.timeline_item_id === timelineItem.itemId,
           )
 

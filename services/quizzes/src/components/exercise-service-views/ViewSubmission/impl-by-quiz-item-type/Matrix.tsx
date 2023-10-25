@@ -39,7 +39,7 @@ interface isCellCorrectObject {
 
 const MatrixSubmission: React.FC<
   QuizItemSubmissionComponentProps<PublicSpecQuizItemMatrix, UserItemAnswerMatrix>
-> = ({ quiz_item_model_solution, user_quiz_item_answer, quiz_item_feedback }) => {
+> = ({ quiz_item_model_solution, user_quiz_item_answer, quiz_item_answer_feedback }) => {
   const modelSolution = quiz_item_model_solution as UserItemAnswerMatrix | null
   const correctAnswers = modelSolution?.matrix
   const studentAnswers = user_quiz_item_answer.matrix
@@ -49,7 +49,7 @@ const MatrixSubmission: React.FC<
     throw new Error("No student answers")
   }
 
-  const isIncorrect = quiz_item_feedback?.correctnessCoefficient != 1
+  const isIncorrect = quiz_item_answer_feedback?.correctnessCoefficient != 1
 
   const findOptionText = (
     column: number,

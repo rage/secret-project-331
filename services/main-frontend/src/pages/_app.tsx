@@ -43,6 +43,9 @@ const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pagePro
     i18n.changeLanguage(language)
   }, [language])
 
+  // @ts-expect-error: Custom property on Component, hides the layout on a page
+  const noVisibleLayout = Component.noVisibleLayout ?? false
+
   return (
     <>
       <Script noModule id="outdated-browser-warning">
@@ -56,7 +59,7 @@ const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pagePro
       <QueryClientProvider client={queryClient}>
         <GlobalStyles />
         <LoginStateContextProvider>
-          <Layout>
+          <Layout noVisibleLayout={noVisibleLayout}>
             <Component {...pageProps} />
           </Layout>
         </LoginStateContextProvider>

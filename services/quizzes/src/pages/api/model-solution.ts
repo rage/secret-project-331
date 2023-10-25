@@ -3,6 +3,7 @@ import { NextApiRequest, NextApiResponse } from "next"
 
 import { OldQuiz } from "../../../types/oldQuizTypes"
 import { ModelSolutionQuiz } from "../../../types/quizTypes/modelSolutionSpec"
+import { PrivateSpecQuizItemClosedEndedQuestion } from "../../../types/quizTypes/privateSpec"
 import { isSpecRequest } from "../../shared-module/bindings.guard"
 import { isOldQuiz } from "../../util/migration/migrationSettings"
 import migrateModelSolutionSpecQuiz from "../../util/migration/modelSolutionSpecQuiz"
@@ -18,6 +19,8 @@ export default (req: NextApiRequest, res: NextApiResponse): void => {
         error_message: e.message,
         error_stack: e.stack,
       })
+    } else {
+      return res.status(500).json({ error_message: e })
     }
   }
 }
@@ -32,7 +35,7 @@ function handleModelSolutionGeneration(
   const specRequest = req.body
   const quiz = specRequest.private_spec as OldQuiz | null
   if (quiz === null) {
-    throw "Private spec cannot be null"
+    throw new Error("Private spec cannot be null")
   }
 
   const modelSolution = createModelSolution(quiz)
@@ -45,6 +48,19 @@ function createModelSolution(quiz: OldQuiz | ModelSolutionQuiz): ModelSolutionQu
     modelSolution = migrateModelSolutionSpecQuiz(quiz as OldQuiz)
   } else {
     modelSolution = quiz as ModelSolutionQuiz
+  }
+  if (modelSolution === null) {
+    throw new Error("Model solution was null")
+  }
+  // Make sure we don't include illegal properties
+  for (const quizItem of modelSolution.items) {
+    if (quizItem.type === "closed-ended-question") {
+      const asPrivateSpec = quizItem as PrivateSpecQuizItemClosedEndedQuestion
+      if (asPrivateSpec.validityRegex !== undefined) {
+        // @ts-expect-error: Deleting a property that should not exist
+        delete asPrivateSpec.validityRegex
+      }
+    }
   }
 
   return modelSolution as ModelSolutionQuiz

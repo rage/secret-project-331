@@ -26,7 +26,7 @@ const Option = styled.div<StyledProps>`
 
 const CheckBoxFeedback: React.FC<
   QuizItemSubmissionComponentProps<PublicSpecQuizItemCheckbox, UserItemAnswerCheckbox>
-> = ({ public_quiz_item, user_quiz_item_answer, quiz_item_feedback }) => {
+> = ({ public_quiz_item, user_quiz_item_answer, quiz_item_answer_feedback }) => {
   const checked = user_quiz_item_answer.checked
 
   return (
@@ -76,7 +76,7 @@ const CheckBoxFeedback: React.FC<
           </Option>
         )}
         <div>
-          {quiz_item_feedback?.quiz_item_option_feedbacks?.map((of) => (
+          {quiz_item_answer_feedback?.quiz_item_option_feedbacks?.map((of) => (
             <p key={of.option_id}>{of.option_feedback}</p>
           ))}
         </div>

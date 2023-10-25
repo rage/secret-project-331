@@ -7,6 +7,7 @@ import {
   UserInformation,
 } from "../../../shared-module/exercise-service-protocol-types"
 import { isMessageFromIframe } from "../../../shared-module/exercise-service-protocol-types.guard"
+import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 
 interface PlaygroundExerciseEditorIframeProps {
   url: string
@@ -70,4 +71,4 @@ const PlaygroundExerciseEditorIframe: React.FC<
   )
 }
 
-export default PlaygroundExerciseEditorIframe
+export default withErrorBoundary(PlaygroundExerciseEditorIframe)

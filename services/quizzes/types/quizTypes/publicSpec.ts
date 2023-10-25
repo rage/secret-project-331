@@ -3,8 +3,8 @@ import { DisplayDirection, multipleChoiceMultipleOptionsGradingPolicy } from "./
 export interface PublicSpecQuiz {
   version: "2"
   items: PublicSpecQuizItem[]
-  title: string
-  body: string
+  title: string | null
+  body: string | null
   quizItemDisplayDirection: DisplayDirection
 }
 
@@ -76,7 +76,7 @@ export interface PublicSpecQuizItemClosedEndedQuestion {
   order: number
   formatRegex: string | null
   title: string
-  body: string
+  body: string | null
 }
 
 export interface PublicSpecQuizItemMatrix {

@@ -23,6 +23,8 @@ export default (req: NextApiRequest, res: NextApiResponse): void => {
         error_message: e.message,
         error_stack: e.stack,
       })
+    } else {
+      return res.status(500).json({ error_message: e })
     }
   }
 }
@@ -34,7 +36,7 @@ function handlePost(req: NextApiRequest, res: NextApiResponse) {
   const specRequest = req.body
   const quiz = specRequest.private_spec as OldQuiz | PrivateSpecQuiz | null
   if (quiz === null) {
-    throw "Quiz cannot be null"
+    throw new Error("Quiz cannot be null")
   }
   let converted: PrivateSpecQuiz | null = null
   if (isOldQuiz(quiz)) {

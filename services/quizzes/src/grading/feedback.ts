@@ -24,6 +24,7 @@ export interface TimelineItemFeedback {
 
 export interface ItemAnswerFeedback {
   quiz_item_id: string | null
+  /** Custom feedback message to be shown under the quiz item. */
   quiz_item_feedback: string | null
   quiz_item_option_feedbacks: OptionAnswerFeedback[] | null
   timeline_item_feedbacks: TimelineItemFeedback[] | null

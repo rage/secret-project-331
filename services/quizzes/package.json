@@ -43,7 +43,6 @@
     "lodash": "^4.17.21",
     "monaco-editor": "^0.44.0",
     "next": "^13.5.4",
-    "normalizr": "^3.6.2",
     "postcss": "^8.4.31",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

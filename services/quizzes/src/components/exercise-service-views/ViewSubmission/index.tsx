@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import React, { useCallback } from "react"
+import React, { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -145,6 +145,25 @@ const SubmissionFeedback: React.FC<{ itemFeedback: ItemAnswerFeedback }> = ({ it
     [t],
   )
 
+  const customItemFeedback = useMemo(() => {
+    const customItemFeedback = itemFeedback.quiz_item_feedback?.trim()
+    if (
+      customItemFeedback === "" ||
+      customItemFeedback === null ||
+      customItemFeedback === undefined
+    ) {
+      return null
+    }
+    if (
+      !customItemFeedback?.endsWith(".") &&
+      !customItemFeedback?.endsWith("!") &&
+      !customItemFeedback?.endsWith("?")
+    ) {
+      return customItemFeedback + "."
+    }
+    return customItemFeedback
+  }, [itemFeedback.quiz_item_feedback])
+
   return (
     <div
       className={css`
@@ -157,9 +176,10 @@ const SubmissionFeedback: React.FC<{ itemFeedback: ItemAnswerFeedback }> = ({ it
         margin-bottom: 0;
         padding: 0.25rem 1.5rem;
         width: fit-content;
+        text-align: center;
       `}
     >
-      {mapScoreToFeedback(userScore)}
+      {mapScoreToFeedback(userScore)} {customItemFeedback}
     </div>
   )
 }
@@ -192,7 +212,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
           if (!componentDescriptor) {
             return <div key={item.id}>{t("quiz-type-not-supported")}</div>
           }
-          const itemFeedback = feedback_json
+          const itemAnswerFeedback = feedback_json
             ? feedback_json.filter((itemFeedback) => itemFeedback.quiz_item_id === item.id)[0]
             : null
           const itemModelSolution = modelSolutions
@@ -203,9 +223,9 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
           const quizItemAnswer = user_answer.itemAnswers.filter(
             (ia) => ia.quizItemId === item.id,
           )[0]
-          const feedback = itemFeedback &&
+          const feedback = itemAnswerFeedback &&
             componentDescriptor.shouldDisplayCorrectnessMessageAfterAnswer && (
-              <SubmissionFeedback itemFeedback={itemFeedback} />
+              <SubmissionFeedback itemFeedback={itemAnswerFeedback} />
             )
           const missingQuizItemAnswer = !quizItemAnswer && (
             <div
@@ -226,7 +246,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
                       key={item.id}
                       public_quiz_item={item as PublicSpecQuizItemCheckbox}
                       quiz_direction={direction}
-                      quiz_item_feedback={itemFeedback}
+                      quiz_item_answer_feedback={itemAnswerFeedback}
                       quiz_item_model_solution={itemModelSolution}
                       user_quiz_item_answer={quizItemAnswer as UserItemAnswerCheckbox}
                       user_information={user_information}
@@ -244,7 +264,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
                       key={item.id}
                       public_quiz_item={item as PublicSpecQuizItemChooseN}
                       quiz_direction={direction}
-                      quiz_item_feedback={itemFeedback}
+                      quiz_item_answer_feedback={itemAnswerFeedback}
                       quiz_item_model_solution={itemModelSolution}
                       user_quiz_item_answer={quizItemAnswer as UserItemAnswerChooseN}
                       user_information={user_information}
@@ -262,7 +282,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
                       key={item.id}
                       public_quiz_item={item as PublicSpecQuizItemClosedEndedQuestion}
                       quiz_direction={direction}
-                      quiz_item_feedback={itemFeedback}
+                      quiz_item_answer_feedback={itemAnswerFeedback}
                       quiz_item_model_solution={itemModelSolution}
                       user_quiz_item_answer={quizItemAnswer as UserItemAnswerClosedEndedQuestion}
                       user_information={user_information}
@@ -280,7 +300,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
                       key={item.id}
                       public_quiz_item={item as PublicSpecQuizItemEssay}
                       quiz_direction={direction}
-                      quiz_item_feedback={itemFeedback}
+                      quiz_item_answer_feedback={itemAnswerFeedback}
                       quiz_item_model_solution={itemModelSolution}
                       user_quiz_item_answer={quizItemAnswer as UserItemAnswerEssay}
                       user_information={user_information}
@@ -298,7 +318,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
                       key={item.id}
                       public_quiz_item={item as PublicSpecQuizItemMatrix}
                       quiz_direction={direction}
-                      quiz_item_feedback={itemFeedback}
+                      quiz_item_answer_feedback={itemAnswerFeedback}
                       quiz_item_model_solution={itemModelSolution}
                       user_quiz_item_answer={quizItemAnswer as UserItemAnswerMatrix}
                       user_information={user_information}
@@ -316,7 +336,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
                       key={item.id}
                       public_quiz_item={item as PublicSpecQuizItemMultiplechoice}
                       quiz_direction={sanitizeFlexDirection(item.optionDisplayDirection, COLUMN)}
-                      quiz_item_feedback={itemFeedback}
+                      quiz_item_answer_feedback={itemAnswerFeedback}
                       quiz_item_model_solution={itemModelSolution}
                       user_quiz_item_answer={quizItemAnswer as UserItemAnswerMultiplechoice}
                       user_information={user_information}
@@ -334,7 +354,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
                       key={item.id}
                       public_quiz_item={item as PublicSpecQuizItemMultiplechoiceDropdown}
                       quiz_direction={direction}
-                      quiz_item_feedback={itemFeedback}
+                      quiz_item_answer_feedback={itemAnswerFeedback}
                       quiz_item_model_solution={itemModelSolution}
                       user_quiz_item_answer={quizItemAnswer as UserItemAnswerMultiplechoiceDropdown}
                       user_information={user_information}
@@ -352,7 +372,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
                       key={item.id}
                       public_quiz_item={item as PublicSpecQuizItemScale}
                       quiz_direction={direction}
-                      quiz_item_feedback={itemFeedback}
+                      quiz_item_answer_feedback={itemAnswerFeedback}
                       quiz_item_model_solution={itemModelSolution}
                       user_quiz_item_answer={quizItemAnswer as UserItemAnswerScale}
                       user_information={user_information}
@@ -370,7 +390,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
                       key={item.id}
                       public_quiz_item={item as PublicSpecQuizItemTimeline}
                       quiz_direction={direction}
-                      quiz_item_feedback={itemFeedback}
+                      quiz_item_answer_feedback={itemAnswerFeedback}
                       quiz_item_model_solution={itemModelSolution}
                       user_quiz_item_answer={quizItemAnswer as UserItemAnswerTimeline}
                       user_information={user_information}

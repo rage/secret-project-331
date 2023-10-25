@@ -53,7 +53,7 @@ const MultipleChoiceSubmission: React.FC<
   public_quiz_item,
   quiz_item_model_solution,
   user_quiz_item_answer,
-  quiz_item_feedback,
+  quiz_item_answer_feedback,
   user_information,
 }) => {
   const { t } = useTranslation()
@@ -111,7 +111,7 @@ const MultipleChoiceSubmission: React.FC<
             modelSolution?.options.find((x) => x.id === qo.id) ?? null
           // If correctAnswer is null we don't know whether this option was correct or not
           let correctAnswer = modelSolutionForThisOption?.correct ?? null
-          const feedbackForThisOption = quiz_item_feedback?.quiz_item_option_feedbacks?.find(
+          const feedbackForThisOption = quiz_item_answer_feedback?.quiz_item_option_feedbacks?.find(
             (f) => f.option_id === qo.id,
           )
           if (feedbackForThisOption && feedbackForThisOption.this_option_was_correct !== null) {

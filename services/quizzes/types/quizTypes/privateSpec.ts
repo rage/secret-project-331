@@ -1,4 +1,4 @@
-type grantPointsPolicy = "grant_whenever_possible" | "grant_only_when_answer_fully_correct"
+type GrantPointsPolicy = "grant_whenever_possible" | "grant_only_when_answer_fully_correct"
 
 export interface QuizItemOption {
   id: string
@@ -14,10 +14,10 @@ export type DisplayDirection = "horizontal" | "vertical"
 export interface PrivateSpecQuiz {
   version: "2"
   awardPointsEvenIfWrong: boolean
-  grantPointsPolicy: grantPointsPolicy
+  grantPointsPolicy: GrantPointsPolicy
   items: PrivateSpecQuizItem[]
-  title: string
-  body: string
+  title: string | null
+  body: string | null
   quizItemDisplayDirection: DisplayDirection
   submitMessage: string | null
 }
@@ -109,7 +109,7 @@ export interface PrivateSpecQuizItemClosedEndedQuestion {
   validityRegex: string | null
   formatRegex: string | null
   title: string
-  body: string
+  body: string | null
   successMessage: string | null
   failureMessage: string | null
 }

@@ -10,6 +10,7 @@ import {
   UserInformation,
 } from "../../../shared-module/exercise-service-protocol-types"
 import { isMessageFromIframe } from "../../../shared-module/exercise-service-protocol-types.guard"
+import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 
 interface PlaygroundViewSubmissionIframeProps {
   url: string
@@ -95,4 +96,4 @@ const PlaygroundViewSubmissionIframe: React.FC<
   )
 }
 
-export default PlaygroundViewSubmissionIframe
+export default withErrorBoundary(PlaygroundViewSubmissionIframe)

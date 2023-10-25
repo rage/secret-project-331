@@ -4,7 +4,7 @@ export interface QuizItemOption {
   id: string
   order: number
   correct: boolean
-  title: string
+  title: string | null
   body: string | null
   messageAfterSubmissionWhenSelected: null | string
   additionalCorrectnessExplanationOnModelSolution: null | string

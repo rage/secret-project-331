@@ -1,6 +1,7 @@
 import {
   PrivateSpecQuiz,
   PrivateSpecQuizItemClosedEndedQuestion,
+  PrivateSpecQuizItemMultiplechoice,
 } from "../../../types/quizTypes/privateSpec"
 
 export function generateEmptyPrivateSpecQuiz(): PrivateSpecQuiz {
@@ -12,7 +13,7 @@ export function generateEmptyPrivateSpecQuiz(): PrivateSpecQuiz {
     title: null,
     body: null,
     quizItemDisplayDirection: "vertical",
-    submitMessage: null,
+    submitMessage: "This might also spoil something",
   }
 }
 
@@ -29,5 +30,45 @@ export function generatePrivateSpecWithOneClosedEndedQuestionQuizItem(): Private
     successMessage: null,
     failureMessage: null,
   }
+  return { ...emptyQuiz, items: [closedEndedQuestionQuizItem] }
+}
+
+export function generatePrivateSpecWithOneMultipleChoiceQuizItem(): PrivateSpecQuiz {
+  const emptyQuiz = generateEmptyPrivateSpecQuiz()
+  const closedEndedQuestionQuizItem: PrivateSpecQuizItemMultiplechoice = {
+    type: "multiple-choice",
+    shuffleOptions: false,
+    id: "988b9c17-9f03-4062-b5ff-c6071d3c6f06",
+    order: 0,
+    allowSelectingMultipleOptions: false,
+    options: [
+      {
+        id: "id-1",
+        order: 0,
+        correct: true,
+        title: "Positive",
+        body: null,
+        messageAfterSubmissionWhenSelected: "You selected this one 1",
+        additionalCorrectnessExplanationOnModelSolution: "This spoils the answer 1",
+      },
+      {
+        id: "id-2",
+        order: 0,
+        correct: false,
+        title: "Just no",
+        body: null,
+        messageAfterSubmissionWhenSelected: "You selected this one 2",
+        additionalCorrectnessExplanationOnModelSolution: "This spoils the answer 2",
+      },
+    ],
+    title: null,
+    body: null,
+    successMessage: "You got it right! This spoils the answer",
+    failureMessage: "You got it wrong!",
+    sharedOptionFeedbackMessage: "This spoils the answer",
+    optionDisplayDirection: "vertical",
+    multipleChoiceMultipleOptionsGradingPolicy: "default",
+  }
+
   return { ...emptyQuiz, items: [closedEndedQuestionQuizItem] }
 }

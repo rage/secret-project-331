@@ -1,14 +1,12 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import {
-  ChevronLeft as ChevronLeftIcon,
-  ChevronRight as ChevronRightIcon,
-  MoreHoriz as MoreHorizIcon,
-} from "@mui/icons-material"
+import { DotsHorizontal } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { PaginationInfo } from "../hooks/usePaginationInfo"
+import ArrowLeft from "../img/caret-arrow-left.svg"
+import ArrowRight from "../img/caret-arrow-right.svg"
 import { headingFont } from "../styles"
 
 import PaginationItemsPerPage from "./PaginationItemsPerPage"
@@ -126,7 +124,11 @@ const Pagination: React.FC<React.PropsWithChildren<React.PropsWithChildren<Pagin
         aria-label={t("go-to-previous-page")}
         onClick={handleChangeEvent(Math.max(1, page - 1))}
       >
-        <ChevronLeftIcon />
+        <ArrowLeft
+          className={css`
+            transform: scale(1.2);
+          `}
+        />
       </LeftButton>,
     )
 
@@ -144,7 +146,11 @@ const Pagination: React.FC<React.PropsWithChildren<React.PropsWithChildren<Pagin
           aria-label={t("go-to-next-page")}
           onClick={handleChangeEvent(Math.min(page + 1, totalPages))}
         >
-          <ChevronRightIcon />
+          <ArrowRight
+            className={css`
+              transform: scale(1.2);
+            `}
+          />
         </RightButton>,
       )
       return components
@@ -179,7 +185,11 @@ const Pagination: React.FC<React.PropsWithChildren<React.PropsWithChildren<Pagin
           aria-label={t("go-to-next-page")}
           onClick={handleChangeEvent(Math.min(page + 1, totalPages))}
         >
-          <ChevronRightIcon />
+          <ArrowRight
+            className={css`
+              transform: scale(1.2);
+            `}
+          />
         </RightButton>,
       )
       return components
@@ -208,7 +218,7 @@ const Pagination: React.FC<React.PropsWithChildren<React.PropsWithChildren<Pagin
       if (totalPages > CAPACITY) {
         components.push(
           <HorizontalDots>
-            <MoreHorizIcon />
+            <DotsHorizontal size={18} weight="bold" />
           </HorizontalDots>,
         )
       }
@@ -217,7 +227,7 @@ const Pagination: React.FC<React.PropsWithChildren<React.PropsWithChildren<Pagin
       components.push(<Circle onClick={handleChangeEvent(1)}> 1 </Circle>)
       components.push(
         <HorizontalDots>
-          <MoreHorizIcon />
+          <DotsHorizontal size={18} weight="bold" />
         </HorizontalDots>,
       )
       components.push(
@@ -247,7 +257,7 @@ const Pagination: React.FC<React.PropsWithChildren<React.PropsWithChildren<Pagin
       )
       components.push(
         <HorizontalDots>
-          <MoreHorizIcon />
+          <DotsHorizontal size={18} weight="bold" />
         </HorizontalDots>,
       )
       components.push(
@@ -273,7 +283,7 @@ const Pagination: React.FC<React.PropsWithChildren<React.PropsWithChildren<Pagin
       )
       components.push(
         <HorizontalDots>
-          <MoreHorizIcon />
+          <DotsHorizontal size={18} weight="bold" />
         </HorizontalDots>,
       )
       for (let idx = totalPages - CAPACITY + 1; idx <= totalPages; idx++) {
@@ -300,7 +310,11 @@ const Pagination: React.FC<React.PropsWithChildren<React.PropsWithChildren<Pagin
 
     components.push(
       <RightButton onClick={handleChangeEvent(Math.min(page + 1, totalPages))}>
-        <ChevronRightIcon />
+        <ArrowRight
+          className={css`
+            transform: scale(1.2);
+          `}
+        />
       </RightButton>,
     )
     return components

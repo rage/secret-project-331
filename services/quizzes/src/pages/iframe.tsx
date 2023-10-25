@@ -109,8 +109,8 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
               viewType: messageData.view_type,
               privateSpec: {
                 version: "2",
-                title: "",
-                body: "",
+                title: null,
+                body: null,
                 awardPointsEvenIfWrong: false,
                 grantPointsPolicy: "grant_whenever_possible",
                 quizItemDisplayDirection: "vertical",
@@ -133,8 +133,8 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
               // The quiz was just created, intialize it with empty values
               converted = {
                 version: "2",
-                title: "",
-                body: "",
+                title: null,
+                body: null,
                 awardPointsEvenIfWrong: false,
                 grantPointsPolicy: "grant_whenever_possible",
                 submitMessage: null,

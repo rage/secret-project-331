@@ -60,11 +60,11 @@ const createEmptyQuizItem = (type: QuizItemType) => {
       return {
         type,
         id: v4(),
-        body: "",
+        body: null,
         failureMessage: "",
         order: 0,
         successMessage: "",
-        title: "",
+        title: null,
       } as PrivateSpecQuizItemCheckbox
     case "choose-n":
       return {
@@ -74,33 +74,33 @@ const createEmptyQuizItem = (type: QuizItemType) => {
         options: [],
         order: 0,
         successMessage: "",
-        title: "",
-        body: "",
+        title: null,
+        body: null,
         n: 2,
       } as PrivateSpecQuizItemChooseN
     case "closed-ended-question":
       return {
         type,
         id: v4(),
-        body: "",
+        body: null,
         failureMessage: "",
         formatRegex: "",
         order: 0,
         successMessage: "",
-        title: "",
+        title: null,
         validityRegex: "",
       } as PrivateSpecQuizItemClosedEndedQuestion
     case "essay":
       return {
         type,
         id: v4(),
-        body: "",
+        body: null,
         failureMessage: "",
         maxWords: 150,
         minWords: 0,
         order: 0,
         successMessage: "",
-        title: "",
+        title: null,
       } as PrivateSpecQuizItemEssay
     case "matrix":
       return {
@@ -116,7 +116,7 @@ const createEmptyQuizItem = (type: QuizItemType) => {
         type,
         id: v4(),
         allowSelectingMultipleOptions: true,
-        body: "",
+        body: null,
         // eslint-disable-next-line i18next/no-literal-string
         optionDisplayDirection: "vertical",
         failureMessage: "",
@@ -127,14 +127,14 @@ const createEmptyQuizItem = (type: QuizItemType) => {
         sharedOptionFeedbackMessage: "",
         shuffleOptions: false,
         successMessage: "",
-        title: "",
+        title: null,
       } as PrivateSpecQuizItemMultiplechoice
     case "multiple-choice-dropdown":
       return {
         type,
         id: v4(),
         allowSelectingMultipleOptions: true,
-        body: "",
+        body: null,
         // eslint-disable-next-line i18next/no-literal-string
         direction: "row",
         failureMessage: "",
@@ -145,7 +145,7 @@ const createEmptyQuizItem = (type: QuizItemType) => {
         sharedOptionFeedbackMessage: "",
         shuffleOptions: false,
         successMessage: "",
-        title: "",
+        title: null,
       } as PrivateSpecQuizItemMultiplechoiceDropdown
     case "scale":
       return {
@@ -158,8 +158,8 @@ const createEmptyQuizItem = (type: QuizItemType) => {
         minValue: 0,
         order: 0,
         successMessage: "",
-        title: "",
-        body: "",
+        title: null,
+        body: null,
       } as PrivateSpecQuizItemScale
     case "timeline":
       return {

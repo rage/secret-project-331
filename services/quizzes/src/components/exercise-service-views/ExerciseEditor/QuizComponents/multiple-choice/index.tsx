@@ -243,7 +243,7 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                 {
                   order: draft.options.length + 1,
                   additionalCorrectnessExplanationOnModelSolution: "",
-                  body: "",
+                  body: null,
                   correct: correct,
                   id: v4(),
                   messageAfterSubmissionWhenSelected: messageAfterSubmissionWhenSelected,

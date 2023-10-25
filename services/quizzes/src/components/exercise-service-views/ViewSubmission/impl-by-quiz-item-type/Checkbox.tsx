@@ -42,7 +42,11 @@ const CheckBoxFeedback: React.FC<
                 justify-content: flex-end;
               `}
             >
-              <input type="checkbox" checked={checked} aria-label={public_quiz_item.title} />
+              <input
+                type="checkbox"
+                checked={checked}
+                aria-label={public_quiz_item.title ?? undefined}
+              />
             </div>
             <div
               className={css`
@@ -63,7 +67,11 @@ const CheckBoxFeedback: React.FC<
                 justify-content: flex-end;
               `}
             >
-              <input type="checkbox" checked={checked} aria-label={public_quiz_item.title} />
+              <input
+                type="checkbox"
+                checked={checked}
+                aria-label={public_quiz_item.title ?? undefined}
+              />
             </div>
             <div
               className={css`

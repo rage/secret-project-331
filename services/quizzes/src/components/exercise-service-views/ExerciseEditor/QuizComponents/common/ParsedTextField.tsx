@@ -51,7 +51,7 @@ const containsTags = (text: string) => {
 
 interface ParsedTextFieldProps {
   label: string
-  value: string
+  value: string | null
   onChange: (value: string) => void
 }
 
@@ -97,7 +97,11 @@ const ParsedTextField: React.FC<ParsedTextFieldProps> = ({ label, value, onChang
           <ParsedText text={value} parseMarkdown parseLatex inline />
         </ParsedTextContainer>
       ) : (
-        <TextField value={value} onChangeByValue={(value) => handleOnChange(value)} label={label} />
+        <TextField
+          value={value ?? undefined}
+          onChangeByValue={(value) => handleOnChange(value)}
+          label={label}
+        />
       )}
       <DisplayContainer>{hasTags && PreviewButton}</DisplayContainer>
     </TextfieldContainer>

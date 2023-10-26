@@ -4,6 +4,13 @@ import {
   PrivateSpecQuizItemMultiplechoice,
 } from "../../../types/quizTypes/privateSpec"
 
+export const MESSAGE_AFTER_SUBMISSION_CANARY_FOR_TESTS = "You should see this after a submission"
+export const ADDITIONAL_CORRECTNESS_EXPLANATION_ON_MODEL_SOLUTION_CANARY_FOR_TESTS =
+  "This spoils the answer, and you should only see it in the model solution."
+export const SUCCESS_MESSAGE_CANARY_FOR_TESTS =
+  "You got it right! This spoils the answer, and should only be visible when you answer correctly."
+export const SHARED_OPTION_FEEDBACK_MESSAGE_CANARY_FOR_TESTS = "This may spoil the answer"
+
 export function generateEmptyPrivateSpecQuiz(): PrivateSpecQuiz {
   return {
     version: "2",
@@ -48,8 +55,9 @@ export function generatePrivateSpecWithOneMultipleChoiceQuizItem(): PrivateSpecQ
         correct: true,
         title: "Positive",
         body: null,
-        messageAfterSubmissionWhenSelected: "You selected this one 1",
-        additionalCorrectnessExplanationOnModelSolution: "This spoils the answer 1",
+        messageAfterSubmissionWhenSelected: MESSAGE_AFTER_SUBMISSION_CANARY_FOR_TESTS,
+        additionalCorrectnessExplanationOnModelSolution:
+          ADDITIONAL_CORRECTNESS_EXPLANATION_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
       },
       {
         id: "id-2",
@@ -57,13 +65,14 @@ export function generatePrivateSpecWithOneMultipleChoiceQuizItem(): PrivateSpecQ
         correct: false,
         title: "Just no",
         body: null,
-        messageAfterSubmissionWhenSelected: "You selected this one 2",
-        additionalCorrectnessExplanationOnModelSolution: "This spoils the answer 2",
+        messageAfterSubmissionWhenSelected: MESSAGE_AFTER_SUBMISSION_CANARY_FOR_TESTS,
+        additionalCorrectnessExplanationOnModelSolution:
+          ADDITIONAL_CORRECTNESS_EXPLANATION_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
       },
     ],
     title: null,
     body: null,
-    successMessage: "You got it right! This spoils the answer",
+    successMessage: SUCCESS_MESSAGE_CANARY_FOR_TESTS,
     failureMessage: "You got it wrong!",
     sharedOptionFeedbackMessage: "This spoils the answer",
     optionDisplayDirection: "vertical",

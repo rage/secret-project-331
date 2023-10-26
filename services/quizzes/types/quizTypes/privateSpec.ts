@@ -56,6 +56,7 @@ export interface PrivateSpecQuizItemMultiplechoice {
   id: string
   order: number
   allowSelectingMultipleOptions: boolean
+  fogOfWar: boolean
   options: QuizItemOption[]
   title: string | null
   body: string | null

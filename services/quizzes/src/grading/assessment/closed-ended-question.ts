@@ -1,7 +1,7 @@
 import { UserItemAnswerClosedEndedQuestion } from "../../../types/quizTypes/answer"
 import { PrivateSpecQuizItemClosedEndedQuestion } from "../../../types/quizTypes/privateSpec"
 import { stripNonPrintableCharacters } from "../../shared-module/utils/strings"
-import { QuizItemAnswerGrading } from "../types"
+import { QuizItemAnswerGrading } from "../../../types/quizTypes/grading"
 
 const assessClosedEndedQuestion = (
   quizItemAnswer: UserItemAnswerClosedEndedQuestion,

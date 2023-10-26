@@ -125,6 +125,7 @@ const createEmptyQuizItem = (type: QuizItemType) => {
         shuffleOptions: false,
         successMessage: null,
         title: null,
+        fogOfWar: false,
         options: [],
       } as PrivateSpecQuizItemMultiplechoice
     case "multiple-choice-dropdown":

@@ -9,7 +9,7 @@ import {
   PrivateSpecQuizItemMultiplechoiceDropdown,
   PrivateSpecQuizItemTimeline,
 } from "../../../types/quizTypes/privateSpec"
-import { QuizItemAnswerGrading } from "../types"
+import { QuizItemAnswerGrading } from "../../../types/quizTypes/grading"
 
 import { assessChooseN } from "./choose-n"
 import { assessClosedEndedQuestion } from "./closed-ended-question"

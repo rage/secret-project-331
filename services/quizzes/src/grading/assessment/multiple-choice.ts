@@ -1,6 +1,6 @@
 import { UserItemAnswerMultiplechoice } from "../../../types/quizTypes/answer"
 import { PrivateSpecQuizItemMultiplechoice } from "../../../types/quizTypes/privateSpec"
-import { QuizItemAnswerGrading } from "../types"
+import { QuizItemAnswerGrading } from "../../../types/quizTypes/grading"
 
 const getMultipleChoicePointsByGradingPolicy = (
   quizItemAnswer: UserItemAnswerMultiplechoice,

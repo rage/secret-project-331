@@ -1,9 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from "next"
 
 import { UserAnswer } from "../../../types/quizTypes/answer"
+import { ItemAnswerFeedback } from "../../../types/quizTypes/grading"
 import { PrivateSpecQuiz } from "../../../types/quizTypes/privateSpec"
 import { assessAnswers } from "../../grading/assessment"
-import { ItemAnswerFeedback, submissionFeedback } from "../../grading/feedback"
+import { submissionFeedback } from "../../grading/feedback"
 import { gradeAnswers } from "../../grading/grading"
 import { handlePrivateSpecMigration, handleUserAnswerMigration } from "../../grading/utils"
 import { ExerciseTaskGradingResult } from "../../shared-module/bindings"

@@ -704,18 +704,17 @@ struct GraphQLRequest<'a> {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct MoocfiCurrentUserResponse {
-    pub data: MoocfiCurrentUserResponseData,
+struct MoocfiUserResponse {
+    pub data: MoocfiUserResponseData,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct MoocfiCurrentUserResponseData {
-    #[serde(rename = "currentUser")]
-    pub current_user: MoocfiCurrentUser,
+struct MoocfiUserResponseData {
+    pub user: MoocfiUser,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct MoocfiCurrentUser {
+struct MoocfiUser {
     pub id: Uuid,
     pub first_name: Option<String>,
     pub last_name: Option<String>,
@@ -737,7 +736,7 @@ pub async fn get_user_from_moocfi_by_login_token(
         .json(&GraphQLRequest {
             query: r#"
 {
-    currentUser {
+    user: currentUser {
       id
       email
       first_name
@@ -754,16 +753,13 @@ pub async fn get_user_from_moocfi_by_login_token(
     if !res.status().is_success() {
         return Err(anyhow::anyhow!("Failed to get current user from Mooc.fi"));
     }
-    let current_user_response: MoocfiCurrentUserResponse = res
+    let current_user_response: MoocfiUserResponse = res
         .json()
         .await
         .context("Unexpected response from Mooc.fi")?;
 
-    let user = get_or_create_user_from_moocfi_response(
-        &mut *conn,
-        current_user_response.data.current_user,
-    )
-    .await?;
+    let user = get_or_create_user_from_moocfi_response(&mut *conn, current_user_response.data.user)
+        .await?;
     Ok(user)
 }
 
@@ -801,24 +797,21 @@ query ($upstreamId: Int) {
     if !res.status().is_success() {
         return Err(anyhow::anyhow!("Failed to get current user from Mooc.fi"));
     }
-    let current_user_response: MoocfiCurrentUserResponse = res
+    let current_user_response: MoocfiUserResponse = res
         .json()
         .await
         .context("Unexpected response from Mooc.fi")?;
 
-    let user = get_or_create_user_from_moocfi_response(
-        &mut *conn,
-        current_user_response.data.current_user,
-    )
-    .await?;
+    let user = get_or_create_user_from_moocfi_response(&mut *conn, current_user_response.data.user)
+        .await?;
     Ok(user)
 }
 
 async fn get_or_create_user_from_moocfi_response(
     conn: &mut PgConnection,
-    moocfi_user: MoocfiCurrentUser,
+    moocfi_user: MoocfiUser,
 ) -> anyhow::Result<User> {
-    let MoocfiCurrentUser {
+    let MoocfiUser {
         id: moocfi_id,
         first_name,
         last_name,

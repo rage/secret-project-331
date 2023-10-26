@@ -131,7 +131,7 @@ interface MultipleChoiceOption {
   option: QuizItemOption
   onMessageAfterSubmissionWhenSelectedChange: (value: string) => void
   onTitleChange: (value: string) => void
-  onUpdateValues: (title: string, message: string, correct: boolean) => void
+  onUpdateValues: (title: string | null, message: string, correct: boolean) => void
   onDelete: () => void
 }
 
@@ -176,7 +176,7 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOption> = ({
       <OptionCard>
         {editMode ? (
           <CenteredContainer>
-            <TextField onChangeByValue={(value) => setTitle(value)} value={title} />
+            <TextField onChangeByValue={(value) => setTitle(value)} value={title ?? undefined} />
             <CheckboxContainer>
               <CheckBox
                 label={t("label-correct")}

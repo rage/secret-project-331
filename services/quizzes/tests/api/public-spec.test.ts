@@ -11,14 +11,15 @@ import {
   PrivateSpecQuizItemMultiplechoiceDropdown,
   PrivateSpecQuizItemScale,
   PrivateSpecQuizItemTimeline,
+  PrivateSpecQuizItemTimelineItem,
   QuizItemOption,
 } from "../../types/quizTypes/privateSpec"
 import {
   PublicSpecQuiz,
   PublicSpecQuizItemChooseN,
-  PublicSpecQuizItemClosedEndedQuestion,
   PublicSpecQuizItemMultiplechoice,
   PublicSpecQuizItemMultiplechoiceDropdown,
+  PublicSpecQuizItemTimeline,
 } from "../../types/quizTypes/publicSpec"
 
 import {
@@ -237,8 +238,13 @@ describe("Public spec generation", () => {
       expectPropertiesHaveBeenRemoved<PrivateSpecQuizItemTimeline>(quizItem, [
         "successMessage",
         "failureMessage",
-        "timelineItems",
       ])
+      for (const timelineItems of (quizItem as PublicSpecQuizItemTimeline).timelineItems) {
+        expectPropertiesHaveBeenRemoved<PrivateSpecQuizItemTimelineItem>(timelineItems, [
+          "correctEventId",
+          "correctEventName",
+        ])
+      }
     }
     expectNoCanariesInOutput(publicSpec)
   })

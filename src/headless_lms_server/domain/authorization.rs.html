@@ -1015,13 +1015,6 @@
 <a href="#1015" id="1015">1015</a>
 <a href="#1016" id="1016">1016</a>
 <a href="#1017" id="1017">1017</a>
-<a href="#1018" id="1018">1018</a>
-<a href="#1019" id="1019">1019</a>
-<a href="#1020" id="1020">1020</a>
-<a href="#1021" id="1021">1021</a>
-<a href="#1022" id="1022">1022</a>
-<a href="#1023" id="1023">1023</a>
-<a href="#1024" id="1024">1024</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Common functionality related to authorization
 
 </span><span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
@@ -1728,18 +1721,17 @@ token.authorized_ok(web::Json(cms_page_info))
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize)]
-</span><span class="kw">struct </span>MoocfiCurrentUserResponse {
-    <span class="kw">pub </span>data: MoocfiCurrentUserResponseData,
+</span><span class="kw">struct </span>MoocfiUserResponse {
+    <span class="kw">pub </span>data: MoocfiUserResponseData,
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize)]
-</span><span class="kw">struct </span>MoocfiCurrentUserResponseData {
-    <span class="attr">#[serde(rename = <span class="string">&quot;currentUser&quot;</span>)]
-    </span><span class="kw">pub </span>current_user: MoocfiCurrentUser,
+</span><span class="kw">struct </span>MoocfiUserResponseData {
+    <span class="kw">pub </span>user: MoocfiUser,
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize)]
-</span><span class="kw">struct </span>MoocfiCurrentUser {
+</span><span class="kw">struct </span>MoocfiUser {
     <span class="kw">pub </span>id: Uuid,
     <span class="kw">pub </span>first_name: <span class="prelude-ty">Option</span>&lt;String&gt;,
     <span class="kw">pub </span>last_name: <span class="prelude-ty">Option</span>&lt;String&gt;,
@@ -1761,7 +1753,7 @@ token.authorized_ok(web::Json(cms_page_info))
         .json(<span class="kw-2">&amp;</span>GraphQLRequest {
             query: <span class="string">r#&quot;
 {
-    currentUser {
+    user: currentUser {
       id
       email
       first_name
@@ -1778,16 +1770,13 @@ token.authorized_ok(web::Json(cms_page_info))
     <span class="kw">if </span>!res.status().is_success() {
         <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">anyhow::anyhow!</span>(<span class="string">&quot;Failed to get current user from Mooc.fi&quot;</span>));
     }
-    <span class="kw">let </span>current_user_response: MoocfiCurrentUserResponse = res
+    <span class="kw">let </span>current_user_response: MoocfiUserResponse = res
         .json()
         .<span class="kw">await
         </span>.context(<span class="string">&quot;Unexpected response from Mooc.fi&quot;</span>)<span class="question-mark">?</span>;
 
-    <span class="kw">let </span>user = get_or_create_user_from_moocfi_response(
-        <span class="kw-2">&amp;mut *</span>conn,
-        current_user_response.data.current_user,
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>user = get_or_create_user_from_moocfi_response(<span class="kw-2">&amp;mut *</span>conn, current_user_response.data.user)
+        .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(user)
 }
 
@@ -1825,24 +1814,21 @@ query ($upstreamId: Int) {
     <span class="kw">if </span>!res.status().is_success() {
         <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">anyhow::anyhow!</span>(<span class="string">&quot;Failed to get current user from Mooc.fi&quot;</span>));
     }
-    <span class="kw">let </span>current_user_response: MoocfiCurrentUserResponse = res
+    <span class="kw">let </span>current_user_response: MoocfiUserResponse = res
         .json()
         .<span class="kw">await
         </span>.context(<span class="string">&quot;Unexpected response from Mooc.fi&quot;</span>)<span class="question-mark">?</span>;
 
-    <span class="kw">let </span>user = get_or_create_user_from_moocfi_response(
-        <span class="kw-2">&amp;mut *</span>conn,
-        current_user_response.data.current_user,
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>user = get_or_create_user_from_moocfi_response(<span class="kw-2">&amp;mut *</span>conn, current_user_response.data.user)
+        .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(user)
 }
 
 <span class="kw">async fn </span>get_or_create_user_from_moocfi_response(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
-    moocfi_user: MoocfiCurrentUser,
+    moocfi_user: MoocfiUser,
 ) -&gt; anyhow::Result&lt;User&gt; {
-    <span class="kw">let </span>MoocfiCurrentUser {
+    <span class="kw">let </span>MoocfiUser {
         id: moocfi_id,
         first_name,
         last_name,

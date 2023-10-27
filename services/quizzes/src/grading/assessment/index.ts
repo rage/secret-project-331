@@ -1,4 +1,5 @@
 import { UserAnswer } from "../../../types/quizTypes/answer"
+import { QuizItemAnswerGrading } from "../../../types/quizTypes/grading"
 import {
   PrivateSpecQuiz,
   PrivateSpecQuizItemChooseN,
@@ -9,7 +10,6 @@ import {
   PrivateSpecQuizItemMultiplechoiceDropdown,
   PrivateSpecQuizItemTimeline,
 } from "../../../types/quizTypes/privateSpec"
-import { QuizItemAnswerGrading } from "../../../types/quizTypes/grading"
 
 import { assessChooseN } from "./choose-n"
 import { assessClosedEndedQuestion } from "./closed-ended-question"

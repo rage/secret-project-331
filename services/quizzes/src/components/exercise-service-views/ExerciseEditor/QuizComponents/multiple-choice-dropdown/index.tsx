@@ -94,7 +94,6 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
   const { t } = useTranslation()
 
   const [optionTitle, setOptionTitle] = useState("")
-  const [messageAfterSubmissionWhenSelected, setMessageAfterSubmissionWhenSelected] = useState("")
   const [correct, setCorrect] = useState(false)
 
   const MULTIPLE_CHOICE_OPTIONS = [
@@ -218,18 +217,17 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                 ...draft.options,
                 {
                   order: draft.options.length + 1,
-                  additionalCorrectnessExplanationOnModelSolution: "",
+                  additionalCorrectnessExplanationOnModelSolution: null,
                   body: null,
                   correct: correct,
                   id: v4(),
-                  messageAfterSubmissionWhenSelected: messageAfterSubmissionWhenSelected,
+                  messageAfterSubmissionWhenSelected: null,
                   title: optionTitle,
                 },
               ]
             })
             setCorrect(false)
             setOptionTitle("")
-            setMessageAfterSubmissionWhenSelected("")
           }}
           variant="primary"
           size={"medium"}

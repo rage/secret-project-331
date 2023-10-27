@@ -58,6 +58,8 @@ const submissionFeedback = (
         }
       }
 
+      const fogOfWar = (item as PrivateSpecQuizItemMultiplechoice).fogOfWar === true
+
       return {
         timeline_item_feedbacks: null,
         quiz_item_id: multipleChoiceQuizItem.id,
@@ -79,8 +81,8 @@ const submissionFeedback = (
             return {
               option_id: option.id,
               option_feedback: option.messageAfterSubmissionWhenSelected,
-              // We'll reveal whether what the student chose was correct or not. If this is not desirable in the future, we can add a configurable policy for this.
-              this_option_was_correct: option.correct,
+              // We'll reveal whether what the student chose was correct or not. If fogOfWar is turned on, we'll never reveal this in the grading and the student will have to get this information from the model solution spec.
+              this_option_was_correct: fogOfWar ? null : option.correct,
             }
           },
         ),

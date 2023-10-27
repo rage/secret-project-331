@@ -8,6 +8,7 @@ interface ToggleCardProps {
   title: string
   description: string
   onChange: (value: boolean) => void
+  disabled?: boolean
 }
 
 interface ToggleSwitchProps {
@@ -15,7 +16,7 @@ interface ToggleSwitchProps {
   onChange: (value: boolean) => void
 }
 
-const ToggleCardContainer = styled.div`
+const ToggleCardContainer = styled.div<{ disabled: boolean }>`
   background-color: #fafafa;
   border: 2px solid #e0e0e0;
   border-radius: 4px;
@@ -23,11 +24,15 @@ const ToggleCardContainer = styled.div`
   display: flex;
   flex-direction: row;
   margin: 8px 0px 8px 0px;
+  opacity: ${(props) => (props.disabled ? 0.5 : 1)};
+  pointer-events: ${(props) => (props.disabled ? "none" : "unset")};
 `
 
 const ToggleCardDetails = styled.div`
   display: flex;
   flex-direction: column;
+  flex: 1;
+  margin-right: 0.5rem;
 `
 
 const ToggleCardTitle = styled.div`
@@ -107,9 +112,15 @@ const RectangularSwitch: React.FC<ToggleSwitchProps> = ({ checked, onChange }) =
   </ToggleButton>
 )
 
-const ToggleCard: React.FC<ToggleCardProps> = ({ title, description, state, onChange }) => {
+const ToggleCard: React.FC<ToggleCardProps> = ({
+  title,
+  description,
+  state,
+  onChange,
+  disabled = false,
+}) => {
   return (
-    <ToggleCardContainer>
+    <ToggleCardContainer disabled={disabled}>
       <ToggleCardDetails>
         <ToggleCardTitle>{title}</ToggleCardTitle>
         <ToggleCardDescription>{description}</ToggleCardDescription>

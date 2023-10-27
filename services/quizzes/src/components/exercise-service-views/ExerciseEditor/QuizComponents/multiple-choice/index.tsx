@@ -94,7 +94,6 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
   const { t } = useTranslation()
 
   const [optionTitle, setOptionTitle] = useState("")
-  const [messageAfterSubmissionWhenSelected, setMessageAfterSubmissionWhenSelected] = useState("")
   const [correct, setCorrect] = useState(false)
 
   const MULTIPLE_CHOICE_OPTIONS = [
@@ -217,18 +216,17 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                 ...draft.options,
                 {
                   order: draft.options.length + 1,
-                  additionalCorrectnessExplanationOnModelSolution: "",
+                  additionalCorrectnessExplanationOnModelSolution: null,
                   body: null,
                   correct: correct,
                   id: v4(),
-                  messageAfterSubmissionWhenSelected: messageAfterSubmissionWhenSelected,
+                  messageAfterSubmissionWhenSelected: null,
                   title: optionTitle,
                 },
               ]
             })
             setCorrect(false)
             setOptionTitle("")
-            setMessageAfterSubmissionWhenSelected("")
           }}
           variant="primary"
           size={"medium"}
@@ -296,9 +294,25 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                     return
                   }
                   draft.allowSelectingMultipleOptions = allowSelectingMultipleOptions
+                  // Should be enabled by default when selecting multiple options is enabled, but doesn't work when selecting multiple options is disabled
+                  draft.fogOfWar = allowSelectingMultipleOptions
                 })
               }}
               state={selected.allowSelectingMultipleOptions}
+            />
+            <ToggleCard
+              title={t("fog-of-war")}
+              description={t("fog-of-war-description")}
+              disabled={!selected.allowSelectingMultipleOptions}
+              onChange={(fogOfWar) => {
+                updateState((draft) => {
+                  if (!draft) {
+                    return
+                  }
+                  draft.fogOfWar = fogOfWar
+                })
+              }}
+              state={selected.fogOfWar}
             />
             <SelectField
               id={"multiple-choice-grading"}

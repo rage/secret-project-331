@@ -115,7 +115,7 @@ const createEmptyQuizItem = (type: QuizItemType) => {
       return {
         type,
         id: v4(),
-        allowSelectingMultipleOptions: true,
+        allowSelectingMultipleOptions: false,
         body: null,
         optionDisplayDirection: "vertical",
         failureMessage: null,
@@ -132,7 +132,7 @@ const createEmptyQuizItem = (type: QuizItemType) => {
       return {
         type,
         id: v4(),
-        allowSelectingMultipleOptions: true,
+        allowSelectingMultipleOptions: false,
         body: null,
         direction: "row",
         failureMessage: null,

@@ -19,13 +19,17 @@ use oauth2::ResourceOwnerUsername;
 use oauth2::StandardTokenResponse;
 use oauth2::TokenResponse;
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 use sqlx::PgConnection;
+use std::env;
 use std::pin::Pin;
 #[cfg(feature = "ts_rs")]
 pub use ts_rs::TS;
 use uuid::Uuid;
 
 const SESSION_KEY: &str = "user";
+
+const MOOCFI_GRAPHQL_URL: &str = "https://www.mooc.fi/api";
 
 // at least one field should be kept private to prevent initializing the struct outside of this module;
 // this way FromRequest is the only way to create an AuthUser
@@ -288,6 +292,43 @@ pub async fn authorize_access_to_course_material(
         skip_authorize()
     };
     Ok(token)
+}
+
+/**  Can be used to check whether user is allowed to view some course material */
+pub async fn authorize_access_to_tmc_server(
+    request: &HttpRequest,
+) -> Result<AuthorizationToken, ControllerError> {
+    let tmc_server_secret_for_communicating_to_secret_project =
+        env::var("TMC_SERVER_SECRET_FOR_COMMUNICATING_TO_SECRET_PROJECT")
+            .expect("TMC_SERVER_SECRET_FOR_COMMUNICATING_TO_SECRET_PROJECT must be defined");
+    // check authorization header
+    let auth_header = request
+        .headers()
+        .get("Authorization")
+        .ok_or_else(|| {
+            ControllerError::new(
+                ControllerErrorType::Unauthorized,
+                "Unauthorized".to_string(),
+                None,
+            )
+        })?
+        .to_str()
+        .map_err(|_| {
+            ControllerError::new(
+                ControllerErrorType::Unauthorized,
+                "Unauthorized".to_string(),
+                None,
+            )
+        })?;
+    // If auth header correct one, grant access
+    if auth_header == tmc_server_secret_for_communicating_to_secret_project {
+        return Ok(skip_authorize());
+    }
+    Err(ControllerError::new(
+        ControllerErrorType::Unauthorized,
+        "Unauthorized".to_string(),
+        None,
+    ))
 }
 
 /**  Can be used to check whether user is allowed to view some course material */
@@ -635,7 +676,7 @@ pub async fn authenticate_moocfi_user(
     password: String,
 ) -> anyhow::Result<(User, LoginToken)> {
     let token = exchange_password_with_moocfi(client, email, password).await?;
-    let user = get_user_from_moocfi(&token, conn).await?;
+    let user = get_user_from_moocfi_by_login_token(&token, conn).await?;
     Ok((user, token))
 }
 
@@ -656,23 +697,24 @@ pub async fn exchange_password_with_moocfi(
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct GraphQLRquest<'a> {
+struct GraphQLRequest<'a> {
     query: &'a str,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    variables: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct MoocfiCurrentUserResponse {
-    pub data: MoocfiCurrentUserResponseData,
+struct MoocfiUserResponse {
+    pub data: MoocfiUserResponseData,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct MoocfiCurrentUserResponseData {
-    #[serde(rename = "currentUser")]
-    pub current_user: MoocfiCurrentUser,
+struct MoocfiUserResponseData {
+    pub user: MoocfiUser,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct MoocfiCurrentUser {
+struct MoocfiUser {
     pub id: Uuid,
     pub first_name: Option<String>,
     pub last_name: Option<String>,
@@ -680,29 +722,29 @@ struct MoocfiCurrentUser {
     pub upstream_id: i32,
 }
 
-pub async fn get_user_from_moocfi(
+pub async fn get_user_from_moocfi_by_login_token(
     token: &LoginToken,
     conn: &mut PgConnection,
 ) -> anyhow::Result<User> {
     info!("Getting user details from mooc.fi");
-    let moocfi_graphql_url = "https://www.mooc.fi/api";
+
     let client = reqwest::Client::default();
     let res = client
-        .post(moocfi_graphql_url)
+        .post(MOOCFI_GRAPHQL_URL)
         .header(reqwest::header::CONTENT_TYPE, "application/json")
         .header(reqwest::header::ACCEPT, "application/json")
-        .json(&GraphQLRquest {
+        .json(&GraphQLRequest {
             query: r#"
 {
-    currentUser {
-    id
-    email
-    first_name
-    last_name
-    upstream_id
+    user: currentUser {
+      id
+      email
+      first_name
+      last_name
+      upstream_id
     }
-}
-            "#,
+}"#,
+            variables: None,
         })
         .bearer_auth(token.access_token().secret())
         .send()
@@ -711,17 +753,71 @@ pub async fn get_user_from_moocfi(
     if !res.status().is_success() {
         return Err(anyhow::anyhow!("Failed to get current user from Mooc.fi"));
     }
-    let current_user_response: MoocfiCurrentUserResponse = res
+    let current_user_response: MoocfiUserResponse = res
         .json()
         .await
         .context("Unexpected response from Mooc.fi")?;
-    let MoocfiCurrentUser {
+
+    let user = get_or_create_user_from_moocfi_response(&mut *conn, current_user_response.data.user)
+        .await?;
+    Ok(user)
+}
+
+pub async fn get_user_from_moocfi_by_tmc_access_token_and_upstream_id(
+    conn: &mut PgConnection,
+    tmc_access_token: &str,
+    upstream_id: &i32,
+) -> anyhow::Result<User> {
+    info!("Getting user details from mooc.fi");
+    let client = reqwest::Client::default();
+
+    let res = client
+        .post(MOOCFI_GRAPHQL_URL)
+        .header(reqwest::header::CONTENT_TYPE, "application/json")
+        .header(reqwest::header::ACCEPT, "application/json")
+        .bearer_auth(tmc_access_token)
+        .json(&GraphQLRequest {
+            query: r#"
+query ($upstreamId: Int) {
+  user(upstream_id: $upstreamId) {
+    id
+    email
+    first_name
+    last_name
+    upstream_id
+  }
+}"#,
+            variables: Some(json!({
+                "upstreamId": upstream_id
+            })),
+        })
+        .send()
+        .await
+        .context("Failed to send request to Mooc.fi")?;
+    if !res.status().is_success() {
+        return Err(anyhow::anyhow!("Failed to get current user from Mooc.fi"));
+    }
+    let current_user_response: MoocfiUserResponse = res
+        .json()
+        .await
+        .context("Unexpected response from Mooc.fi")?;
+
+    let user = get_or_create_user_from_moocfi_response(&mut *conn, current_user_response.data.user)
+        .await?;
+    Ok(user)
+}
+
+async fn get_or_create_user_from_moocfi_response(
+    conn: &mut PgConnection,
+    moocfi_user: MoocfiUser,
+) -> anyhow::Result<User> {
+    let MoocfiUser {
         id: moocfi_id,
         first_name,
         last_name,
         email,
         upstream_id,
-    } = current_user_response.data.current_user;
+    } = moocfi_user;
 
     // fetch existing user or create new one
     let user =

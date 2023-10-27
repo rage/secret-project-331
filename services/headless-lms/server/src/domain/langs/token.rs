@@ -79,7 +79,9 @@ impl FromRequest for AuthToken {
                             oauth2::basic::BasicTokenType::Bearer,
                             oauth2::EmptyExtraTokenFields {},
                         );
-                        let user = authorization::get_user_from_moocfi(&token, &mut conn).await?;
+                        let user =
+                            authorization::get_user_from_moocfi_by_login_token(&token, &mut conn)
+                                .await?;
                         cache_user(&cache, &token, &user).await;
                         user
                     }

@@ -88,6 +88,7 @@ export function generatePrivateSpecWithOneMultipleChoiceQuizItem(): PrivateSpecQ
     sharedOptionFeedbackMessage: SHARED_OPTION_FEEDBACK_MESSAGE_CANARY_FOR_TESTS,
     optionDisplayDirection: "vertical",
     multipleChoiceMultipleOptionsGradingPolicy: "default",
+    fogOfWar: false,
   }
 
   return { ...emptyQuiz, items: [closedEndedQuestionQuizItem] }

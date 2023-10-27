@@ -51,3 +51,24 @@ export async function scrollLocatorsParentIframeToViewIfNeeded(locator: Locator)
     elementHandle?.scrollIntoViewIfNeeded()
   }
 }
+
+export async function scrollElementInsideIframeToView(locator: Locator) {
+  const page = locator.page()
+  // Logic to make getting element handles from inside iframes that are offscreen to work
+  await expect(async () => {
+    const elementHandle = await locator.elementHandle({ timeout: 500 })
+    if (elementHandle === null) {
+      throw new Error("Could not get element handle for locator")
+    }
+  }).toPass({ timeout: 10000 })
+  const elementHandle = await locator.elementHandle()
+  const ownerFrame = await elementHandle?.ownerFrame()
+  const parentFrame = ownerFrame?.parentFrame()
+  const elementHandleBoundingBox = await elementHandle?.boundingBox()
+  if (elementHandleBoundingBox === null || elementHandleBoundingBox === undefined) {
+    throw new Error("Could not get bounding box for element handle")
+  }
+  await page.evaluate((y) => {
+    window.scrollTo(0, window.scrollY + y)
+  }, elementHandleBoundingBox.y)
+}

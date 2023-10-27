@@ -1,7 +1,10 @@
 import { Locator, Page, test } from "@playwright/test"
 
 import expectUrlPathWithRandomUuid from "../../utils/expect"
-import { getLocatorForNthExerciseServiceIframe } from "../../utils/iframeLocators"
+import {
+  getLocatorForNthExerciseServiceIframe,
+  scrollElementInsideIframeToView,
+} from "../../utils/iframeLocators"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -104,10 +107,7 @@ const createMultipleChoice = async (frame: Locator) => {
   await frame.getByLabel("Title", { exact: true }).fill("multiple-choice-exercise")
   await frame.getByLabel("Option title", { exact: true }).click()
   await frame.getByLabel("Option title", { exact: true }).fill("option 1")
-  await frame.getByRole("textbox", { name: "Message after submission when selected" }).click()
-  await frame
-    .getByRole("textbox", { name: "Message after submission when selected" })
-    .fill("success message")
+
   await frame.getByLabel("Correct").check()
   await frame.getByRole("button", { name: "Add option" }).click()
   await frame.getByLabel("Option title", { exact: true }).click()
@@ -123,13 +123,15 @@ const createMultipleChoice = async (frame: Locator) => {
     })
     .locator("summary")
     .click()
-  await frame.locator(".css-1gfrg3y-ToggleButtonSlider").first().click()
-  await frame
-    .locator("div:nth-child(6) > .css-1wioarr-ToggleButton > .css-1gfrg3y-ToggleButtonSlider")
-    .click()
-  await frame
-    .locator("div:nth-child(6) > .css-1wioarr-ToggleButton > .css-1gfrg3y-ToggleButtonSlider")
-    .click()
+
+  await scrollElementInsideIframeToView(frame.getByLabel("Shuffle options"))
+  await frame.getByLabel("Shuffle options").check()
+  await frame.getByLabel("Shuffle options").uncheck()
+  await frame.getByLabel("Shuffle options").check()
+  await frame.getByLabel("Fog of war").check()
+  await frame.getByLabel("Fog of war").uncheck()
+  await frame.getByLabel("Fog of war").check()
+
   await frame
     .getByRole("combobox", { name: "Multiple options grading policy" })
     .selectOption("points-off-incorrect-options")
@@ -162,10 +164,6 @@ const createMultipleChoiceDropdown = async (frame: Locator) => {
   await frame.getByLabel("Option title", { exact: true }).click()
   await frame.getByLabel("Option title", { exact: true }).fill("option 1")
   await frame.getByLabel("Correct").check()
-  await frame.getByRole("textbox", { name: "Message after submission when selected" }).click()
-  await frame
-    .getByRole("textbox", { name: "Message after submission when selected" })
-    .fill("success message")
   await frame.getByRole("button", { name: "Add option" }).click()
   await frame.getByLabel("Option title", { exact: true }).click()
   await frame.getByLabel("Option title", { exact: true }).fill("option 2")

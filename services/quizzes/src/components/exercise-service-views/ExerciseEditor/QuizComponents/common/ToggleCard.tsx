@@ -1,5 +1,5 @@
 import styled from "@emotion/styled"
-import React from "react"
+import React, { useId } from "react"
 
 import { primaryFont } from "../../../../../shared-module/styles"
 
@@ -14,6 +14,7 @@ interface ToggleCardProps {
 interface ToggleSwitchProps {
   checked: boolean
   onChange: (value: boolean) => void
+  id: string
 }
 
 const ToggleCardContainer = styled.div<{ disabled: boolean }>`
@@ -35,7 +36,7 @@ const ToggleCardDetails = styled.div`
   margin-right: 0.5rem;
 `
 
-const ToggleCardTitle = styled.div`
+const ToggleCardTitle = styled.label`
   font-size: 18px;
   font-weight: bold;
   font-family: ${primaryFont};
@@ -49,7 +50,7 @@ const ToggleCardDescription = styled.div`
   color: #989ca3;
 `
 
-const ToggleButton = styled.label`
+const ToggleButton = styled.div`
   margin-left: auto;
   align-self: center;
 
@@ -99,9 +100,10 @@ const ToggleButtonSlider = styled.span`
   }
 `
 
-const RectangularSwitch: React.FC<ToggleSwitchProps> = ({ checked, onChange }) => (
+const RectangularSwitch: React.FC<ToggleSwitchProps> = ({ checked, onChange, id }) => (
   <ToggleButton>
     <ToggleButtonInput
+      id={id}
       checked={checked}
       type="checkbox"
       onChange={(_) => {
@@ -119,13 +121,14 @@ const ToggleCard: React.FC<ToggleCardProps> = ({
   onChange,
   disabled = false,
 }) => {
+  const id = useId()
   return (
     <ToggleCardContainer disabled={disabled}>
       <ToggleCardDetails>
-        <ToggleCardTitle>{title}</ToggleCardTitle>
+        <ToggleCardTitle htmlFor={id}>{title}</ToggleCardTitle>
         <ToggleCardDescription>{description}</ToggleCardDescription>
       </ToggleCardDetails>
-      <RectangularSwitch checked={state} onChange={onChange} />
+      <RectangularSwitch id={id} checked={state} onChange={onChange} />
     </ToggleCardContainer>
   )
 }

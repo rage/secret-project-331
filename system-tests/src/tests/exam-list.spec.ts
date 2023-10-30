@@ -27,6 +27,7 @@ test("exam list renders, can create exam", async ({ page, headless }, testInfo) 
     headless,
     testInfo,
     snapshotName: "exam-listing",
+    useCoordinatesFromTheBottomForSavingYCoordinates: true,
     waitForTheseToBeVisibleAndStable: [
       page.getByRole("link", { name: "Automatic course exam" }).last(),
     ],

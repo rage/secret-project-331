@@ -55,12 +55,24 @@ export async function imageSavedPageYCoordinate(pathToImage: string): Promise<nu
   return null
 }
 
-export async function savePageYCoordinateToImage(pathToImage: string, page: Page): Promise<void> {
+export async function savePageYCoordinateToImage(
+  pathToImage: string,
+  page: Page,
+  useCoordinatesFromTheBottomForSavingYCoordinates: boolean | undefined,
+): Promise<void> {
   // eslint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(200)
-  const yCoordinate = await page.evaluate(() => {
+  let yCoordinate = await page.evaluate(() => {
     return window.scrollY
   })
+
+  if (useCoordinatesFromTheBottomForSavingYCoordinates) {
+    const pageHeight = await page.evaluate(() => {
+      return document.body.scrollHeight
+    })
+    yCoordinate = yCoordinate - pageHeight
+  }
+
   const contents = await readFile(pathToImage, "binary")
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const listOfPngMetadataChunks: any[] = pngMetadata.splitChunk(contents)

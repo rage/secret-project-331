@@ -51,6 +51,7 @@ The following commands are avaialle for running the tests directly from the repo
 - `bin/system-tests-run-tests` &mdash; Run tests
 - `bin/system-tests-update-snapshots` &mdash; Update image snapshots
 - `bin/system-tests-run-tests-record-video` &mdash; Run tests and record a video of the test run that is saved to `system-tests/test-results`
+- `bin/system-tests-run-tests-slowmo` &mdash; Run tests with the browser visible in slow motion
 
 ## Helper functions
 

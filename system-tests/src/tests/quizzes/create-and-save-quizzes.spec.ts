@@ -128,10 +128,14 @@ const createMultipleChoice = async (frame: Locator) => {
   await frame.getByLabel("Shuffle options").check()
   await frame.getByLabel("Shuffle options").uncheck()
   await frame.getByLabel("Shuffle options").check()
+  await frame.getByLabel("Multiple options", { exact: true }).check()
   await frame.getByLabel("Fog of war").check()
   await frame.getByLabel("Fog of war").uncheck()
   await frame.getByLabel("Fog of war").check()
 
+  await scrollElementInsideIframeToView(
+    frame.getByRole("combobox", { name: "Multiple options grading policy" }),
+  )
   await frame
     .getByRole("combobox", { name: "Multiple options grading policy" })
     .selectOption("points-off-incorrect-options")
@@ -178,10 +182,7 @@ const createMultipleChoiceDropdown = async (frame: Locator) => {
     })
     .locator("summary")
     .click()
-  await frame.getByRole("radio", { name: "horizontal" }).check()
-  await frame
-    .getByRole("combobox", { name: "Multiple options grading policy" })
-    .selectOption("points-off-incorrect-options")
+
   await frame
     .getByRole("group")
     .filter({

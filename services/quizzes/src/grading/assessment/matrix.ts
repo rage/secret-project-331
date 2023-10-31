@@ -1,6 +1,6 @@
 import { UserItemAnswerMatrix } from "../../../types/quizTypes/answer"
+import { QuizItemAnswerGrading } from "../../../types/quizTypes/grading"
 import { PrivateSpecQuizItemMatrix } from "../../../types/quizTypes/privateSpec"
-import { QuizItemAnswerGrading } from "../types"
 
 const assessMatrixQuiz = (
   quizItemAnswer: UserItemAnswerMatrix,

@@ -60,47 +60,47 @@ const createEmptyQuizItem = (type: QuizItemType) => {
       return {
         type,
         id: v4(),
-        body: "",
-        failureMessage: "",
+        body: null,
+        failureMessage: null,
         order: 0,
-        successMessage: "",
-        title: "",
+        successMessage: null,
+        title: null,
       } as PrivateSpecQuizItemCheckbox
     case "choose-n":
       return {
         type,
         id: v4(),
-        failureMessage: "",
-        options: [],
+        failureMessage: null,
         order: 0,
-        successMessage: "",
-        title: "",
-        body: "",
+        successMessage: null,
+        title: null,
+        body: null,
         n: 2,
+        options: [],
       } as PrivateSpecQuizItemChooseN
     case "closed-ended-question":
       return {
         type,
         id: v4(),
-        body: "",
-        failureMessage: "",
-        formatRegex: "",
+        body: null,
+        failureMessage: null,
+        formatRegex: null,
         order: 0,
-        successMessage: "",
-        title: "",
-        validityRegex: "",
+        successMessage: null,
+        title: null,
+        validityRegex: null,
       } as PrivateSpecQuizItemClosedEndedQuestion
     case "essay":
       return {
         type,
         id: v4(),
-        body: "",
-        failureMessage: "",
+        body: null,
+        failureMessage: null,
         maxWords: 150,
         minWords: 0,
         order: 0,
-        successMessage: "",
-        title: "",
+        successMessage: null,
+        title: null,
       } as PrivateSpecQuizItemEssay
     case "matrix":
       return {
@@ -108,67 +108,65 @@ const createEmptyQuizItem = (type: QuizItemType) => {
         id: v4(),
         optionCells: createEmptyMatrix(),
         order: 0,
-        successMessage: "",
-        failureMessage: "",
+        successMessage: null,
+        failureMessage: null,
       } as PrivateSpecQuizItemMatrix
     case "multiple-choice":
       return {
         type,
         id: v4(),
-        allowSelectingMultipleOptions: true,
-        body: "",
-        // eslint-disable-next-line i18next/no-literal-string
+        allowSelectingMultipleOptions: false,
+        body: null,
         optionDisplayDirection: "vertical",
-        failureMessage: "",
-        // eslint-disable-next-line i18next/no-literal-string
+        failureMessage: null,
         multipleChoiceMultipleOptionsGradingPolicy: "default",
-        options: [],
         order: 0,
-        sharedOptionFeedbackMessage: "",
+        sharedOptionFeedbackMessage: null,
         shuffleOptions: false,
-        successMessage: "",
-        title: "",
+        successMessage: null,
+        title: null,
+        fogOfWar: false,
+        options: [],
       } as PrivateSpecQuizItemMultiplechoice
     case "multiple-choice-dropdown":
       return {
         type,
         id: v4(),
-        allowSelectingMultipleOptions: true,
-        body: "",
-        // eslint-disable-next-line i18next/no-literal-string
+        allowSelectingMultipleOptions: false,
+        body: null,
         direction: "row",
-        failureMessage: "",
-        // eslint-disable-next-line i18next/no-literal-string
+        failureMessage: null,
         multipleChoiceMultipleOptionsGradingPolicy: "default",
-        options: [],
+
         order: 0,
-        sharedOptionFeedbackMessage: "",
+        sharedOptionFeedbackMessage: null,
         shuffleOptions: false,
-        successMessage: "",
-        title: "",
+        successMessage: null,
+        title: null,
+        options: [],
       } as PrivateSpecQuizItemMultiplechoiceDropdown
     case "scale":
       return {
         type,
         id: v4(),
-        failureMessage: "",
-        maxLabel: "",
+        failureMessage: null,
+        maxLabel: null,
         maxValue: 5,
-        minLabel: "",
+        minLabel: null,
         minValue: 0,
         order: 0,
-        successMessage: "",
-        title: "",
-        body: "",
+        successMessage: null,
+        title: null,
+        body: null,
       } as PrivateSpecQuizItemScale
     case "timeline":
       return {
         events: [],
         type,
         id: v4(),
-        failureMessage: "",
+        failureMessage: null,
         order: 0,
-        successMessage: "",
+        successMessage: null,
         timelineItems: [],
       } as PrivateSpecQuizItemTimeline
   }

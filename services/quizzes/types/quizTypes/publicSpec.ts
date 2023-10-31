@@ -22,7 +22,7 @@ export type PublicSpecQuizItem =
 export interface PublicQuizItemOption {
   id: string
   order: number
-  title: string
+  title: string | null
   body: string | null
 }
 
@@ -33,8 +33,8 @@ export interface PublicSpecQuizItemMultiplechoice {
   order: number
   allowSelectingMultipleOptions: boolean
   options: PublicQuizItemOption[]
-  title: string
-  body: string
+  title: string | null
+  body: string | null
   optionDisplayDirection: DisplayDirection
   multipleChoiceMultipleOptionsGradingPolicy: multipleChoiceMultipleOptionsGradingPolicy
 }
@@ -45,8 +45,8 @@ export interface PublicSpecQuizItemEssay {
   order: number
   minWords: number | null
   maxWords: number | null
-  title: string
-  body: string
+  title: string | null
+  body: string | null
 }
 
 export interface PublicSpecQuizItemScale {
@@ -58,16 +58,16 @@ export interface PublicSpecQuizItemScale {
   maxLabel: string | null
   minLabel: string | null
   optionAnswers: string[] | null
-  title: string
-  body: string
+  title: string | null
+  body: string | null
 }
 
 export interface PublicSpecQuizItemCheckbox {
   type: "checkbox"
   id: string
   order: number
-  title: string
-  body: string
+  title: string | null
+  body: string | null
 }
 
 export interface PublicSpecQuizItemClosedEndedQuestion {
@@ -75,7 +75,7 @@ export interface PublicSpecQuizItemClosedEndedQuestion {
   id: string
   order: number
   formatRegex: string | null
-  title: string
+  title: string | null
   body: string | null
 }
 
@@ -110,8 +110,8 @@ export interface PublicSpecQuizItemChooseN {
   order: number
   n: number
   options: PublicQuizItemOption[]
-  title: string
-  body: string
+  title: string | null
+  body: string | null
 }
 
 export interface PublicSpecQuizItemMultiplechoiceDropdown {
@@ -119,6 +119,6 @@ export interface PublicSpecQuizItemMultiplechoiceDropdown {
   id: string
   order: number
   options: PublicQuizItemOption[]
-  title: string
-  body: string
+  title: string | null
+  body: string | null
 }

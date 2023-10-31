@@ -94,6 +94,7 @@ export const migratePrivateSpecQuizItem = (quizItem: QuizItem) => {
         sharedOptionFeedbackMessage: quizItem.sharedOptionFeedbackMessage,
         options: quizItem.options,
         shuffleOptions: quizItem.shuffleOptions,
+        fogOfWar: false,
       } satisfies PrivateSpecQuizItemMultiplechoice
     case "open":
       return {

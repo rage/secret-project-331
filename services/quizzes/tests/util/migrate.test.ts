@@ -62,7 +62,7 @@ const OLD_QUIZ_SNAPSHOT = {
   autoConfirm: false,
   autoReject: false,
   awardPointsEvenIfWrong: false,
-  body: "",
+  body: null,
   courseId: "123cd5a9-c6b6-44f8-8afc-132a0c41dbd0",
   createdAt: new Date(2022, 5, 30),
   deadline: null,
@@ -81,7 +81,7 @@ const OLD_QUIZ_SNAPSHOT = {
   items: [
     {
       allAnswersCorrect: true,
-      body: "",
+      body: null,
       createdAt: new Date(2022, 5, 30),
       direction: "row",
       failureMessage: "Failure message",
@@ -101,14 +101,14 @@ const OLD_QUIZ_SNAPSHOT = {
       sharedOptionFeedbackMessage: null,
       successMessage: "Success message",
       timelineItems: null,
-      title: "",
+      title: null,
       type: "multiple-choice",
       updatedAt: new Date(2022, 5, 30),
       usesSharedOptionFeedbackMessage: false,
       validityRegex: null,
       options: [
         {
-          body: "",
+          body: null,
           correct: true,
           createdAt: new Date(2022, 5, 30),
           id: "123cd5a9-c6b6-44f8-8afc-132a0c41dbd0",
@@ -120,7 +120,7 @@ const OLD_QUIZ_SNAPSHOT = {
           quizItemId: "123cd5a9-c6b6-44f8-8afc-132a0c41dbd0",
         },
         {
-          body: "",
+          body: null,
           correct: false,
           createdAt: new Date(2022, 5, 30),
           id: "123cd5a9-c6b6-44f8-8afc-132a0c41dbd0",

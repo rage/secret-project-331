@@ -11,11 +11,11 @@ import {
   OldQuizAnswer,
 } from "../../types/oldQuizTypes"
 import { UserAnswer } from "../../types/quizTypes/answer"
+import { ItemAnswerFeedback } from "../../types/quizTypes/grading"
 import { ModelSolutionQuiz } from "../../types/quizTypes/modelSolutionSpec"
 import { PrivateSpecQuiz } from "../../types/quizTypes/privateSpec"
 import { PublicSpecQuiz } from "../../types/quizTypes/publicSpec"
 import Renderer from "../components/exercise-service-views/Renderer"
-import { ItemAnswerFeedback } from "../grading/feedback"
 import { StudentExerciseTaskSubmissionResult } from "../shared-module/bindings"
 import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
 import {
@@ -109,8 +109,8 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
               viewType: messageData.view_type,
               privateSpec: {
                 version: "2",
-                title: "",
-                body: "",
+                title: null,
+                body: null,
                 awardPointsEvenIfWrong: false,
                 grantPointsPolicy: "grant_whenever_possible",
                 quizItemDisplayDirection: "vertical",
@@ -133,8 +133,8 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
               // The quiz was just created, intialize it with empty values
               converted = {
                 version: "2",
-                title: "",
-                body: "",
+                title: null,
+                body: null,
                 awardPointsEvenIfWrong: false,
                 grantPointsPolicy: "grant_whenever_possible",
                 submitMessage: null,

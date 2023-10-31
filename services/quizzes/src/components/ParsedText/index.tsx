@@ -15,7 +15,7 @@ const TextNode: React.FC<React.PropsWithChildren<TextNodeProps>> = (props) => (
 import { formatText, isValidText } from "./tagParser"
 
 interface ParsedTextProps {
-  text: string
+  text: string | null
   errorText?: string
   parseLatex?: boolean
   parseMarkdown?: boolean
@@ -29,6 +29,9 @@ const ParsedText: React.FC<ParsedTextProps> = ({
   parseMarkdown = false,
   inline = false,
 }) => {
+  if (text === null) {
+    return null
+  }
   if (errorText && !isValidText(parseLatex, parseMarkdown, text)) {
     return <div>{errorText}</div>
   }

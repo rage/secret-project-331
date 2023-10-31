@@ -60,22 +60,22 @@ const QuizCommonInfo: React.FC = () => {
 
   return (
     <InfoContainer>
-      <MarkdownEditor
-        text={selected.submitMessage ?? ""}
-        label={t("submit-message")}
-        onChange={(value) => {
-          updateState((draft) => {
-            if (!draft) {
-              return
-            }
-            draft.submitMessage = value
-          })
-        }}
-      />
       <Accordion variant="detail" title={t("advanced-options")}>
         <details>
           <summary>{t("advanced-options")}</summary>
           <AdvancedOptionsContainer>
+            <MarkdownEditor
+              text={selected.submitMessage ?? ""}
+              label={t("submit-message")}
+              onChange={(value) => {
+                updateState((draft) => {
+                  if (!draft) {
+                    return
+                  }
+                  draft.submitMessage = value
+                })
+              }}
+            />
             <OptionTitle> {t("layout-options")} </OptionTitle>
             <OptionDescription>
               {t("quiz-item-display-direction")}{" "}

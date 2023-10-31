@@ -9,7 +9,7 @@
     "test-nohtml": "env LANGUAGE=en_US npx playwright test",
     "test-without-database-reset": "npx playwright test",
     "test-headed": "npm run test-nohtml -- --headed",
-    "test-slowmo": "env SLOWMO=200 LANGUAGE=en_US npm run test-nohtml -- --headed",
+    "test-slowmo": "env SLOWMO=1000 LANGUAGE=en_US npm run test-nohtml -- --headed",
     "test-video": "env RECORD_VIDEO=1 npm run test-nohtml",
     "test-debug": "env PWDEBUG=1 npm run test-nohtml",
     "help": "playwright --help",

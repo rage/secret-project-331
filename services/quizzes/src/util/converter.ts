@@ -10,8 +10,10 @@ import {
   PrivateSpecQuizItemMultiplechoiceDropdown,
   PrivateSpecQuizItemScale,
   PrivateSpecQuizItemTimeline,
+  QuizItemOption,
 } from "../../types/quizTypes/privateSpec"
 import {
+  PublicQuizItemOption,
   PublicSpecQuiz,
   PublicSpecQuizItem,
   PublicSpecQuizItemCheckbox,
@@ -70,7 +72,9 @@ export const convertPublicSpecItemFromPrivateSpecItem = (
       order: chooseNItem.order,
       body: chooseNItem.body,
       title: chooseNItem.title,
-      options: chooseNItem.options,
+      options: chooseNItem.options.map(
+        convertPublicSpecQuizItemOptionFromPrivateSpecQuizItemOption,
+      ),
       n: chooseNItem.n,
     } satisfies PublicSpecQuizItemChooseN
   } else if (quizItem.type === "closed-ended-question") {
@@ -111,7 +115,9 @@ export const convertPublicSpecItemFromPrivateSpecItem = (
       optionDisplayDirection: multipleChoiceItem.optionDisplayDirection,
       multipleChoiceMultipleOptionsGradingPolicy:
         multipleChoiceItem.multipleChoiceMultipleOptionsGradingPolicy,
-      options: multipleChoiceItem.options,
+      options: multipleChoiceItem.options.map(
+        convertPublicSpecQuizItemOptionFromPrivateSpecQuizItemOption,
+      ),
       order: multipleChoiceItem.order,
       shuffleOptions: multipleChoiceItem.shuffleOptions,
       title: multipleChoiceItem.title,
@@ -124,7 +130,9 @@ export const convertPublicSpecItemFromPrivateSpecItem = (
       order: dropDownItem.order,
       body: dropDownItem.body,
       title: dropDownItem.title,
-      options: dropDownItem.options,
+      options: dropDownItem.options.map(
+        convertPublicSpecQuizItemOptionFromPrivateSpecQuizItemOption,
+      ),
     } satisfies PublicSpecQuizItemMultiplechoiceDropdown
   } else if (quizItem.type === "scale") {
     const scaleItem = quizItem as PrivateSpecQuizItemScale
@@ -169,4 +177,15 @@ export const convertPublicSpecItemFromPrivateSpecItem = (
     } satisfies PublicSpecQuizItemTimeline
   }
   return null
+}
+
+const convertPublicSpecQuizItemOptionFromPrivateSpecQuizItemOption = (
+  input: QuizItemOption,
+): PublicQuizItemOption => {
+  return {
+    id: input.id,
+    order: input.order,
+    body: input.body,
+    title: input.title,
+  }
 }

@@ -1,6 +1,6 @@
 import { UserItemAnswerChooseN } from "../../../types/quizTypes/answer"
+import { QuizItemAnswerGrading } from "../../../types/quizTypes/grading"
 import { PrivateSpecQuizItemChooseN } from "../../../types/quizTypes/privateSpec"
-import { QuizItemAnswerGrading } from "../types"
 
 const assessChooseN = (
   quizItemAnswer: UserItemAnswerChooseN,

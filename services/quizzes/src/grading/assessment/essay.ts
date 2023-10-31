@@ -1,7 +1,7 @@
 import { UserItemAnswerEssay } from "../../../types/quizTypes/answer"
+import { QuizItemAnswerGrading } from "../../../types/quizTypes/grading"
 import { PrivateSpecQuizItemEssay } from "../../../types/quizTypes/privateSpec"
 import { wordCount } from "../../shared-module/utils/strings"
-import { QuizItemAnswerGrading } from "../types"
 
 const assessEssay = (
   quizItemAnswer: UserItemAnswerEssay,

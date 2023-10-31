@@ -94,7 +94,6 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
   const { t } = useTranslation()
 
   const [optionTitle, setOptionTitle] = useState("")
-  const [messageAfterSubmissionWhenSelected, setMessageAfterSubmissionWhenSelected] = useState("")
   const [correct, setCorrect] = useState(false)
 
   const MULTIPLE_CHOICE_OPTIONS = [
@@ -154,7 +153,12 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                 draft.options = draft.options.filter((opt) => opt.id !== option.id)
               })
             }}
-            onUpdateValues={(title, message, correct) => {
+            onUpdateValues={(
+              title,
+              messageAfterSubmissionWhenThisOptionSelected,
+              messageOnModelSolutionWhenThisOptionSelected,
+              correct,
+            ) => {
               updateState((draft) => {
                 if (!draft) {
                   return
@@ -163,33 +167,10 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                   if (opt.id == option.id) {
                     opt.title = title
                     opt.correct = correct
-                    opt.messageAfterSubmissionWhenSelected = message
-                  }
-                  return opt
-                })
-              })
-            }}
-            onTitleChange={(value) => {
-              updateState((draft) => {
-                if (!draft) {
-                  return
-                }
-                draft.options = draft.options.map((opt) => {
-                  if (opt.id == option.id) {
-                    opt.title = value
-                  }
-                  return opt
-                })
-              })
-            }}
-            onMessageAfterSubmissionWhenSelectedChange={(value) => {
-              updateState((draft) => {
-                if (!draft) {
-                  return
-                }
-                draft.options = draft.options.map((opt) => {
-                  if (opt.id == option.id) {
-                    opt.messageAfterSubmissionWhenSelected = value
+                    opt.messageAfterSubmissionWhenSelected =
+                      messageAfterSubmissionWhenThisOptionSelected
+                    opt.additionalCorrectnessExplanationOnModelSolution =
+                      messageOnModelSolutionWhenThisOptionSelected
                   }
                   return opt
                 })
@@ -224,13 +205,6 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
           </OptionCheckBoxContainer>
         </OptionCreationWrapper>
 
-        <ParsedTextField
-          value={messageAfterSubmissionWhenSelected}
-          onChange={(value) => {
-            setMessageAfterSubmissionWhenSelected(value)
-          }}
-          label={t("message-after-submission-when-selected")}
-        />
         <Button
           onClick={() => {
             updateState((draft) => {
@@ -243,18 +217,17 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                 ...draft.options,
                 {
                   order: draft.options.length + 1,
-                  additionalCorrectnessExplanationOnModelSolution: "",
-                  body: "",
+                  additionalCorrectnessExplanationOnModelSolution: null,
+                  body: null,
                   correct: correct,
                   id: v4(),
-                  messageAfterSubmissionWhenSelected: messageAfterSubmissionWhenSelected,
+                  messageAfterSubmissionWhenSelected: null,
                   title: optionTitle,
                 },
               ]
             })
             setCorrect(false)
             setOptionTitle("")
-            setMessageAfterSubmissionWhenSelected("")
           }}
           variant="primary"
           size={"medium"}

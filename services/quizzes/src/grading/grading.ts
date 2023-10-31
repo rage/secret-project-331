@@ -1,6 +1,5 @@
+import { QuizItemAnswerGrading } from "../../types/quizTypes/grading"
 import { PrivateSpecQuiz } from "../../types/quizTypes/privateSpec"
-
-import { QuizItemAnswerGrading } from "./types"
 
 const gradeAnswers = (assessedAnswer: QuizItemAnswerGrading[], quiz: PrivateSpecQuiz): number => {
   // Award points even if wrong

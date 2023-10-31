@@ -45,7 +45,7 @@ const ScaleEditor: React.FC<ScaleEditorProps> = ({ quizItemId }) => {
             draft.title = title
           })
         }}
-        value={selected.title}
+        value={selected.title ?? undefined}
         label={t("option-title")}
         name={t("option-title")}
       />

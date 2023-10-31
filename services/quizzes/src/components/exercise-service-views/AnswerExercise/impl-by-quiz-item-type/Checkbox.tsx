@@ -51,7 +51,7 @@ const Checkbox: React.FC<
           type="checkbox"
           checked={quizItemAnswerState?.checked}
           onChange={(e) => handleOptionToggle(e.target.checked)}
-          aria-label={quizItem.title}
+          aria-label={quizItem.title ?? undefined}
         />
       </div>
       <div

@@ -1,6 +1,6 @@
 import { UserItemAnswerMultiplechoiceDropdown } from "../../../types/quizTypes/answer"
-import { PrivateSpecQuizItemMultiplechoiceDropdown } from "../../../types/quizTypes/privateSpec"
 import { QuizItemAnswerGrading } from "../../../types/quizTypes/grading"
+import { PrivateSpecQuizItemMultiplechoiceDropdown } from "../../../types/quizTypes/privateSpec"
 
 const assessMultipleChoiceDropdown = (
   quizItemAnswer: UserItemAnswerMultiplechoiceDropdown,

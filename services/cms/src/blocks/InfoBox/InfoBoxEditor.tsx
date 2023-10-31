@@ -1,7 +1,6 @@
 import { css } from "@emotion/css"
 import { InnerBlocks, InspectorControls } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
-import { PanelBody } from "@wordpress/components"
 import React from "react"
 import { useTranslation } from "react-i18next"
 

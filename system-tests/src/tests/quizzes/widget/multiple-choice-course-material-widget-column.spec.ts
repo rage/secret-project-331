@@ -118,7 +118,7 @@ test("multiple-choice course material column test", async ({ page, headless }, t
     testInfo,
     snapshotName: "course-material-multiple-choice-after-success-click-column-multi",
     waitForTheseToBeVisibleAndStable: [
-      frame.locator(`text="Correct! This is indeed the first option"`),
+      frame.getByText(`Only first option can be correct because it is the first one.`),
     ],
     screenshotTarget: frame2,
     clearNotifications: true,
@@ -136,6 +136,7 @@ test("multiple-choice course material column test", async ({ page, headless }, t
     clearNotifications: true,
   })
 
+  await page.frameLocator("iframe").locator('button:has-text("This is first option")').click()
   await page.frameLocator("iframe").locator('button:has-text("This is second option")').click()
 
   await page.locator("text=Submit").click()
@@ -145,7 +146,7 @@ test("multiple-choice course material column test", async ({ page, headless }, t
     testInfo,
     snapshotName: "course-material-multiple-choice-after-failure-click-column-multi",
     waitForTheseToBeVisibleAndStable: [
-      frame.locator(`text="Incorrect. This is not the first option"`),
+      frame.getByText(`Second option can't be the right answer because it isn't the first one.`),
     ],
     screenshotTarget: frame2,
     clearNotifications: true,

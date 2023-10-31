@@ -106,7 +106,8 @@ const MultipleChoiceSubmission: React.FC<
         `}
       >
         {quiz_options.map((qo) => {
-          const selectedAnswer = user_quiz_item_answer.selectedOptionIds?.includes(qo.id) ?? false
+          const answerSelectedThisOption =
+            user_quiz_item_answer.selectedOptionIds?.includes(qo.id) ?? false
           const modelSolutionForThisOption =
             modelSolution?.options.find((x) => x.id === qo.id) ?? null
           // If correctAnswer is null we don't know whether this option was correct or not
@@ -121,6 +122,14 @@ const MultipleChoiceSubmission: React.FC<
               correctAnswer = feedbackForThisOption.this_option_was_correct
             }
           }
+          let feedBackForOption: string | null = null
+          if (answerSelectedThisOption) {
+            feedBackForOption = feedbackForThisOption?.option_feedback ?? null
+            if (modelSolutionForThisOption?.additionalCorrectnessExplanationOnModelSolution) {
+              feedBackForOption =
+                modelSolutionForThisOption.additionalCorrectnessExplanationOnModelSolution
+            }
+          }
           return (
             <>
               <div>
@@ -128,9 +137,13 @@ const MultipleChoiceSubmission: React.FC<
                   key={qo.id}
                   className={cx(
                     gradingOption,
-                    selectedAnswer && gradingOptionSelected,
-                    selectedAnswer && correctAnswer === false && gradingOptionWrongAndSelected,
-                    selectedAnswer && correctAnswer === true && gradingOptionCorrectAndSelected,
+                    answerSelectedThisOption && gradingOptionSelected,
+                    answerSelectedThisOption &&
+                      correctAnswer === false &&
+                      gradingOptionWrongAndSelected,
+                    answerSelectedThisOption &&
+                      correctAnswer === true &&
+                      gradingOptionCorrectAndSelected,
                   )}
                 >
                   <div
@@ -158,11 +171,7 @@ const MultipleChoiceSubmission: React.FC<
                 </div>
                 <RowSubmissionFeedback
                   correct={correctAnswer ?? false}
-                  feedback={
-                    selectedAnswer
-                      ? feedbackForThisOption?.option_feedback
-                      : modelSolutionForThisOption?.additionalCorrectnessExplanationOnModelSolution
-                  }
+                  feedback={feedBackForOption}
                 />
               </div>
             </>

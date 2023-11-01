@@ -16,3 +16,4 @@ resources:
   - headless-lms/service-info-fetcher.yml
   - headless-lms/regrader.yml
   - headless-lms/peer-review-updater.yml
+  - headless-lms/sync-tmc-users.yml

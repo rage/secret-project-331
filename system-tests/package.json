@@ -9,7 +9,7 @@
     "test-nohtml": "env LANGUAGE=en_US npx playwright test",
     "test-without-database-reset": "npx playwright test",
     "test-headed": "npm run test-nohtml -- --headed",
-    "test-slowmo": "env SLOWMO=200 LANGUAGE=en_US npm run test-nohtml -- --headed",
+    "test-slowmo": "env SLOWMO=1000 LANGUAGE=en_US npm run test-nohtml -- --headed",
     "test-video": "env RECORD_VIDEO=1 npm run test-nohtml",
     "test-debug": "env PWDEBUG=1 npm run test-nohtml",
     "help": "playwright --help",
@@ -29,16 +29,19 @@
   },
   "keywords": [],
   "devDependencies": {
-    "@playwright/test": "^1.36.2",
-    "@types/node": "^20.4.5",
-    "playwright": "^1.36.2",
-    "typescript": "^5.1.6"
+    "@playwright/browser-chromium": "^1.38.1",
+    "@playwright/test": "^1.38.1",
+    "@types/node": "^20.8.4",
+    "@types/tar-fs": "^2.0.2",
+    "playwright": "^1.38.1",
+    "typescript": "^5.2.2"
   },
   "dependencies": {
     "@axe-core/playwright": "^4.7.3",
     "@types/which": "^3.0.0",
-    "axe-core": "^4.7.2",
+    "axe-core": "^4.8.2",
     "png-metadata": "^1.0.2",
-    "which": "^3.0.1"
+    "tar-fs": "^3.0.4",
+    "which": "^4.0.0"
   }
 }

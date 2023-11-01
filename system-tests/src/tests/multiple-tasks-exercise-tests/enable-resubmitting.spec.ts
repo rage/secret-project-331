@@ -33,7 +33,7 @@ test("quizzes, after wrong answer modify only the incorrect choice and resubmit"
   })
   await scrollLocatorsParentIframeToViewIfNeeded(
     page
-      .frameLocator('iframe[title="Exercise 1\\, task 3 content"]')
+      .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
       .getByRole("button", { name: "Incorrect" }),
   )
   await page
@@ -46,7 +46,11 @@ test("quizzes, after wrong answer modify only the incorrect choice and resubmit"
     .getByRole("button", { name: "Correct" })
     .first()
     .click()
-
+  await scrollLocatorsParentIframeToViewIfNeeded(
+    page
+      .frameLocator('iframe[title="Exercise 1\\, task 3 content"]')
+      .getByRole("button", { name: "Incorrect" }),
+  )
   await page
     .frameLocator('iframe[title="Exercise 1\\, task 3 content"]')
     .getByRole("button", { name: "Incorrect" })
@@ -78,6 +82,12 @@ test("quizzes, after wrong answer modify only the incorrect choice and resubmit"
     ],
   })
   await page.getByRole("button", { name: "try again" }).click()
+  await scrollLocatorsParentIframeToViewIfNeeded(
+    page
+      .frameLocator('iframe[title="Exercise 1\\, task 3 content"]')
+      .getByRole("button", { name: "Correct" })
+      .nth(2),
+  )
   await page
     .frameLocator('iframe[title="Exercise 1\\, task 3 content"]')
     .getByRole("button", { name: "Correct" })

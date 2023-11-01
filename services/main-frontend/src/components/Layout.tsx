@@ -21,6 +21,7 @@ const LANGUAGE_SELECTION_PLACEMENTPLACEMENT = "bottom-end"
 
 type LayoutProps = {
   children: ReactNode
+  noVisibleLayout?: boolean
 }
 
 const DynamicToaster = dynamic(
@@ -28,17 +29,17 @@ const DynamicToaster = dynamic(
   { ssr: false },
 )
 
-const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) => {
+const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
+  children,
+  noVisibleLayout = false,
+}) => {
   const router = useRouter()
   const title = process.env.NEXT_PUBLIC_SITE_TITLE ?? "Secret Project 331"
 
-  return (
+  const visibleLayout = noVisibleLayout ? (
+    <>{children}</>
+  ) : (
     <>
-      <Head>
-        <title>{title}</title>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="initial-scale=1.0, width=device-width" />
-      </Head>
       <div
         // Push footer to bottom of page, e.g. on empty body
         className={css`
@@ -68,8 +69,19 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
           <Centered variant="default">{children}</Centered>
         </main>
       </div>
-      <DynamicToaster />
       <Footer />
+    </>
+  )
+
+  return (
+    <>
+      <Head>
+        <title>{title}</title>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+      </Head>
+      {visibleLayout}
+      <DynamicToaster />
     </>
   )
 }

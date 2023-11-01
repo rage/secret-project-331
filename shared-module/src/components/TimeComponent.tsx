@@ -1,10 +1,10 @@
 import { css } from "@emotion/css"
-import InfoIcon from "@mui/icons-material/Info"
-import { IconButton } from "@mui/material"
+import { InfoCircle } from "@vectopus/atlas-icons-react"
 import React, { useLayoutEffect, useRef, useState } from "react"
 
 import { dateToString } from "../utils/time"
 
+import Button from "./Button"
 import SpeechBalloon from "./SpeechBalloon"
 import HideTextInSystemTests from "./system-tests/HideTextInSystemTests"
 
@@ -88,7 +88,7 @@ const TimeComponent: React.FC<
           testPlaceholder="1970-01-01 00:00"
         />
       </span>
-      <IconButton
+      <Button
         onMouseEnter={() => setVisible(true)}
         onMouseLeave={() => setVisible(false)}
         size="small"
@@ -98,13 +98,10 @@ const TimeComponent: React.FC<
           position: relative;
           top: -1px;
         `}
+        variant={"icon"}
       >
-        <InfoIcon
-          className={css`
-            font-size: 18px;
-          `}
-        />
-      </IconButton>
+        <InfoCircle size={18} />
+      </Button>
     </span>
   )
 }

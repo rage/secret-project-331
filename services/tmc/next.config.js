@@ -50,6 +50,7 @@ const config = {
       transform: "lodash/{{member}}",
     },
   },
+  transpilePackages: ["@vectopus/atlas-icons-react"],
 }
 if (process.env.NEXT_PUBLIC_BASE_PATH) {
   config.basePath = process.env.NEXT_PUBLIC_BASE_PATH

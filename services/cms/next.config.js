@@ -31,6 +31,10 @@ const config = {
       },
     })
 
+    // Support webassembly
+    config.output.webassemblyModuleFilename = "static/wasm/[modulehash].wasm"
+    config.experiments = { asyncWebAssembly: true }
+
     return config
   },
   compiler: {
@@ -46,6 +50,7 @@ const config = {
       transform: "lodash/{{member}}",
     },
   },
+  transpilePackages: ["@vectopus/atlas-icons-react"],
 }
 
 if (process.env.NEXT_PUBLIC_BASE_PATH) {

@@ -13,7 +13,7 @@ license.workspace = true
 headless-lms-utils = { path = "../utils" }
 
 # An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
-tokio = { version = "1.29.1", features = [
+tokio = { version = "1.33.0", features = [
   "fs",
   "io-util",
   "sync",
@@ -24,7 +24,7 @@ futures = "0.3.28"
 # A `dotenv` implementation for Rust
 dotenv = "0.15.0"
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
-sqlx = { version = "0.7.1", features = [
+sqlx = { version = "0.7.2", features = [
   "postgres",
   "runtime-tokio",
   "tls-rustls",
@@ -35,25 +35,25 @@ sqlx = { version = "0.7.1", features = [
 # A library to generate and parse UUIDs.
 uuid = { version = "1.4.1", features = ["serde", "v4", "v5"] }
 # A generic serialization/deserialization framework
-serde = { version = "1.0.180", features = ["derive"] }
+serde = { version = "1.0.188", features = ["derive"] }
 # Date and time library for Rust
-chrono = { version = "0.4.26", features = ["serde"] }
+chrono = { version = "0.4.31", features = ["serde"] }
 # A JSON serialization file format
-serde_json = "1.0.104"
+serde_json = "1.0.107"
 # Adds #[derive(x)] macros for more traits
 derive_more = "0.99.17"
 # Extra iterator adaptors, iterator methods, free functions, and macros.
 itertools = "0.11.0"
 # URL library for Rust, based on the WHATWG URL Standard
-url = "2.4.0"
+url = "2.4.1"
 # Application-level tracing for Rust.
 tracing = "0.1.37"
 # Utilities for enriching errors with `tracing`.
 tracing-error = "0.2.0"
 #  A library to acquire a stack trace (backtrace) at runtime in a Rust program. Should be removed after Rust 1.65.
-backtrace = "0.3.68"
+backtrace = "0.3.69"
 # This library provides a convenient derive macro for the standard library's std::error::Error trait.
-thiserror = "1.0.44"
+thiserror = "1.0.49"
 # generate typescript bindings from rust types
 ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "07712bf04007472aeeb065091261b3b64c019381", features = [
   "bytes-impl",
@@ -67,7 +67,7 @@ lettre = "0.10.4"
 # Random number generators and other randomness functionality.
 rand = "0.8.5"
 # Flexible concrete Error type built on std::error::Error
-anyhow = "1.0.72"
+anyhow = "1.0.75"
 
 [dev-dependencies]
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.
@@ -79,7 +79,7 @@ tracing-error = "0.2.0"
 # Utilities for implementing and composing `tracing` subscribers.
 tracing-subscriber = { version = "0.3.17", features = ["env-filter"] }
 # HTTP mocking for Rust.
-mockito = "1.1.0"
+mockito = "1.2.0"
 
 [features]
 ts_rs = ["ts-rs", "headless-lms-utils/ts_rs"]

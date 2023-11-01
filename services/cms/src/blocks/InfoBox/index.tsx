@@ -7,6 +7,7 @@ import { Deprecated1 } from "./deprecated"
 
 export interface InfoBoxComponentProps {
   backgroundColor: string
+  noPadding: boolean
 }
 
 const InfoBoxConfiguration: BlockConfiguration<InfoBoxComponentProps> = {
@@ -17,6 +18,10 @@ const InfoBoxConfiguration: BlockConfiguration<InfoBoxComponentProps> = {
     backgroundColor: {
       type: "string",
       default: "#faf5f3",
+    },
+    noPadding: {
+      type: "boolean",
+      default: false,
     },
   },
   edit: InfoBoxEditor,

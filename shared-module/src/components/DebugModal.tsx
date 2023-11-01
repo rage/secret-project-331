@@ -2,11 +2,11 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { faBug as faIcon } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Dialog, Paper } from "@mui/material"
 import { Dispatch, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import Button from "./Button"
+import Dialog from "./Dialog"
 import MonacoEditor from "./monaco/MonacoEditor"
 
 export interface DebugModalProps {
@@ -68,35 +68,36 @@ const DebugModal: React.FC<React.PropsWithChildren<React.PropsWithChildren<Debug
       >
         <FontAwesomeIcon icon={faIcon} />
       </Button>
-      <Dialog maxWidth="xl" open={open} onClose={closeModal}>
-        <Paper
-          className={css`
-            overflow: hidden;
-          `}
-        >
-          <HeaderBar>
-            <h1>
-              {t("title-debug-view")} ({readOnlySpecifier})
-            </h1>
-            <div
-              className={css`
-                flex-grow: 1;
-              `}
-            />
-            <Button variant="primary" size="medium" onClick={closeModal}>
-              {t("close")}
-            </Button>
-          </HeaderBar>
-          <MonacoEditor
-            height="90vh"
-            width="80vw"
-            defaultLanguage="json"
-            // eslint-disable-next-line i18next/no-literal-string
-            options={{ wordWrap: "on", readOnly }}
-            defaultValue={editedContent || undefined}
-            onChange={(value) => value && setEditedContent(value)}
+      <Dialog
+        width="wide"
+        open={open}
+        onClose={closeModal}
+        noPadding
+        className={css`
+          overflow: hidden;
+        `}
+      >
+        <HeaderBar>
+          <h1>
+            {t("title-debug-view")} ({readOnlySpecifier})
+          </h1>
+          <div
+            className={css`
+              flex-grow: 1;
+            `}
           />
-        </Paper>
+          <Button variant="primary" size="medium" onClick={closeModal}>
+            {t("close")}
+          </Button>
+        </HeaderBar>
+        <MonacoEditor
+          height="90vh"
+          defaultLanguage="json"
+          // eslint-disable-next-line i18next/no-literal-string
+          options={{ wordWrap: "on", readOnly }}
+          defaultValue={editedContent || undefined}
+          onChange={(value) => value && setEditedContent(value)}
+        />
       </Dialog>
     </>
   )

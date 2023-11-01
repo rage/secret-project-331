@@ -67,7 +67,6 @@ const Pages = ({ query }: PagesProps) => {
         // eslint-disable-next-line i18next/no-literal-string
         queryClient.setQueryData([`page-${id}`], newData)
       },
-      retry: 3,
     },
   )
   return (

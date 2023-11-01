@@ -1,17 +1,13 @@
 import { css } from "@emotion/css"
-import CancelIcon from "@mui/icons-material/Cancel"
-import DeleteIcon from "@mui/icons-material/Delete"
-import DoneIcon from "@mui/icons-material/Done"
-import EditIcon from "@mui/icons-material/Edit"
-import ErrorIcon from "@mui/icons-material/Error"
-import SaveIcon from "@mui/icons-material/Save"
-import { Card, CardContent, CardHeader, IconButton } from "@mui/material"
-import Dialog from "@mui/material/Dialog"
-import DialogActions from "@mui/material/DialogActions"
-import DialogContent from "@mui/material/DialogContent"
-import DialogContentText from "@mui/material/DialogContentText"
-import DialogTitle from "@mui/material/DialogTitle"
 import { QueryObserverResult } from "@tanstack/react-query"
+import {
+  BellXmark,
+  CheckCircle,
+  FloppyDiskSave,
+  Pencil,
+  Trash,
+  XmarkCircle,
+} from "@vectopus/atlas-icons-react"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -21,6 +17,7 @@ import {
 } from "../../../../services/backend/exercise-services"
 import { ExerciseService, ExerciseServiceNewOrUpdate } from "../../../../shared-module/bindings"
 import Button from "../../../../shared-module/components/Button"
+import Dialog from "../../../../shared-module/components/Dialog"
 import TimeComponent from "../../../../shared-module/components/TimeComponent"
 import { validURL } from "../../../../shared-module/utils/validation"
 import { canSave } from "../../../../utils/canSaveExerciseService"
@@ -122,47 +119,100 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
 
   return (
     <div>
-      <Card
+      <div
         key={id}
-        variant="outlined"
         className={css`
           margin: 8px;
+          padding: 1rem;
+          border: 1px solid rgba(0, 0, 0, 0.12);
           /* Override card's overflow */
           overflow: visible !important;
         `}
       >
-        <CardHeader
-          title={editing ? t("edit") : service.name}
-          subheader={editing || t("header-slug", { slug: service.slug })}
-          action={
-            editing ? (
-              <>
-                <IconButton aria-label={t("button-text-save")} onClick={updateContent}>
-                  {status == UpdateStatus.none ? (
-                    <SaveIcon />
-                  ) : status == UpdateStatus.saved ? (
-                    <DoneIcon />
-                  ) : (
-                    <ErrorIcon />
-                  )}
-                </IconButton>
-                <IconButton aria-label={t("button-text-cancel")} onClick={toggleEdit}>
-                  <CancelIcon />
-                </IconButton>
-              </>
-            ) : (
-              <div>
-                <IconButton aria-label={t("button-text-delete")} onClick={handleOpenDeleteDialog}>
-                  <DeleteIcon />
-                </IconButton>
-                <IconButton aria-label={t("edit")} onClick={toggleEdit}>
-                  <EditIcon />
-                </IconButton>
-              </div>
-            )
-          }
-        />
-        <CardContent>
+        <div
+          className={css`
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            line-height: 1.5;
+            padding-bottom: 1.5rem;
+            align-items: baseline;
+          `}
+        >
+          <div>
+            <h1
+              className={css`
+                margin: 0;
+                font-weight: 400;
+                font-size: 1.5rem;
+              `}
+            >
+              {editing ? t("edit") : service.name}
+            </h1>
+            <div
+              className={css`
+                margin: 0;
+                font-weight: 400;
+                font-size: 1rem;
+                color: rgba(0, 0, 0, 0.6);
+              `}
+            >
+              {editing || t("header-slug", { slug: service.slug })}
+            </div>
+          </div>
+
+          {editing ? (
+            <div
+              className={css`
+                display: flex;
+                flex-direction: row;
+              `}
+            >
+              <Button
+                aria-label={t("button-text-save")}
+                onClick={updateContent}
+                variant={"icon"}
+                size={"small"}
+              >
+                {status == UpdateStatus.none ? (
+                  <FloppyDiskSave size={20} />
+                ) : status == UpdateStatus.saved ? (
+                  <CheckCircle size={20} />
+                ) : (
+                  <BellXmark size={20} />
+                )}
+              </Button>
+              <Button
+                aria-label={t("button-text-cancel")}
+                onClick={toggleEdit}
+                variant={"icon"}
+                size={"small"}
+              >
+                <XmarkCircle size={20} />
+              </Button>
+            </div>
+          ) : (
+            <div
+              className={css`
+                display: flex;
+                flex-direction: row;
+              `}
+            >
+              <Button
+                aria-label={t("button-text-delete")}
+                onClick={handleOpenDeleteDialog}
+                variant={"icon"}
+                size={"small"}
+              >
+                <Trash size={20} />
+              </Button>
+              <Button aria-label={t("edit")} onClick={toggleEdit} variant={"icon"} size={"small"}>
+                <Pencil size={20} />
+              </Button>
+            </div>
+          )}
+        </div>
+        <div>
           {editing && (
             <>
               <ContentArea
@@ -209,9 +259,14 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
             type={"number"}
             error={service.max_reprocessing_submissions_at_once < 0 ? t("error-title") : undefined}
           />
-        </CardContent>
-
-        <CardContent>
+        </div>
+        <div
+          className={css`
+            display: flex;
+            justify-content: space-between;
+            padding-top: 1rem;
+          `}
+        >
           <TimeComponent
             label={`${t("label-created")} `}
             date={exerciseService.created_at}
@@ -224,23 +279,50 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
             date={exerciseService.updated_at}
             right={true}
           />
-        </CardContent>
-      </Card>
-      <Dialog open={deleteDialogOpen} onClose={handleCloseDeleteDialog}>
-        <DialogTitle id="alert-dialog-title">{t("button-text-delete")}</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            {t("delete-confirmation", { name: service.name })}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button variant="primary" size="medium" onClick={handleCloseDeleteDialog}>
-            {t("button-text-cancel")}
-          </Button>
-          <Button variant="secondary" size="medium" onClick={deleteContent}>
+        </div>
+      </div>
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={handleCloseDeleteDialog}
+        noPadding
+        id={`${id}"alert-dialog-title"`}
+      >
+        <div
+          className={css`
+            display: flex;
+            flex-direction: column;
+          `}
+        >
+          <h2
+            className={css`
+              padding: 16px 24px;
+            `}
+          >
             {t("button-text-delete")}
-          </Button>
-        </DialogActions>
+          </h2>
+
+          <div
+            className={css`
+              padding: 0px 24px 20px;
+            `}
+          >
+            {t("delete-confirmation", { name: service.name })}
+          </div>
+          <div
+            className={css`
+              padding: 8px;
+              display: flex;
+              justify-content: flex-end;
+            `}
+          >
+            <Button variant="primary" size="medium" onClick={handleCloseDeleteDialog}>
+              {t("button-text-cancel")}
+            </Button>
+            <Button variant="secondary" size="medium" onClick={deleteContent}>
+              {t("button-text-delete")}
+            </Button>
+          </div>
+        </div>
       </Dialog>
     </div>
   )

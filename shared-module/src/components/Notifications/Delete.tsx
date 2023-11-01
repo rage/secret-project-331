@@ -1,7 +1,5 @@
-import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { faTimesCircle } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { BellXmark } from "@vectopus/atlas-icons-react"
 import toast from "react-hot-toast"
 import { useTranslation } from "react-i18next"
 
@@ -75,7 +73,7 @@ const DeleteHeader = styled.div`
   ${respondToOrLarger.xs} {
     font-size: 1.25rem;
   }
-  color: ${baseTheme.colors.red[700]};
+  color: ${baseTheme.colors.green[600]};
   line-height: 18px;
 `
 
@@ -94,12 +92,7 @@ const DeleteNotification = (props: DeleteNotificationProps) => {
     <NotificationWrapper className="toast-notification">
       <Content>
         <IconWrapper>
-          <FontAwesomeIcon
-            className={css`
-              color: ${baseTheme.colors.red[700]};
-            `}
-            icon={faTimesCircle}
-          />
+          <BellXmark color={baseTheme.colors.red[700]} size={20} />
         </IconWrapper>
         <TextWrapper role="alert">
           <DeleteHeader>{props.header ?? t("default-toast-delete-title")}</DeleteHeader>

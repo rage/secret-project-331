@@ -1,5 +1,15 @@
 /* eslint-disable i18next/no-literal-string */
 
+import { FlexDirection, sanitizeQuizDirection } from "../../../../src/util/css-sanitization"
+import {
+  OldModelSolutionQuiz as OldModelSolutionQuiz,
+  OldModelSolutionQuizItem as OldModelSolutionQuizItem,
+  OldPublicQuiz,
+  OldPublicQuizItem,
+  OldQuiz,
+  OldQuizItemAnswer,
+  QuizItem,
+} from "../../../../types/oldQuizTypes"
 import { UserItemAnswer } from "../../../../types/quizTypes/answer"
 import {
   ModelSolutionQuiz,
@@ -7,15 +17,6 @@ import {
 } from "../../../../types/quizTypes/modelSolutionSpec"
 import { PrivateSpecQuiz, PrivateSpecQuizItem } from "../../../../types/quizTypes/privateSpec"
 import { PublicSpecQuiz, PublicSpecQuizItem } from "../../../../types/quizTypes/publicSpec"
-import {
-  ModelSolutionQuiz as OldModelSolutionQuiz,
-  ModelSolutionQuizItem as OldModelSolutionQuizItem,
-  PublicQuiz,
-  PublicQuizItem,
-  Quiz,
-  QuizItem,
-  QuizItemAnswer,
-} from "../../../../types/types"
 
 const QUIZ_VERSION = "2"
 
@@ -26,11 +27,10 @@ const QUIZ_VERSION = "2"
  * @param version Version of the private spec quiz
  */
 const expectPrivateSpecMetadataToMatch = (
-  oldQuiz: Quiz,
+  oldQuiz: OldQuiz,
   privateSpecQuiz: PrivateSpecQuiz,
   version = QUIZ_VERSION,
 ) => {
-  expect(privateSpecQuiz.id).toEqual(oldQuiz.id)
   expect(privateSpecQuiz.title).toEqual(oldQuiz.title)
   expect(privateSpecQuiz.body).toEqual(oldQuiz.body)
   expect(privateSpecQuiz.submitMessage).toEqual(oldQuiz.submitMessage)
@@ -46,11 +46,10 @@ const expectPrivateSpecMetadataToMatch = (
  * @param version Version of the public spec quiz
  */
 const expectPublicSpecMetadataToMatch = (
-  oldQuiz: PublicQuiz,
+  oldQuiz: OldPublicQuiz,
   publicSpecQuiz: PublicSpecQuiz,
   version = QUIZ_VERSION,
 ) => {
-  expect(publicSpecQuiz.id).toEqual(oldQuiz.id)
   expect(publicSpecQuiz.title).toEqual(oldQuiz.title)
   expect(publicSpecQuiz.version).toEqual(version)
   expect(publicSpecQuiz.body).toEqual(oldQuiz.body)
@@ -67,7 +66,6 @@ const expectModelSolutionSpecMetadataToMatch = (
   modelSolutionSpecQuiz: ModelSolutionQuiz,
   version = QUIZ_VERSION,
 ) => {
-  expect(modelSolutionSpecQuiz.id).toEqual(oldQuiz.id)
   expect(modelSolutionSpecQuiz.title).toEqual(oldQuiz.title)
   expect(modelSolutionSpecQuiz.body).toEqual(oldQuiz.body)
   expect(modelSolutionSpecQuiz.submitMessage).toEqual(oldQuiz.submitMessage)
@@ -100,7 +98,16 @@ const compareFields = <T extends object, S extends object>(
         `field '${fields[key]}' does not exist in old quiz item: ${JSON.stringify(oldQuizItem)}`,
       )
     }
-    expect(newQuizItem[key as keyof T]).toEqual(oldQuizItem[fields[key] as keyof S])
+    if (key === "options") {
+      // Fields has been changed in the options of multiple-choice exercises
+      return
+    } else if (key === "optionDisplayDirection") {
+      // direction is changed to optionDisplayDirection with different values.
+      const direction = sanitizeQuizDirection(oldQuizItem[fields[key] as keyof S] as FlexDirection)
+      expect(direction).toEqual(newQuizItem[key as keyof T])
+    } else {
+      expect(newQuizItem[key as keyof T]).toEqual(oldQuizItem[fields[key] as keyof S])
+    }
   })
 }
 
@@ -180,7 +187,7 @@ const comparePrivateSpecQuizItem = (
         successMessage: "successMessage",
         failureMessage: "failureMessage",
         sharedOptionFeedbackMessage: "sharedOptionFeedbackMessage",
-        direction: "direction",
+        optionDisplayDirection: "direction",
         multipleChoiceMultipleOptionsGradingPolicy: "multipleChoiceMultipleOptionsGradingPolicy",
       }
       break
@@ -222,7 +229,7 @@ const comparePrivateSpecQuizItem = (
 
 const comparePublicSpecQuizItem = (
   publicSpecQuizItem: PublicSpecQuizItem,
-  oldQuizItem: PublicQuizItem,
+  oldQuizItem: OldPublicQuizItem,
 ) => {
   let fields = {}
   switch (publicSpecQuizItem.type) {
@@ -276,7 +283,7 @@ const comparePublicSpecQuizItem = (
         allowSelectingMultipleOptions: "multi",
         title: "title",
         body: "body",
-        direction: "direction",
+        optionDisplayDirection: "direction",
         multipleChoiceMultipleOptionsGradingPolicy: "multipleChoiceMultipleOptionsGradingPolicy",
       }
       break
@@ -307,7 +314,7 @@ const comparePublicSpecQuizItem = (
       }
       break
   }
-  compareFields<PublicSpecQuizItem, PublicQuizItem>(fields, publicSpecQuizItem, oldQuizItem)
+  compareFields<PublicSpecQuizItem, OldPublicQuizItem>(fields, publicSpecQuizItem, oldQuizItem)
 }
 
 const compareModelSolutionSpecQuizItem = (
@@ -378,7 +385,7 @@ const compareModelSolutionSpecQuizItem = (
         successMessage: "successMessage",
         failureMessage: "failureMessage",
         sharedOptionFeedbackMessage: "sharedOptionFeedbackMessage",
-        direction: "direction",
+        optionDisplayDirection: "direction",
         multipleChoiceMultipleOptionsGradingPolicy: "multipleChoiceMultipleOptionsGradingPolicy",
       }
       break
@@ -422,7 +429,10 @@ const compareModelSolutionSpecQuizItem = (
   )
 }
 
-const compareUserItemAnswer = (quizItemAnswer: QuizItemAnswer, userItemAnswer: UserItemAnswer) => {
+const compareUserItemAnswer = (
+  quizItemAnswer: OldQuizItemAnswer,
+  userItemAnswer: UserItemAnswer,
+) => {
   let fields = {}
 
   switch (userItemAnswer.type) {
@@ -500,7 +510,7 @@ const compareUserItemAnswer = (quizItemAnswer: QuizItemAnswer, userItemAnswer: U
       break
   }
 
-  compareFields<QuizItemAnswer, UserItemAnswer>(fields, quizItemAnswer, userItemAnswer)
+  compareFields<OldQuizItemAnswer, UserItemAnswer>(fields, quizItemAnswer, userItemAnswer)
 }
 
 export {

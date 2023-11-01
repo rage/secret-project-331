@@ -1,5 +1,4 @@
 import { css, cx } from "@emotion/css"
-import { Dialog } from "@mui/material"
 import { QueryObserverResult, RefetchOptions, RefetchQueryFilters } from "@tanstack/react-query"
 import { max } from "lodash"
 import React, { useEffect, useReducer, useState } from "react"
@@ -18,6 +17,7 @@ import Button from "../../../../../../shared-module/components/Button"
 import BreakFromCentered from "../../../../../../shared-module/components/Centering/BreakFromCentered"
 import Centered from "../../../../../../shared-module/components/Centering/Centered"
 import DebugModal from "../../../../../../shared-module/components/DebugModal"
+import Dialog from "../../../../../../shared-module/components/Dialog"
 import DropdownMenu from "../../../../../../shared-module/components/DropdownMenu"
 import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
 import { baseTheme, headingFont, typography } from "../../../../../../shared-module/styles"
@@ -279,7 +279,6 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
           open={!!showEditChapterForm}
           onClose={() => {
             setChapterBeingEdited(null)
-            setShowEditChapterForm(false)
           }}
         >
           <div
@@ -311,7 +310,6 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
           open={!!showEditImageModal}
           onClose={() => {
             setChapterBeingEdited(null)
-            setShowEditImageModal(false)
           }}
         >
           <div

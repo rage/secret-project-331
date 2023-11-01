@@ -1,10 +1,10 @@
 import { css } from "@emotion/css"
-import { Dialog, DialogContent, DialogTitle } from "@mui/material"
 import { UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
 import { deleteReference, postReferenceUpdate } from "../../../../../../services/backend/courses"
 import { MaterialReference, NewMaterialReference } from "../../../../../../shared-module/bindings"
+import Dialog from "../../../../../../shared-module/components/Dialog"
 import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
 import EditReferenceForm from "../../../../../forms/EditReferenceForm"
 
@@ -69,19 +69,22 @@ const EditReferenceDialog: React.FC<React.PropsWithChildren<EditReferenceDialogP
       role="dialog"
       aria-labelledby="label"
       title={t("edit-reference")}
-      fullWidth
+      noPadding={true}
     >
-      <DialogTitle>
-        <h3
-          id="dialog-label"
-          className={css`
-            font-size: 32px;
-          `}
-        >
-          {t("edit-reference")}
-        </h3>
-      </DialogTitle>
-      <DialogContent role="main" id="alert-dialog-description">
+      <h3
+        id="dialog-label"
+        className={css`
+          font-size: 32px !important;
+          padding: 16px 24px;
+        `}
+      >
+        {t("edit-reference")}
+      </h3>
+      <div
+        className={css`
+          padding: 0px 24px 20px;
+        `}
+      >
         <EditReferenceForm
           onCancel={onClose}
           onDelete={(courseId, id) => deleteReferenceMutation.mutate({ courseId, id })}
@@ -91,7 +94,7 @@ const EditReferenceDialog: React.FC<React.PropsWithChildren<EditReferenceDialogP
           reference={reference}
           courseId={courseId}
         />
-      </DialogContent>
+      </div>
     </Dialog>
   )
 }

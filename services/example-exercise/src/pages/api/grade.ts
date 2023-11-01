@@ -5,17 +5,29 @@ import {
   GradingRequest,
   GradingResult,
 } from "../../shared-module/exercise-service-protocol-types-2"
-import { Alternative, Answer, ClientErrorResponse } from "../../util/stateInterfaces"
+import { isNonGenericGradingRequest } from "../../shared-module/exercise-service-protocol-types.guard"
+import { Alternative, Answer } from "../../util/stateInterfaces"
 
-export default (
-  req: NextApiRequest,
-  res: NextApiResponse<ExampleExerciseGradingResult | ClientErrorResponse>,
-): void => {
+export default (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== "POST") {
     return res.status(404).json({ message: "Not found" })
   }
 
-  return handlePost(req, res)
+  try {
+    if (!isNonGenericGradingRequest(req.body)) {
+      throw new Error("Invalid grading request")
+    }
+    return handlePost(req, res)
+  } catch (e) {
+    console.error("Grading request failed:", e)
+    if (e instanceof Error) {
+      return res.status(500).json({
+        error_name: e.name,
+        error_message: e.message,
+        error_stack: e.stack,
+      })
+    }
+  }
 }
 
 type ExampleExerciseGradingResult = GradingResult<ExerciseFeedback | null>

@@ -3,7 +3,7 @@ import styled from "@emotion/styled"
 import { faQuestion as infoIcon } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import CheckIcon from "humbleicons/icons/check.svg"
+import { CheckCircle } from "@vectopus/atlas-icons-react"
 import { produce } from "immer"
 import { useContext, useId, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -35,7 +35,7 @@ import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary
 import ExerciseTask from "./ExerciseTask"
 import GradingState from "./GradingState"
 import PeerReviewView from "./PeerReviewView"
-import PeerReviewReceived from "./PeerReviewView/PeerReviewReceivedComponent/index"
+import PeerReviewReceived from "./PeerReviewView/PeerReviewsReceivedComponent/index"
 import WaitingForPeerReviews from "./PeerReviewView/WaitingForPeerReviews"
 
 interface ExerciseBlockAttributes {
@@ -101,7 +101,9 @@ const ExerciseBlock: React.FC<
       })
       const a = new Map()
       data.current_exercise_slide.exercise_tasks.map((et) => {
-        a.set(et.id, { valid: true, data: et.previous_submission?.data_json ?? null })
+        if (et.previous_submission) {
+          a.set(et.id, { valid: true, data: et.previous_submission.data_json ?? null })
+        }
       })
       setAnswers(a)
     },
@@ -113,7 +115,6 @@ const ExerciseBlock: React.FC<
       notify: false,
     },
     {
-      retry: 3,
       onSuccess: async (data) => {
         if (data.exercise_status) {
           setPoints(data.exercise_status.score_given)
@@ -149,7 +150,9 @@ const ExerciseBlock: React.FC<
         await getCourseMaterialExercise.refetch()
         const a = new Map()
         getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.map((et) => {
-          a.set(et.id, { valid: true, data: et.previous_submission?.data_json ?? null })
+          if (et.previous_submission) {
+            a.set(et.id, { valid: true, data: et.previous_submission.data_json ?? null })
+          }
         })
         setAnswers(a)
       }
@@ -471,8 +474,8 @@ const ExerciseBlock: React.FC<
                         padding: 0.7rem 1rem;
                         margin: 1rem 0;
                         border: 1px solid ${baseTheme.colors.green[300]};
-
                         display: flex;
+                        align-items: center;
 
                         svg {
                           width: 80px;
@@ -480,7 +483,8 @@ const ExerciseBlock: React.FC<
                         }
                       `}
                     >
-                      <CheckIcon />
+                      <CheckCircle size={30} />
+
                       <div>{t("exam-submission-has-been-saved-help-text")}</div>
                     </div>
                   )}

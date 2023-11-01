@@ -11,6 +11,7 @@ import {
   UserInformation,
 } from "../../../shared-module/exercise-service-protocol-types"
 import { isMessageFromIframe } from "../../../shared-module/exercise-service-protocol-types.guard"
+import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 
 interface PlaygroundExerciseIframeProps {
   url: string
@@ -40,7 +41,7 @@ const PlaygroundExerciseIframe: React.FC<
 }) => {
   const { t } = useTranslation()
   if (publicSpecQuery.isLoading || publicSpecQuery.isError) {
-    return <>{t("error-no-public-spec")}</>
+    return <div>{t("error-no-public-spec")}</div>
   }
   // Makes sure the iframe renders again when the data changes
   const iframeKey =
@@ -104,4 +105,4 @@ const PlaygroundExerciseIframe: React.FC<
   )
 }
 
-export default PlaygroundExerciseIframe
+export default withErrorBoundary(PlaygroundExerciseIframe)

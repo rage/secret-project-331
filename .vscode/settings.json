@@ -33,6 +33,7 @@
     "src/bindings.ts": true,
     "**/*.guard.ts": true,
     "types/GutenbergBlockAttributes.ts": true,
+    "types/DeprecatedGutenbergBlockAttributes.ts": true,
     // Matches only the shared-module folders that have been copied to service folders.
     // If someone wants to edit shared-module files, they should do it in the shared-module that's in the repo root and have `npm run watch` running there as well.
     "**/shared-module/**": true

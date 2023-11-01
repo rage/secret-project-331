@@ -1,4 +1,7 @@
+import { OldPublicQuiz, OldPublicQuizItem } from "../../../types/oldQuizTypes"
+import { OldQuizItemType } from "../../../types/quizTypes/oldQuizTypes"
 import {
+  PublicQuizItemOption,
   PublicSpecQuiz,
   PublicSpecQuizItem,
   PublicSpecQuizItemCheckbox,
@@ -11,13 +14,13 @@ import {
   PublicSpecQuizItemScale,
   PublicSpecQuizItemTimeline,
 } from "../../../types/quizTypes/publicSpec"
-import { PublicQuiz, PublicQuizItem } from "../../../types/types"
+import { sanitizeQuizDirection } from "../css-sanitization"
 
 import { DEFAULT_N } from "./migrationSettings"
 
 const CHOOSE_N_DEFAULT_VALUE = DEFAULT_N
 
-const migratePublicSpecQuizItem = (quizItem: PublicQuizItem): PublicSpecQuizItem => {
+const migratePublicSpecQuizItem = (quizItem: OldPublicQuizItem): PublicSpecQuizItem => {
   switch (quizItem.type as OldQuizItemType) {
     case "essay":
       return {
@@ -35,15 +38,22 @@ const migratePublicSpecQuizItem = (quizItem: PublicQuizItem): PublicSpecQuizItem
         type: "multiple-choice",
         allowSelectingMultipleOptions: quizItem.multi,
         body: quizItem.body,
-        direction: quizItem.direction,
+        optionDisplayDirection: sanitizeQuizDirection(quizItem.direction),
         multipleChoiceMultipleOptionsGradingPolicy:
           quizItem.multipleChoiceMultipleOptionsGradingPolicy,
-        options: quizItem.options,
+        options: quizItem.options.map(
+          (option) =>
+            ({
+              body: option.body,
+              id: option.id,
+              order: option.order,
+              title: option.title ?? "",
+            }) satisfies PublicQuizItemOption,
+        ),
         order: quizItem.order,
         shuffleOptions: quizItem.shuffleOptions,
         title: quizItem.title,
       } satisfies PublicSpecQuizItemMultiplechoice
-      break
     case "scale":
       return {
         id: quizItem.id,
@@ -55,6 +65,7 @@ const migratePublicSpecQuizItem = (quizItem: PublicQuizItem): PublicSpecQuizItem
         minLabel: quizItem.minLabel ? quizItem.minLabel : "?",
         maxValue: quizItem.maxValue,
         minValue: quizItem.minValue,
+        optionAnswers: [],
       } satisfies PublicSpecQuizItemScale
     case "checkbox":
       return {
@@ -83,9 +94,15 @@ const migratePublicSpecQuizItem = (quizItem: PublicQuizItem): PublicSpecQuizItem
       return {
         id: quizItem.id,
         type: "timeline",
-        events: quizItem.timelineItemEvents,
+        events: quizItem.timelineItemEvents.map((event) => ({
+          eventId: event.id,
+          name: event.name,
+        })),
         order: quizItem.order,
-        timelineItems: quizItem.timelineItems,
+        timelineItems: quizItem.timelineItems.map((item) => ({
+          itemId: item.id,
+          year: item.year,
+        })),
       } satisfies PublicSpecQuizItemTimeline
     case "clickable-multiple-choice":
       return {
@@ -94,7 +111,12 @@ const migratePublicSpecQuizItem = (quizItem: PublicQuizItem): PublicSpecQuizItem
         order: quizItem.order,
         body: quizItem.body,
         title: quizItem.title,
-        options: quizItem.options,
+        options: quizItem.options.map((option) => ({
+          body: option.body,
+          id: option.id,
+          order: option.order,
+          title: option.title ?? "",
+        })),
         n: CHOOSE_N_DEFAULT_VALUE,
       } satisfies PublicSpecQuizItemChooseN
     case "multiple-choice-dropdown":
@@ -104,18 +126,23 @@ const migratePublicSpecQuizItem = (quizItem: PublicQuizItem): PublicSpecQuizItem
         order: quizItem.order,
         body: quizItem.body,
         title: quizItem.title,
-        options: quizItem.options,
+        options: quizItem.options.map((option) => ({
+          body: option.body,
+          id: option.id,
+          order: option.order,
+          title: option.title ?? "",
+        })),
       } satisfies PublicSpecQuizItemMultiplechoiceDropdown
   }
 }
 
-const migratePublicSpecQuiz = (oldPublicSpecQuiz: PublicQuiz) => {
+const migratePublicSpecQuiz = (oldPublicSpecQuiz: OldPublicQuiz): PublicSpecQuiz => {
   const PublicSpecQuiz: PublicSpecQuiz = {
     version: "2",
-    id: oldPublicSpecQuiz.id,
     body: oldPublicSpecQuiz.body,
     items: [],
     title: oldPublicSpecQuiz.title,
+    quizItemDisplayDirection: sanitizeQuizDirection(oldPublicSpecQuiz.direction),
   }
   oldPublicSpecQuiz.items.forEach((quizItem) => {
     PublicSpecQuiz.items.push(migratePublicSpecQuizItem(quizItem))

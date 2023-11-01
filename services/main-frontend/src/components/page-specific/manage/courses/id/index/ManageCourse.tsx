@@ -1,5 +1,4 @@
 import { css } from "@emotion/css"
-import { Dialog } from "@mui/material"
 import { QueryObserverResult, RefetchOptions, RefetchQueryFilters } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -7,10 +6,12 @@ import { useTranslation } from "react-i18next"
 import useCourseBreadcrumbInfoQuery from "../../../../../../hooks/useCourseBreadcrumbInfoQuery"
 import {
   deleteCourse,
+  teacherResetCourseProgressForEveryone,
   teacherResetCourseProgressForThemselves,
 } from "../../../../../../services/backend/courses"
 import { Course } from "../../../../../../shared-module/bindings"
 import Button from "../../../../../../shared-module/components/Button"
+import Dialog from "../../../../../../shared-module/components/Dialog"
 import OnlyRenderIfPermissions from "../../../../../../shared-module/components/OnlyRenderIfPermissions"
 import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
 import { baseTheme, headingFont, typography } from "../../../../../../shared-module/styles"
@@ -51,6 +52,17 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
   const teacherResetCourseProgressForThemselvesMutation = useToastMutation(
     async () => {
       await teacherResetCourseProgressForThemselves(course.id)
+    },
+    {
+      notify: true,
+      // eslint-disable-next-line i18next/no-literal-string
+      method: "DELETE",
+    },
+  )
+
+  const teacherResetCourseProgressForEveryoneMutation = useToastMutation(
+    async () => {
+      await teacherResetCourseProgressForEveryone(course.id)
     },
     {
       notify: true,
@@ -118,15 +130,20 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
       <Button variant="primary" size="medium" onClick={() => setShowForm(!showForm)}>
         {t("edit")}
       </Button>
-      <Dialog open={showForm} onClose={() => setShowForm(!showForm)}>
+      <Dialog open={showForm} noPadding={true}>
         <div
           className={css`
             margin: 1rem;
+            display: flex;
+            flex-direction: column;
           `}
         >
-          <Button variant="primary" size="medium" onClick={() => setShowForm(!showForm)}>
-            {t("button-text-close")}
-          </Button>
+          <div>
+            <Button variant="primary" size="medium" onClick={() => setShowForm(!showForm)}>
+              {t("button-text-close")}
+            </Button>
+          </div>
+
           <UpdateCourseForm
             courseId={course.id}
             courseName={course.name}
@@ -173,20 +190,48 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
       >
         <>
           <UpdatePeerReviewQueueReviewsReceivedButton courseId={course.id} />
-          <Button
-            variant="secondary"
-            size="medium"
-            onClick={() => {
-              const sure = confirm(
-                t("are-you-sure-you-want-to-reset-your-own-progress-on-the-course"),
-              )
-              if (sure) {
-                teacherResetCourseProgressForThemselvesMutation.mutate()
-              }
-            }}
+          <div
+            className={css`
+              margin: 1rem 0;
+            `}
           >
-            {t("reset-my-own-progress-on-the-course")}
-          </Button>
+            <Button
+              variant="secondary"
+              size="medium"
+              onClick={() => {
+                const sure = confirm(
+                  t("are-you-sure-you-want-to-reset-your-own-progress-on-the-course"),
+                )
+                if (sure) {
+                  teacherResetCourseProgressForThemselvesMutation.mutate()
+                }
+              }}
+            >
+              {t("reset-my-own-progress-on-the-course")}
+            </Button>
+          </div>
+          {course.is_draft && (
+            <div
+              className={css`
+                margin: 1rem 0;
+              `}
+            >
+              <Button
+                variant="secondary"
+                size="medium"
+                onClick={() => {
+                  const sure = confirm(
+                    t("are-you-sure-you-want-to-reset-everyones-progress-on-the-course"),
+                  )
+                  if (sure) {
+                    teacherResetCourseProgressForEveryoneMutation.mutate()
+                  }
+                }}
+              >
+                {t("reset-progress-for-all-students-on-the-course-draft")}
+              </Button>
+            </div>
+          )}
           <ul
             className={css`
               list-style-type: none;

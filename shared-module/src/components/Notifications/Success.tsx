@@ -1,7 +1,5 @@
-import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { faCheck } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { CheckCircle } from "@vectopus/atlas-icons-react"
 import toast from "react-hot-toast"
 import { useTranslation } from "react-i18next"
 
@@ -94,12 +92,7 @@ const SuccessNotification = (props: SuccessNotificationProps) => {
     <NotificationWrapper className="toast-notification">
       <Content>
         <IconWrapper>
-          <FontAwesomeIcon
-            className={css`
-              color: ${baseTheme.colors.green[600]};
-            `}
-            icon={faCheck}
-          />
+          <CheckCircle color={baseTheme.colors.green[600]} size={20} />
         </IconWrapper>
         <TextWrapper role="alert">
           <SuccessHeader>{props.header ?? t("default-toast-success-title")}</SuccessHeader>

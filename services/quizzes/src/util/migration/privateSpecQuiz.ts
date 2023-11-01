@@ -1,7 +1,13 @@
 /* eslint-disable i18next/no-literal-string */
 /* stylelint-disable */
 import {
-  OldQuizItemType,
+  OldNormalizedQuizItemOption,
+  OldQuiz,
+  OldQuizItemOption,
+  QuizItem,
+} from "../../../types/oldQuizTypes"
+import { OldQuizItemType } from "../../../types/quizTypes/oldQuizTypes"
+import {
   PrivateSpecQuiz,
   PrivateSpecQuizItemCheckbox,
   PrivateSpecQuizItemChooseN,
@@ -13,16 +19,16 @@ import {
   PrivateSpecQuizItemScale,
   PrivateSpecQuizItemTimeline,
 } from "../../../types/quizTypes/privateSpec"
-import { NormalizedQuizItemOption, Quiz, QuizItem, QuizItemOption } from "../../../types/types"
+import { sanitizeQuizDirection } from "../css-sanitization"
 
 import { DEFAULT_N } from "./migrationSettings"
 
 const CHOOSE_N_DEFAULT_VALUE = DEFAULT_N
 
 export const convertNormalizedQuizItemOptionsToQuizItemOptions = (
-  quizOptions: NormalizedQuizItemOption[],
+  quizOptions: OldNormalizedQuizItemOption[],
 ) => {
-  const result: QuizItemOption[] = quizOptions.map((item) => ({
+  const result: OldQuizItemOption[] = quizOptions.map((item) => ({
     id: item.id,
     quizItemId: item.quizItemId,
     order: item.order,
@@ -82,12 +88,13 @@ export const migratePrivateSpecQuizItem = (quizItem: QuizItem) => {
         multipleChoiceMultipleOptionsGradingPolicy:
           quizItem.multipleChoiceMultipleOptionsGradingPolicy,
         allowSelectingMultipleOptions: quizItem.multi,
-        direction: quizItem.direction,
+        optionDisplayDirection: sanitizeQuizDirection(quizItem.direction),
         failureMessage: quizItem.failureMessage,
         successMessage: quizItem.successMessage,
         sharedOptionFeedbackMessage: quizItem.sharedOptionFeedbackMessage,
         options: quizItem.options,
         shuffleOptions: quizItem.shuffleOptions,
+        fogOfWar: false,
       } satisfies PrivateSpecQuizItemMultiplechoice
     case "open":
       return {
@@ -169,19 +176,19 @@ export const migratePrivateSpecQuizItem = (quizItem: QuizItem) => {
  * Migrate quiz into newer format.
  *
  * @param oldQuiz Older version of Quiz
- * @see Quiz
+ * @see OldQuiz
  * @see PrivateSpecQuiz
  * @returns New version of Quiz
  */
-export const migratePrivateSpecQuiz = (oldQuiz: Quiz): PrivateSpecQuiz => {
+export const migratePrivateSpecQuiz = (oldQuiz: OldQuiz): PrivateSpecQuiz => {
   const privateSpecQuiz: PrivateSpecQuiz = {
     version: "2",
-    id: oldQuiz.id,
     title: oldQuiz.title,
     body: oldQuiz.body,
     awardPointsEvenIfWrong: oldQuiz.awardPointsEvenIfWrong,
     grantPointsPolicy: oldQuiz.grantPointsPolicy,
     submitMessage: oldQuiz.submitMessage,
+    quizItemDisplayDirection: sanitizeQuizDirection(oldQuiz.direction),
     items: [],
   }
 

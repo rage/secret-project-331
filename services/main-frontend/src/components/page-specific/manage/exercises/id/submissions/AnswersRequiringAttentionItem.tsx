@@ -2,7 +2,6 @@ import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import { faAngleDown, faCircleExclamation } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Input, Slider } from "@mui/material"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { usePopper } from "react-popper"
@@ -106,16 +105,6 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
       },
     ],
   })
-
-  const handleSliderChange = (event: Event, newValue: number | number[]) => {
-    if (typeof newValue === "number") {
-      setSliderValue(newValue)
-    }
-  }
-
-  const handleInputFieldChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSliderValue(Number(event.target.value))
-  }
 
   const doSubmitChange = async (
     user_exercise_state_id: string,
@@ -353,32 +342,46 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
               display: flex;
               flex-direction: row;
               margin-bottom: 1em;
+              justify-content: space-evenly;
             `}
           >
-            <Slider
-              value={typeof sliderValue === "number" ? sliderValue : 0.0}
-              step={0.1}
-              min={0.0}
-              max={exerciseMaxPoints}
-              onChange={handleSliderChange}
-              aria-labelledby="input-slider"
-            />
-            <Input
+            <div
+              className={css`
+                width: 100%;
+                padding: 13px 0;
+                align-self: strech;
+              `}
+            >
+              <input
+                className={css`
+                  height: 4px;
+                `}
+                type="range"
+                min="0"
+                max="3"
+                step={0.1}
+                value={typeof sliderValue === "number" ? sliderValue : 0.0}
+                onChange={(event) => setSliderValue(Number(event.target.value))}
+                aria-labelledby="input-slider"
+              />
+            </div>
+
+            <input
               className={css`
                 margin-left: 1.5em;
                 max-width: 4em;
+                background: none;
+                border: 0px;
+                border-bottom: 1px solid black;
               `}
               value={sliderValue}
-              size="small"
-              onChange={handleInputFieldChange}
-              inputProps={{
-                step: 0.1,
-                min: 0.0,
-                max: exerciseMaxPoints,
-                type: "number",
-                // eslint-disable-next-line i18next/no-literal-string
-                "aria-labelledby": "input-slider",
-              }}
+              onChange={(event) => setSliderValue(Number(event.target.value))}
+              min="0.0"
+              step={0.1}
+              max="exerciseMaxPoints"
+              type="number"
+              // eslint-disable-next-line i18next/no-literal-string
+              aria-labelledby="input-slider"
             />
           </div>
           <div>

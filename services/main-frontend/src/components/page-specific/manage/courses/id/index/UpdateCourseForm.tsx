@@ -49,7 +49,6 @@ const UpdateCourseForm: React.FC<React.PropsWithChildren<UpdateCourseFormProps>>
   return (
     <div
       className={css`
-        width: 500px;
         padding: 1rem 0;
       `}
     >

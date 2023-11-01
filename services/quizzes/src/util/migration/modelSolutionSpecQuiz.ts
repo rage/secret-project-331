@@ -1,4 +1,8 @@
 import {
+  OldModelSolutionQuiz as OldModelSolutionQuiz,
+  OldModelSolutionQuizItem as OldModelSolutionQuizItem,
+} from "../../../types/oldQuizTypes"
+import {
   ModelSolutionQuiz,
   ModelSolutionQuizItem,
   ModelSolutionQuizItemCheckbox,
@@ -11,10 +15,8 @@ import {
   ModelSolutionQuizItemScale,
   ModelSolutionQuizItemTimeline,
 } from "../../../types/quizTypes/modelSolutionSpec"
-import {
-  ModelSolutionQuiz as OldModelSolutionQuiz,
-  ModelSolutionQuizItem as OldModelSolutionQuizItem,
-} from "../../../types/types"
+import { OldQuizItemType } from "../../../types/quizTypes/oldQuizTypes"
+import { sanitizeQuizDirection } from "../css-sanitization"
 
 import { DEFAULT_N } from "./migrationSettings"
 const CHOOSE_N_DEFAULT_VALUE = DEFAULT_N
@@ -44,7 +46,7 @@ const migrateModelSolutionSpecQuizItem = (
         multipleChoiceMultipleOptionsGradingPolicy:
           quizItem.multipleChoiceMultipleOptionsGradingPolicy,
         allowSelectingMultipleOptions: quizItem.multi,
-        direction: quizItem.direction,
+        optionDisplayDirection: sanitizeQuizDirection(quizItem.direction),
         failureMessage: quizItem.failureMessage,
         successMessage: quizItem.successMessage,
         sharedOptionFeedbackMessage: quizItem.sharedOptionFeedbackMessage,
@@ -130,10 +132,14 @@ const migrateModelSolutionSpecQuizItem = (
   }
 }
 
-const migrateModelSolutionSpecQuiz = (oldModelSolutionQuiz: OldModelSolutionQuiz) => {
+const migrateModelSolutionSpecQuiz = (
+  oldModelSolutionQuiz: OldModelSolutionQuiz | null,
+): ModelSolutionQuiz | null => {
+  if (oldModelSolutionQuiz === null) {
+    return null
+  }
   const modelSolutionQuiz: ModelSolutionQuiz = {
     version: "2",
-    id: oldModelSolutionQuiz.id,
     awardPointsEvenIfWrong: oldModelSolutionQuiz.awardPointsEvenIfWrong,
     body: oldModelSolutionQuiz.body,
     grantPointsPolicy: oldModelSolutionQuiz.grantPointsPolicy,

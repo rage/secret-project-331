@@ -9,9 +9,11 @@
   "keywords": [],
   "author": "Henrik Nygren <nygrenh@gmail.com>",
   "devDependencies": {
+    "@types/lodash": "^4.14.200",
     "tsx": "^3.12.8"
   },
   "dependencies": {
-    "@parcel/watcher": "^2.3.0"
+    "@parcel/watcher": "^2.3.0",
+    "lodash": "^4.17.21"
   }
 }

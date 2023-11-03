@@ -16,16 +16,62 @@ import ParsedText from "../../../ParsedText"
 
 import { QuizItemComponentProps } from "."
 
+// const optionButton = css`
+//   align-items: center;
+//   border: none;
+//   display: flex;
+//   flex: 1;
+//   justify-content: center;
+//   margin: 0.3rem 0.3rem 0.3rem 0;
+//   padding: 1rem;
+//   transition: background-color 0.2s;
+//   text-align: left;
+//   background-color: transparent;
+// `
+
 const optionButton = css`
-  align-items: center;
-  border: none;
-  display: flex;
-  flex: 1;
-  justify-content: center;
-  margin: 0.3rem 0.3rem 0.3rem 0;
-  padding: 1rem;
-  transition: background-color 0.2s;
-  text-align: left;
+  appearance: button;
+  background-color: #718dbf;
+  border: solid transparent;
+  border-radius: 8px;
+  font-family: "Raleway", sans-serif !important;
+  border-width: 3px;
+  box-sizing: border-box;
+  color: #ffffff;
+  cursor: pointer;
+  display: inline-block;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  line-height: 20px;
+  margin: 0;
+  outline: none;
+  overflow: visible;
+  padding: 13px 16px;
+  text-align: center;
+  touch-action: manipulation;
+  transform: translateZ(0);
+  transition: filter 0.2s;
+  user-select: none;
+  -webkit-user-select: none;
+  vertical-align: middle;
+  white-space: nowrap;
+  width: 100%;
+  margin-bottom: 10px;
+  color: #4c5868;
+
+  &:before {
+    background-clip: padding-box;
+    background-color: #f1f4f9;
+    border-radius: 6px;
+    bottom: 3px;
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    z-index: -1;
+  }
 `
 
 const optionButtonColumn = css`

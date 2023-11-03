@@ -34,6 +34,7 @@ interface ChangeDescription {
 }
 
 async function main() {
+  console.clear()
   await syncEverything()
   // Subscribe to events, one subscription per sync target
   const subscriptions = await Promise.all(
@@ -82,11 +83,10 @@ async function main() {
     }),
   )
 
-  process.once("SIGINT", function (_signal) {
+  process.once("SIGINT", async function (_signal) {
     console.log("Exitting...")
-    for (const subscription of subscriptions) {
-      subscription.unsubscribe()
-    }
+    await Promise.all(subscriptions.map((subscription) => subscription.unsubscribe()))
+    process.exit(0)
   })
 
   console.log("Watching...")

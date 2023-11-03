@@ -2,9 +2,9 @@
   "name": "@moocfi/create-exercise-service",
   "version": "0.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
-    "start": "tsx index.ts"
+    "start": "tsx src/index.ts"
   },
   "author": "Henrik Nygren <nygrenh@gmail.com>",
   "license": "Apache-2.0",

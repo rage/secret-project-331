@@ -17,7 +17,6 @@ import PeerReviewProgress from "../../../../../shared-module/components/PeerRevi
 import Spinner from "../../../../../shared-module/components/Spinner"
 import LoginStateContext from "../../../../../shared-module/contexts/LoginStateContext"
 import useToastMutation from "../../../../../shared-module/hooks/useToastMutation"
-import { narrowContainerWidthPx } from "../../../../../shared-module/styles/constants"
 import getGuestPseudonymousUserId from "../../../../../shared-module/utils/getGuestPseudonymousUserId"
 import { exerciseTaskGradingToExerciseTaskGradingResult } from "../../../../../shared-module/utils/typeMappter"
 import ExerciseTaskIframe from "../ExerciseTaskIframe"
@@ -227,7 +226,7 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
                         model_solution_spec: course_material_exercise_task.model_solution_spec,
                       },
                     }}
-                    url={`${course_material_exercise_task.exercise_iframe_url}?width=${narrowContainerWidthPx}`}
+                    url={course_material_exercise_task.exercise_iframe_url ?? ""}
                     setAnswer={null}
                     title={t("exercise-task-content", {
                       "exercise-number": exerciseNumber + 1,

@@ -105,7 +105,7 @@ const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
     }
     try {
       // eslint-disable-next-line i18next/no-literal-string
-      const newUrl = new URL(exampleUrl + `?width=${exampleWidth}`)
+      const newUrl = new URL(exampleUrl)
       setCombinedUrl(newUrl.toString())
       setInvalidUrl(false)
     } catch (error) {

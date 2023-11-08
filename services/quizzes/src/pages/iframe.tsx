@@ -1,5 +1,3 @@
-import { css } from "@emotion/css"
-import { useRouter } from "next/router"
 import React, { useState } from "react"
 import ReactDOM from "react-dom"
 import { useTranslation } from "react-i18next"
@@ -63,12 +61,6 @@ export type State =
 const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { i18n } = useTranslation()
   const [state, setState] = useState<State | null>(null)
-  const router = useRouter()
-  const rawMaxWidth = router?.query?.width
-  let maxWidth: number | null = 500
-  if (rawMaxWidth) {
-    maxWidth = Number(rawMaxWidth)
-  }
 
   const port = useExerciseServiceParentConnection((messageData) => {
     if (forgivingIsSetStateMessage(messageData)) {
@@ -198,13 +190,7 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
 
   return (
     <HeightTrackingContainer port={port}>
-      <div
-        className={css`
-          width: 100%;
-          ${maxWidth && `max-width: ${maxWidth}px;`}
-          margin: 0 auto;
-        `}
-      >
+      <div>
         <Renderer port={port} setState={setState} state={state} />
       </div>
     </HeightTrackingContainer>

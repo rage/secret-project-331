@@ -672,7 +672,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
             <>
               {currentView === "exercise-editor" && (
                 <PlaygroundExerciseEditorIframe
-                  url={`${exerciseServiceHost}${serviceInfoQuery.data.user_interface_iframe_path}?width=${width}`}
+                  url={`${exerciseServiceHost}${serviceInfoQuery.data.user_interface_iframe_path}`}
                   privateSpec={privateSpecParsed}
                   setCurrentStateReceivedFromIframe={setCurrentStateReceivedFromIframe}
                   showIframeBorders={showIframeBorders}
@@ -727,7 +727,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
                     }}
                   />
                   <PlaygroundExerciseIframe
-                    url={`${exerciseServiceHost}${serviceInfoQuery.data.user_interface_iframe_path}?width=${width}`}
+                    url={`${exerciseServiceHost}${serviceInfoQuery.data.user_interface_iframe_path}`}
                     publicSpecQuery={publicSpecQuery}
                     setCurrentStateReceivedFromIframe={setCurrentStateReceivedFromIframe}
                     showIframeBorders={showIframeBorders}
@@ -765,7 +765,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
                     }}
                   />
                   <PlaygroundViewSubmissionIframe
-                    url={`${exerciseServiceHost}${serviceInfoQuery.data.user_interface_iframe_path}?width=${width}`}
+                    url={`${exerciseServiceHost}${serviceInfoQuery.data.user_interface_iframe_path}`}
                     publicSpecQuery={publicSpecQuery}
                     setCurrentStateReceivedFromIframe={setCurrentStateReceivedFromIframe}
                     showIframeBorders={showIframeBorders}

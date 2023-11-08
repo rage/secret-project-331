@@ -9,7 +9,6 @@ import { CourseMaterialExerciseTask } from "../../../../shared-module/bindings"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
 import { IframeState } from "../../../../shared-module/exercise-service-protocol-types"
 import { baseTheme } from "../../../../shared-module/styles"
-import { narrowContainerWidthPx } from "../../../../shared-module/styles/constants"
 
 import ExerciseTaskIframe from "./ExerciseTaskIframe"
 
@@ -63,7 +62,7 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
           <ExerciseTaskIframe
             exerciseServiceSlug={exerciseTask.exercise_service_slug}
             postThisStateToIFrame={postThisStateToIFrame}
-            url={`${url}?width=${narrowContainerWidthPx}`}
+            url={url}
             setAnswer={setAnswer}
             title={t("exercise-task-content", {
               "exercise-number": exerciseNumber + 1,

@@ -25,6 +25,12 @@ use crate::{
     prelude::*,
 };
 
+#[derive(Debug, Deserialize)]
+struct GetCompletionsQueryParamers {
+    #[serde(default)]
+    pub exclude_already_registered: bool,
+}
+
 /**
 GET `/api/v0/study-registry/completions/[:course_id | :uh_course_code | :course_slug]` -- Get completions from all modules in a course.
 
@@ -37,7 +43,11 @@ during transmission, an error message will be appended to the end of the broken 
 
 This endpoint returns an array of [StudyRegistryCompletion](models::course_module_completions::StudyRegistryCompletion) structs.
 
-# Example requests
+## Excluding already registering completions.
+
+If the study registry has already registered some completions, it can exclude them from the results. This is achieved by adding a query parameter `?exclude_already_registered=true` to the request. The value of the parameter is a boolean, and it defaults to `false`.
+
+## Example requests
 
 Using University of Helsinki course code:
 ```http
@@ -56,6 +66,13 @@ Using course id:
 GET /api/v0/study-registry/completions/b3e9575b-fa13-492c-bd14-10cb27df4eec HTTP/1.1
 Authorization: Basic documentationOnlyExampleSecretKey-12345
 ```
+
+
+Exclude already registereed:
+```http
+GET /api/v0/study-registry/completions/BSCS1001?exlcude_already_registered=true HTTP/1.1
+Authorization: Basic documentationOnlyExampleSecretKey-12345
+```
 */
 #[generated_doc(Vec<StudyRegistryCompletion>)]
 #[instrument(skip(req, pool))]
@@ -63,6 +80,7 @@ async fn get_completions(
     req: HttpRequest,
     course_id_slug_or_code: web::Path<String>,
     pool: web::Data<PgPool>,
+    query: web::Query<GetCompletionsQueryParamers>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let secret_key = parse_secret_key_from_header(&req)?;
@@ -73,6 +91,12 @@ async fn get_completions(
         Res::StudyRegistry(secret_key.to_string()),
     )
     .await?;
+
+    let exclude_already_registered = query.exclude_already_registered;
+    dbg!(exclude_already_registered);
+
+    let _registrar =
+        models::study_registry_registrars::get_by_secret_key(&mut conn, &secret_key).await?;
 
     // Try to parse the param as UUID to know whether the completions should be from a distinct or
     // multiple modules.

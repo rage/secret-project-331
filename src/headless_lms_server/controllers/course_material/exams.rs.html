@@ -217,6 +217,13 @@
 <a href="#217" id="217">217</a>
 <a href="#218" id="218">218</a>
 <a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
+<a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>chrono::{DateTime, Duration, Utc};
 <span class="kw">use </span>models::{
     exams::{<span class="self">self</span>, ExamEnrollment},
@@ -300,22 +307,25 @@ POST /api/v0/course-material/exams/:id/enroll
     <span class="kw">pub </span>ended: bool,
     <span class="kw">pub </span>time_minutes: i32,
     <span class="kw">pub </span>enrollment_data: ExamEnrollmentData,
+    <span class="kw">pub </span>language: String,
 }
 
 <span class="attr">#[derive(Debug, Serialize)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 #[serde(tag = <span class="string">&quot;tag&quot;</span>)]
 </span><span class="kw">pub enum </span>ExamEnrollmentData {
-    EnrolledAndStarted {
+    <span class="doccomment">/// The student has enrolled to the exam and started it.
+    </span>EnrolledAndStarted {
         page_id: Uuid,
         page: Box&lt;Page&gt;,
         enrollment: ExamEnrollment,
     },
-    NotEnrolled {
-        can_enroll: bool,
-    },
-    NotYetStarted,
-    StudentTimeUp,
+    <span class="doccomment">/// The student has not enrolled to the exam yet. However, the the exam is open.
+    </span>NotEnrolled { can_enroll: bool },
+    <span class="doccomment">/// The exam&#39;s start time is in the future, no one can enroll yet.
+    </span>NotYetStarted,
+    <span class="doccomment">/// The exam is still open but the student has run out of time.
+    </span>StudentTimeUp,
 }
 
 <span class="doccomment">/**
@@ -364,6 +374,7 @@ GET /api/v0/course-material/exams/:id
             ended,
             time_minutes: exam.time_minutes,
             enrollment_data: ExamEnrollmentData::NotYetStarted,
+            language: exam.language,
         }));
     }
 
@@ -385,6 +396,7 @@ GET /api/v0/course-material/exams/:id
                 ended,
                 time_minutes: exam.time_minutes,
                 enrollment_data: ExamEnrollmentData::StudentTimeUp,
+                language: exam.language,
             }));
         }
         enrollment
@@ -402,6 +414,7 @@ GET /api/v0/course-material/exams/:id
             ended,
             time_minutes: exam.time_minutes,
             enrollment_data: ExamEnrollmentData::NotEnrolled { can_enroll },
+            language: exam.language,
         }));
     };
 
@@ -421,6 +434,7 @@ GET /api/v0/course-material/exams/:id
             page: Box::new(page),
             enrollment,
         },
+        language: exam.language,
     }))
 }
 

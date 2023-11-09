@@ -415,6 +415,10 @@
 <a href="#415" id="415">415</a>
 <a href="#416" id="416">416</a>
 <a href="#417" id="417">417</a>
+<a href="#418" id="418">418</a>
+<a href="#419" id="419">419</a>
+<a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>chrono::Duration;
 
 <span class="kw">use crate</span>::{courses::Course, prelude::<span class="kw-2">*</span>};
@@ -426,12 +430,14 @@
     <span class="kw">pub </span>id: Uuid,
     <span class="kw">pub </span>name: String,
     <span class="kw">pub </span>instructions: serde_json::Value,
-    <span class="kw">pub </span>page_id: Uuid,
+    <span class="comment">// TODO: page_id is not in the exams table, prevents from using select * with query_as!
+    </span><span class="kw">pub </span>page_id: Uuid,
     <span class="kw">pub </span>courses: Vec&lt;Course&gt;,
     <span class="kw">pub </span>starts_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
     <span class="kw">pub </span>ends_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
     <span class="kw">pub </span>time_minutes: i32,
     <span class="kw">pub </span>minimum_points_treshold: i32,
+    <span class="kw">pub </span>language: String,
 }
 
 <span class="kw">impl </span>Exam {
@@ -477,7 +483,8 @@ SELECT exams.id,
   exams.starts_at,
   exams.ends_at,
   exams.time_minutes,
-  exams.minimum_points_treshold
+  exams.minimum_points_treshold,
+  exams.language
 FROM exams
   JOIN pages ON pages.exam_id = exams.id
 WHERE exams.id = $1
@@ -526,6 +533,7 @@ WHERE course_exams.exam_id = $1
         time_minutes: exam.time_minutes,
         courses,
         minimum_points_treshold: exam.minimum_points_treshold,
+        language: exam.language.unwrap_or(<span class="string">&quot;en-US&quot;</span>.to_string()),
     })
 }
 

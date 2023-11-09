@@ -576,11 +576,28 @@
 <a href="#576" id="576">576</a>
 <a href="#577" id="577">577</a>
 <a href="#578" id="578">578</a>
+<a href="#579" id="579">579</a>
+<a href="#580" id="580">580</a>
+<a href="#581" id="581">581</a>
+<a href="#582" id="582">582</a>
+<a href="#583" id="583">583</a>
+<a href="#584" id="584">584</a>
+<a href="#585" id="585">585</a>
+<a href="#586" id="586">586</a>
+<a href="#587" id="587">587</a>
+<a href="#588" id="588">588</a>
+<a href="#589" id="589">589</a>
+<a href="#590" id="590">590</a>
+<a href="#591" id="591">591</a>
+<a href="#592" id="592">592</a>
+<a href="#593" id="593">593</a>
+<a href="#594" id="594">594</a>
+<a href="#595" id="595">595</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>futures::Stream;
 
-<span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
+<span class="kw">use crate</span>::{prelude::<span class="kw-2">*</span>, study_registry_registrars::StudyRegistryRegistrar};
 
 <span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
@@ -1119,25 +1136,42 @@ WHERE id = $2 AND deleted_at IS NULL
         }
     }
 }
-
-<span class="kw">pub fn </span>stream_by_course_module_id&lt;<span class="lifetime">&#39;a</span>&gt;(
+<span class="doccomment">/// Streams completions.
+///
+/// If no_completions_registered_by_this_study_registry_registrar is None, then all completions are streamed.
+</span><span class="kw">pub fn </span>stream_by_course_module_id&lt;<span class="lifetime">&#39;a</span>&gt;(
     conn: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>PgConnection,
     course_module_ids: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[Uuid],
-) -&gt; <span class="kw">impl </span>Stream&lt;Item = sqlx::Result&lt;StudyRegistryCompletion&gt;&gt; + <span class="lifetime">&#39;a </span>{
-    <span class="macro">sqlx::query_as!</span>(
+    no_completions_registered_by_this_study_registry_registrar: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="prelude-ty">Option</span>&lt;StudyRegistryRegistrar&gt;,
+) -&gt; <span class="kw">impl </span>Stream&lt;Item = sqlx::Result&lt;StudyRegistryCompletion&gt;&gt; + Send + <span class="lifetime">&#39;a </span>{
+    <span class="comment">// If this is none, we&#39;re using a null uuid, which will never match anything. Therefore, no completions will be filtered out.
+    </span><span class="kw">let </span>study_module_registrar_id = no_completions_registered_by_this_study_registry_registrar
+        .clone()
+        .map(|o| o.id)
+        .unwrap_or(Uuid::nil());
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         CourseModuleCompletion,
         <span class="string">r#&quot;
 SELECT *
 FROM course_module_completions
 WHERE course_module_id = ANY($1)
   AND prerequisite_modules_completed
-  AND eligible_for_ects
+  AND eligible_for_ects IS TRUE
   AND deleted_at IS NULL
+  AND id NOT IN (
+    SELECT course_module_completion_id
+    FROM course_module_completion_registered_to_study_registries
+    WHERE course_module_id = ANY($1)
+      AND study_registry_registrar_id = $2
+      AND deleted_at IS NULL
+  )
         &quot;#</span>,
         course_module_ids,
+        study_module_registrar_id,
     )
     .map(StudyRegistryCompletion::from)
-    .fetch(conn)
+    .fetch(conn);
+    res
 }
 
 <span class="kw">pub async fn </span>delete(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid) -&gt; ModelResult&lt;()&gt; {

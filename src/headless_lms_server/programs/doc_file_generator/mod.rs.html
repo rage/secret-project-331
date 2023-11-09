@@ -1787,6 +1787,8 @@
 <a href="#1787" id="1787">1787</a>
 <a href="#1788" id="1788">1788</a>
 <a href="#1789" id="1789">1789</a>
+<a href="#1790" id="1790">1790</a>
+<a href="#1791" id="1791">1791</a>
 </pre></div><pre class="rust"><code><span class="doccomment">/*! The doc file generator is used to write example JSON and TypeScript definitions for the docs of return values of API endpoints.
 
 This is done by writing .json and .ts files that can be discovered by the #[generated_doc] attribute macro that is used by API endpoints.
@@ -2118,7 +2120,8 @@ This method is mainly useful for external/std types. For example, we cannot writ
         ends_at,
         ended: <span class="bool-val">false</span>,
         time_minutes: <span class="number">120</span>,
-        enrollment_data: ExamEnrollmentData::NotEnrolled { can_enroll: <span class="bool-val">true </span>}
+        enrollment_data: ExamEnrollmentData::NotEnrolled { can_enroll: <span class="bool-val">true </span>},
+        language: <span class="string">&quot;en-US&quot;</span>.to_string()
     });
     <span class="macro">doc!</span>(ExerciseSubmissions {
         data,
@@ -2848,6 +2851,7 @@ This method is mainly useful for external/std types. For example, we cannot writ
         ends_at,
         time_minutes: <span class="number">120</span>,
         minimum_points_treshold: <span class="number">24</span>,
+        language: <span class="string">&quot;en-US&quot;</span>.to_string()
     });
     <span class="macro">doc!</span>(
         T,

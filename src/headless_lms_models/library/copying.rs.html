@@ -998,6 +998,7 @@
 <a href="#998" id="998">998</a>
 <a href="#999" id="999">999</a>
 <a href="#1000" id="1000">1000</a>
+<a href="#1001" id="1001">1001</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>serde_json::Value;
@@ -1271,6 +1272,7 @@ WHERE id = $2;
         time_minutes: copied_exam.time_minutes,
         page_id: get_page_id.page_id,
         minimum_points_treshold: copied_exam.minimum_points_treshold,
+        language: copied_exam.language.unwrap_or(<span class="string">&quot;en-US&quot;</span>.to_string()),
     })
 }
 

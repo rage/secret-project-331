@@ -251,6 +251,48 @@
 <a href="#251" id="251">251</a>
 <a href="#252" id="252">252</a>
 <a href="#253" id="253">253</a>
+<a href="#254" id="254">254</a>
+<a href="#255" id="255">255</a>
+<a href="#256" id="256">256</a>
+<a href="#257" id="257">257</a>
+<a href="#258" id="258">258</a>
+<a href="#259" id="259">259</a>
+<a href="#260" id="260">260</a>
+<a href="#261" id="261">261</a>
+<a href="#262" id="262">262</a>
+<a href="#263" id="263">263</a>
+<a href="#264" id="264">264</a>
+<a href="#265" id="265">265</a>
+<a href="#266" id="266">266</a>
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/study-registry/completions`
 //!
 //! The study registry provides an access to student completion records. It is generally only available
@@ -278,6 +320,12 @@
     prelude::<span class="kw-2">*</span>,
 };
 
+<span class="attr">#[derive(Debug, Deserialize)]
+</span><span class="kw">struct </span>GetCompletionsQueryParamers {
+    <span class="attr">#[serde(default)]
+    </span><span class="kw">pub </span>exclude_already_registered: bool,
+}
+
 <span class="doccomment">/**
 GET `/api/v0/study-registry/completions/[:course_id | :uh_course_code | :course_slug]` -- Get completions from all modules in a course.
 
@@ -290,7 +338,11 @@ during transmission, an error message will be appended to the end of the broken 
 
 This endpoint returns an array of [StudyRegistryCompletion](models::course_module_completions::StudyRegistryCompletion) structs.
 
-# Example requests
+## Excluding already registering completions.
+
+If the study registry has already registered some completions, it can exclude them from the results. This is achieved by adding a query parameter `?exclude_already_registered=true` to the request. The value of the parameter is a boolean, and it defaults to `false`.
+
+## Example requests
 
 Using University of Helsinki course code:
 ```http
@@ -309,6 +361,12 @@ Using course id:
 GET /api/v0/study-registry/completions/b3e9575b-fa13-492c-bd14-10cb27df4eec HTTP/1.1
 Authorization: Basic documentationOnlyExampleSecretKey-12345
 ```
+
+Exclude already registereed:
+```http
+GET /api/v0/study-registry/completions/BSCS1001?exlcude_already_registered=true HTTP/1.1
+Authorization: Basic documentationOnlyExampleSecretKey-12345
+```
 */
 </span><span class="attr">#[generated_doc(Vec&lt;StudyRegistryCompletion&gt;)]
 #[instrument(skip(req, pool))]
@@ -316,6 +374,7 @@ Authorization: Basic documentationOnlyExampleSecretKey-12345
     req: HttpRequest,
     course_id_slug_or_code: web::Path&lt;String&gt;,
     pool: web::Data&lt;PgPool&gt;,
+    query: web::Query&lt;GetCompletionsQueryParamers&gt;,
 ) -&gt; ControllerResult&lt;HttpResponse&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>secret_key = parse_secret_key_from_header(<span class="kw-2">&amp;</span>req)<span class="question-mark">?</span>;
@@ -326,6 +385,13 @@ Authorization: Basic documentationOnlyExampleSecretKey-12345
         Res::StudyRegistry(secret_key.to_string()),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let </span>dont_include_completions_from_this_registrar = <span class="kw">if </span>query.exclude_already_registered {
+        <span class="prelude-val">Some</span>(models::study_registry_registrars::get_by_secret_key(<span class="kw-2">&amp;mut </span>conn, secret_key).<span class="kw">await</span><span class="question-mark">?</span>)
+    } <span class="kw">else </span>{
+        <span class="comment">// In this case, we&#39;ll return all completions.
+        </span><span class="prelude-val">None
+    </span>};
 
     <span class="comment">// Try to parse the param as UUID to know whether the completions should be from a distinct or
     // multiple modules.
@@ -349,6 +415,7 @@ Authorization: Basic documentationOnlyExampleSecretKey-12345
         <span class="kw">let </span>stream = models::course_module_completions::stream_by_course_module_id(
             <span class="kw-2">&amp;mut </span>handle_conn,
             <span class="kw-2">&amp;</span>course_modules,
+            <span class="kw-2">&amp;</span>dont_include_completions_from_this_registrar,
         );
         <span class="kw">let </span>fut = serializable_sqlx_result_stream_to_json_stream(stream).for_each(|message| {
             <span class="kw">let </span>token = skip_authorize();
@@ -390,27 +457,36 @@ during transmission, an error message will be appended to the end of the broken 
 
 This endpoint returns an array of [StudyRegistryCompletion](models::course_module_completions::StudyRegistryCompletion) structs.
 
-# Example requests
+## Excluding already registering completions.
+
+If the study registry has already registered some completions, it can exclude them from the results. This is achieved by adding a query parameter `?exclude_already_registered=true` to the request. The value of the parameter is a boolean, and it defaults to `false`.
+
+## Example requests
 
 Using University of Helsinki course code:
 ```http
-GET /api/v0/study-registry/completions/BSCS1001 HTTP/1.1
+GET /api/v0/study-registry/completions/BSCS1001/caf3ccb2-abe9-4661-822c-20b117049dbf HTTP/1.1
 Authorization: Basic documentationOnlyExampleSecretKey-12345
 Content-Type: application/json
 ```
 
 Using course slug:
 ```http
-GET /api/v0/study-registry/completions/introduction-to-programming HTTP/1.1
+GET /api/v0/study-registry/completions/introduction-to-programming/caf3ccb2-abe9-4661-822c-20b117049dbf HTTP/1.1
 Authorization: Basic documentationOnlyExampleSecretKey-12345
 Content-Type: application/json
 ```
 
 Using course id:
 ```http
-GET /api/v0/study-registry/completions/b3e9575b-fa13-492c-bd14-10cb27df4eec HTTP/1.1
+GET /api/v0/study-registry/completions/b3e9575b-fa13-492c-bd14-10cb27df4eec/caf3ccb2-abe9-4661-822c-20b117049dbf HTTP/1.1
 Authorization: Basic documentationOnlyExampleSecretKey-12345
 Content-Type: application/json
+
+Exclude already registereed:
+```http
+GET /api/v0/study-registry/completions/BSCS1001/caf3ccb2-abe9-4661-822c-20b117049dbf?exlcude_already_registered=true HTTP/1.1
+Authorization: Basic documentationOnlyExampleSecretKey-12345
 ```
 */
 </span><span class="attr">#[generated_doc(Vec&lt;StudyRegistryCompletion&gt;)]
@@ -419,6 +495,7 @@ Content-Type: application/json
     req: HttpRequest,
     path: web::Path&lt;(String, Uuid)&gt;,
     pool: web::Data&lt;PgPool&gt;,
+    query: web::Query&lt;GetCompletionsQueryParamers&gt;,
 ) -&gt; ControllerResult&lt;HttpResponse&gt; {
     <span class="kw">let </span>(course_id_slug_or_code, module_id) = path.into_inner();
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
@@ -440,6 +517,12 @@ Content-Type: application/json
         ));
     }
 
+    <span class="kw">let </span>dont_include_completions_from_this_registrar = <span class="kw">if </span>query.exclude_already_registered {
+        <span class="prelude-val">Some</span>(models::study_registry_registrars::get_by_secret_key(<span class="kw-2">&amp;mut </span>conn, secret_key).<span class="kw">await</span><span class="question-mark">?</span>)
+    } <span class="kw">else </span>{
+        <span class="prelude-val">None
+    </span>};
+
     <span class="kw">let </span>(sender, receiver) = tokio::sync::mpsc::unbounded_channel::&lt;ControllerResult&lt;Bytes&gt;&gt;();
     <span class="kw">let </span><span class="kw-2">mut </span>handle_conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>_handle = tokio::spawn(<span class="kw">async move </span>{
@@ -447,6 +530,7 @@ Content-Type: application/json
         <span class="kw">let </span>stream = models::course_module_completions::stream_by_course_module_id(
             <span class="kw-2">&amp;mut </span>handle_conn,
             <span class="kw-2">&amp;</span>modules,
+            <span class="kw-2">&amp;</span>dont_include_completions_from_this_registrar,
         );
         <span class="kw">let </span>fut = serializable_sqlx_result_stream_to_json_stream(stream).for_each(|message| {
             <span class="kw">let </span>token = skip_authorize();

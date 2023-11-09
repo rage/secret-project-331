@@ -81,21 +81,24 @@ pub struct ExamData {
     pub ended: bool,
     pub time_minutes: i32,
     pub enrollment_data: ExamEnrollmentData,
+    pub language: String,
 }
 
 #[derive(Debug, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 #[serde(tag = "tag")]
 pub enum ExamEnrollmentData {
+    /// The student has enrolled to the exam and started it.
     EnrolledAndStarted {
         page_id: Uuid,
         page: Box<Page>,
         enrollment: ExamEnrollment,
     },
-    NotEnrolled {
-        can_enroll: bool,
-    },
+    /// The student has not enrolled to the exam yet. However, the the exam is open.
+    NotEnrolled { can_enroll: bool },
+    /// The exam's start time is in the future, no one can enroll yet.
     NotYetStarted,
+    /// The exam is still open but the student has run out of time.
     StudentTimeUp,
 }
 
@@ -145,6 +148,7 @@ pub async fn fetch_exam_for_user(
             ended,
             time_minutes: exam.time_minutes,
             enrollment_data: ExamEnrollmentData::NotYetStarted,
+            language: exam.language,
         }));
     }
 
@@ -166,6 +170,7 @@ pub async fn fetch_exam_for_user(
                 ended,
                 time_minutes: exam.time_minutes,
                 enrollment_data: ExamEnrollmentData::StudentTimeUp,
+                language: exam.language,
             }));
         }
         enrollment
@@ -183,6 +188,7 @@ pub async fn fetch_exam_for_user(
             ended,
             time_minutes: exam.time_minutes,
             enrollment_data: ExamEnrollmentData::NotEnrolled { can_enroll },
+            language: exam.language,
         }));
     };
 
@@ -202,6 +208,7 @@ pub async fn fetch_exam_for_user(
             page: Box::new(page),
             enrollment,
         },
+        language: exam.language,
     }))
 }
 

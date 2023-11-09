@@ -329,7 +329,8 @@ fn controllers() {
         ends_at,
         ended: false,
         time_minutes: 120,
-        enrollment_data: ExamEnrollmentData::NotEnrolled { can_enroll: true }
+        enrollment_data: ExamEnrollmentData::NotEnrolled { can_enroll: true },
+        language: "en-US".to_string()
     });
     doc!(ExerciseSubmissions {
         data,
@@ -1059,6 +1060,7 @@ fn models() {
         ends_at,
         time_minutes: 120,
         minimum_points_treshold: 24,
+        language: "en-US".to_string()
     });
     doc!(
         T,

@@ -19,9 +19,7 @@ test("Can take exam after enough course points", async ({ page, headless }, test
       page.locator("text=Automatic course exam"),
       page.locator("text=Submissions are no longer accepted after"),
       page.locator("text=You have 1 minutes to complete the exam after starting"),
-      page.locator(
-        "text=The exam is not open yet. Use this button to access the exam once the exam starts.",
-      ),
+      page.getByText("You have not met the requirements for taking this exam."),
     ],
   })
 

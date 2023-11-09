@@ -53,6 +53,8 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
     document.cookie = `${LANGUAGE_COOKIE_KEY}=${selectedLanguage[0]}; path=/; SameSite=Strict; max-age=31536000;`
   }
 
+  const noLanguagesToChange = (languages ?? DEFAULT_LANGUAGES).length <= 1
+
   return (
     <>
       <OutsideClickHandler onOutsideClick={() => setVisible(false)}>
@@ -66,6 +68,8 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
             :hover {
               cursor: pointer;
             }
+
+            ${noLanguagesToChange && `cursor: not-allowed !important;`}
           `}
           ref={setReferenceElement}
           onClick={(e) => {

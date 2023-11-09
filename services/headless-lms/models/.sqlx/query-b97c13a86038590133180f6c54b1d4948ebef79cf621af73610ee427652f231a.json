@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT exams.id,\n  exams.name,\n  exams.instructions,\n  pages.id AS page_id,\n  exams.starts_at,\n  exams.ends_at,\n  exams.time_minutes,\n  exams.minimum_points_treshold\nFROM exams\n  JOIN pages ON pages.exam_id = exams.id\nWHERE exams.id = $1\n",
+  "query": "\nSELECT exams.id,\n  exams.name,\n  exams.instructions,\n  pages.id AS page_id,\n  exams.starts_at,\n  exams.ends_at,\n  exams.time_minutes,\n  exams.minimum_points_treshold,\n  exams.language\nFROM exams\n  JOIN pages ON pages.exam_id = exams.id\nWHERE exams.id = $1\n",
   "describe": {
     "columns": [
       {
@@ -42,12 +42,17 @@
         "ordinal": 7,
         "name": "minimum_points_treshold",
         "type_info": "Int4"
+      },
+      {
+        "ordinal": 8,
+        "name": "language",
+        "type_info": "Varchar"
       }
     ],
     "parameters": {
       "Left": ["Uuid"]
     },
-    "nullable": [false, false, false, false, true, true, false, false]
+    "nullable": [false, false, false, false, true, true, false, false, true]
   },
-  "hash": "a20713f03a272294f8134ee1dba5e327215625cc98568daff6691f879928bf4e"
+  "hash": "b97c13a86038590133180f6c54b1d4948ebef79cf621af73610ee427652f231a"
 }

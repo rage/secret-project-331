@@ -593,8 +593,15 @@ async fn check_study_registry_permission(
     secret_key: String,
     _action: Action,
 ) -> Result<AuthorizationToken, ControllerError> {
-    let _registrar =
-        models::study_registry_registrars::get_by_secret_key(conn, &secret_key).await?;
+    let _registrar = models::study_registry_registrars::get_by_secret_key(conn, &secret_key)
+        .await
+        .map_err(|original_error| {
+            ControllerError::new(
+                ControllerErrorType::Forbidden,
+                "Unauthorized".to_string(),
+                Some(original_error.into()),
+            )
+        })?;
     Ok(AuthorizationToken(()))
 }
 

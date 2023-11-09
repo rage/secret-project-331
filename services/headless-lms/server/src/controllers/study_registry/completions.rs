@@ -67,7 +67,6 @@ GET /api/v0/study-registry/completions/b3e9575b-fa13-492c-bd14-10cb27df4eec HTTP
 Authorization: Basic documentationOnlyExampleSecretKey-12345
 ```
 
-
 Exclude already registereed:
 ```http
 GET /api/v0/study-registry/completions/BSCS1001?exlcude_already_registered=true HTTP/1.1
@@ -92,11 +91,12 @@ async fn get_completions(
     )
     .await?;
 
-    let exclude_already_registered = query.exclude_already_registered;
-    dbg!(exclude_already_registered);
-
-    let _registrar =
-        models::study_registry_registrars::get_by_secret_key(&mut conn, &secret_key).await?;
+    let dont_include_completions_from_this_registrar = if query.exclude_already_registered {
+        Some(models::study_registry_registrars::get_by_secret_key(&mut conn, secret_key).await?)
+    } else {
+        // In this case, we'll return all completions.
+        None
+    };
 
     // Try to parse the param as UUID to know whether the completions should be from a distinct or
     // multiple modules.
@@ -120,6 +120,7 @@ async fn get_completions(
         let stream = models::course_module_completions::stream_by_course_module_id(
             &mut handle_conn,
             &course_modules,
+            &dont_include_completions_from_this_registrar,
         );
         let fut = serializable_sqlx_result_stream_to_json_stream(stream).for_each(|message| {
             let token = skip_authorize();
@@ -161,27 +162,36 @@ during transmission, an error message will be appended to the end of the broken 
 
 This endpoint returns an array of [StudyRegistryCompletion](models::course_module_completions::StudyRegistryCompletion) structs.
 
-# Example requests
+## Excluding already registering completions.
+
+If the study registry has already registered some completions, it can exclude them from the results. This is achieved by adding a query parameter `?exclude_already_registered=true` to the request. The value of the parameter is a boolean, and it defaults to `false`.
+
+## Example requests
 
 Using University of Helsinki course code:
 ```http
-GET /api/v0/study-registry/completions/BSCS1001 HTTP/1.1
+GET /api/v0/study-registry/completions/BSCS1001/caf3ccb2-abe9-4661-822c-20b117049dbf HTTP/1.1
 Authorization: Basic documentationOnlyExampleSecretKey-12345
 Content-Type: application/json
 ```
 
 Using course slug:
 ```http
-GET /api/v0/study-registry/completions/introduction-to-programming HTTP/1.1
+GET /api/v0/study-registry/completions/introduction-to-programming/caf3ccb2-abe9-4661-822c-20b117049dbf HTTP/1.1
 Authorization: Basic documentationOnlyExampleSecretKey-12345
 Content-Type: application/json
 ```
 
 Using course id:
 ```http
-GET /api/v0/study-registry/completions/b3e9575b-fa13-492c-bd14-10cb27df4eec HTTP/1.1
+GET /api/v0/study-registry/completions/b3e9575b-fa13-492c-bd14-10cb27df4eec/caf3ccb2-abe9-4661-822c-20b117049dbf HTTP/1.1
 Authorization: Basic documentationOnlyExampleSecretKey-12345
 Content-Type: application/json
+
+Exclude already registereed:
+```http
+GET /api/v0/study-registry/completions/BSCS1001/caf3ccb2-abe9-4661-822c-20b117049dbf?exlcude_already_registered=true HTTP/1.1
+Authorization: Basic documentationOnlyExampleSecretKey-12345
 ```
 */
 #[generated_doc(Vec<StudyRegistryCompletion>)]
@@ -190,6 +200,7 @@ async fn get_module_completions(
     req: HttpRequest,
     path: web::Path<(String, Uuid)>,
     pool: web::Data<PgPool>,
+    query: web::Query<GetCompletionsQueryParamers>,
 ) -> ControllerResult<HttpResponse> {
     let (course_id_slug_or_code, module_id) = path.into_inner();
     let mut conn = pool.acquire().await?;
@@ -211,6 +222,12 @@ async fn get_module_completions(
         ));
     }
 
+    let dont_include_completions_from_this_registrar = if query.exclude_already_registered {
+        Some(models::study_registry_registrars::get_by_secret_key(&mut conn, secret_key).await?)
+    } else {
+        None
+    };
+
     let (sender, receiver) = tokio::sync::mpsc::unbounded_channel::<ControllerResult<Bytes>>();
     let mut handle_conn = pool.acquire().await?;
     let _handle = tokio::spawn(async move {
@@ -218,6 +235,7 @@ async fn get_module_completions(
         let stream = models::course_module_completions::stream_by_course_module_id(
             &mut handle_conn,
             &modules,
+            &dont_include_completions_from_this_registrar,
         );
         let fut = serializable_sqlx_result_stream_to_json_stream(stream).for_each(|message| {
             let token = skip_authorize();

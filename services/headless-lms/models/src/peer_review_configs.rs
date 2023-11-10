@@ -26,6 +26,7 @@ pub struct PeerReviewConfig {
     pub peer_reviews_to_receive: i32,
     pub accepting_threshold: f32,
     pub accepting_strategy: PeerReviewAcceptingStrategy,
+    pub manual_review_cutoff_in_days: i32,
 }
 
 /// Like `PeerReviewConfig` but only the fields it's fine to show to all users.
@@ -157,7 +158,8 @@ SELECT id,
   peer_reviews_to_give,
   peer_reviews_to_receive,
   accepting_threshold,
-  accepting_strategy AS "accepting_strategy: _"
+  accepting_strategy AS "accepting_strategy: _",
+  manual_review_cutoff_in_days
 FROM peer_review_configs
 WHERE id = $1
   AND deleted_at IS NULL
@@ -173,7 +175,7 @@ WHERE id = $1
 pub async fn get_by_exercise_id(
     conn: &mut PgConnection,
     exercise_id: Uuid,
-) -> ModelResult<PeerReviewConfig> {
+) -> ModelResult<Option<PeerReviewConfig>> {
     let res = sqlx::query_as!(
         PeerReviewConfig,
         r#"
@@ -186,14 +188,15 @@ SELECT id,
     peer_reviews_to_give,
     peer_reviews_to_receive,
     accepting_threshold,
-    accepting_strategy AS "accepting_strategy: _"
+    accepting_strategy AS "accepting_strategy: _",
+    manual_review_cutoff_in_days
 FROM peer_review_configs
 WHERE exercise_id = $1
   AND deleted_at IS NULL
         "#,
         exercise_id
     )
-    .fetch_one(conn)
+    .fetch_optional(conn)
     .await?;
     Ok(res)
 }
@@ -207,7 +210,12 @@ pub async fn get_by_exercise_or_course_id(
     if exercise.use_course_default_peer_review_config {
         get_default_for_course_by_course_id(conn, course_id).await
     } else {
-        get_by_exercise_id(conn, exercise.id).await
+        let config = get_by_exercise_id(conn, exercise.id).await?;
+        if let Some(config) = config {
+            Ok(config)
+        } else {
+            get_default_for_course_by_course_id(conn, course_id).await
+        }
     }
 }
 
@@ -227,7 +235,8 @@ SELECT id,
   peer_reviews_to_give,
   peer_reviews_to_receive,
   accepting_threshold,
-  accepting_strategy AS "accepting_strategy: _"
+  accepting_strategy AS "accepting_strategy: _",
+  manual_review_cutoff_in_days
 FROM peer_review_configs
 WHERE course_id = $1
   AND exercise_id IS NULL

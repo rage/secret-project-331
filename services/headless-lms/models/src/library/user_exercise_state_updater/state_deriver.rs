@@ -690,6 +690,7 @@ mod tests {
                 peer_reviews_to_receive: 2,
                 accepting_threshold: 2.1,
                 accepting_strategy,
+                manual_review_cutoff_in_days: 21,
             }
         }
 

@@ -764,6 +764,7 @@ fn models() {
         peer_reviews_to_receive: 2,
         accepting_threshold: 3.0,
         accepting_strategy: PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage,
+        manual_review_cutoff_in_days: 21,
     });
     doc!(
         T,

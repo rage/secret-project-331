@@ -2265,7 +2265,8 @@ export function isPeerReviewConfig(obj: unknown): obj is PeerReviewConfig {
     typeof typedObj["peer_reviews_to_give"] === "number" &&
     typeof typedObj["peer_reviews_to_receive"] === "number" &&
     typeof typedObj["accepting_threshold"] === "number" &&
-    (isPeerReviewAcceptingStrategy(typedObj["accepting_strategy"]) as boolean)
+    (isPeerReviewAcceptingStrategy(typedObj["accepting_strategy"]) as boolean) &&
+    typeof typedObj["manual_review_cutoff_in_days"] === "number"
   )
 }
 

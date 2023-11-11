@@ -16,61 +16,45 @@ import ParsedText from "../../../ParsedText"
 
 import { QuizItemComponentProps } from "."
 
-// const optionButton = css`
-//   align-items: center;
-//   border: none;
-//   display: flex;
-//   flex: 1;
-//   justify-content: center;
-//   margin: 0.3rem 0.3rem 0.3rem 0;
-//   padding: 1rem;
-//   transition: background-color 0.2s;
-//   text-align: left;
-//   background-color: transparent;
-// `
-
-const optionButton = css`
-  appearance: button;
-  background-color: #718dbf;
-  border: solid transparent;
-  border-radius: 8px;
-  font-family: "Raleway", sans-serif !important;
-  border-width: 3px;
-  box-sizing: border-box;
-  color: #ffffff;
+export const optionButton = css`
+  align-items: center;
+  appearance: none;
+  background-color: #fcfcfd;
+  border-radius: 10px;
+  border: 3px solid #d6d6e7;
+  box-shadow:
+    rgba(45, 35, 66, 0) 0 2px 4px,
+    rgba(45, 35, 66, 0) 0 7px 13px -3px,
+    #d6d6e7 0 -2px 0 inset;
+  color: #36395a;
   cursor: pointer;
-  display: inline-block;
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0.8px;
-  line-height: 20px;
-  margin: 0;
-  outline: none;
-  overflow: visible;
-  padding: 13px 16px;
-  text-align: center;
-  touch-action: manipulation;
-  transform: translateZ(0);
-  transition: filter 0.2s;
+  display: flex;
+  min-height: 48px;
+  justify-content: center;
+  line-height: 1;
+  list-style: none;
+  padding-left: 14px;
+  padding-right: 14px;
+  text-align: left;
+  text-decoration: none;
+  transition:
+    box-shadow 0.15s,
+    transform 0.15s;
   user-select: none;
   -webkit-user-select: none;
-  vertical-align: middle;
+  touch-action: manipulation;
   white-space: nowrap;
-  width: 100%;
-  margin-bottom: 10px;
-  color: #4c5868;
+  will-change: box-shadow, transform;
+  font-size: 18px;
+  margin-bottom: 5px;
 
-  &:before {
-    background-clip: padding-box;
-    background-color: #f1f4f9;
-    border-radius: 6px;
-    bottom: 3px;
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    z-index: -1;
+  &:hover {
+    background: #f1f4f9;
+    border-color: #718dbf;
+    box-shadow:
+      rgba(45, 35, 66, 0) 0 4px 8px,
+      rgba(45, 35, 66, 0) 0 7px 13px -3px,
+      #718dbf 0 -2px 0 inset;
   }
 `
 
@@ -82,8 +66,15 @@ const optionButtonColumn = css`
 
 // eslint-disable-next-line i18next/no-literal-string
 const optionButtonSelected = css`
-  background: ${quizTheme.selectedItemBackground};
-  color: ${quizTheme.selectedItemColor};
+  /*   background: ${quizTheme.selectedItemBackground};
+  color: ${quizTheme.selectedItemColor}; */
+  background: #f1f4f9;
+  border-color: #718dbf;
+  box-shadow:
+    rgba(45, 35, 66, 0) 0 4px 8px,
+    rgba(45, 35, 66, 0) 0 7px 13px -3px,
+    #718dbf 0 -2px 0 inset;
+  color: #4c5868;
 `
 
 export interface LeftBorderedDivProps {
@@ -146,9 +137,11 @@ const MultipleChoice: React.FunctionComponent<
       <div
         className={css`
           /* font-size: ${quizTheme.quizTitleFontSize}; */
-          font-weight: bold;
+          font-weight: 500;
+          color: #4c5868;
           font-family: "Raleway", sans-serif;
-          font-size: clamp(18px, 2vw, 20px) !important;
+          font-size: 20px;
+          margin-bottom: 1.25rem;
         `}
       >
         <ParsedText parseLatex parseMarkdown inline text={quizItem.title} />

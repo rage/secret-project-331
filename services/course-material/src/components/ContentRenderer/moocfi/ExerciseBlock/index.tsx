@@ -1,4 +1,4 @@
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import { faQuestion as infoIcon } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -45,6 +45,58 @@ interface ExerciseBlockAttributes {
 interface DeadlineProps {
   closingSoon: boolean
 }
+
+export const optionButton = css`
+  align-items: center;
+  appearance: none;
+  background-color: #77c299;
+  border-radius: 10px;
+  border: none;
+  max-width: 20rem;
+  width: 100%;
+  box-shadow:
+    rgba(45, 35, 66, 0) 0 2px 4px,
+    rgba(45, 35, 66, 0) 0 7px 13px -3px,
+    #69af8a 0 -3px 0 inset;
+  color: #ffffff;
+  font-weight: medium;
+  cursor: pointer;
+  display: flex;
+  min-height: 48px;
+  justify-content: center;
+  line-height: 1;
+  list-style: none;
+  padding-left: 14px;
+  padding-right: 14px;
+  text-align: left;
+  text-decoration: none;
+  transition:
+    box-shadow 0.15s,
+    transform 0.15s;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  white-space: nowrap;
+  will-change: box-shadow, transform;
+  font-size: 18px;
+  margin: 0 auto;
+
+  &:hover {
+    background: #77c299;
+    box-shadow:
+      rgba(45, 35, 66, 0) 0 4px 8px,
+      rgba(45, 35, 66, 0) 0 7px 13px -3px,
+      #69af8a 0 -3px 0 inset;
+  }
+
+  &:disabled {
+    background: #929896;
+    box-shadow:
+      rgba(45, 35, 66, 0) 0 4px 8px,
+      rgba(45, 35, 66, 0) 0 7px 13px -3px,
+      #68716c 0 -3px 0 inset;
+  }
+`
 
 // eslint-disable-next-line i18next/no-literal-string
 const DeadlineText = styled.div<DeadlineProps>`
@@ -241,10 +293,10 @@ const ExerciseBlock: React.FC<
         <section
           className={css`
             width: 100%;
-            background: red;
+            background: #f2f2f2;
             border-radius: 1rem;
             margin-bottom: 1rem;
-            padding-bottom: 1rem;
+            padding-bottom: 1.25rem;
           `}
           id={getExerciseBlockBeginningScrollingId(id)}
           aria-labelledby={exerciseTitleId}
@@ -257,22 +309,11 @@ const ExerciseBlock: React.FC<
                   align-items: center;
                   margin-bottom: 1.5rem;
                   padding: 1.5rem 1.2rem;
-                  background: #215887;
+                  background: #718dbf;
                   border-radius: 1rem 1rem 0 0;
                   color: white;
                 `}
               >
-                <FontAwesomeIcon
-                  icon={infoIcon}
-                  className={css`
-                    height: 2rem !important;
-                    width: 2rem !important;
-                    margin-right: 0.8rem;
-                    background: #063157;
-                    padding: 0.5rem;
-                    border-radius: 50px;
-                  `}
-                />
                 <h2
                   id={exerciseTitleId}
                   className={css`
@@ -308,9 +349,32 @@ const ExerciseBlock: React.FC<
                 />
                 <div
                   className={css`
-                    font-size: 1.2rem;
+                    font-size: 9px;
                     text-align: center;
                     font-family: ${secondaryFont} !important;
+                    text-transform: uppercase;
+                    border-radius: 10px;
+                    background: #f0f0f0;
+                    height: 47px;
+                    min-width: 70px;
+                    padding: 6px 6px 0px 6px;
+                    color: #949aa3;
+                    box-shadow:
+                      rgba(45, 35, 66, 0) 0 2px 4px,
+                      rgba(45, 35, 66, 0) 0 7px 13px -3px,
+                      #c4c4c4 0 -3px 0 inset;
+
+                    .points {
+                      line-height: 100%;
+                    }
+
+                    sup,
+                    sub {
+                      font-family: ${headingFont} !important;
+                      color: #57606f;
+                      font-size: 15px;
+                      margin: 0;
+                    }
                   `}
                 >
                   {isExam && points === null ? (
@@ -319,9 +383,11 @@ const ExerciseBlock: React.FC<
                     </>
                   ) : (
                     <>
-                      {t("points-label")}:
-                      <br />
-                      {points ?? 0}/{getCourseMaterialExercise.data.exercise.score_maximum}
+                      <div>{t("points-label")}:</div>
+                      <div className="points">
+                        <sup>{points ?? 0}</sup>&frasl;
+                        <sub>{getCourseMaterialExercise.data.exercise.score_maximum}</sub>
+                      </div>
                     </>
                   )}
                 </div>
@@ -389,24 +455,17 @@ const ExerciseBlock: React.FC<
               />
             )}
             {reviewingStage === "WaitingForPeerReviews" && <WaitingForPeerReviews />}
-            <div
-              className={css`
-                button {
-                  margin-bottom: 0.5rem;
-                }
-              `}
-            >
+            <div>
               {getCourseMaterialExercise.data.can_post_submission &&
                 !userOnWrongLanguageVersion &&
                 !inSubmissionView && (
-                  <Button
-                    size="medium"
-                    variant="primary"
+                  <button
                     disabled={
                       postSubmissionMutation.isLoading ||
                       answers.size < (postThisStateToIFrame?.length ?? 0) ||
                       Array.from(answers.values()).some((x) => !x.valid)
                     }
+                    className={cx(optionButton)}
                     onClick={() => {
                       if (!courseInstanceId && !getCourseMaterialExercise.data.exercise.exam_id) {
                         return
@@ -465,7 +524,7 @@ const ExerciseBlock: React.FC<
                     }}
                   >
                     {t("submit-button")}
-                  </Button>
+                  </button>
                 )}
               {inSubmissionView &&
                 getCourseMaterialExercise.data.exercise.needs_peer_review &&

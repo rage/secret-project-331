@@ -194,7 +194,9 @@ const MessageChannelIFrame: React.FC<
           */
         ${showBorders && `border: 1px solid black;`}
         margin-bottom: 1rem;
-        background-color: rebeccapurple;
+        background-color: #fff;
+        padding: 0.8rem 1.25rem;
+        border-radius: 0.625rem;
       `}
     >
       <iframe

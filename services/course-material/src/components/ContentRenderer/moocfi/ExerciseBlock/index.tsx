@@ -1,9 +1,7 @@
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
-import { faQuestion as infoIcon } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { CheckCircle } from "@vectopus/atlas-icons-react"
+import { CheckCircle, PlusHeart } from "@vectopus/atlas-icons-react"
 import { produce } from "immer"
 import { useContext, useId, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -357,8 +355,12 @@ const ExerciseBlock: React.FC<
                     background: #f0f0f0;
                     height: 47px;
                     min-width: 70px;
-                    padding: 6px 6px 0px 6px;
+                    padding: 6px 16px 0px 16px;
+                    width: auto;
                     color: #949aa3;
+                    display: flex;
+                    flex-direction: columns;
+                    gap: 16px;
                     box-shadow:
                       rgba(45, 35, 66, 0) 0 2px 4px,
                       rgba(45, 35, 66, 0) 0 7px 13px -3px,
@@ -366,6 +368,11 @@ const ExerciseBlock: React.FC<
 
                     .points {
                       line-height: 100%;
+                      color: #57606f;
+                    }
+
+                    .points-heading {
+                      color: #949aa3;
                     }
 
                     sup,
@@ -375,20 +382,48 @@ const ExerciseBlock: React.FC<
                       font-size: 15px;
                       margin: 0;
                     }
+
+                    svg {
+                      margin-right: 4px;
+                    }
+
+                    .tries {
+                      font-family: ${headingFont} !important;
+                      display: flex;
+                      color: #57606f;
+                      font-size: 14px;
+                      font-weight: 500;
+                      line-height: 0.8;
+                    }
                   `}
                 >
+                  {limit_number_of_tries && maxTries !== null && triesRemaining !== null && (
+                    <div
+                      className={css`
+                        display: block;
+                        color: #949aa3;
+                      `}
+                    >
+                      <p>{t("tries")}</p>
+                      <div className="tries">
+                        <PlusHeart size={14} weight="bold" />
+                        <p>{triesRemaining}</p>
+                      </div>
+                    </div>
+                  )}
                   {isExam && points === null ? (
                     <>
                       {t("max-points")}: {getCourseMaterialExercise.data.exercise.score_maximum}
                     </>
                   ) : (
-                    <>
-                      <div>{t("points-label")}:</div>
+                    <div>
+                      <span className="points-heading">{t("points-label")}:</span>
                       <div className="points">
+                        <CheckCircle size={14} weight="bold" />
                         <sup>{points ?? 0}</sup>&frasl;
                         <sub>{getCourseMaterialExercise.data.exercise.score_maximum}</sub>
                       </div>
-                    </>
+                    </div>
                   )}
                 </div>
               </div>
@@ -592,15 +627,6 @@ const ExerciseBlock: React.FC<
                 )}
               {postSubmissionMutation.isError && (
                 <ErrorBanner variant={"readOnly"} error={postSubmissionMutation.error} />
-              )}
-              {limit_number_of_tries && maxTries !== null && triesRemaining !== null && (
-                <div
-                  className={css`
-                    color: ${baseTheme.colors.gray[500]};
-                  `}
-                >
-                  {t("tries-remaining-n", { n: triesRemaining })}
-                </div>
               )}
               {!loginState.isLoading && !loginState.signedIn && (
                 <div>{t("please-log-in-to-answer-exercise")}</div>

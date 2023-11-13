@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { CheckCircle, Pencil, XmarkCircle } from "@vectopus/atlas-icons-react"
-import React, { useState } from "react"
+import React, { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { QuizItemOption } from "../../../../../../types/quizTypes/privateSpec"
@@ -11,6 +11,7 @@ import TextField from "../../../../../shared-module/components/InputFields/TextF
 import ArrowDown from "../../../../../shared-module/img/caret-arrow-down.svg"
 import ArrowUp from "../../../../../shared-module/img/caret-arrow-up.svg"
 import { primaryFont } from "../../../../../shared-module/styles"
+import { nullIfEmptyString } from "../../../../../shared-module/utils/strings"
 
 const OptionCard = styled.div`
   height: 50px;
@@ -67,6 +68,7 @@ const MessageDialogContainer = styled.div`
   display: flex;
   flex-direction: column;
   background-color: #f7f8f9;
+  margin-bottom: 3px;
 `
 
 const MessageDialogTextFieldContainer = styled.div`
@@ -85,7 +87,7 @@ const MessageDialogTitle = styled.div`
   padding: 8px 0px 0px 16px;
 `
 
-const MessageDialogDescription = styled.div`
+const MessageDialogDescription = styled.div<{ isNull: boolean }>`
   color: #535a66;
   padding: 16px;
   height: 60px;
@@ -96,9 +98,12 @@ const MultipleChoiceMessageDialogContainer = styled.div`
 
 interface MultipleChoiceOption {
   option: QuizItemOption
-  onMessageAfterSubmissionWhenSelectedChange: (value: string) => void
-  onTitleChange: (value: string) => void
-  onUpdateValues: (title: string, message: string, correct: boolean) => void
+  onUpdateValues: (
+    title: string | null,
+    messageAfterSubmissionWhenThisOptionSelected: string | null,
+    messageOnModelSolutionWhenThisOptionSelected: string | null,
+    correct: boolean,
+  ) => void
   onDelete: () => void
 }
 
@@ -111,39 +116,56 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOption> = ({
   const [editMode, setEditMode] = useState(false)
 
   const [title, setTitle] = useState(option.title)
-  const [messageAfterSubmissionWhenSelected, setMessageAfterSubmissionWhenSelected] = useState(
-    option.messageAfterSubmissionWhenSelected ?? "",
-  )
+  const [
+    messageAfterSubmissionWhenThisOptionSelected,
+    setMessageAfterSubmissionWhenThisOptionSelected,
+  ] = useState<string | null>(option.messageAfterSubmissionWhenSelected)
+  const [
+    messageOnModelSolutionWhenThisOptionSelected,
+    setMessageOnModelSolutionWhenThisOptionSelected,
+  ] = useState<string | null>(option.additionalCorrectnessExplanationOnModelSolution)
   const [correct, setCorrect] = useState(option.correct)
 
   const { t } = useTranslation()
 
-  const handleVisibility = () => {
+  const handleVisibility = useCallback(() => {
     setVisible(!visible)
-  }
+  }, [visible])
 
-  const toggleEditMode = () => {
+  const toggleEditMode = useCallback(() => {
     setEditMode(!editMode)
-  }
+  }, [editMode])
 
-  const startEditMode = () => {
-    setMessageAfterSubmissionWhenSelected(option.messageAfterSubmissionWhenSelected ?? "")
+  const startEditMode = useCallback(() => {
+    setMessageAfterSubmissionWhenThisOptionSelected(option.messageAfterSubmissionWhenSelected ?? "")
     setTitle(option.title)
     setCorrect(option.correct)
     toggleEditMode()
-  }
+  }, [option.correct, option.messageAfterSubmissionWhenSelected, option.title, toggleEditMode])
 
-  const saveChanges = () => {
-    onUpdateValues(title, messageAfterSubmissionWhenSelected, correct)
+  const saveChanges = useCallback(() => {
+    onUpdateValues(
+      title,
+      messageAfterSubmissionWhenThisOptionSelected,
+      messageOnModelSolutionWhenThisOptionSelected,
+      correct,
+    )
     toggleEditMode()
-  }
+  }, [
+    correct,
+    messageAfterSubmissionWhenThisOptionSelected,
+    messageOnModelSolutionWhenThisOptionSelected,
+    onUpdateValues,
+    title,
+    toggleEditMode,
+  ])
 
   return (
     <>
       <OptionCard>
         {editMode ? (
           <CenteredContainer>
-            <TextField onChangeByValue={(value) => setTitle(value)} value={title} />
+            <TextField onChangeByValue={(value) => setTitle(value)} value={title ?? undefined} />
             <CheckboxContainer>
               <CheckBox
                 label={t("label-correct")}
@@ -262,10 +284,22 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOption> = ({
             <MultipleChoiceMessageDialogContainer>
               <MessageDialogContainer>
                 <MessageDialogTitle>
-                  {t("message-after-submission-when-selected")}
+                  {t("message-after-submission-when-this-option-selected")}
                 </MessageDialogTitle>
-                <MessageDialogDescription>
-                  {option.messageAfterSubmissionWhenSelected}
+                <MessageDialogDescription
+                  isNull={option.messageAfterSubmissionWhenSelected === null}
+                >
+                  {option.messageAfterSubmissionWhenSelected ?? `(${t("label-null")})`}
+                </MessageDialogDescription>
+              </MessageDialogContainer>
+              <MessageDialogContainer>
+                <MessageDialogTitle>
+                  {t("message-on-model-solution-when-this-option-selected")}
+                </MessageDialogTitle>
+                <MessageDialogDescription
+                  isNull={option.additionalCorrectnessExplanationOnModelSolution === null}
+                >
+                  {option.additionalCorrectnessExplanationOnModelSolution ?? `(${t("label-null")})`}
                 </MessageDialogDescription>
               </MessageDialogContainer>
             </MultipleChoiceMessageDialogContainer>
@@ -273,12 +307,31 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOption> = ({
             <MultipleChoiceMessageDialogContainer>
               <MessageDialogContainer>
                 <MessageDialogTitle>
-                  {t("message-after-submission-when-selected")}
+                  {t("message-after-submission-when-this-option-selected")}
                 </MessageDialogTitle>
                 <MessageDialogTextFieldContainer>
                   <TextField
-                    onChangeByValue={(value) => setMessageAfterSubmissionWhenSelected(value)}
-                    value={messageAfterSubmissionWhenSelected}
+                    onChange={(event) =>
+                      setMessageAfterSubmissionWhenThisOptionSelected(
+                        nullIfEmptyString(event.target.value),
+                      )
+                    }
+                    value={messageAfterSubmissionWhenThisOptionSelected ?? undefined}
+                  />
+                </MessageDialogTextFieldContainer>
+              </MessageDialogContainer>
+              <MessageDialogContainer>
+                <MessageDialogTitle>
+                  {t("message-on-model-solution-when-this-option-selected")}
+                </MessageDialogTitle>
+                <MessageDialogTextFieldContainer>
+                  <TextField
+                    onChange={(event) =>
+                      setMessageOnModelSolutionWhenThisOptionSelected(
+                        nullIfEmptyString(event.target.value),
+                      )
+                    }
+                    value={messageOnModelSolutionWhenThisOptionSelected ?? undefined}
                   />
                 </MessageDialogTextFieldContainer>
               </MessageDialogContainer>

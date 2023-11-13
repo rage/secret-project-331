@@ -1011,7 +1011,8 @@ export function isExam(obj: unknown): obj is Exam {
     (typedObj["starts_at"] === null || typedObj["starts_at"] instanceof Date) &&
     (typedObj["ends_at"] === null || typedObj["ends_at"] instanceof Date) &&
     typeof typedObj["time_minutes"] === "number" &&
-    typeof typedObj["minimum_points_treshold"] === "number"
+    typeof typedObj["minimum_points_treshold"] === "number" &&
+    typeof typedObj["language"] === "string"
   )
 }
 
@@ -3115,7 +3116,8 @@ export function isExamData(obj: unknown): obj is ExamData {
     typedObj["ends_at"] instanceof Date &&
     typeof typedObj["ended"] === "boolean" &&
     typeof typedObj["time_minutes"] === "number" &&
-    (isExamEnrollmentData(typedObj["enrollment_data"]) as boolean)
+    (isExamEnrollmentData(typedObj["enrollment_data"]) as boolean) &&
+    typeof typedObj["language"] === "string"
   )
 }
 

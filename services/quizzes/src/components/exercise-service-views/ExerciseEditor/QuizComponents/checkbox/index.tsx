@@ -60,7 +60,7 @@ const CheckboxEditor: React.FC<CheckboxEditorProps> = ({ quizItemId }) => {
         </OptionCheckBoxContainer>
         <OptionNameContainer>
           <TextField
-            value={selected.title}
+            value={selected.title ?? undefined}
             label={t("option-title")}
             placeholder={t("option-title")}
             onChangeByValue={(value) => {

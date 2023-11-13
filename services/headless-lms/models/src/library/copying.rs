@@ -271,6 +271,7 @@ WHERE id = $2;
         time_minutes: copied_exam.time_minutes,
         page_id: get_page_id.page_id,
         minimum_points_treshold: copied_exam.minimum_points_treshold,
+        language: copied_exam.language.unwrap_or("en-US".to_string()),
     })
 }
 

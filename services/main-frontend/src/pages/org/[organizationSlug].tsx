@@ -38,12 +38,22 @@ const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = (
           </h1>
         )}
         {organizationQuery.isSuccess && (
-          <a
-            href={`/manage/organizations/${organizationQuery.data.id}`}
-            aria-label={`${t("link-manage")}`}
+          <OnlyRenderIfPermissions
+            action={{
+              type: "edit",
+            }}
+            resource={{
+              type: "organization",
+              id: organizationQuery.data.id,
+            }}
           >
-            {t("manage")}
-          </a>
+            <a
+              href={`/manage/organizations/${organizationQuery.data.id}`}
+              aria-label={`${t("link-manage")}`}
+            >
+              {t("manage")}
+            </a>
+          </OnlyRenderIfPermissions>
         )}
         {organizationQuery.isSuccess && (
           <>

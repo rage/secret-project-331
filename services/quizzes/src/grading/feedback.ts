@@ -4,43 +4,16 @@ import {
   UserItemAnswerTimeline,
 } from "../../types/quizTypes/answer"
 import {
+  ItemAnswerFeedback,
+  OptionAnswerFeedback,
+  QuizItemAnswerGrading,
+  TimelineItemFeedback,
+} from "../../types/quizTypes/grading"
+import {
   PrivateSpecQuiz,
   PrivateSpecQuizItemMultiplechoice,
   PrivateSpecQuizItemTimeline,
 } from "../../types/quizTypes/privateSpec"
-
-import { QuizItemAnswerGrading } from "./types"
-
-export interface OptionAnswerFeedback {
-  option_id: string | null
-  option_feedback: string | null
-  this_option_was_correct: boolean | null
-}
-
-export interface TimelineItemFeedback {
-  timeline_item_id: string | null
-  what_was_chosen_was_correct: boolean
-}
-
-export interface ItemAnswerFeedback {
-  quiz_item_id: string | null
-  /** Custom feedback message to be shown under the quiz item. */
-  quiz_item_feedback: string | null
-  quiz_item_option_feedbacks: OptionAnswerFeedback[] | null
-  timeline_item_feedbacks: TimelineItemFeedback[] | null
-  /** The points for this quiz item will be multiplied with the correctness coefficient.
-   *
-   * For example, if this quiz item is worth 2 points and the correctness coefficient 0.75, the
-   * user would get `2*0.75=1.5` points for this quiz item.
-   *
-   * * 0 will be regarded as an incorrect answer
-   * * 0 < x < 1 will be regarded as a partially correct answer
-   * * 1 will be regarded as a correct answer
-   *
-   */
-  correctnessCoefficient: number
-  score?: number
-}
 
 const submissionFeedback = (
   submission: UserAnswer,
@@ -85,6 +58,8 @@ const submissionFeedback = (
         }
       }
 
+      const fogOfWar = (item as PrivateSpecQuizItemMultiplechoice).fogOfWar === true
+
       return {
         timeline_item_feedbacks: null,
         quiz_item_id: multipleChoiceQuizItem.id,
@@ -106,8 +81,8 @@ const submissionFeedback = (
             return {
               option_id: option.id,
               option_feedback: option.messageAfterSubmissionWhenSelected,
-              // We'll reveal whether what the student chose was correct or not. If this is not desirable in the future, we can add a configurable policy for this.
-              this_option_was_correct: option.correct,
+              // We'll reveal whether what the student chose was correct or not. If fogOfWar is turned on, we'll never reveal this in the grading and the student will have to get this information from the model solution spec.
+              this_option_was_correct: fogOfWar ? null : option.correct,
             }
           },
         ),

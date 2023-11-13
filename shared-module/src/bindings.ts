@@ -488,6 +488,7 @@ export interface Exam {
   ends_at: Date | null
   time_minutes: number
   minimum_points_treshold: number
+  language: string
 }
 
 export interface ExamEnrollment {
@@ -1776,6 +1777,7 @@ export interface ExamData {
   ended: boolean
   time_minutes: number
   enrollment_data: ExamEnrollmentData
+  language: string
 }
 
 export type ExamEnrollmentData =

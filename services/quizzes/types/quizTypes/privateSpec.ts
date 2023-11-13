@@ -4,7 +4,7 @@ export interface QuizItemOption {
   id: string
   order: number
   correct: boolean
-  title: string
+  title: string | null
   body: string | null
   messageAfterSubmissionWhenSelected: null | string
   additionalCorrectnessExplanationOnModelSolution: null | string
@@ -56,9 +56,10 @@ export interface PrivateSpecQuizItemMultiplechoice {
   id: string
   order: number
   allowSelectingMultipleOptions: boolean
+  fogOfWar: boolean
   options: QuizItemOption[]
-  title: string
-  body: string
+  title: string | null
+  body: string | null
   successMessage: string | null
   failureMessage: string | null
   sharedOptionFeedbackMessage: string | null
@@ -72,8 +73,8 @@ export interface PrivateSpecQuizItemEssay {
   order: number
   minWords: number | null
   maxWords: number | null
-  title: string
-  body: string
+  title: string | null
+  body: string | null
   successMessage: string | null
   failureMessage: string | null
 }
@@ -86,8 +87,8 @@ export interface PrivateSpecQuizItemScale {
   minValue: number | null
   maxLabel: string | null
   minLabel: string | null
-  title: string
-  body: string
+  title: string | null
+  body: string | null
   successMessage: string | null
   failureMessage: string | null
 }
@@ -96,8 +97,8 @@ export interface PrivateSpecQuizItemCheckbox {
   type: "checkbox"
   id: string
   order: number
-  title: string
-  body: string
+  title: string | null
+  body: string | null
   successMessage: string | null
   failureMessage: string | null
 }
@@ -108,7 +109,7 @@ export interface PrivateSpecQuizItemClosedEndedQuestion {
   order: number
   validityRegex: string | null
   formatRegex: string | null
-  title: string
+  title: string | null
   body: string | null
   successMessage: string | null
   failureMessage: string | null
@@ -148,8 +149,8 @@ export interface PrivateSpecQuizItemChooseN {
   order: number
   n: number
   options: QuizItemOption[]
-  title: string
-  body: string
+  title: string | null
+  body: string | null
   successMessage: string | null
   failureMessage: string | null
 }
@@ -159,8 +160,8 @@ export interface PrivateSpecQuizItemMultiplechoiceDropdown {
   id: string
   order: number
   options: QuizItemOption[]
-  title: string
-  body: string
+  title: string | null
+  body: string | null
   successMessage: string | null
   failureMessage: string | null
 }

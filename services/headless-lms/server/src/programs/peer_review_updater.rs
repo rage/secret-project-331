@@ -32,14 +32,13 @@ pub async fn main() -> anyhow::Result<()> {
     let mut moved_to_manual_review = 0;
 
     for course_instance in all_course_instances.iter() {
-        //List of exercises in a course instance
         let all_exercises_in_course_instance =
             headless_lms_models::exercises::get_exercises_by_course_instance_id(
                 &mut conn,
                 course_instance.id,
             )
             .await?;
-
+        //Go through all exercises in the course instance to check if the exercises have custom manual review cutoff times
         for exercise in all_exercises_in_course_instance.iter() {
             if !exercise.needs_peer_review {
                 continue;

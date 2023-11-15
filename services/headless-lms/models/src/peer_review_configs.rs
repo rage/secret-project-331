@@ -175,7 +175,7 @@ WHERE id = $1
 pub async fn get_by_exercise_id(
     conn: &mut PgConnection,
     exercise_id: Uuid,
-) -> ModelResult<Option<PeerReviewConfig>> {
+) -> ModelResult<PeerReviewConfig> {
     let res = sqlx::query_as!(
         PeerReviewConfig,
         r#"
@@ -196,7 +196,7 @@ WHERE exercise_id = $1
         "#,
         exercise_id
     )
-    .fetch_optional(conn)
+    .fetch_one(conn)
     .await?;
     Ok(res)
 }
@@ -210,12 +210,7 @@ pub async fn get_by_exercise_or_course_id(
     if exercise.use_course_default_peer_review_config {
         get_default_for_course_by_course_id(conn, course_id).await
     } else {
-        let config = get_by_exercise_id(conn, exercise.id).await?;
-        if let Some(config) = config {
-            Ok(config)
-        } else {
-            get_default_for_course_by_course_id(conn, course_id).await
-        }
+        get_by_exercise_id(conn, exercise.id).await
     }
 }
 

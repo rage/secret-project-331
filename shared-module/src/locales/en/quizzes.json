@@ -57,6 +57,7 @@
   "label-source": "Source",
   "label-test": "Test",
   "label-year": "Year",
+  "select": "Select...",
   "layout-of-options": "Layout of options",
   "layout-options": "Layout options",
   "layout-options-description": "Choose the direction the quiz item options will be used to lay out in widget",

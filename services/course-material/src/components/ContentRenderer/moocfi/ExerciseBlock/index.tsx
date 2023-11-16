@@ -326,8 +326,9 @@ const ExerciseBlock: React.FC<
                   <div
                     className={css`
                       font-weight: 500;
-                      font-size: 19px;
+                      font-size: 18px;
                       line-height: 19px;
+                      opacity: 0.8;
                     `}
                   >
                     {t("label-exercise")}:
@@ -406,7 +407,7 @@ const ExerciseBlock: React.FC<
                     >
                       <p>{t("tries")}</p>
                       <div className="tries">
-                        <PlusHeart size={14} weight="bold" />
+                        <PlusHeart size={14} weight="bold" color="7A3F75" />
                         <p>{triesRemaining}</p>
                       </div>
                     </div>

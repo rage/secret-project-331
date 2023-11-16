@@ -106,7 +106,7 @@ const MultipleChoiceDropdown: React.FunctionComponent<
       <div
         className={css`
           display: flex;
-          width: 50%;
+          width: 40%;
           align-items: center;
           margin: 0.5rem 0;
           position: relative;

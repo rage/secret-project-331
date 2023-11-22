@@ -29,6 +29,7 @@
   "error-answer-does-not-match-the-specified-answer-format": "The answer does not match the answer format specified for this exercise.",
   "error-quiz-item-added-after-answering": "A question has been added here after answering the exercise.",
   "exact-string": "Exact string",
+  "examples-of-grading-policies": "Examples of grading policies",
   "explain-add-new-quiz-item": "If you want to create different Quiz Type, please create new task with 'Add task'",
   "failed": "Failed",
   "failure-message": "Failure message",

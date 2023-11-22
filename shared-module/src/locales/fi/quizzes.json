@@ -29,6 +29,7 @@
   "error-answer-does-not-match-the-specified-answer-format": "Vastaus ei vastaa muotoilun kanssa, joka on osoitettu tälle tehtävälle",
   "error-quiz-item-added-after-answering": "Tähän kohtaan on lisätty kysymys sen jälkeen kun vastaus oli lähetetty.",
   "exact-string": "Tarkka teksti",
+  "examples-of-grading-policies": "Esimerkkejä arvostelukäytännöistä",
   "explain-add-new-quiz-item": "Jos haluat luoda eri tehtävätyypin niin lisää uusi tehtävä painamalla 'Lisää tehtävä'",
   "failed": "Hylätty",
   "failure-message": "Häiriö viesti",

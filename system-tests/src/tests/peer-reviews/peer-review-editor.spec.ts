@@ -84,10 +84,6 @@ test("default peer review editing", async ({ page, headless }, testInfo) => {
     )
     .selectOption("ManualReviewEverything")
 
-  await page1.locator('input[type="number"]').nth(2).click()
-  // Fill input[type="number"] >> nth=2
-  await page1.locator('input[type="number"]').nth(2).fill("2.5")
-
   await page1.getByRole("button", { name: "Delete" }).nth(1).click()
   // Fill text=General comments
   await page1.locator("text=General comments").fill("test")

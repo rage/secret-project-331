@@ -59,6 +59,7 @@ const HeroSectionEditor: React.FC<
               width: 100%;
               height: 100%;
               content: "";
+              pointer-events: none;
               opacity: 0.3;
               background-image: url(${backgroundImage});
               background-repeat: ${backgroundRepeatX ? "repeat-x" : "no-repeat"};

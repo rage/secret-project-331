@@ -1,14 +1,41 @@
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { UserItemAnswerEssay } from "../../../../../types/quizTypes/answer"
 import { PublicSpecQuizItemEssay } from "../../../../../types/quizTypes/publicSpec"
 import TextArea from "../../../../shared-module/components/InputFields/TextAreaField"
+import { headingFont, secondaryFont } from "../../../../shared-module/styles"
 import { wordCount } from "../../../../shared-module/utils/strings"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 import { QuizItemComponentProps } from "."
+
+export const container = css`
+  font-size: 9px;
+  text-align: center;
+  font-family: ${secondaryFont} !important;
+  text-transform: uppercase;
+  border-radius: 10px;
+  height: 47px;
+  width: 90px;
+  display: flex;
+  flex-direction: column;
+
+  p {
+    padding: 6px 10px 0px 10px;
+    border-top-right-radius: 10px;
+    border-top-left-radius: 10px;
+  }
+
+  span {
+    font-family: ${headingFont} !important;
+    color: #fff;
+    font-weight: 500;
+    font-size: 15px;
+    margin: 0;
+  }
+`
 
 const Essay: React.FunctionComponent<
   QuizItemComponentProps<PublicSpecQuizItemEssay, UserItemAnswerEssay>
@@ -24,40 +51,28 @@ const Essay: React.FunctionComponent<
         flex-direction: column;
       `}
     >
-      <div
-        className={css`
-          display: flex;
-          margin: 0.5rem 0;
-          font-size: 20px;
-        `}
-      >
-        {quizItem.title}
-      </div>
-      <div
-        className={css`
-          display: flex;
-          margin: 0.5rem 0;
-          font-size: 20px;
-        `}
-      >
-        {quizItem.body}
-      </div>
-      <div
-        className={css`
-          display: flex;
-          margin: 0.5rem 0;
-          text-transform: uppercase;
-          color: #757575;
-          strong {
-            color: #333333;
-            margin: 0 5px;
-          }
-        `}
-      >
-        {t("min-words")}: <strong>{quizItem.minWords}</strong> | {t("max-words")}:{" "}
-        <strong>{quizItem.maxWords}</strong>
-      </div>
-
+      {quizItem.title && (
+        <div
+          className={css`
+            display: flex;
+            margin: 0.5rem 0;
+            font-size: 20px;
+          `}
+        >
+          {quizItem.title}
+        </div>
+      )}
+      {quizItem.body && (
+        <div
+          className={css`
+            display: flex;
+            margin: 0.5rem 0;
+            font-size: 20px;
+          `}
+        >
+          {quizItem.body}
+        </div>
+      )}
       <div
         className={css`
           display: flex;
@@ -93,7 +108,7 @@ const Essay: React.FunctionComponent<
           }}
           placeholder={t("answer")}
           aria-label={t("answer")}
-          rows={10}
+          rows={5}
           autoResize
           className={css`
             width: 100%;
@@ -101,6 +116,9 @@ const Essay: React.FunctionComponent<
               width: 100%;
               height: 200px;
               resize: vertical;
+              background: #f4f5f7 !important;
+              border-radius: 4px;
+              border: 3px solid #dfe1e6 !important;
             }
           `}
           value={text}
@@ -109,16 +127,80 @@ const Essay: React.FunctionComponent<
       <div
         className={css`
           display: flex;
-          margin: 0.5rem 0;
-          text-transform: uppercase;
-          color: #757575;
-          strong {
-            color: #333333;
-            margin: 0 5px;
-          }
+          column-gap: 10px;
         `}
       >
-        {t("word-count")}: <strong>{usersWordCount}</strong>
+        <div
+          className={cx(
+            css`
+              margin: 0.5rem 0;
+              text-transform: uppercase;
+              background: #f1f1f3;
+              color: #57606f;
+              box-shadow:
+                rgba(45, 35, 66, 0) 0 2px 4px,
+                rgba(45, 35, 66, 0) 0 7px 13px -3px,
+                #c4c4c6 0 -3px 0 inset;
+
+              p {
+                background: #c4c4c6;
+                color: #57606f;
+              }
+
+              span {
+                color: #57606f !important;
+              }
+            `,
+            container,
+          )}
+        >
+          <p>{t("word-count")}</p>
+          <span>{usersWordCount}</span>
+        </div>
+        <div
+          className={cx(
+            css`
+              margin: 0.5rem 0;
+              text-transform: uppercase;
+              background: #66b8b2;
+              color: #fff;
+              box-shadow:
+                rgba(45, 35, 66, 0) 0 2px 4px,
+                rgba(45, 35, 66, 0) 0 7px 13px -3px,
+                #50938e 0 -3px 0 inset;
+
+              p {
+                background: #50938e;
+              }
+            `,
+            container,
+          )}
+        >
+          <p>{t("min-words")}</p>
+          <span>{quizItem.minWords}</span>
+        </div>
+        <div
+          className={cx(
+            css`
+              margin: 0.5rem 0;
+              text-transform: uppercase;
+              background: #746fb0;
+              color: #fff;
+              box-shadow:
+                rgba(45, 35, 66, 0) 0 2px 4px,
+                rgba(45, 35, 66, 0) 0 7px 13px -3px,
+                #5d598a 0 -3px 0 inset;
+
+              p {
+                background: #5d5890;
+              }
+            `,
+            container,
+          )}
+        >
+          <p>{t("max-words")}</p>
+          <span>{quizItem.maxWords}</span>
+        </div>
       </div>
     </div>
   )

@@ -141,7 +141,7 @@ const MultipleChoice: React.FunctionComponent<
           color: #4c5868;
           font-family: "Raleway", sans-serif;
           font-size: 20px;
-          margin-bottom: 1.25rem;
+          margin-bottom: 1rem;
         `}
       >
         <ParsedText parseLatex parseMarkdown inline text={quizItem.title} />

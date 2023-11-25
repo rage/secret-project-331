@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import React, { useCallback, useId } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -61,6 +62,20 @@ const ClosedEndedQuestion: React.FC<
           aria-label={t("answer")}
           label={t("answer")}
           type="text"
+          className={css`
+            label {
+              font-weight: 500;
+              color: #4c5868;
+              font-family: "Raleway", sans-serif;
+              font-size: 15px;
+              margin-bottom: 1rem;
+            }
+            input {
+              background: #f4f5f7 !important;
+              border-radius: 4px;
+              border: 3px solid #dfe1e6 !important;
+            }
+          `}
           value={quizItemAnswerState?.textData ?? ""}
           onChangeByValue={(e) => handleChange(e)}
           error={

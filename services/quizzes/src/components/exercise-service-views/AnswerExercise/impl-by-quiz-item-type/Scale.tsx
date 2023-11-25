@@ -56,11 +56,11 @@ const Scale: React.FC<QuizItemComponentProps<PublicSpecQuizItemScale, UserItemAn
         <div
           id={radioLabelId}
           className={css`
-            flex: 5;
-            margin: 0.5rem;
-            text-align: center;
-            font-family: ${primaryFont};
-            font-size: 18px;
+            font-weight: 500;
+            color: #4c5868;
+            font-family: "Raleway", sans-serif;
+            font-size: 20px;
+            margin-bottom: 1rem;
             ${respondToOrLarger.md} {
               text-align: left;
             }
@@ -71,12 +71,9 @@ const Scale: React.FC<QuizItemComponentProps<PublicSpecQuizItemScale, UserItemAn
       )}
       <div
         className={css`
-          flex: 7;
-          display: flex;
-          flex-direction: row;
-          flex-wrap: wrap;
+          display: grid;
+          grid-template-columns: repeat(5, 1fr);
           justify-content: space-between;
-          align-items: center;
         `}
       >
         {Array.from({ length: maxValue - minValue + 1 }, (_, i) => {
@@ -85,12 +82,45 @@ const Scale: React.FC<QuizItemComponentProps<PublicSpecQuizItemScale, UserItemAn
             <div
               key={value}
               className={css`
-                flex: 1 3rem;
-                margin: 0.5rem;
+                display: flex;
+                position: relative;
+
+                label {
+                  cursor: pointer;
+                  font-weight: 500;
+                  line-height: 1.2;
+                  span {
+                    color: #4c5868;
+                    font-size: 18px;
+                    :after {
+                      display: inline-block;
+                      position: absolute;
+                      top: 1px;
+                      content: "";
+                      background-color: #fff;
+                      width: 1.2em;
+                      height: 1.2em;
+                      border-radius: 50%;
+                      margin-left: 0.375em;
+                      transition: 0.25s ease;
+                      box-shadow: inset 0 0 0 0.15em #dfe1e6;
+                    }
+                  }
+
+                  input {
+                    position: absolute;
+                    left: -9999px;
+                    &:checked + span {
+                      &:after {
+                        box-shadow: inset 0 0 0 0.33em #627ba7;
+                        border: 3px solid #718dbf;
+                      }
+                    }
+                  }
+                }
               `}
             >
               <label>
-                {value}
                 <input
                   name={radioIdentifier}
                   aria-label={value}
@@ -102,6 +132,7 @@ const Scale: React.FC<QuizItemComponentProps<PublicSpecQuizItemScale, UserItemAn
                   }
                   onClick={(e) => handleOptionSelect(e.currentTarget.value)}
                 />
+                <span>{value}</span>
               </label>
             </div>
           )

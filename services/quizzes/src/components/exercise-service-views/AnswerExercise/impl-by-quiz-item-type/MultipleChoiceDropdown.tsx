@@ -75,7 +75,7 @@ const MultipleChoiceDropdown: React.FunctionComponent<
                   color: #4c5868;
                   font-family: "Raleway", sans-serif;
                   font-size: 20px;
-                  margin-bottom: 1.25rem;
+                  margin-bottom: 1rem;
                 `}
               >
                 {quizItem.title}
@@ -108,7 +108,7 @@ const MultipleChoiceDropdown: React.FunctionComponent<
           display: flex;
           width: 40%;
           align-items: center;
-          margin: 0.5rem 0;
+          margin-bottom: 0.5rem;
           position: relative;
 
           .select-arrow {
@@ -128,10 +128,10 @@ const MultipleChoiceDropdown: React.FunctionComponent<
             width: 100%;
             border-radius: 4px;
             border: none;
-            padding: 10px 12px;
+            padding: 8px 10px;
             font-size: 18px;
             cursor: pointer;
-            border: 3px solid #f4f5f7;
+            border: 3px solid #dfe1e6;
             background: none;
             min-height: 40px;
             grid-template-areas: "select";

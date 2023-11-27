@@ -15,6 +15,7 @@ const cellInputStyle = ({ column, row, cellText, matrixSize, isActive }: CellInp
     position: relative;
     font-size: 2.8vw;
     font-size: 22px;
+    color: #313947;
     font-family: Josefin Sans, sans-serif;
     display: block;
     width: 50px;
@@ -23,11 +24,12 @@ const cellInputStyle = ({ column, row, cellText, matrixSize, isActive }: CellInp
     outline: none;
     text-align: center;
     resize: none;
+    background: #FBFBFC;
     ${
       cellText === "" &&
       (column > matrixSize[1] || row > matrixSize[0]) &&
       `
-      background-color: #ECECEC;
+      background-color: #F5F6F7;
 `
     }
     ${
@@ -120,8 +122,8 @@ const BorderDiv: React.FC<React.PropsWithChildren<BorderDivProps>> = ({
         <div
           className={css`
             position: absolute;
-            border-top: 2px solid #333333;
-            left: 0;
+            border-top: 2px solid #718dbf;
+            left: -1px;
             top: -2px;
             right: 50%;
             z-index: 1;
@@ -132,8 +134,8 @@ const BorderDiv: React.FC<React.PropsWithChildren<BorderDivProps>> = ({
         <div
           className={css`
             position: absolute;
-            border-top: 2px solid #333333;
-            right: 0;
+            border-top: 2px solid #718dbf;
+            right: -1px;
             top: -2px;
             left: 50%;
             z-index: 1;
@@ -144,7 +146,7 @@ const BorderDiv: React.FC<React.PropsWithChildren<BorderDivProps>> = ({
         <div
           className={css`
             position: absolute;
-            border-left: 2px solid #333333;
+            border-left: 2px solid #718dbf;
             top: -2px;
             bottom: -2px;
             left: -2px;
@@ -156,7 +158,7 @@ const BorderDiv: React.FC<React.PropsWithChildren<BorderDivProps>> = ({
         <div
           className={css`
             position: absolute;
-            border-right: 2px solid #333333;
+            border-right: 2px solid #718dbf;
             top: -2px;
             bottom: -2px;
             right: -2px;
@@ -168,8 +170,8 @@ const BorderDiv: React.FC<React.PropsWithChildren<BorderDivProps>> = ({
         <div
           className={css`
             position: absolute;
-            border-bottom: 2px solid #333333;
-            left: 0;
+            border-bottom: 2px solid #718dbf;
+            left: -1px;
             right: 50%;
             bottom: -2px;
             z-index: 1;
@@ -180,8 +182,8 @@ const BorderDiv: React.FC<React.PropsWithChildren<BorderDivProps>> = ({
         <div
           className={css`
             position: absolute;
-            border-bottom: 2px solid #333333;
-            right: 0;
+            border-bottom: 2px solid #718dbf;
+            right: -1px;
             left: 50%;
             bottom: -2px;
             z-index: 1;

@@ -43,6 +43,18 @@ const Essay: React.FunctionComponent<
   const { t } = useTranslation()
   const text = quizItemAnswerState?.textData ?? ""
   const usersWordCount = useMemo(() => wordCount(text), [text])
+  let isValid = null
+
+  if (quizItem?.minWords && quizItem.maxWords) {
+    isValid = usersWordCount >= quizItem?.minWords && usersWordCount <= quizItem.maxWords
+  }
+
+  if (usersWordCount < 1) {
+    isValid = null
+  }
+
+  console.log(isValid, usersWordCount)
+
   return (
     <div
       className={css`
@@ -135,6 +147,32 @@ const Essay: React.FunctionComponent<
             css`
               margin: 0.5rem 0;
               text-transform: uppercase;
+              background: ${isValid === null ? "#f1f1f3" : isValid ? " #66B8B2" : "#746FB0"};
+              box-shadow:
+                rgba(45, 35, 66, 0) 0 2px 4px,
+                rgba(45, 35, 66, 0) 0 7px 13px -3px,
+                ${isValid === null ? "#c4c4c6" : isValid ? "#50938E" : "#5D5890"} 0 -3px 0 inset;
+
+              p {
+                background: ${isValid === null ? "#c4c4c6" : isValid ? "#50938E" : "#5D5890"};
+                color: ${isValid === null ? "#57606f" : isValid ? "#fff" : "#fff"};
+              }
+
+              span {
+                color: ${isValid === null ? "#57606f" : isValid ? "#fff" : "#fff"} !important;
+              }
+            `,
+            container,
+          )}
+        >
+          <p>{t("word-count")}</p>
+          <span>{usersWordCount}</span>
+        </div>
+        <div
+          className={cx(
+            css`
+              margin: 0.5rem 0;
+              text-transform: uppercase;
               background: #f1f1f3;
               color: #57606f;
               box-shadow:
@@ -154,28 +192,6 @@ const Essay: React.FunctionComponent<
             container,
           )}
         >
-          <p>{t("word-count")}</p>
-          <span>{usersWordCount}</span>
-        </div>
-        <div
-          className={cx(
-            css`
-              margin: 0.5rem 0;
-              text-transform: uppercase;
-              background: #66b8b2;
-              color: #fff;
-              box-shadow:
-                rgba(45, 35, 66, 0) 0 2px 4px,
-                rgba(45, 35, 66, 0) 0 7px 13px -3px,
-                #50938e 0 -3px 0 inset;
-
-              p {
-                background: #50938e;
-              }
-            `,
-            container,
-          )}
-        >
           <p>{t("min-words")}</p>
           <span>{quizItem.minWords}</span>
         </div>
@@ -184,15 +200,20 @@ const Essay: React.FunctionComponent<
             css`
               margin: 0.5rem 0;
               text-transform: uppercase;
-              background: #746fb0;
-              color: #fff;
+              background: #f1f1f3;
+              color: #57606f;
               box-shadow:
                 rgba(45, 35, 66, 0) 0 2px 4px,
                 rgba(45, 35, 66, 0) 0 7px 13px -3px,
-                #5d598a 0 -3px 0 inset;
+                #c4c4c6 0 -3px 0 inset;
 
               p {
-                background: #5d5890;
+                background: #c4c4c6;
+                color: #57606f;
+              }
+
+              span {
+                color: #57606f !important;
               }
             `,
             container,

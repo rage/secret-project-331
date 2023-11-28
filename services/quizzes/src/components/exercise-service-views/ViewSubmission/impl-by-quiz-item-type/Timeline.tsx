@@ -1,7 +1,6 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { faCheck, faXmark } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { CheckCircle, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -214,21 +213,32 @@ const Timeline: React.FunctionComponent<
                       >
                         {selectedTimelineEventDetails?.name ?? t("deleted-option")}
                       </p>
-                      <FontAwesomeIcon
-                        icon={whatWasChosenWasCorrect ? faCheck : faXmark}
-                        aria-label={
-                          whatWasChosenWasCorrect
-                            ? t("your-answer-was-correct")
-                            : t("your-answer-was-not-correct")
-                        }
-                        aria-hidden={false}
+                      <div
                         className={css`
-                          padding: 0.5rem 1rem;
-                          color: ${whatWasChosenWasCorrect
-                            ? baseTheme.colors.green[700]
-                            : baseTheme.colors.red[700]};
+                          width: 50px;
+                          display: flex;
+                          align-items: center;
+                          justify-content: center;
                         `}
-                      />
+                      >
+                        {whatWasChosenWasCorrect ? (
+                          <CheckCircle
+                            size={20}
+                            className={css`
+                              color: ${baseTheme.colors.green[700]};
+                            `}
+                            aria-label={t("your-answer-was-correct")}
+                          />
+                        ) : (
+                          <XmarkCircle
+                            size={20}
+                            className={css`
+                              color: ${baseTheme.colors.red[700]};
+                            `}
+                            aria-label={t("your-answer-was-not-correct")}
+                          />
+                        )}
+                      </div>
                     </div>
                     {!whatWasChosenWasCorrect && modelSolutionCorrectEventName && (
                       <div

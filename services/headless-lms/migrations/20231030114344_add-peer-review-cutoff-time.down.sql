@@ -1,0 +1,1 @@
+ALTER TABLE peer_review_configs DROP COLUMN manual_review_cutoff_in_days;

@@ -393,6 +393,30 @@ WHERE course_instance_id = $1
     Ok(res)
 }
 
+pub async fn get_entries_that_need_reviews_and_are_older_than_with_exercise_id(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+    timestamp: DateTime<Utc>,
+) -> ModelResult<Vec<PeerReviewQueueEntry>> {
+    let res = sqlx::query_as!(
+        PeerReviewQueueEntry,
+        "
+SELECT *
+FROM peer_review_queue_entries
+WHERE exercise_id = $1
+  AND received_enough_peer_reviews = FALSE
+  AND removed_from_queue_for_unusual_reason = FALSE
+  AND created_at < $2
+  AND deleted_at IS NULL
+    ",
+        exercise_id,
+        timestamp
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn remove_from_queue_and_add_to_manual_review(
     conn: &mut PgConnection,
     peer_review_queue_entry: &PeerReviewQueueEntry,

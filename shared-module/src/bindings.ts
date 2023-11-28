@@ -1237,6 +1237,7 @@ export interface PeerReviewConfig {
   peer_reviews_to_receive: number
   accepting_threshold: number
   accepting_strategy: PeerReviewAcceptingStrategy
+  manual_review_cutoff_in_days: number
 }
 
 export interface PeerReviewSubmission {

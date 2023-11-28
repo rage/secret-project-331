@@ -1,8 +1,8 @@
 import { css } from "@emotion/css"
-import { faAngleDown, faAngleUp } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { animated, useSpring } from "react-spring"
 
+import ArrowDown from "../../../../shared-module/img/caret-arrow-down.svg"
+import ArrowUp from "../../../../shared-module/img/caret-arrow-up.svg"
 import { baseTheme, headingFont } from "../../../../shared-module/styles"
 import { runCallbackIfEnterPressed } from "../../../../shared-module/utils/accessibility"
 
@@ -17,7 +17,6 @@ const TempAccordion: React.FC<
     duration: 2000,
   })
 
-  const faIcon = open ? faAngleUp : faAngleDown
   return (
     <div>
       <div
@@ -50,13 +49,21 @@ const TempAccordion: React.FC<
         >
           {title}
         </div>
-        <div
-          className={css`
-            flex: 0 0 auto;
-          `}
-        >
-          <FontAwesomeIcon icon={faIcon} />
-        </div>
+        {open ? (
+          <ArrowUp
+            className={css`
+              margin-top: 8px;
+              transform: scale(1.6);
+            `}
+          />
+        ) : (
+          <ArrowDown
+            className={css`
+              margin-top: 8px;
+              transform: scale(1.6);
+            `}
+          />
+        )}
       </div>
       {open ? <animated.div style={openAnimation}>{children}</animated.div> : null}
     </div>

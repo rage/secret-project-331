@@ -1,6 +1,6 @@
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { faArrowDown, faArrowUp, faTrash } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { ArrowDownCircle, ArrowUpCircle, Trash } from "@vectopus/atlas-icons-react"
 import React from "react"
 
 import { PrivateSpecQuiz, PrivateSpecQuizItem } from "../../../../../../types/quizTypes/privateSpec"
@@ -28,22 +28,6 @@ const EditorSection = styled.div`
   padding: 16px;
   border-bottom: 2px solid #e3e3e3;
   width: 100%;
-`
-
-const CircleButton = styled(FontAwesomeIcon)`
-  border: 1px solid #e3e3e3;
-  height: 12px;
-  width: 12px;
-  padding: 4px;
-  display: inline;
-  border-radius: 50%;
-  cursor: pointer;
-  margin-left: 2px;
-
-  :hover {
-    border: 1px solid #ababab;
-    background-color: #c9c9c9;
-  }
 `
 
 const EditorContent = styled.div`
@@ -80,7 +64,9 @@ const EditorCard: React.FC<React.PropsWithChildren<EditorCardProps>> = ({
     <EditorWrapper>
       <EditorSection>
         <EditorTitle>{title}</EditorTitle>
-        <CircleButton
+        <Button
+          size="small"
+          variant="icon"
           onClick={() => {
             updateState((draft) => {
               if (!draft) {
@@ -130,9 +116,24 @@ const EditorCard: React.FC<React.PropsWithChildren<EditorCardProps>> = ({
               }
             })
           }}
-          icon={faArrowUp}
-        />
-        <CircleButton
+        >
+          <ArrowUpCircle
+            size={20}
+            className={css`
+              display: inline;
+              border-radius: 50%;
+              cursor: pointer;
+              margin-left: 2px;
+
+              :hover {
+                background-color: #c9c9c9;
+              }
+            `}
+          />
+        </Button>
+        <Button
+          size="small"
+          variant="icon"
           onClick={() => {
             updateState((draft) => {
               if (!draft) {
@@ -180,8 +181,21 @@ const EditorCard: React.FC<React.PropsWithChildren<EditorCardProps>> = ({
               }
             })
           }}
-          icon={faArrowDown}
-        />
+        >
+          <ArrowDownCircle
+            size={20}
+            className={css`
+              display: inline;
+              border-radius: 50%;
+              cursor: pointer;
+              margin-left: 2px;
+
+              :hover {
+                background-color: #c9c9c9;
+              }
+            `}
+          />
+        </Button>
       </EditorSection>
       <EditorContent>{children}</EditorContent>
       <DeleteButtonContainer>
@@ -197,7 +211,7 @@ const EditorCard: React.FC<React.PropsWithChildren<EditorCardProps>> = ({
           size="medium"
           variant="outlined"
         >
-          <FontAwesomeIcon icon={faTrash} />
+          <Trash size={18} />
         </DeleteButton>
       </DeleteButtonContainer>
     </EditorWrapper>

@@ -1,9 +1,9 @@
 import { css } from "@emotion/css"
-import { faAngleDown, faAngleUp } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import ArrowDown from "../shared-module/img/caret-arrow-down.svg"
+import ArrowUp from "../shared-module/img/caret-arrow-up.svg"
 import { baseTheme } from "../shared-module/styles"
 import { runCallbackIfEnterPressed } from "../shared-module/utils/accessibility"
 
@@ -59,7 +59,19 @@ const Collapsible: React.FC<React.PropsWithChildren<CollapsibleProps>> = ({ chil
             justify-content: center;
           `}
         >
-          <FontAwesomeIcon icon={visible ? faAngleUp : faAngleDown} />
+          {visible ? (
+            <ArrowUp
+              className={css`
+                transform: scale(1.4);
+              `}
+            />
+          ) : (
+            <ArrowDown
+              className={css`
+                transform: scale(1.4);
+              `}
+            />
+          )}
         </div>
       </div>
       {visible && (

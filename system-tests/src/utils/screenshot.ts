@@ -42,6 +42,7 @@ type ViewPortDict = { [Property in keyof typeof viewPorts]: number }
 interface ExpectScreenshotsToMatchSnapshotsPropsCommon {
   headless: boolean | undefined
   snapshotName: string
+  useCoordinatesFromTheBottomForSavingYCoordinates?: boolean
   waitForTheseToBeVisibleAndStable?: Locator[]
   waitForTheseToBeGone?: Locator[]
   clearNotifications?: boolean
@@ -76,6 +77,7 @@ export default async function expectScreenshotsToMatchSnapshots({
   snapshotName,
   screenshotOptions,
   waitForTheseToBeVisibleAndStable,
+  useCoordinatesFromTheBottomForSavingYCoordinates,
   beforeScreenshot,
   clearNotifications = false,
   dontWaitForSpinnersToDisappear = false,
@@ -128,7 +130,6 @@ export default async function expectScreenshotsToMatchSnapshots({
       if (replaceSomePartsWithPlaceholders) {
         await page.dispatchEvent("body", HIDE_TEXT_IN_SYSTEM_TESTS_EVENT)
       }
-
       if (waitForTheseToBeVisibleAndStable) {
         await waitToBeVisible({
           waitForTheseToBeVisibleAndStable: waitForTheseToBeVisibleAndStable,
@@ -158,6 +159,7 @@ export default async function expectScreenshotsToMatchSnapshots({
           axeSkip,
           scrollToYCoordinate,
           replaceSomePartsWithPlaceholders,
+          useCoordinatesFromTheBottomForSavingYCoordinates,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           screenshotTarget: screenshotTarget as any,
         })
@@ -174,6 +176,7 @@ export default async function expectScreenshotsToMatchSnapshots({
         axeSkip,
         scrollToYCoordinate,
         replaceSomePartsWithPlaceholders,
+        useCoordinatesFromTheBottomForSavingYCoordinates,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         screenshotTarget: screenshotTarget as any,
       })
@@ -217,6 +220,7 @@ async function snapshotWithViewPort({
   scrollToYCoordinate,
   replaceSomePartsWithPlaceholders,
   screenshotTarget,
+  useCoordinatesFromTheBottomForSavingYCoordinates,
 }: SnapshotWithViewPortProps) {
   let page: Page
   if (isPage(screenshotTarget)) {
@@ -281,6 +285,7 @@ async function snapshotWithViewPort({
       screenshotOptions,
       testInfo,
       page,
+      useCoordinatesFromTheBottomForSavingYCoordinates,
     )
   } else {
     console.warn("Not in headless mode, skipping screenshot")
@@ -301,6 +306,7 @@ export async function takeScreenshotAndComparetoSnapshot(
   screenshotOptions: ScreenshotOptions | PageScreenshotOptions,
   testInfo: TestInfo,
   page: Page,
+  useCoordinatesFromTheBottomForSavingYCoordinates: boolean | undefined,
 ): Promise<void> {
   const pathToImage = testInfo.snapshotPath(screenshotName)
   let newScreenshot = false
@@ -349,7 +355,11 @@ export async function takeScreenshotAndComparetoSnapshot(
     await ensureImageHasBeenOptimized(pathToImage)
     const savedYCoordinate = await imageSavedPageYCoordinate(pathToImage)
     if (savedYCoordinate === null) {
-      await savePageYCoordinateToImage(pathToImage, page)
+      await savePageYCoordinateToImage(
+        pathToImage,
+        page,
+        useCoordinatesFromTheBottomForSavingYCoordinates,
+      )
     }
   }
 }

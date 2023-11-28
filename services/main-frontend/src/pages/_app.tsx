@@ -1,4 +1,3 @@
-import { config } from "@fortawesome/fontawesome-svg-core"
 import { QueryClientProvider } from "@tanstack/react-query"
 import type { AppProps } from "next/app"
 import Head from "next/head"
@@ -13,10 +12,6 @@ import GlobalStyles from "../shared-module/styles/GlobalStyles"
 import { OUTDATED_BROWSER_WARNING_SCRIPT } from "../shared-module/utils/constants"
 import generateWebVitalsReporter from "../shared-module/utils/generateWebVitalsReporter"
 import initI18n from "../shared-module/utils/initI18n"
-
-import "@fortawesome/fontawesome-svg-core/styles.css"
-
-config.autoAddCss = false
 
 const SERVICE_NAME = "main-frontend"
 

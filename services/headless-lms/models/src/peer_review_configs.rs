@@ -26,6 +26,7 @@ pub struct PeerReviewConfig {
     pub peer_reviews_to_receive: i32,
     pub accepting_threshold: f32,
     pub accepting_strategy: PeerReviewAcceptingStrategy,
+    pub manual_review_cutoff_in_days: i32,
 }
 
 /// Like `PeerReviewConfig` but only the fields it's fine to show to all users.
@@ -157,7 +158,8 @@ SELECT id,
   peer_reviews_to_give,
   peer_reviews_to_receive,
   accepting_threshold,
-  accepting_strategy AS "accepting_strategy: _"
+  accepting_strategy AS "accepting_strategy: _",
+  manual_review_cutoff_in_days
 FROM peer_review_configs
 WHERE id = $1
   AND deleted_at IS NULL
@@ -186,7 +188,8 @@ SELECT id,
     peer_reviews_to_give,
     peer_reviews_to_receive,
     accepting_threshold,
-    accepting_strategy AS "accepting_strategy: _"
+    accepting_strategy AS "accepting_strategy: _",
+    manual_review_cutoff_in_days
 FROM peer_review_configs
 WHERE exercise_id = $1
   AND deleted_at IS NULL
@@ -227,7 +230,8 @@ SELECT id,
   peer_reviews_to_give,
   peer_reviews_to_receive,
   accepting_threshold,
-  accepting_strategy AS "accepting_strategy: _"
+  accepting_strategy AS "accepting_strategy: _",
+  manual_review_cutoff_in_days
 FROM peer_review_configs
 WHERE course_id = $1
   AND exercise_id IS NULL

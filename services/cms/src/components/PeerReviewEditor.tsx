@@ -399,6 +399,10 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                   step="0.01"
                   min={0}
                   required
+                  disabled={
+                    parsedPeerReviewConfig.accepting_strategy.toString() ===
+                    "ManualReviewEverything"
+                  }
                   value={parsedPeerReviewConfig.accepting_threshold}
                   onChangeByValue={(value) => {
                     handlePeerReviewValueChange(value, "accepting_threshold")

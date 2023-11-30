@@ -154,7 +154,6 @@ const MultipleChoiceDropdownFeedback: React.FC<
           </select>
         </div>
       </div>
-
       {correctOption && (
         <div>
           <div
@@ -178,14 +177,14 @@ const MultipleChoiceDropdownFeedback: React.FC<
               {t("correct-option")}: {correctOption?.title || correctOption?.body}
             </div>
           </div>
-          <SubmissionFeedbackMessage
-            quiz_options={quiz_options}
-            user_quiz_item_answer={user_quiz_item_answer}
-            modelSolution={modelSolution}
-            quiz_item_answer_feedback={quiz_item_answer_feedback ?? null}
-          />
         </div>
       )}
+      <SubmissionFeedbackMessage
+        quiz_options={quiz_options}
+        user_quiz_item_answer={user_quiz_item_answer}
+        modelSolution={modelSolution}
+        quiz_item_answer_feedback={quiz_item_answer_feedback ?? null}
+      />
     </div>
   )
 }

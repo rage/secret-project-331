@@ -16,7 +16,10 @@ use sqlx::{Pool, Postgres};
 
 use crate::{
     domain::models_requests::{self, JwtKey},
-    programs::seed::seed_courses::{seed_sample_course, CommonCourseData},
+    programs::seed::{
+        seed_courses::{seed_sample_course, CommonCourseData},
+        seed_file_storage::SeedFileStorageResult,
+    },
 };
 
 use super::super::seed_users::SeedUsersResult;
@@ -26,6 +29,8 @@ pub async fn seed_organization_uh_mathstat(
     seed_users_result: SeedUsersResult,
     base_url: String,
     jwt_key: Arc<JwtKey>,
+    // Passed to this function to ensure the seed file storage has been ran before this. This function will not work is seed file storage has not been ran
+    seed_file_storage_result: SeedFileStorageResult,
 ) -> anyhow::Result<Uuid> {
     info!("seeding organization uh-mathstat");
 
@@ -33,13 +38,19 @@ pub async fn seed_organization_uh_mathstat(
         admin_user_id,
         teacher_user_id,
         language_teacher_user_id: _,
+        material_viewer_user_id,
         assistant_user_id: _,
         course_or_exam_creator_user_id: _,
-        student_user_id,
         example_normal_user_ids,
         teaching_and_learning_services_user_id: _,
         student_without_research_consent: _,
+        user_user_id: _,
+        student_1_user_id: _,
+        student_2_user_id: _,
+        student_3_user_id,
+        langs_user_id: _,
     } = seed_users_result;
+    let _ = seed_file_storage_result;
 
     let mut conn = db_pool.acquire().await?;
 
@@ -51,6 +62,15 @@ pub async fn seed_organization_uh_mathstat(
         "Organization for Mathematics and Statistics courses. This organization creates courses that do require prior experience in mathematics, such as integration and induction.",
     )
     .await?;
+
+    roles::insert(
+        &mut conn,
+        material_viewer_user_id,
+        UserRole::MaterialViewer,
+        RoleDomain::Organization(uh_mathstat_id),
+    )
+    .await?;
+
     let new_course = NewCourse {
         name: "Introduction to Statistics".to_string(),
         slug: "introduction-to-statistics".to_string(),
@@ -125,7 +145,7 @@ pub async fn seed_organization_uh_mathstat(
         db_pool: db_pool.clone(),
         organization_id: uh_mathstat_id,
         admin_user_id,
-        student_user_id,
+        student_user_id: student_3_user_id,
         example_normal_user_ids: Arc::new(example_normal_user_ids.clone()),
         jwt_key: Arc::clone(&jwt_key),
         base_url,

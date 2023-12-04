@@ -358,7 +358,7 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
                 `}
                 type="range"
                 min="0"
-                max="3"
+                max={exerciseMaxPoints}
                 step={0.1}
                 value={typeof sliderValue === "number" ? sliderValue : 0.0}
                 onChange={(event) => setSliderValue(Number(event.target.value))}

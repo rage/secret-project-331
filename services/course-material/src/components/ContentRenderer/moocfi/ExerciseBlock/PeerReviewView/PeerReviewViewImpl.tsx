@@ -26,6 +26,15 @@ import PeerReviewQuestion from "./PeerReviewQuestion"
 
 import { getPeerReviewBeginningScrollingId, PeerReviewViewProps } from "."
 
+interface ExerciseAssignment {
+  attributes: ExerciseAssignmentAttributes
+  clientId: string
+}
+
+interface ExerciseAssignmentAttributes {
+  content: string
+}
+
 const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>> = ({
   exerciseNumber,
   exerciseId,
@@ -202,39 +211,50 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
               </h4>
               {peerReviewData.answer_to_review.course_material_exercise_tasks
                 .sort((a, b) => a.order_number - b.order_number)
-                .map((course_material_exercise_task) => (
-                  <ExerciseTaskIframe
-                    exerciseServiceSlug={course_material_exercise_task.exercise_service_slug}
-                    key={course_material_exercise_task.id}
-                    postThisStateToIFrame={{
-                      // eslint-disable-next-line i18next/no-literal-string
-                      view_type: "view-submission",
-                      exercise_task_id: course_material_exercise_task.id,
-                      user_information: {
-                        pseudonymous_id:
-                          course_material_exercise_task.pseudonumous_user_id ??
-                          getGuestPseudonymousUserId(),
-                        signed_in: Boolean(loginStateContext.signedIn),
-                      },
-                      // Don't reveal peer revewiee user variables to peer reviewers in case they contain something sensitive
-                      user_variables: {},
-                      data: {
-                        grading: exerciseTaskGradingToExerciseTaskGradingResult(
-                          course_material_exercise_task.previous_submission_grading,
-                        ),
-                        user_answer: course_material_exercise_task.previous_submission?.data_json,
-                        public_spec: course_material_exercise_task.public_spec,
-                        model_solution_spec: course_material_exercise_task.model_solution_spec,
-                      },
-                    }}
-                    url={`${course_material_exercise_task.exercise_iframe_url}?width=${narrowContainerWidthPx}`}
-                    setAnswer={null}
-                    title={t("exercise-task-content", {
-                      "exercise-number": exerciseNumber + 1,
-                      "task-number": course_material_exercise_task.order_number + 1,
-                    })}
-                  />
-                ))}
+                .map((course_material_exercise_task) => {
+                  const assignments = course_material_exercise_task.assignment as [
+                    ExerciseAssignment,
+                  ]
+                  return (
+                    <div key={course_material_exercise_task.id}>
+                      {assignments.map((assignment: ExerciseAssignment) => (
+                        <h4 key={assignment.clientId}>{assignment.attributes.content}</h4>
+                      ))}
+                      <ExerciseTaskIframe
+                        exerciseServiceSlug={course_material_exercise_task.exercise_service_slug}
+                        key={course_material_exercise_task.id}
+                        postThisStateToIFrame={{
+                          // eslint-disable-next-line i18next/no-literal-string
+                          view_type: "view-submission",
+                          exercise_task_id: course_material_exercise_task.id,
+                          user_information: {
+                            pseudonymous_id:
+                              course_material_exercise_task.pseudonumous_user_id ??
+                              getGuestPseudonymousUserId(),
+                            signed_in: Boolean(loginStateContext.signedIn),
+                          },
+                          // Don't reveal peer revewiee user variables to peer reviewers in case they contain something sensitive
+                          user_variables: {},
+                          data: {
+                            grading: exerciseTaskGradingToExerciseTaskGradingResult(
+                              course_material_exercise_task.previous_submission_grading,
+                            ),
+                            user_answer:
+                              course_material_exercise_task.previous_submission?.data_json,
+                            public_spec: course_material_exercise_task.public_spec,
+                            model_solution_spec: course_material_exercise_task.model_solution_spec,
+                          },
+                        }}
+                        url={`${course_material_exercise_task.exercise_iframe_url}?width=${narrowContainerWidthPx}`}
+                        setAnswer={null}
+                        title={t("exercise-task-content", {
+                          "exercise-number": exerciseNumber + 1,
+                          "task-number": course_material_exercise_task.order_number + 1,
+                        })}
+                      />
+                    </div>
+                  )
+                })}
             </div>
           </Centered>
         </div>

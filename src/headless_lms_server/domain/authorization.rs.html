@@ -1022,6 +1022,20 @@
 <a href="#1022" id="1022">1022</a>
 <a href="#1023" id="1023">1023</a>
 <a href="#1024" id="1024">1024</a>
+<a href="#1025" id="1025">1025</a>
+<a href="#1026" id="1026">1026</a>
+<a href="#1027" id="1027">1027</a>
+<a href="#1028" id="1028">1028</a>
+<a href="#1029" id="1029">1029</a>
+<a href="#1030" id="1030">1030</a>
+<a href="#1031" id="1031">1031</a>
+<a href="#1032" id="1032">1032</a>
+<a href="#1033" id="1033">1033</a>
+<a href="#1034" id="1034">1034</a>
+<a href="#1035" id="1035">1035</a>
+<a href="#1036" id="1036">1036</a>
+<a href="#1037" id="1037">1037</a>
+<a href="#1038" id="1038">1038</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Common functionality related to authorization
 
 </span><span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
@@ -1355,17 +1369,29 @@ async fn example_function(
     ))
 }
 
-<span class="doccomment">/**  Can be used to check whether user is allowed to view some course material */
-</span><span class="kw">pub async fn </span>can_user_view_not_open_chapter(
+<span class="doccomment">/**  Can be used to check whether user is allowed to view some course material. Chapters can be closed and and limited to certain people only. */
+</span><span class="kw">pub async fn </span>can_user_view_chapter(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     user_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
-    course_id: Uuid,
+    course_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    chapter_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;bool, ControllerError&gt; {
-    <span class="kw">if </span>user_id.is_none() {
-        <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="bool-val">false</span>);
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(course_id) = course_id {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(chapter_id) = chapter_id {
+            <span class="kw">if </span>!models::chapters::is_open(<span class="kw-2">&amp;mut *</span>conn, chapter_id).<span class="kw">await</span><span class="question-mark">? </span>{
+                <span class="kw">if </span>user_id.is_none() {
+                    <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="bool-val">false</span>);
+                }
+                <span class="comment">// If the user has been granted access to view the material, then they can see the unopened chapters too
+                // This is important because sometimes teachers wish to test unopened chapters with real students
+                </span><span class="kw">let </span>permission =
+                    authorize(conn, Act::ViewMaterial, user_id, Res::Course(course_id)).<span class="kw">await</span>;
+
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(permission.is_ok());
+            }
+        }
     }
-    <span class="kw">let </span>permission = authorize(conn, Act::Edit, user_id, Res::Course(course_id)).<span class="kw">await</span>;
-    <span class="prelude-val">Ok</span>(permission.is_ok())
+    <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)
 }
 
 <span class="doccomment">/**
@@ -1428,10 +1454,10 @@ token.authorized_ok(web::Json(cms_page_info))
     <span class="comment">// for some resources, we need to get more information from the database
     </span><span class="kw">match </span>resource {
         Resource::Chapter(id) =&gt; {
-            <span class="comment">// if trying to View a chapter that is not open, check for permission to Teach
+            <span class="comment">// if trying to View a chapter that is not open, check for permission to view the material
             </span><span class="kw">let </span>action =
                 <span class="kw">if </span><span class="macro">matches!</span>(action, Action::View) &amp;&amp; !models::chapters::is_open(conn, id).<span class="kw">await</span><span class="question-mark">? </span>{
-                    Action::Teach
+                    Action::ViewMaterial
                 } <span class="kw">else </span>{
                     action
                 };
@@ -1893,6 +1919,8 @@ query ($upstreamId: Int) {
         models::users::get_by_email(conn, <span class="string">&quot;teacher@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?
     </span>} <span class="kw">else if </span>email == <span class="string">&quot;language.teacher@example.com&quot; </span>&amp;&amp; password == <span class="string">&quot;language.teacher&quot; </span>{
         models::users::get_by_email(conn, <span class="string">&quot;language.teacher@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?
+    </span>} <span class="kw">else if </span>email == <span class="string">&quot;material.viewer@example.com&quot; </span>&amp;&amp; password == <span class="string">&quot;material.viewer&quot; </span>{
+        models::users::get_by_email(conn, <span class="string">&quot;material.viewer@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?
     </span>} <span class="kw">else if </span>email == <span class="string">&quot;user@example.com&quot; </span>&amp;&amp; password == <span class="string">&quot;user&quot; </span>{
         models::users::get_by_email(conn, <span class="string">&quot;user@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?
     </span>} <span class="kw">else if </span>email == <span class="string">&quot;assistant@example.com&quot; </span>&amp;&amp; password == <span class="string">&quot;assistant&quot; </span>{

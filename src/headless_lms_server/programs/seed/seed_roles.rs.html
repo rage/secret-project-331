@@ -54,9 +54,9 @@
 <span class="kw">use super</span>::{seed_organizations::uh_cs::SeedOrganizationUhCsResult, seed_users::SeedUsersResult};
 
 <span class="kw">pub async fn </span>seed_roles(
-    db_pool: <span class="kw-2">&amp;</span>Pool&lt;Postgres&gt;,
-    seed_users_result: <span class="kw-2">&amp;</span>SeedUsersResult,
-    uh_cs_organization_result: <span class="kw-2">&amp;</span>SeedOrganizationUhCsResult,
+    db_pool: Pool&lt;Postgres&gt;,
+    seed_users_result: SeedUsersResult,
+    uh_cs_organization_result: SeedOrganizationUhCsResult,
 ) -&gt; anyhow::Result&lt;()&gt; {
     <span class="comment">// roles
     </span><span class="macro">info!</span>(<span class="string">&quot;inserting roles&quot;</span>);

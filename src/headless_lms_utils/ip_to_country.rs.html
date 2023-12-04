@@ -91,6 +91,22 @@
 <a href="#91" id="91">91</a>
 <a href="#92" id="92">92</a>
 <a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::{collections::HashMap, io::Read, net::IpAddr, path::Path, time::Instant};
 
 <span class="kw">use </span>std::env;
@@ -100,6 +116,8 @@
 <span class="kw">use </span>flate2::read::GzDecoder;
 <span class="kw">use </span>ipnet::IpNet;
 <span class="kw">use </span>walkdir::WalkDir;
+
+<span class="kw">use </span><span class="kw">crate</span>::ApplicationConfiguration;
 
 <span class="kw">pub struct </span>IpToCountryMapper {
     lists: HashMap&lt;String, Vec&lt;ipnet::IpNet&gt;&gt;,
@@ -111,7 +129,7 @@
 
     Expensive and synchronous.
     */
-    </span><span class="kw">pub fn </span>new() -&gt; anyhow::Result&lt;<span class="self">Self</span>&gt; {
+    </span><span class="kw">pub fn </span>new(app_conf: <span class="kw-2">&amp;</span>ApplicationConfiguration) -&gt; anyhow::Result&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>lists = HashMap::new();
         <span class="kw">if let </span><span class="prelude-val">Ok</span>(ip_to_country_mapping_directory) = env::var(<span class="string">&quot;IP_TO_COUNTRY_MAPPING_DIRECTORY&quot;</span>) {
             <span class="macro">info!</span>(<span class="string">&quot;Loading country to ip mapping&quot;</span>);
@@ -125,6 +143,7 @@
                 .max_open(<span class="number">10</span>)
                 .contents_first(<span class="bool-val">false</span>)
                 .sort_by_file_name();
+            <span class="kw">let </span><span class="kw-2">mut </span>some_lists_skipped = <span class="bool-val">true</span>;
             <span class="kw">for </span>entry_result <span class="kw">in </span>walker {
                 <span class="kw">let </span>entry = entry_result<span class="question-mark">?</span>;
                 <span class="kw">if </span>!entry.file_type().is_file() {
@@ -136,6 +155,17 @@
                 } <span class="kw">else </span>{
                     file_name.split(<span class="string">&quot;v6&quot;</span>)
                 };
+
+                <span class="comment">// Speed up loading only in bin/dev
+                </span><span class="kw">if </span>app_conf.test_mode
+                    &amp;&amp; <span class="macro">cfg!</span>(debug_assertions)
+                    &amp;&amp; lists.len() &gt; <span class="number">10
+                    </span>&amp;&amp; !file_name.to_lowercase().contains(<span class="string">&quot;fi&quot;</span>)
+                {
+                    some_lists_skipped = <span class="bool-val">true</span>;
+                    <span class="kw">continue</span>;
+                }
+
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(country_code) = parts.next() {
                     <span class="kw">let </span>list = lists
                         .entry(country_code.to_lowercase())
@@ -149,22 +179,22 @@
                     <span class="kw">for </span>line <span class="kw">in </span>contents.trim().lines() {
                         <span class="kw">if let </span><span class="prelude-val">Ok</span>(ipnet) = line.parse::&lt;IpNet&gt;() {
                             list.push(ipnet);
-                            <span class="comment">// Speed up loading only in bin/dev
-                            </span><span class="kw">if </span><span class="macro">cfg!</span>(debug_assertions) &amp;&amp; (list.len() &gt; <span class="number">10</span>) {
+
+                            <span class="kw">if </span><span class="macro">cfg!</span>(debug_assertions) &amp;&amp; (list.len() &gt; <span class="number">10</span>) {
+                                some_lists_skipped = <span class="bool-val">true</span>;
                                 <span class="kw">break</span>;
                             }
                         }
                     }
                 }
-                <span class="comment">// Speed up loading only in bin/dev
-                </span><span class="kw">if </span><span class="macro">cfg!</span>(debug_assertions) &amp;&amp; lists.len() &gt; <span class="number">10 </span>{
-                    <span class="kw">break</span>;
-                }
             }
             <span class="macro">info!</span>(
                 elapsed_time = <span class="question-mark">?</span>start.elapsed(),
-                <span class="string">&quot;Loaded country to ip mapping&quot;
+                <span class="string">&quot;Loaded ip to country mappings&quot;
             </span>);
+            <span class="kw">if </span>some_lists_skipped {
+                <span class="macro">warn!</span>(<span class="string">&quot;Some ip to country lists were skipped to speed up loading. This should not happen in production.&quot;</span>);
+            }
         } <span class="kw">else </span>{
             <span class="macro">warn!</span>(
                 <span class="string">&quot;IP_TO_COUNTRY_MAPPING_DIRECTORY not specified, not loading ip to country mappings.&quot;
@@ -178,9 +208,11 @@
     <span class="kw">pub fn </span>map_ip_to_country(<span class="kw-2">&amp;</span><span class="self">self</span>, ip: <span class="kw-2">&amp;</span>IpAddr) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
         <span class="kw">for </span>(country, list) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.lists {
             <span class="kw">if </span>list.iter().any(|ipnet| ipnet.contains(ip)) {
+                <span class="macro">info!</span>(<span class="string">&quot;Mapped ip {} to country {}.&quot;</span>, ip, country);
                 <span class="kw">return </span><span class="prelude-val">Some</span>(country);
             }
         }
+        <span class="macro">info!</span>(<span class="string">&quot;Ip {} did not resolve to a country.&quot;</span>, ip);
         <span class="prelude-val">None
     </span>}
 }

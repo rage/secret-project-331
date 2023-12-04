@@ -3444,20 +3444,6 @@
 <a href="#3444" id="3444">3444</a>
 <a href="#3445" id="3445">3445</a>
 <a href="#3446" id="3446">3446</a>
-<a href="#3447" id="3447">3447</a>
-<a href="#3448" id="3448">3448</a>
-<a href="#3449" id="3449">3449</a>
-<a href="#3450" id="3450">3450</a>
-<a href="#3451" id="3451">3451</a>
-<a href="#3452" id="3452">3452</a>
-<a href="#3453" id="3453">3453</a>
-<a href="#3454" id="3454">3454</a>
-<a href="#3455" id="3455">3455</a>
-<a href="#3456" id="3456">3456</a>
-<a href="#3457" id="3457">3457</a>
-<a href="#3458" id="3458">3458</a>
-<a href="#3459" id="3459">3459</a>
-<a href="#3460" id="3460">3460</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::{hash_map, HashMap};
 
 <span class="kw">use </span>futures::future::{BoxFuture, OptionFuture};
@@ -4127,7 +4113,6 @@ WHERE pages.course_id = $1
     user_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
     course_data: <span class="kw-2">&amp;</span>CourseContextData,
     url_path: <span class="kw-2">&amp;</span>str,
-    can_view_not_open_chapters: bool,
 ) -&gt; ModelResult&lt;CoursePageWithUserData&gt; {
     <span class="kw">let </span>page_option = get_page_by_path(conn, course_data.id, url_path).<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -4138,7 +4123,6 @@ WHERE pages.course_id = $1
             page,
             <span class="bool-val">false</span>,
             course_data.is_test_mode,
-            can_view_not_open_chapters,
         )
         .<span class="kw">await</span>;
     } <span class="kw">else </span>{
@@ -4151,7 +4135,6 @@ WHERE pages.course_id = $1
                 redirected_page,
                 <span class="bool-val">true</span>,
                 course_data.is_test_mode,
-                can_view_not_open_chapters,
             )
             .<span class="kw">await</span>;
         }
@@ -4207,18 +4190,7 @@ WHERE url_redirections.course_id = $1
     page: Page,
     was_redirected: bool,
     is_test_mode: bool,
-    can_view_not_open_chapters: bool,
 ) -&gt; ModelResult&lt;CoursePageWithUserData&gt; {
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(chapter_id) = page.chapter_id {
-        <span class="kw">if </span>!can_view_not_open_chapters &amp;&amp; !<span class="kw">crate</span>::chapters::is_open(conn, chapter_id).<span class="kw">await</span><span class="question-mark">? </span>{
-            <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
-                ModelErrorType::PreconditionFailed,
-                <span class="string">&quot;Chapter is not open yet.&quot;</span>.to_string(),
-                <span class="prelude-val">None</span>,
-            ));
-        }
-    }
-
     <span class="kw">if let </span><span class="prelude-val">Some</span>(course_id) = page.course_id {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(user_id) = user_id {
             <span class="kw">let </span>instance =

@@ -168,6 +168,24 @@
 <a href="#168" id="168">168</a>
 <a href="#169" id="169">169</a>
 <a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>headless_lms_models::{users, PKeyPolicy};
 <span class="kw">use </span>sqlx::{Pool, Postgres};
 <span class="kw">use </span>uuid::Uuid;
@@ -179,10 +197,15 @@
     <span class="kw">pub </span>language_teacher_user_id: Uuid,
     <span class="kw">pub </span>assistant_user_id: Uuid,
     <span class="kw">pub </span>course_or_exam_creator_user_id: Uuid,
-    <span class="kw">pub </span>student_user_id: Uuid,
     <span class="kw">pub </span>example_normal_user_ids: Vec&lt;Uuid&gt;,
     <span class="kw">pub </span>teaching_and_learning_services_user_id: Uuid,
     <span class="kw">pub </span>student_without_research_consent: Uuid,
+    <span class="kw">pub </span>material_viewer_user_id: Uuid,
+    <span class="kw">pub </span>user_user_id: Uuid,
+    <span class="kw">pub </span>student_1_user_id: Uuid,
+    <span class="kw">pub </span>student_2_user_id: Uuid,
+    <span class="kw">pub </span>student_3_user_id: Uuid,
+    <span class="kw">pub </span>langs_user_id: Uuid,
 }
 
 <span class="kw">pub async fn </span>seed_users(db_pool: Pool&lt;Postgres&gt;) -&gt; anyhow::Result&lt;SeedUsersResult&gt; {
@@ -213,6 +236,14 @@
         <span class="prelude-val">Some</span>(<span class="string">&quot;Example&quot;</span>),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>material_viewer_user_id = users::insert(
+        <span class="kw-2">&amp;mut </span>conn,
+        PKeyPolicy::Fixed(Uuid::parse_str(<span class="string">&quot;ee0753ae-9f4b-465a-b04b-66edf91b41a5&quot;</span>)<span class="question-mark">?</span>),
+        <span class="string">&quot;material.viewer@example.com&quot;</span>,
+        <span class="prelude-val">Some</span>(<span class="string">&quot;Material&quot;</span>),
+        <span class="prelude-val">Some</span>(<span class="string">&quot;Viewer&quot;</span>),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>assistant_user_id = users::insert(
         <span class="kw-2">&amp;mut </span>conn,
         PKeyPolicy::Fixed(Uuid::parse_str(<span class="string">&quot;24342539-f1ba-453e-ae13-14aa418db921&quot;</span>)<span class="question-mark">?</span>),
@@ -229,7 +260,7 @@
         <span class="prelude-val">Some</span>(<span class="string">&quot;Example&quot;</span>),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>_student_user_id = users::insert(
+    <span class="kw">let </span>user_user_id = users::insert(
         <span class="kw-2">&amp;mut </span>conn,
         PKeyPolicy::Fixed(Uuid::parse_str(<span class="string">&quot;849b8d32-d5f8-4994-9d21-5aa6259585b1&quot;</span>)<span class="question-mark">?</span>),
         <span class="string">&quot;user@example.com&quot;</span>,
@@ -238,7 +269,7 @@
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>_student_user_id = users::insert(
+    <span class="kw">let </span>student_1_user_id = users::insert(
         <span class="kw-2">&amp;mut </span>conn,
         PKeyPolicy::Fixed(Uuid::parse_str(<span class="string">&quot;02364d40-2aac-4763-8a06-2381fd298d79&quot;</span>)<span class="question-mark">?</span>),
         <span class="string">&quot;student1@example.com&quot;</span>,
@@ -247,7 +278,7 @@
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>_student_user_id = users::insert(
+    <span class="kw">let </span>student_2_user_id = users::insert(
         <span class="kw-2">&amp;mut </span>conn,
         PKeyPolicy::Fixed(Uuid::parse_str(<span class="string">&quot;d7d6246c-45a8-4ff4-bf4d-31dedfaac159&quot;</span>)<span class="question-mark">?</span>),
         <span class="string">&quot;student2@example.com&quot;</span>,
@@ -256,7 +287,7 @@
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>student_user_id = users::insert(
+    <span class="kw">let </span>student_3_user_id = users::insert(
         <span class="kw-2">&amp;mut </span>conn,
         PKeyPolicy::Fixed(Uuid::parse_str(<span class="string">&quot;6b9b61f2-012a-4dc2-9e35-5da81cd3936b&quot;</span>)<span class="question-mark">?</span>),
         <span class="string">&quot;student3@example.com&quot;</span>,
@@ -274,7 +305,7 @@
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>_langs_user = users::insert(
+    <span class="kw">let </span>langs_user_id = users::insert(
         <span class="kw-2">&amp;mut </span>conn,
         PKeyPolicy::Fixed(Uuid::parse_str(<span class="string">&quot;c60ca874-bab9-452a-895f-02597cf60886&quot;</span>)<span class="question-mark">?</span>),
         <span class="string">&quot;langs@example.com&quot;</span>,
@@ -332,10 +363,15 @@
         language_teacher_user_id,
         assistant_user_id,
         course_or_exam_creator_user_id,
-        student_user_id,
         example_normal_user_ids,
         teaching_and_learning_services_user_id,
         student_without_research_consent,
+        material_viewer_user_id,
+        user_user_id,
+        student_1_user_id,
+        student_2_user_id,
+        student_3_user_id,
+        langs_user_id,
     })
 }
 </code></pre></div></section></main></body></html>

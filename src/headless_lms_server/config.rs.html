@@ -245,10 +245,10 @@
         <span class="kw">let </span>icu4x_blob = Icu4xBlob::new(<span class="kw-2">&amp;</span><span class="self">self</span>.icu4x_postcard_path)<span class="question-mark">?</span>;
         <span class="kw">let </span>icu4x_blob = Data::new(icu4x_blob);
 
-        <span class="kw">let </span>ip_to_country_mapper = IpToCountryMapper::new()<span class="question-mark">?</span>;
-        <span class="kw">let </span>ip_to_country_mapper = Data::new(ip_to_country_mapper);
-
         <span class="kw">let </span>app_conf = Data::new(<span class="self">self</span>.app_conf);
+
+        <span class="kw">let </span>ip_to_country_mapper = IpToCountryMapper::new(<span class="kw-2">&amp;</span>app_conf)<span class="question-mark">?</span>;
+        <span class="kw">let </span>ip_to_country_mapper = Data::new(ip_to_country_mapper);
 
         <span class="kw">let </span>cache = Cache::new(<span class="kw-2">&amp;</span><span class="self">self</span>.redis_url).<span class="kw">await</span>;
         <span class="kw">let </span>cache = Data::new(cache);

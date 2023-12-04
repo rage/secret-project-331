@@ -962,11 +962,26 @@
 <a href="#962" id="962">962</a>
 <a href="#963" id="963">963</a>
 <a href="#964" id="964">964</a>
+<a href="#965" id="965">965</a>
+<a href="#966" id="966">966</a>
+<a href="#967" id="967">967</a>
+<a href="#968" id="968">968</a>
+<a href="#969" id="969">969</a>
+<a href="#970" id="970">970</a>
+<a href="#971" id="971">971</a>
+<a href="#972" id="972">972</a>
+<a href="#973" id="973">973</a>
+<a href="#974" id="974">974</a>
+<a href="#975" id="975">975</a>
+<a href="#976" id="976">976</a>
+<a href="#977" id="977">977</a>
+<a href="#978" id="978">978</a>
+<a href="#979" id="979">979</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/courses`.
 
 </span><span class="kw">use </span>std::{collections::HashMap, net::IpAddr, path::Path};
 
-<span class="kw">use </span>actix_http::header;
+<span class="kw">use </span>actix_http::header::{<span class="self">self</span>, X_FORWARDED_FOR};
 <span class="kw">use </span>actix_web::web::Json;
 <span class="kw">use </span>chrono::Utc;
 <span class="kw">use </span>futures::{future::OptionFuture, FutureExt};
@@ -998,7 +1013,7 @@
 
 <span class="kw">use crate</span>::{
     domain::authorization::{
-        authorize_access_to_course_material, can_user_view_not_open_chapter, skip_authorize,
+        authorize_access_to_course_material, can_user_view_chapter, skip_authorize,
     },
     prelude::<span class="kw-2">*</span>,
 };
@@ -1046,18 +1061,25 @@ GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//par
     };
     <span class="kw">let </span>user_id = user.map(|u| u.id);
     <span class="kw">let </span>course_data = get_nondeleted_course_id_by_slug(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">&amp;</span>course_slug).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>page_with_user_data =
+        models::pages::get_page_with_user_data_by_path(<span class="kw-2">&amp;mut </span>conn, user_id, <span class="kw-2">&amp;</span>course_data, <span class="kw-2">&amp;</span>path)
+            .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>can_view_not_open_chapters =
-        can_user_view_not_open_chapter(<span class="kw-2">&amp;mut </span>conn, user_id, course_data.id).<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="kw">let </span>page_with_user_data = models::pages::get_page_with_user_data_by_path(
+    <span class="comment">// Chapters may be closed
+    </span><span class="kw">if </span>!can_user_view_chapter(
         <span class="kw-2">&amp;mut </span>conn,
         user_id,
-        <span class="kw-2">&amp;</span>course_data,
-        <span class="kw-2">&amp;</span>path,
-        can_view_not_open_chapters,
+        page_with_user_data.page.course_id,
+        page_with_user_data.page.chapter_id,
     )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
+    .<span class="kw">await</span><span class="question-mark">?
+    </span>{
+        <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
+            ControllerErrorType::Unauthorized,
+            <span class="string">&quot;Chapter is not open yet.&quot;</span>.to_string(),
+            <span class="prelude-val">None</span>,
+        ));
+    }
 
     <span class="kw">let </span>token = authorize_access_to_course_material(
         <span class="kw-2">&amp;mut </span>conn,
@@ -1160,6 +1182,10 @@ GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//par
     ip_to_country_mapper: web::Data&lt;IpToCountryMapper&gt;,
 ) -&gt; ControllerResult&lt;RequestInformation&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>headers = req.headers().clone();
+    <span class="kw">let </span>x_real_ip = headers.get(<span class="string">&quot;X-Real-IP&quot;</span>);
+    <span class="kw">let </span>x_forwarded_for = headers.get(X_FORWARDED_FOR);
+    <span class="kw">let </span>connection_info = req.connection_info();
+    <span class="kw">let </span>peer_address = connection_info.peer_addr();
     <span class="kw">let </span>headers_clone = headers.clone();
     <span class="kw">let </span>user_agent = headers_clone.get(header::USER_AGENT);
     <span class="kw">let </span>bots = Bots::default();
@@ -1185,10 +1211,14 @@ GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//par
         .and_then(|ua| ua.to_str().ok())
         .and_then(|ua| user_agent_parser.parse(ua));
 
-    <span class="kw">let </span>ip: <span class="prelude-ty">Option</span>&lt;IpAddr&gt; = req
-        .connection_info()
+    <span class="kw">let </span>ip: <span class="prelude-ty">Option</span>&lt;IpAddr&gt; = connection_info
         .realip_remote_addr()
         .and_then(|ip| ip.parse::&lt;IpAddr&gt;().ok());
+
+    <span class="macro">info!</span>(
+        <span class="string">&quot;Ip {:?}, x_real_ip {:?}, x_forwarded_for {:?}, peer_address {:?}&quot;</span>,
+        ip, x_real_ip, x_forwarded_for, peer_address
+    );
 
     <span class="kw">let </span>country = ip
         .and_then(|ip| ip_to_country_mapper.map_ip_to_country(<span class="kw-2">&amp;</span>ip))

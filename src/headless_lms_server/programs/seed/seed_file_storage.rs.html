@@ -53,6 +53,9 @@
 <a href="#53" id="53">53</a>
 <a href="#54" id="54">54</a>
 <a href="#55" id="55">55</a>
+<a href="#56" id="56">56</a>
+<a href="#57" id="57">57</a>
+<a href="#58" id="58">58</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>headless_lms_utils::file_store::{local_file_store::LocalFileStore, FileStore};
 <span class="kw">use </span>std::path::Path;
 
@@ -62,7 +65,10 @@
 <span class="kw">const </span>CERTIFICATE_BACKGROUND: <span class="kw-2">&amp;</span>[u8] = <span class="macro">include_bytes!</span>(<span class="string">&quot;./data/certificate-background.svg&quot;</span>);
 <span class="kw">const </span>AUTHOR_IMAGE: <span class="kw-2">&amp;</span>[u8] = <span class="macro">include_bytes!</span>(<span class="string">&quot;./data/lilo-and-stitch.jpg&quot;</span>);
 
-<span class="kw">pub async fn </span>seed_file_storage() -&gt; anyhow::Result&lt;()&gt; {
+<span class="attr">#[derive(Clone)]
+</span><span class="kw">pub struct </span>SeedFileStorageResult {}
+
+<span class="kw">pub async fn </span>seed_file_storage() -&gt; anyhow::Result&lt;SeedFileStorageResult&gt; {
     <span class="macro">info!</span>(<span class="string">&quot;seeding file storage&quot;</span>);
 
     <span class="kw">let </span>file_storage = LocalFileStore::new(
@@ -106,6 +112,6 @@
             <span class="string">&quot;application/octet-stream&quot;</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(())
+    <span class="prelude-val">Ok</span>(SeedFileStorageResult {})
 }
 </code></pre></div></section></main></body></html>

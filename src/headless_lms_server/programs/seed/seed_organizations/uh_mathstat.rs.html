@@ -208,6 +208,26 @@
 <a href="#208" id="208">208</a>
 <a href="#209" id="209">209</a>
 <a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
+<a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
+<a href="#227" id="227">227</a>
+<a href="#228" id="228">228</a>
+<a href="#229" id="229">229</a>
+<a href="#230" id="230">230</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span>headless_lms_models::{
@@ -226,7 +246,10 @@
 
 <span class="kw">use crate</span>::{
     domain::models_requests::{<span class="self">self</span>, JwtKey},
-    programs::seed::seed_courses::{seed_sample_course, CommonCourseData},
+    programs::seed::{
+        seed_courses::{seed_sample_course, CommonCourseData},
+        seed_file_storage::SeedFileStorageResult,
+    },
 };
 
 <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::seed_users::SeedUsersResult;
@@ -236,6 +259,8 @@
     seed_users_result: SeedUsersResult,
     base_url: String,
     jwt_key: Arc&lt;JwtKey&gt;,
+    <span class="comment">// Passed to this function to ensure the seed file storage has been ran before this. This function will not work is seed file storage has not been ran
+    </span>seed_file_storage_result: SeedFileStorageResult,
 ) -&gt; anyhow::Result&lt;Uuid&gt; {
     <span class="macro">info!</span>(<span class="string">&quot;seeding organization uh-mathstat&quot;</span>);
 
@@ -243,13 +268,19 @@
         admin_user_id,
         teacher_user_id,
         language_teacher_user_id: <span class="kw">_</span>,
+        material_viewer_user_id,
         assistant_user_id: <span class="kw">_</span>,
         course_or_exam_creator_user_id: <span class="kw">_</span>,
-        student_user_id,
         example_normal_user_ids,
         teaching_and_learning_services_user_id: <span class="kw">_</span>,
         student_without_research_consent: <span class="kw">_</span>,
+        user_user_id: <span class="kw">_</span>,
+        student_1_user_id: <span class="kw">_</span>,
+        student_2_user_id: <span class="kw">_</span>,
+        student_3_user_id,
+        langs_user_id: <span class="kw">_</span>,
     } = seed_users_result;
+    <span class="kw">let _ </span>= seed_file_storage_result;
 
     <span class="kw">let </span><span class="kw-2">mut </span>conn = db_pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -261,6 +292,15 @@
         <span class="string">&quot;Organization for Mathematics and Statistics courses. This organization creates courses that do require prior experience in mathematics, such as integration and induction.&quot;</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    roles::insert(
+        <span class="kw-2">&amp;mut </span>conn,
+        material_viewer_user_id,
+        UserRole::MaterialViewer,
+        RoleDomain::Organization(uh_mathstat_id),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
     <span class="kw">let </span>new_course = NewCourse {
         name: <span class="string">&quot;Introduction to Statistics&quot;</span>.to_string(),
         slug: <span class="string">&quot;introduction-to-statistics&quot;</span>.to_string(),
@@ -335,7 +375,7 @@
         db_pool: db_pool.clone(),
         organization_id: uh_mathstat_id,
         admin_user_id,
-        student_user_id,
+        student_user_id: student_3_user_id,
         example_normal_user_ids: Arc::new(example_normal_user_ids.clone()),
         jwt_key: Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
         base_url,

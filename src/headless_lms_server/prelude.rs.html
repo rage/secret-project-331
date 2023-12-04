@@ -58,7 +58,7 @@
     file_store::FileStore, pagination::Pagination, ApplicationConfiguration,
 };
 <span class="kw">pub use </span>serde::{Deserialize, Serialize};
-<span class="kw">pub use </span>sqlx::{Connection, FromRow, PgConnection, PgPool, Type};
+<span class="kw">pub use </span>sqlx::{Connection, FromRow, PgConnection, PgPool, Pool, Postgres, Type};
 <span class="attr">#[cfg(feature = <span class="string">&quot;ts_rs&quot;</span>)]
 </span><span class="kw">pub use </span>ts_rs::TS;
 <span class="kw">pub use </span>uuid::Uuid;

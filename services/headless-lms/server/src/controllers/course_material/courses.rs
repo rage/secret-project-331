@@ -2,7 +2,7 @@
 
 use std::{collections::HashMap, net::IpAddr, path::Path};
 
-use actix_http::header;
+use actix_http::header::{self, X_FORWARDED_FOR};
 use actix_web::web::Json;
 use chrono::Utc;
 use futures::{future::OptionFuture, FutureExt};
@@ -203,6 +203,10 @@ async fn derive_information_from_requester(
     ip_to_country_mapper: web::Data<IpToCountryMapper>,
 ) -> ControllerResult<RequestInformation> {
     let mut headers = req.headers().clone();
+    let x_real_ip = headers.get("X-Real-IP");
+    let x_forwarded_for = headers.get(X_FORWARDED_FOR);
+    let connection_info = req.connection_info();
+    let peer_address = connection_info.peer_addr();
     let headers_clone = headers.clone();
     let user_agent = headers_clone.get(header::USER_AGENT);
     let bots = Bots::default();
@@ -228,10 +232,14 @@ async fn derive_information_from_requester(
         .and_then(|ua| ua.to_str().ok())
         .and_then(|ua| user_agent_parser.parse(ua));
 
-    let ip: Option<IpAddr> = req
-        .connection_info()
+    let ip: Option<IpAddr> = connection_info
         .realip_remote_addr()
         .and_then(|ip| ip.parse::<IpAddr>().ok());
+
+    info!(
+        "Ip {:?}, x_real_ip {:?}, x_forwarded_for {:?}, peer_address {:?}",
+        ip, x_real_ip, x_forwarded_for, peer_address
+    );
 
     let country = ip
         .and_then(|ip| ip_to_country_mapper.map_ip_to_country(&ip))

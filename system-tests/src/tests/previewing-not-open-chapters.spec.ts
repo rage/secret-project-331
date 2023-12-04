@@ -46,3 +46,26 @@ test("Teachers can preview chapters that are not open yet", async ({ page, brows
   await page3.getByText("Chapter is not open yet").waitFor()
   await context2.close()
 })
+
+test("Material viewers can preview chapters that are not open yet by directly visiting an url", async ({
+  browser,
+}) => {
+  // Users with the material viewer role **intentionally** can view chapters that are not open yet by visiting the page url directly.
+  // This role is used by teachers to let students test unopened chapters.
+  const context = await browser.newContext({
+    storageState: "src/states/material.viewer@example.com.json",
+  })
+  const page = await context.newPage()
+  await page.goto(
+    "http://project-331.local/org/uh-mathstat/courses/preview-unopened-chapters/chapter-1/page-1",
+  )
+  await selectCourseInstanceIfPrompted(page)
+  await page.getByText("Everything is a big topic.").click()
+  await page
+    .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
+    .getByRole("checkbox", { name: "b" })
+    .click()
+  await page.getByRole("button", { name: "Submit" }).click()
+  await page.getByText("Good job!").click()
+  await context.close()
+})

@@ -34,7 +34,7 @@ use models::{
 
 use crate::{
     domain::authorization::{
-        authorize_access_to_course_material, can_user_view_not_open_chapter, skip_authorize,
+        authorize_access_to_course_material, can_user_view_chapter, skip_authorize,
     },
     prelude::*,
 };
@@ -82,18 +82,25 @@ async fn get_course_page_by_path(
     };
     let user_id = user.map(|u| u.id);
     let course_data = get_nondeleted_course_id_by_slug(&mut conn, &course_slug).await?;
+    let page_with_user_data =
+        models::pages::get_page_with_user_data_by_path(&mut conn, user_id, &course_data, &path)
+            .await?;
 
-    let can_view_not_open_chapters =
-        can_user_view_not_open_chapter(&mut conn, user_id, course_data.id).await?;
-
-    let page_with_user_data = models::pages::get_page_with_user_data_by_path(
+    // Chapters may be closed
+    if !can_user_view_chapter(
         &mut conn,
         user_id,
-        &course_data,
-        &path,
-        can_view_not_open_chapters,
+        page_with_user_data.page.course_id,
+        page_with_user_data.page.chapter_id,
     )
-    .await?;
+    .await?
+    {
+        return Err(ControllerError::new(
+            ControllerErrorType::Unauthorized,
+            "Chapter is not open yet.".to_string(),
+            None,
+        ));
+    }
 
     let token = authorize_access_to_course_material(
         &mut conn,

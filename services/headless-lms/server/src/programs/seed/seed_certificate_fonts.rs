@@ -1,7 +1,7 @@
 use crate::prelude::*;
 use models::certificate_fonts::NewCertificateFont;
 
-pub async fn seed_certificate_fonts(db_pool: &PgPool) -> anyhow::Result<()> {
+pub async fn seed_certificate_fonts(db_pool: PgPool) -> anyhow::Result<()> {
     let mut conn = db_pool.acquire().await?;
 
     let file_upload_id = models::file_uploads::insert(

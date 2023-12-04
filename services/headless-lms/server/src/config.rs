@@ -86,10 +86,10 @@ impl ServerConfigBuilder {
         let icu4x_blob = Icu4xBlob::new(&self.icu4x_postcard_path)?;
         let icu4x_blob = Data::new(icu4x_blob);
 
-        let ip_to_country_mapper = IpToCountryMapper::new()?;
-        let ip_to_country_mapper = Data::new(ip_to_country_mapper);
-
         let app_conf = Data::new(self.app_conf);
+
+        let ip_to_country_mapper = IpToCountryMapper::new(&app_conf)?;
+        let ip_to_country_mapper = Data::new(ip_to_country_mapper);
 
         let cache = Cache::new(&self.redis_url).await;
         let cache = Data::new(cache);

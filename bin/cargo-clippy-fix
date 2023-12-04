@@ -12,4 +12,4 @@ echo -e "${BLUE}Note: please git add all your changes before running this."
 echo -e "That way you can easily see what this command changed with git add -p"
 echo -e "$RESET_EVERYTHING"
 
-run_command cargo clippy --fix --allow-staged "$@"
+run_command env SQLX_OFFLINE=1 cargo clippy --fix --allow-staged "$@"

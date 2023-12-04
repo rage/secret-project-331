@@ -667,7 +667,6 @@ pub async fn get_page_with_user_data_by_path(
     user_id: Option<Uuid>,
     course_data: &CourseContextData,
     url_path: &str,
-    can_view_not_open_chapters: bool,
 ) -> ModelResult<CoursePageWithUserData> {
     let page_option = get_page_by_path(conn, course_data.id, url_path).await?;
 
@@ -678,7 +677,6 @@ pub async fn get_page_with_user_data_by_path(
             page,
             false,
             course_data.is_test_mode,
-            can_view_not_open_chapters,
         )
         .await;
     } else {
@@ -691,7 +689,6 @@ pub async fn get_page_with_user_data_by_path(
                 redirected_page,
                 true,
                 course_data.is_test_mode,
-                can_view_not_open_chapters,
             )
             .await;
         }
@@ -747,18 +744,7 @@ pub async fn get_course_page_with_user_data_from_selected_page(
     page: Page,
     was_redirected: bool,
     is_test_mode: bool,
-    can_view_not_open_chapters: bool,
 ) -> ModelResult<CoursePageWithUserData> {
-    if let Some(chapter_id) = page.chapter_id {
-        if !can_view_not_open_chapters && !crate::chapters::is_open(conn, chapter_id).await? {
-            return Err(ModelError::new(
-                ModelErrorType::PreconditionFailed,
-                "Chapter is not open yet.".to_string(),
-                None,
-            ));
-        }
-    }
-
     if let Some(course_id) = page.course_id {
         if let Some(user_id) = user_id {
             let instance =

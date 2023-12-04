@@ -26,6 +26,7 @@ use crate::{
             create_glossary_course, seed_cs_course_material,
             seed_peer_review_course_without_submissions, seed_sample_course, CommonCourseData,
         },
+        seed_file_storage::SeedFileStorageResult,
         seed_helpers::create_exam,
     },
 };
@@ -43,19 +44,27 @@ pub async fn seed_organization_uh_cs(
     seed_users_result: SeedUsersResult,
     base_url: String,
     jwt_key: Arc<JwtKey>,
+    // Passed to this function to ensure the seed file storage has been ran before this. This function will not work is seed file storage has not been ran
+    seed_file_storage_result: SeedFileStorageResult,
 ) -> anyhow::Result<SeedOrganizationUhCsResult> {
     info!("inserting organization uh-cs");
     let SeedUsersResult {
         admin_user_id,
         teacher_user_id,
         language_teacher_user_id,
+        material_viewer_user_id,
         assistant_user_id: _,
         course_or_exam_creator_user_id,
-        student_user_id,
         example_normal_user_ids,
         teaching_and_learning_services_user_id: _,
         student_without_research_consent: _,
+        user_user_id: _,
+        student_1_user_id: _,
+        student_2_user_id: _,
+        student_3_user_id,
+        langs_user_id: _,
     } = seed_users_result;
+    let _ = seed_file_storage_result;
 
     let mut conn = db_pool.acquire().await?;
 
@@ -68,6 +77,14 @@ pub async fn seed_organization_uh_cs(
     )
     .await?;
 
+    roles::insert(
+        &mut conn,
+        material_viewer_user_id,
+        UserRole::MaterialViewer,
+        RoleDomain::Organization(uh_cs_organization_id),
+    )
+    .await?;
+
     info!("inserting uh-cs courses");
 
     // Seed courses in groups to improve performance. We cannot create a new task for each course because it is causing stack overflows in headless-lms entrypoint in seemingly unrelated code.
@@ -75,7 +92,7 @@ pub async fn seed_organization_uh_cs(
         db_pool: db_pool.clone(),
         organization_id: uh_cs_organization_id,
         admin_user_id,
-        student_user_id,
+        student_user_id: student_3_user_id,
         example_normal_user_ids: Arc::new(example_normal_user_ids.clone()),
         jwt_key: Arc::clone(&jwt_key),
         base_url: base_url.clone(),

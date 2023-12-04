@@ -7,7 +7,10 @@ const FONT_LATO_REGULAR: &[u8] = include_bytes!("./data/Lato-Regular.ttf");
 const CERTIFICATE_BACKGROUND: &[u8] = include_bytes!("./data/certificate-background.svg");
 const AUTHOR_IMAGE: &[u8] = include_bytes!("./data/lilo-and-stitch.jpg");
 
-pub async fn seed_file_storage() -> anyhow::Result<()> {
+#[derive(Clone)]
+pub struct SeedFileStorageResult {}
+
+pub async fn seed_file_storage() -> anyhow::Result<SeedFileStorageResult> {
     info!("seeding file storage");
 
     let file_storage = LocalFileStore::new(
@@ -51,5 +54,5 @@ pub async fn seed_file_storage() -> anyhow::Result<()> {
             "application/octet-stream",
         )
         .await?;
-    Ok(())
+    Ok(SeedFileStorageResult {})
 }

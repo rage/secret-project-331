@@ -382,7 +382,7 @@ fn generate_text_svg(
             }
             Ok(())
         })
-        .map_err(|original_error| {
+        .map_err(|original_error: anyhow::Error| {
             UtilError::new(
                 UtilErrorType::Other,
                 "Could not write text svg".to_string(),

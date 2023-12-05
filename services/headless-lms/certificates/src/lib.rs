@@ -386,7 +386,7 @@ fn generate_text_svg(
             UtilError::new(
                 UtilErrorType::Other,
                 "Could not write text svg".to_string(),
-                Some(original_error.into()),
+                Some(original_error),
             )
         })?;
 

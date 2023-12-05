@@ -26,7 +26,7 @@ test.describe("Uploading media as admin", async () => {
     },
   )
 
-  test("test", async ({ page, headless }, testInfo) => {
+  test("Uploading images in the image block works", async ({ page, headless }, testInfo) => {
     await page.locator("text=University of Helsinki, Department of Computer Science").click()
 
     await page.locator("[aria-label=\"Manage course 'Introduction to everything'\"] svg").click()

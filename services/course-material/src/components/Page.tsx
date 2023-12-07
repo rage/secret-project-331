@@ -121,7 +121,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
       courseId && pageContext.exam === null && isMaterialPage ? fetchGlossary(courseId) : [],
   })
 
-  if (glossary.isLoading) {
+  if (glossary.isPending) {
     return <Spinner variant={"small"} />
   }
 
@@ -130,7 +130,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   }
   const glossaryState: GlossaryState = { terms: glossary.data }
 
-  if (getPageAudioFiles.isLoading) {
+  if (getPageAudioFiles.isPending) {
     return <Spinner variant={"small"} />
   }
 

@@ -29,7 +29,7 @@ const CompletionRedirectPage: React.FC<React.PropsWithChildren<CompletionRedirec
       {userCompletionInformation.isError && (
         <ErrorBanner error={userCompletionInformation.error} variant={"readOnly"} />
       )}
-      {userCompletionInformation.isLoading && <Spinner variant={"medium"} />}
+      {userCompletionInformation.isPending && <Spinner variant={"medium"} />}
       {userCompletionInformation.isSuccess && (
         <div>
           <Trans

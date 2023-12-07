@@ -60,7 +60,7 @@ const CourseVisitorsByDay: React.FC<React.PropsWithChildren<CourseVisitorsByDayP
     return <ErrorBanner variant={"readOnly"} error={query.error} />
   }
 
-  if (query.isLoading) {
+  if (query.isPending) {
     return <Spinner variant={"medium"} />
   }
 

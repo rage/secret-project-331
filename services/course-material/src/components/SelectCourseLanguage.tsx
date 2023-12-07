@@ -83,7 +83,7 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
     }
   }, [currentCourseId, courseVersionsList, langCode, i18n])
 
-  if (useCourseLanguageVersionsList.isLoading) {
+  if (useCourseLanguageVersionsList.isPending) {
     return <Spinner variant="medium" />
   }
 

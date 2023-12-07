@@ -53,7 +53,7 @@ const TopUTMSources: React.FC<React.PropsWithChildren<TopUTMSourcesProps>> = ({ 
     return <ErrorBanner variant="readOnly" error={query.error} />
   }
 
-  if (query.isLoading || !query.data) {
+  if (query.isPending || !query.data) {
     return <Spinner variant="medium" />
   }
 

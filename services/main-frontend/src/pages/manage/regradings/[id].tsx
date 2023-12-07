@@ -32,7 +32,7 @@ const ViewRegradingPage: React.FC<React.PropsWithChildren<unknown>> = () => {
     return <ErrorBanner variant="readOnly" error={query.error} />
   }
 
-  if (query.isLoading) {
+  if (query.isPending) {
     return <Spinner variant="medium" />
   }
 

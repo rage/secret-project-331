@@ -195,7 +195,7 @@ const HeadingsNavigation: React.FC<React.PropsWithChildren<HeadingsNavigationPro
     if (
       pageContext.exam !== null ||
       // Collapsed by default on chapter front pages
-      isPageChapterFrontPageQuery.isLoading ||
+      isPageChapterFrontPageQuery.isPending ||
       isPageChapterFrontPageQuery.data?.is_chapter_front_page === true
     ) {
       realCollapsed = true

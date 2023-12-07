@@ -47,13 +47,13 @@ const PlaygroundViewSubmissionIframe: React.FC<
   userInformation,
 }) => {
   const { t } = useTranslation()
-  if (publicSpecQuery.isLoading || publicSpecQuery.isError) {
+  if (publicSpecQuery.isPending || publicSpecQuery.isError) {
     return <>{t("error-no-public-spec")}</>
   }
-  if (modelSolutionSpecQuery.isLoading || modelSolutionSpecQuery.isError) {
+  if (modelSolutionSpecQuery.isPending || modelSolutionSpecQuery.isError) {
     return <>{t("error-no-model-solution-spec")}</>
   }
-  if (gradingQuery.isLoading || gradingQuery.isError) {
+  if (gradingQuery.isPending || gradingQuery.isError) {
     return <>{t("error-no-grading")}</>
   }
   const iframeState: IframeState = {

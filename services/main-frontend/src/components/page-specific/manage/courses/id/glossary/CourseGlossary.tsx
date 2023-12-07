@@ -77,7 +77,7 @@ const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProp
         {t("manage-glossary")}
       </h1>
       {glossary.isError && <ErrorBanner variant={"readOnly"} error={glossary.error} />}
-      {glossary.isLoading && <Spinner variant={"medium"} />}
+      {glossary.isPending && <Spinner variant={"medium"} />}
       <div>
         <TextField
           label={t("new-term")}

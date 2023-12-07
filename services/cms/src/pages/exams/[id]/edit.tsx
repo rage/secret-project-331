@@ -45,7 +45,7 @@ const ExamsInstructionsEditor: React.FC<React.PropsWithChildren<ExamInstructions
     return res
   }
 
-  if (getExamsInstructions.isLoading) {
+  if (getExamsInstructions.isPending) {
     return <Spinner variant="medium" />
   }
 

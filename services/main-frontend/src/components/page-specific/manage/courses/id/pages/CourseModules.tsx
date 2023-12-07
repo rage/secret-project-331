@@ -512,7 +512,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
 
   if (courseStructureQuery.isError) {
     return <ErrorBanner variant={"link"} error={courseStructureQuery.error} />
-  } else if (courseStructureQuery.isLoading) {
+  } else if (courseStructureQuery.isPending) {
     return <Spinner variant={"medium"} />
   }
   return (

@@ -69,7 +69,7 @@ const ChapterGridCard: React.FC<React.PropsWithChildren<ChapterProps>> = ({
     return <ErrorBanner variant={"readOnly"} error={getChapterPageUrl.error} />
   }
 
-  if (getChapterPageUrl.isLoading) {
+  if (getChapterPageUrl.isPending) {
     return <Spinner variant={"small"} />
   }
 

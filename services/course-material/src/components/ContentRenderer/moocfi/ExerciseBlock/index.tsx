@@ -169,7 +169,7 @@ const ExerciseBlock: React.FC<
   if (getCourseMaterialExercise.isError) {
     return <ErrorBanner variant={"readOnly"} error={getCourseMaterialExercise.error} />
   }
-  if (getCourseMaterialExercise.isLoading) {
+  if (getCourseMaterialExercise.isPending) {
     return <Spinner variant={"medium"} />
   }
 
@@ -394,7 +394,7 @@ const ExerciseBlock: React.FC<
                   size="medium"
                   variant="primary"
                   disabled={
-                    postSubmissionMutation.isLoading ||
+                    postSubmissionMutation.isPending ||
                     answers.size < (postThisStateToIFrame?.length ?? 0) ||
                     Array.from(answers.values()).some((x) => !x.valid)
                   }
@@ -498,7 +498,7 @@ const ExerciseBlock: React.FC<
                       disabled={
                         getCourseMaterialExercise.isRefetching ||
                         !getCourseMaterialExercise.data.can_post_submission ||
-                        tryAgainMutation.isLoading
+                        tryAgainMutation.isPending
                       }
                     >
                       {t("try-again")}
@@ -532,7 +532,7 @@ const ExerciseBlock: React.FC<
                 {t("tries-remaining-n", { n: triesRemaining })}
               </div>
             )}
-            {!loginState.isLoading && !loginState.signedIn && (
+            {!loginState.isPending && !loginState.signedIn && (
               <div>{t("please-log-in-to-answer-exercise")}</div>
             )}
           </div>

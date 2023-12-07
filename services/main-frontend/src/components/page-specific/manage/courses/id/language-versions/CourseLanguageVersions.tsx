@@ -36,7 +36,7 @@ const CourseLanguageVersionsPage: React.FC<React.PropsWithChildren<CourseManagem
   return (
     <>
       {getCourseQuery.isError && <ErrorBanner error={getCourseQuery.error} variant={"readOnly"} />}
-      {getCourseQuery.isLoading && <Spinner variant={"medium"} />}
+      {getCourseQuery.isPending && <Spinner variant={"medium"} />}
       {getCourseQuery.isSuccess && (
         <>
           {showNewLanguageVersionForm && (

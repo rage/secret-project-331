@@ -42,7 +42,7 @@ const SubmissionsPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = 
       {exerciseSubmissionsQuery.isError && (
         <ErrorBanner variant={"readOnly"} error={exerciseSubmissionsQuery.error} />
       )}
-      {exerciseSubmissionsQuery.isLoading && <Spinner variant={"medium"} />}
+      {exerciseSubmissionsQuery.isPending && <Spinner variant={"medium"} />}
       {exerciseSubmissionsQuery.isSuccess && (
         <>
           <ExerciseSubmissionList exerciseSubmissions={exerciseSubmissionsQuery.data.data} />

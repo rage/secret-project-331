@@ -127,7 +127,7 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
     return <ErrorBanner variant={"readOnly"} error={query.error} />
   }
 
-  if (query.isLoading || !query.data) {
+  if (query.isPending || !query.data) {
     return <Spinner variant="medium" />
   }
 
@@ -145,7 +145,7 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
           variant="primary"
           onClick={() => query.refetch()}
           size="medium"
-          disabled={query.isLoading}
+          disabled={query.isPending}
         >
           {t("button-text-refresh")}
         </Button>
@@ -276,7 +276,7 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
       <Button
         size="medium"
         variant="primary"
-        disabled={!isValid || !peerReviewData || submitPeerReviewMutation.isLoading}
+        disabled={!isValid || !peerReviewData || submitPeerReviewMutation.isPending}
         onClick={() => submitPeerReviewMutation.mutate()}
       >
         {t("submit-button")}

@@ -63,7 +63,7 @@ const TopReferrers: React.FC<React.PropsWithChildren<TopReferrersProps>> = ({ co
     return <ErrorBanner variant="readOnly" error={query.error} />
   }
 
-  if (query.isLoading || !query.data) {
+  if (query.isPending || !query.data) {
     return <Spinner variant="medium" />
   }
 

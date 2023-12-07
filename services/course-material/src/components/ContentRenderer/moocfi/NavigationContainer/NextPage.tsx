@@ -46,7 +46,7 @@ const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
   if (getPageRoutingData.isError) {
     return <ErrorBanner variant={"readOnly"} error={getPageRoutingData.error} />
   }
-  if (getPageRoutingData.isLoading) {
+  if (getPageRoutingData.isPending) {
     return <Spinner variant={"medium"} />
   }
 

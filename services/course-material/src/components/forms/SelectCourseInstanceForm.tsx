@@ -185,7 +185,7 @@ const SelectCourseInstanceForm: React.FC<
             size="medium"
             variant="primary"
             onClick={enrollOnCourse}
-            disabled={!instance || additionalQuestionsQuery.isLoading}
+            disabled={!instance || additionalQuestionsQuery.isPending}
             data-testid="select-course-instance-continue-button"
           >
             {t("continue")}

@@ -147,7 +147,7 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
   )
 
   let userList
-  if (roleQuery.isLoading) {
+  if (roleQuery.isPending) {
     userList = <div>{t("loading-text")}</div>
   }
   if (roleQuery.isError) {

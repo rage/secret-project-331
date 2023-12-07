@@ -42,7 +42,7 @@ const References: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> 
 
   return (
     <div>
-      {getCourseReferences.isLoading && (
+      {getCourseReferences.isPending && (
         <div
           className={css`
             margin-top: 40px;

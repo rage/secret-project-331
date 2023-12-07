@@ -53,7 +53,7 @@ const SubmissionsPage: React.FC<SubmissionPageProps> = ({ query }) => {
       {getAnswersRequiringAttention.isError && (
         <ErrorBanner variant={"readOnly"} error={getAnswersRequiringAttention.error} />
       )}
-      {getAnswersRequiringAttention.isLoading && <Spinner variant={"medium"} />}
+      {getAnswersRequiringAttention.isPending && <Spinner variant={"medium"} />}
       {getAnswersRequiringAttention.isSuccess && (
         <>
           <AnswersRequiringAttentionList

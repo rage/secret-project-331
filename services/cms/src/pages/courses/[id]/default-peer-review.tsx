@@ -78,7 +78,7 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
     return <ErrorBanner error={getCmsPeerReviewConfiguration.error} variant="text" />
   }
 
-  if (getCmsPeerReviewConfiguration.isLoading) {
+  if (getCmsPeerReviewConfiguration.isPending) {
     return <Spinner variant="medium" />
   }
 

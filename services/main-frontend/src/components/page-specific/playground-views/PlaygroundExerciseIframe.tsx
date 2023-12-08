@@ -15,7 +15,7 @@ import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 
 interface PlaygroundExerciseIframeProps {
   url: string
-  publicSpecQuery: UseQueryResult<unknown>
+  publicSpecQuery: UseQueryResult<unknown, unknown>
   userAnswer: unknown
   setCurrentStateReceivedFromIframe: React.Dispatch<
     React.SetStateAction<CurrentStateMessage | null>

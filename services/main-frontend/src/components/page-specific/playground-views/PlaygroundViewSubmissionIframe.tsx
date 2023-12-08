@@ -14,11 +14,11 @@ import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 
 interface PlaygroundViewSubmissionIframeProps {
   url: string
-  publicSpecQuery: UseQueryResult<unknown>
+  publicSpecQuery: UseQueryResult<unknown, unknown>
   // Caused weird type errors when the parameter generic was set to unknown
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   gradingQuery: UseMutationResult<ExerciseTaskGradingResult, unknown, any, unknown>
-  modelSolutionSpecQuery: UseQueryResult<unknown>
+  modelSolutionSpecQuery: UseQueryResult<unknown, unknown>
   userAnswer: unknown
   setCurrentStateReceivedFromIframe: React.Dispatch<
     React.SetStateAction<CurrentStateMessage | null>

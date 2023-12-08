@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
-import React from "react"
+import React, { useEffect } from "react"
 import { Trans, useTranslation } from "react-i18next"
 
 import { fetchCompletionRegistrationLink } from "../../../services/backend/course-modules"
@@ -22,8 +22,15 @@ const CompletionRedirectPage: React.FC<React.PropsWithChildren<CompletionRedirec
   const userCompletionInformation = useQuery({
     queryKey: [`course-${courseModuleId}-completion-registration-link`],
     queryFn: () => fetchCompletionRegistrationLink(courseModuleId),
-    onSuccess: (data) => window.location.replace(data.url),
   })
+
+  useEffect(() => {
+    if (!userCompletionInformation.data) {
+      return
+    }
+    window.location.replace(userCompletionInformation.data.url)
+  }, [userCompletionInformation.data])
+
   return (
     <>
       {userCompletionInformation.isError && (

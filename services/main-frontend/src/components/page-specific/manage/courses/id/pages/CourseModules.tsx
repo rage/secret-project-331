@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
@@ -56,23 +56,8 @@ type ModuleList = {
 const CourseModules: React.FC<Props> = ({ courseId }) => {
   const { t } = useTranslation()
 
-  const [chapterNumbers, setChapterNumbers] = useState([1])
-
-  // module list state
-  const [initialModuleList, setInitialModuleList] = useState<ModuleList>({
-    modules: [],
-    chapters: [],
-    error: null,
-  })
-  const [{ modules, chapters, error }, setModuleList] = useState<ModuleList>({
-    modules: [],
-    chapters: [],
-    error: null,
-  })
-
-  // submitting state
   const [edited, setEdited] = useState(false)
-  const [submitting, setSubmitting] = useState(false)
+  const [moduleList, setModuleList] = useState<ModuleList | null>(null)
 
   // helper functions
   const validateModuleList = (
@@ -182,11 +167,10 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
   const courseStructureQuery = useQuery({
     queryKey: ["course-structure", courseId],
     queryFn: () => fetchCourseStructure(courseId),
-    onSuccess: (courseStructure) => {
+    select: (courseStructure) => {
       const chapterNumbers = courseStructure.chapters
         .sort((l, r) => l.chapter_number - r.chapter_number)
         .map((c) => c.chapter_number)
-      setChapterNumbers(chapterNumbers)
 
       const makeModuleList = () => {
         const chapters = courseStructure.chapters
@@ -244,15 +228,29 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
         const error = validateModuleList(modules, chapters)
         return { modules, chapters, error }
       }
-      setInitialModuleList(makeModuleList())
-      setModuleList(makeModuleList())
+      return {
+        initialModuleList: makeModuleList(),
+        moduleList: makeModuleList(),
+        chapterNumbers,
+      }
     },
   })
+  const initialModuleList = courseStructureQuery.data?.initialModuleList
+  useEffect(() => {
+    if (!courseStructureQuery.data) {
+      return
+    }
+    setModuleList(courseStructureQuery.data.moduleList)
+  }, [courseStructureQuery.data])
+
   const moduleUpdatesMutation = useToastMutation(
     () => {
-      console.log(modules)
-      console.log(initialModuleList.modules)
-      setSubmitting(true)
+      if (!initialModuleList) {
+        throw new Error("initialModuleList is undefined")
+      }
+      if (!moduleList) {
+        throw new Error("moduleList is undefined")
+      }
 
       // check new and modified modules
       const newModules = new Map<string, NewModule>()
@@ -261,7 +259,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
         (map, module) => map.set(module.id, module),
         new Map(),
       )
-      for (const courseModule of modules) {
+      for (const courseModule of moduleList.modules) {
         // cannot add or modify default module
         const initialModule = idToInitialModule.get(courseModule.id)
         if (initialModule === undefined && courseModule.name !== null) {
@@ -269,7 +267,9 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
           newModules.set(courseModule.id, {
             name: courseModule.name,
             order_number: courseModule.order_number,
-            chapters: chapters.filter((c) => c.module === courseModule.id).map((c) => c.id),
+            chapters: moduleList.chapters
+              .filter((c) => c.module === courseModule.id)
+              .map((c) => c.id),
             uh_course_code: courseModule.uh_course_code,
             ects_credits: courseModule.ects_credits,
             completion_policy: mapFieldsToCompletionPolicy(courseModule),
@@ -315,7 +315,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
 
       // check deleted modules
       const deletedModules = new Array<string>()
-      const idToUpdatedModule = modules.reduce<Map<string, ModuleView>>(
+      const idToUpdatedModule = moduleList.modules.reduce<Map<string, ModuleView>>(
         (map, module) => map.set(module.id, module),
         new Map(),
       )
@@ -331,7 +331,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
         (map, chapter) => map.set(chapter.id, chapter),
         new Map(),
       )
-      for (const chapter of chapters) {
+      for (const chapter of moduleList.chapters) {
         const initialChapter = idToInitialChapter.get(chapter.id)
         if (
           initialChapter !== undefined &&
@@ -358,9 +358,6 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
         setEdited(false)
         courseStructureQuery.refetch()
       },
-      onSettled: () => {
-        setSubmitting(false)
-      },
     },
   )
 
@@ -384,6 +381,9 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
   ) => {
     setEdited(true)
     setModuleList((old) => {
+      if (!old) {
+        throw new Error("old module list is null")
+      }
       const chapters = old.chapters.map((c) => {
         if (starts <= c.chapter_number && c.chapter_number <= ends) {
           return { ...c, module: id }
@@ -428,6 +428,9 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
   const handleDeleteModule = (moduleId: string) => {
     setEdited(true)
     setModuleList((old) => {
+      if (!old) {
+        throw new Error("old module list is null")
+      }
       const modules = old.modules.filter((m) => m.id !== moduleId)
       const chapters = [...old.chapters].map((c) => {
         const updated = { ...c }
@@ -445,6 +448,9 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
   }
   const handleSubmit = () => moduleUpdatesMutation.mutate()
   const handleReset = () => {
+    if (!initialModuleList) {
+      throw new Error("initialModuleList is undefined")
+    }
     setEdited(false)
     setModuleList(initialModuleList)
   }
@@ -466,6 +472,9 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
     const newModuleId = v4()
 
     setModuleList((old) => {
+      if (!old) {
+        throw new Error("old module list is null")
+      }
       // update chapters
       const chapters = [...old.chapters]
       chapters.forEach((c) => {
@@ -534,8 +543,11 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
         >
           {t("modules")}
         </h1>
-        <NewCourseModuleForm chapters={chapterNumbers} onSubmitForm={onSaveNewModule} />
-        {modules
+        <NewCourseModuleForm
+          chapters={courseStructureQuery.data.chapterNumbers}
+          onSubmitForm={onSaveNewModule}
+        />
+        {moduleList?.modules
           .sort((l, r) => {
             return l.order_number - r.order_number
           })
@@ -552,11 +564,11 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
             >
               <EditCourseModuleForm
                 module={module}
-                chapters={chapterNumbers}
+                chapters={courseStructureQuery.data.chapterNumbers}
                 onSubmitForm={handleSaveModuleEdits}
                 onDeleteModule={handleDeleteModule}
               />
-              {chapters
+              {moduleList?.chapters
                 .filter((c) => c.module === module.id)
                 .map((c) => (
                   <div
@@ -587,14 +599,18 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
       </div>
       <BottomPanel
         title={t("title-dialog-module-save")}
-        error={error}
+        error={moduleList?.error}
         show={edited}
         leftButtonText={t("save-changes")}
-        leftButtonDisabled={error !== null || submitting}
+        leftButtonDisabled={
+          moduleList?.error !== null ||
+          moduleList?.error !== undefined ||
+          moduleUpdatesMutation.isPending
+        }
         onClickLeft={handleSubmit}
         rightButtonText={t("button-reset")}
         onClickRight={handleReset}
-        rightButtonDisabled={submitting}
+        rightButtonDisabled={moduleUpdatesMutation.isPending}
       />
     </>
   )

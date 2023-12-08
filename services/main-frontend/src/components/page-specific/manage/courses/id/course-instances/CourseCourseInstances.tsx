@@ -37,7 +37,7 @@ const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPa
   const handleCreateNewCourseInstance = async () => {
     setShowDialog(false)
     // eslint-disable-next-line i18next/no-literal-string
-    queryClient.invalidateQueries([`course-${courseId}-course-instances`])
+    queryClient.invalidateQueries({ queryKey: [`course-${courseId}-course-instances`]})
   }
 
   return (

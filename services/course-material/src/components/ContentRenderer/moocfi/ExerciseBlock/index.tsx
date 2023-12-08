@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { CheckCircle } from "@vectopus/atlas-icons-react"
 import { produce } from "immer"
-import { useContext, useId, useReducer, useState } from "react"
+import { useContext, useEffect, useId, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../.."
@@ -90,24 +90,27 @@ const ExerciseBlock: React.FC<
     queryKey: queryUniqueKey,
     queryFn: () => fetchExerciseById(id),
     enabled: showExercise,
-    onSuccess: (data) => {
-      if (data.exercise_status?.score_given) {
-        setPoints(data.exercise_status?.score_given)
-      }
-      dispatch({
-        type: "exerciseDownloaded",
-        payload: data,
-        signedIn: Boolean(loginState.signedIn),
-      })
-      const a = new Map()
-      data.current_exercise_slide.exercise_tasks.map((et) => {
-        if (et.previous_submission) {
-          a.set(et.id, { valid: true, data: et.previous_submission.data_json ?? null })
-        }
-      })
-      setAnswers(a)
-    },
   })
+  useEffect(() => {
+    if (!getCourseMaterialExercise.data) {
+      return
+    }
+    if (getCourseMaterialExercise.data.exercise_status?.score_given) {
+      setPoints(getCourseMaterialExercise.data.exercise_status?.score_given)
+    }
+    dispatch({
+      type: "exerciseDownloaded",
+      payload: getCourseMaterialExercise.data,
+      signedIn: Boolean(loginState.signedIn),
+    })
+    const a = new Map()
+    getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.map((et) => {
+      if (et.previous_submission) {
+        a.set(et.id, { valid: true, data: et.previous_submission.data_json ?? null })
+      }
+    })
+    setAnswers(a)
+  }, [getCourseMaterialExercise.data, loginState.signedIn])
 
   const postSubmissionMutation = useToastMutation(
     (submission: StudentExerciseSlideSubmission) => postSubmission(id, submission),

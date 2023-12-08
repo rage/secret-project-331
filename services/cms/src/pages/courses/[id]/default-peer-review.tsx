@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { ExerciseAttributes } from "../../../blocks/Exercise"
@@ -42,14 +42,22 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
   const getCmsPeerReviewConfiguration = useQuery({
     queryKey: [`course-${id}-cms-peer-review-configuration`],
     queryFn: () => getCoursesDefaultCmsPeerReviewConfiguration(id),
-    onSuccess: (data) =>
-      setAttributes({
-        peer_review_config: JSON.stringify(data.peer_review_config),
-        peer_review_questions_config: JSON.stringify(data.peer_review_questions),
-        needs_peer_review: true,
-        use_course_default_peer_review: false,
-      }),
   })
+
+  useEffect(() => {
+    if (!getCmsPeerReviewConfiguration.data) {
+      return
+    }
+    setAttributes({
+      peer_review_config: JSON.stringify(getCmsPeerReviewConfiguration.data.peer_review_config),
+      peer_review_questions_config: JSON.stringify(
+        getCmsPeerReviewConfiguration.data.peer_review_questions,
+      ),
+      needs_peer_review: true,
+      use_course_default_peer_review: false,
+    })
+  }, [getCmsPeerReviewConfiguration.data])
+
   const mutateCourseDefaultPeerReview = useToastMutation(
     () => {
       {

@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 
 import CourseContext from "../../../contexts/CourseContext"
 import { fetchCourseInstance } from "../../../services/backend/course-instances"
@@ -41,8 +41,14 @@ const EmailTemplateEdit: React.FC<React.PropsWithChildren<EmailTemplateEditProps
     // eslint-disable-next-line i18next/no-literal-string
     ["course-id-of-instance", templateQuery.data?.course_instance_id],
     (courseInstanceId) => fetchCourseInstance(courseInstanceId),
-    { onSuccess: () => setNeedToRunMigrationsAndValidations(true) },
   )
+
+  useEffect(() => {
+    if (!instanceQuery.data) {
+      return
+    }
+    setNeedToRunMigrationsAndValidations(true)
+  }, [instanceQuery.data])
 
   if (templateQuery.state === "error" || instanceQuery.state === "error") {
     return (

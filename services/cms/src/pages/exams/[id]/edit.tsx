@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 import dynamic from "next/dynamic"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 
 import { fetchExamsInstructions, updateExamsInstructions } from "../../../services/backend/exams"
 import { ExamInstructions, ExamInstructionsUpdate } from "../../../shared-module/bindings"
@@ -34,8 +34,14 @@ const ExamsInstructionsEditor: React.FC<React.PropsWithChildren<ExamInstructions
   const getExamsInstructions = useQuery({
     queryKey: [`exam-${examsId}-instructions`],
     queryFn: () => fetchExamsInstructions(examsId),
-    onSuccess: () => setNeedToRunMigrationsAndValidations(true),
   })
+
+  useEffect(() => {
+    if (!getExamsInstructions.data) {
+      return
+    }
+    setNeedToRunMigrationsAndValidations(true)
+  }, [getExamsInstructions.data])
 
   const handleSave = async (instructions: ExamInstructionsUpdate): Promise<ExamInstructions> => {
     const res = await updateExamsInstructions(examsId, {

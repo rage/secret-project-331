@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query"
 import { BlockInstance } from "@wordpress/blocks"
 import dynamic from "next/dynamic"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { CheckBoxAttributes } from "../../../blocks/ResearchConsentCheckbox"
@@ -60,10 +60,14 @@ const ResearchForms: React.FC<React.PropsWithChildren<ResearchFormProps>> = ({ q
       }
       return form
     },
-    onSuccess: () => {
-      setNeedToRunMigrationsAndValidations(true)
-    },
   })
+
+  useEffect(() => {
+    if (!getResearchForm.data) {
+      return
+    }
+    setNeedToRunMigrationsAndValidations(true)
+  }, [getResearchForm.data])
 
   const handleCreateNewForm = async () => {
     await upsertResearchForm(assertNotNullOrUndefined(courseId), {

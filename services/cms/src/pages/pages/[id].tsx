@@ -32,7 +32,13 @@ const Pages = ({ query }: PagesProps) => {
   const queryClient = useQueryClient()
   const getPage = useQuery({
     queryKey: [`page-${id}`],
-    queryFn: () => fetchPageWithId(id),
+    gcTime: 0,
+    queryFn: async () => {
+      const res = await fetchPageWithId(id)
+      // This only works when gCTime is set to 0
+      setNeedToRunMigrationsAndValidations(true)
+      return res
+    },
     select: (data) => {
       const page: Page = {
         ...data.page,
@@ -49,13 +55,6 @@ const Pages = ({ query }: PagesProps) => {
       return page
     },
   })
-
-  useEffect(() => {
-    if (!getPage.data) {
-      return
-    }
-    setNeedToRunMigrationsAndValidations(true)
-  }, [getPage.data])
 
   const mutate = useToastMutation(
     (newPage: CmsPageUpdate) => updateExistingPage(id, newPage),

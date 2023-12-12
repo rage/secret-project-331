@@ -806,9 +806,7 @@ query ($upstreamId: Int) {
     upstream_id
   }
 }"#,
-            variables: Some(json!({
-                "upstreamId": upstream_id
-            })),
+            variables: Some(json!({ "upstreamId": upstream_id })),
         })
         .send()
         .await

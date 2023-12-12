@@ -33,8 +33,13 @@ const ExamsInstructionsEditor: React.FC<React.PropsWithChildren<ExamInstructions
   const examsId = query.id
   const getExamsInstructions = useQuery({
     queryKey: [`exam-${examsId}-instructions`],
-    queryFn: () => fetchExamsInstructions(examsId),
-    onSuccess: () => setNeedToRunMigrationsAndValidations(true),
+    gcTime: 0,
+    queryFn: async () => {
+      const res = await fetchExamsInstructions(examsId)
+      // Only works when gCTime is set to 0
+      setNeedToRunMigrationsAndValidations(true)
+      return res
+    },
   })
 
   const handleSave = async (instructions: ExamInstructionsUpdate): Promise<ExamInstructions> => {
@@ -45,7 +50,7 @@ const ExamsInstructionsEditor: React.FC<React.PropsWithChildren<ExamInstructions
     return res
   }
 
-  if (getExamsInstructions.isLoading) {
+  if (getExamsInstructions.isPending) {
     return <Spinner variant="medium" />
   }
 

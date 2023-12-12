@@ -108,7 +108,7 @@ const ExportPage: React.FC<React.PropsWithChildren<ExportPageProps>> = ({ query 
       <Button
         variant="primary"
         size="medium"
-        disabled={getAllPagesMutation.isLoading}
+        disabled={getAllPagesMutation.isPending}
         onClick={() => {
           getAllPagesMutation.mutate()
         }}

@@ -5,7 +5,7 @@ import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 test.use({
   storageState: "src/states/admin@example.com.json",
 })
-test("test", async ({ page, headless }, testInfo) => {
+test("Success notifications work", async ({ page, headless }, testInfo) => {
   await page.goto(
     "http://project-331.local/manage/courses/7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5/pages",
   )

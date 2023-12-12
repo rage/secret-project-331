@@ -20,8 +20,11 @@ const ViewRegradingPage: React.FC<React.PropsWithChildren<unknown>> = () => {
   const query = useQuery({
     queryKey: [`regrading`, id],
     queryFn: () => fetchRegradingInfo(id),
-    refetchInterval: (data, _query) => {
-      if (!data || data.regrading.total_grading_progress === "FullyGraded") {
+    refetchInterval: (query) => {
+      if (
+        !query.state.data ||
+        query.state.data.regrading.total_grading_progress === "FullyGraded"
+      ) {
         return false
       }
       return 3000
@@ -32,7 +35,7 @@ const ViewRegradingPage: React.FC<React.PropsWithChildren<unknown>> = () => {
     return <ErrorBanner variant="readOnly" error={query.error} />
   }
 
-  if (query.isLoading) {
+  if (query.isPending) {
     return <Spinner variant="medium" />
   }
 

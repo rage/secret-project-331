@@ -295,7 +295,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
     })
   }
 
-  if (defaultCmsPeerReviewConfig.isLoading) {
+  if (defaultCmsPeerReviewConfig.isPending) {
     return <Spinner variant="medium" />
   }
 

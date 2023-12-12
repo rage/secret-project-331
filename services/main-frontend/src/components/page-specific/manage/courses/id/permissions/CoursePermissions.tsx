@@ -22,7 +22,7 @@ const CoursePermissions: React.FC<React.PropsWithChildren<CourseManagementPagesP
 
   return (
     <div>
-      {course.isLoading && (
+      {course.isPending && (
         <div
           className={css`
             margin-top: 40px;

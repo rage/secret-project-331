@@ -17,7 +17,7 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
   const getOrganizations = useQuery({
     queryKey: [`organizations`],
     queryFn: () => fetchOrganizations(),
-    cacheTime: 60000,
+    gcTime: 60000,
   })
 
   return (
@@ -40,7 +40,7 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
       {getOrganizations.isError && (
         <ErrorBanner variant={"readOnly"} error={getOrganizations.error} />
       )}
-      {getOrganizations.isLoading && <Spinner variant={"medium"} />}
+      {getOrganizations.isPending && <Spinner variant={"medium"} />}
       {getOrganizations.isSuccess && (
         <div
           className={css`

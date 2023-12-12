@@ -69,7 +69,7 @@ const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = (
             )}
           </>
         )}
-        {organizationQuery.isLoading && <Spinner variant={"medium"} />}
+        {organizationQuery.isPending && <Spinner variant={"medium"} />}
         {organizationQuery.isError && (
           <ErrorBanner variant={"readOnly"} error={organizationQuery.error} />
         )}

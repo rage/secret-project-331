@@ -23,7 +23,7 @@ import UpdatePeerReviewQueueReviewsReceivedButton from "./UpdatePeerReviewQueueR
 interface Props {
   course: Course
   refetch: (
-    options?: (RefetchOptions & RefetchQueryFilters<unknown>) | undefined,
+    options?: (RefetchOptions & RefetchQueryFilters) | undefined,
   ) => Promise<QueryObserverResult<Course, unknown>>
 }
 

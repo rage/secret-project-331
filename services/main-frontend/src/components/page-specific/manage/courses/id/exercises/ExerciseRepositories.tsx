@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -28,10 +28,12 @@ const ExerciseRepositories: React.FC<Props> = ({ courseId, examId }) => {
     queryFn: async () => {
       return await getExerciseRepositories(courseId, examId)
     },
-    onSuccess: () => {
-      setAddingRepo(false)
-    },
   })
+
+  useEffect(() => {
+    setAddingRepo(false)
+  }, [exerciseRepositories.data])
+
   const deleteMutation = useToastMutation(
     deleteExerciseRepository,
     {
@@ -47,7 +49,7 @@ const ExerciseRepositories: React.FC<Props> = ({ courseId, examId }) => {
     },
   )
 
-  if (exerciseRepositories.isLoading) {
+  if (exerciseRepositories.isPending) {
     return <div>{t("loading-text")}</div>
   } else if (exerciseRepositories.isError) {
     return <ErrorBanner error={exerciseRepositories.error} variant={"readOnly"} />

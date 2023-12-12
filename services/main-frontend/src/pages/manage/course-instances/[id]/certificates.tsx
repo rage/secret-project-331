@@ -145,7 +145,7 @@ const CertificationsPage: React.FC<Props> = ({ query }) => {
       {getCertificateConfigurations.isError && (
         <ErrorBanner variant={"readOnly"} error={getCertificateConfigurations.error} />
       )}
-      {getCertificateConfigurations.isLoading && <Spinner variant="medium" />}
+      {getCertificateConfigurations.isPending && <Spinner variant="medium" />}
       {getCourse.isSuccess && getCertificateConfigurations.isSuccess && (
         <>
           <ul

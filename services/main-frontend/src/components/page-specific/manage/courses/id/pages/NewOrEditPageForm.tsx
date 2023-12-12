@@ -126,7 +126,7 @@ const NewOrEditPageForm: React.FC<React.PropsWithChildren<NewOrEditPageFormProps
       </div>
       <div>
         <Button
-          disabled={saveMutation.isLoading}
+          disabled={saveMutation.isPending}
           variant="primary"
           size="medium"
           onClick={() => saveMutation.mutate()}

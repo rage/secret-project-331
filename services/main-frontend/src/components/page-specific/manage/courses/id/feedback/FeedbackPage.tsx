@@ -39,7 +39,7 @@ const FeedbackPage: React.FC<React.PropsWithChildren<Props>> = ({
     return <ErrorBanner variant={"readOnly"} error={getFeedbackList.error} />
   }
 
-  if (getFeedbackList.isLoading) {
+  if (getFeedbackList.isPending) {
     return <Spinner variant={"medium"} />
   }
 

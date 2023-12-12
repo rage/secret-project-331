@@ -71,7 +71,7 @@ const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsBy
     return <ErrorBanner variant="readOnly" error={query.error} />
   }
 
-  if (query.isLoading || !query.data || courseStructure.isLoading) {
+  if (query.isPending || !query.data || courseStructure.isPending) {
     return <Spinner variant="medium" />
   }
 

@@ -177,7 +177,7 @@ const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
         {getPlaygroundExamples.isError && (
           <ErrorBanner variant={"readOnly"} error={getPlaygroundExamples.error} />
         )}
-        {getPlaygroundExamples.isLoading && <Spinner variant={"medium"} />}
+        {getPlaygroundExamples.isPending && <Spinner variant={"medium"} />}
         {getPlaygroundExamples.isSuccess && getPlaygroundExamples.data.length > 0 && (
           <div>
             <h3>{t("title-list-of-examples")}</h3>
@@ -256,7 +256,7 @@ const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
             className={css`
               margin-right: 1rem;
             `}
-            disabled={saveMutation.isLoading}
+            disabled={saveMutation.isPending}
           >
             {t("button-text-save")}
           </Button>
@@ -267,7 +267,7 @@ const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
               onClick={handleExampleUpdate}
               variant="primary"
               size="medium"
-              disabled={updateMutation.isLoading}
+              disabled={updateMutation.isPending}
             >
               {t("button-text-update")}
             </Button>
@@ -275,7 +275,7 @@ const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
               onClick={handleExampleDeletion}
               variant="primary"
               size="medium"
-              disabled={deleteMutation.isLoading}
+              disabled={deleteMutation.isPending}
               className={css`
                 margin-left: 1rem;
               `}

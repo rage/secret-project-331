@@ -509,11 +509,13 @@ export const fetchPageByCourseIdAndLanguageGroupId = async (
   return validateResponse(response, isPage)
 }
 
-export const fetchResearchFormWithCourseId = async (courseId: string): Promise<ResearchForm> => {
+export const fetchResearchFormWithCourseId = async (
+  courseId: string,
+): Promise<ResearchForm | null> => {
   const response = await courseMaterialClient.get(`/courses/${courseId}/research-consent-form`, {
     responseType: "json",
   })
-  return validateResponse(response, isResearchForm)
+  return validateResponse(response, isUnion(isResearchForm, isNull))
 }
 
 export const fetchResearchFormQuestionsWithCourseId = async (

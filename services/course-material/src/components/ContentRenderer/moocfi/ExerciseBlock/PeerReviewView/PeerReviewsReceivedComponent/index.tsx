@@ -136,7 +136,7 @@ const PeerReviewsReceived: React.FunctionComponent<PeerReviewProps> = ({ id, sub
     return res
   }, [getPeerReviewReceived.data?.peer_review_question_submissions])
 
-  if (getPeerReviewReceived.isLoading) {
+  if (getPeerReviewReceived.isPending) {
     return <Spinner variant={"medium"} />
   }
 

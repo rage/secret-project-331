@@ -22,11 +22,11 @@ const OnlyRenderIfPermissions: React.FC<
     queryFn: () => {
       return authorize({ action, resource })
     },
-    cacheTime: 15 * 60 * 1000,
+    gcTime: 15 * 60 * 1000,
     enabled: loginState.signedIn === true,
   })
 
-  if (loginState.signedIn !== true || data.isLoading || data.isError || !data.data) {
+  if (loginState.signedIn !== true || data.isPending || data.isError || !data.data) {
     if (elseRender) {
       return <>{elseRender}</>
     }

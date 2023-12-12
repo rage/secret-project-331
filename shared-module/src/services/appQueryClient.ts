@@ -9,7 +9,7 @@ export const queryClient = new QueryClient({
       // for example if the user is supposed to edit the data.
       // If caching is desired, this can be explicitly overriden when using
       // the hooks.
-      cacheTime: 10,
+      gcTime: 10,
       // Same applies here too
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,

@@ -30,7 +30,7 @@ const ChapterProgress: React.FC<React.PropsWithChildren<ChapterProgressProps>> =
       {getUserChapterProgress.isError && (
         <ErrorBanner variant={"readOnly"} error={getUserChapterProgress.error} />
       )}
-      {getUserChapterProgress.isLoading && <Spinner variant={"medium"} />}
+      {getUserChapterProgress.isPending && <Spinner variant={"medium"} />}
       {getUserChapterProgress.isSuccess && (
         <div
           className={css`

@@ -7,7 +7,7 @@ test.use({
   storageState: "src/states/user@example.com.json",
 })
 
-test("test", async ({ page, headless }, testInfo) => {
+test("Changing course language works", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
   await page
     .getByRole("link", { name: "University of Helsinki, Department of Mathematics and Statistics" })

@@ -24,11 +24,17 @@ export interface AudioAttributes {
   style?: {
     [k: string]: unknown
   }
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 export interface BlockAttributes {
   ref?: number
   lock?: {
+    [k: string]: unknown
+  }
+  metadata?: {
     [k: string]: unknown
   }
 }
@@ -58,6 +64,9 @@ export interface ButtonAttributes {
   style?: {
     [k: string]: unknown
   }
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 export interface ButtonsAttributes {
@@ -73,6 +82,9 @@ export interface ButtonsAttributes {
     [k: string]: unknown
   }
   layout?: {
+    [k: string]: unknown
+  }
+  metadata?: {
     [k: string]: unknown
   }
 }
@@ -92,6 +104,9 @@ export interface CodeAttributes {
   fontFamily?: string
   fontSize?: string
   style?: {
+    [k: string]: unknown
+  }
+  metadata?: {
     [k: string]: unknown
   }
 }
@@ -118,6 +133,9 @@ export interface ColumnAttributes {
   layout?: {
     [k: string]: unknown
   }
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 export interface ColumnsAttributes {
@@ -142,6 +160,9 @@ export interface ColumnsAttributes {
   layout?: {
     [k: string]: unknown
   }
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 export interface EmbedAttributes {
@@ -158,6 +179,9 @@ export interface EmbedAttributes {
   }
   className?: string
   style?: {
+    [k: string]: unknown
+  }
+  metadata?: {
     [k: string]: unknown
   }
   height?: number
@@ -187,6 +211,9 @@ export interface FileAttributes {
   style?: {
     [k: string]: unknown
   }
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 export interface HeadingAttributes {
@@ -208,6 +235,9 @@ export interface HeadingAttributes {
   style?: {
     [k: string]: unknown
   }
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 export interface HtmlAttributes {
@@ -215,10 +245,12 @@ export interface HtmlAttributes {
   lock?: {
     [k: string]: unknown
   }
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 export interface ImageAttributes {
-  align?: string
   url?: string
   alt: string
   caption?: string
@@ -237,6 +269,7 @@ export interface ImageAttributes {
   sizeSlug?: string
   linkDestination: string
   linkTarget?: string
+  align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
     [k: string]: unknown
   }
@@ -244,6 +277,9 @@ export interface ImageAttributes {
   className?: string
   borderColor?: string
   style?: {
+    [k: string]: unknown
+  }
+  metadata?: {
     [k: string]: unknown
   }
   blurDataUrl: string
@@ -269,6 +305,9 @@ export interface ListAttributes {
   style?: {
     [k: string]: unknown
   }
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 export interface ListItemAttributes {
@@ -281,6 +320,9 @@ export interface ListItemAttributes {
   fontFamily?: string
   fontSize?: string
   style?: {
+    [k: string]: unknown
+  }
+  metadata?: {
     [k: string]: unknown
   }
 }
@@ -304,6 +346,9 @@ export interface ParagraphAttributes {
   style?: {
     [k: string]: unknown
   }
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 export interface PreformattedAttributes {
@@ -319,6 +364,9 @@ export interface PreformattedAttributes {
   fontFamily?: string
   fontSize?: string
   style?: {
+    [k: string]: unknown
+  }
+  metadata?: {
     [k: string]: unknown
   }
 }
@@ -342,6 +390,9 @@ export interface PullquoteAttributes {
   style?: {
     [k: string]: unknown
   }
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 export interface QuoteAttributes {
@@ -361,6 +412,12 @@ export interface QuoteAttributes {
   style?: {
     [k: string]: unknown
   }
+  layout?: {
+    [k: string]: unknown
+  }
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 export interface SeparatorAttributes {
@@ -377,6 +434,9 @@ export interface SeparatorAttributes {
   style?: {
     [k: string]: unknown
   }
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 export interface SpacerAttributes {
@@ -388,6 +448,9 @@ export interface SpacerAttributes {
   anchor?: string
   className?: string
   style?: {
+    [k: string]: unknown
+  }
+  metadata?: {
     [k: string]: unknown
   }
 }
@@ -411,6 +474,9 @@ export interface TableAttributes {
   fontFamily?: string
   fontSize?: string
   style?: {
+    [k: string]: unknown
+  }
+  metadata?: {
     [k: string]: unknown
   }
 }
@@ -441,6 +507,9 @@ export interface VerseAttributes {
   fontFamily?: string
   fontSize?: string
   style?: {
+    [k: string]: unknown
+  }
+  metadata?: {
     [k: string]: unknown
   }
 }

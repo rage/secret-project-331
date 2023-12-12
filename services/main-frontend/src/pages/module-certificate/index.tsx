@@ -68,7 +68,7 @@ const ModuleCertificate: React.FC<React.PropsWithChildren<void>> = () => {
       {courseAndModule.isError && (
         <ErrorBanner error={courseAndModule.error} variant={"readOnly"} />
       )}
-      {userInfo.isLoading || (courseAndModule.isLoading && <Spinner variant={"medium"} />)}
+      {userInfo.isPending || (courseAndModule.isPending && <Spinner variant={"medium"} />)}
       {courseAndModule.isSuccess && (
         <>
           <h2>

@@ -44,7 +44,7 @@ const CompletionPage: React.FC<React.PropsWithChildren<CompletionPageProps>> = (
       {userCompletionInformation.isError && (
         <ErrorBanner error={userCompletionInformation.error} variant={"readOnly"} />
       )}
-      {userCompletionInformation.isLoading && <Spinner variant={"medium"} />}
+      {userCompletionInformation.isPending && <Spinner variant={"medium"} />}
       {userCompletionInformation.isSuccess && (
         <RegisterCompletion
           data={userCompletionInformation.data}

@@ -17,6 +17,7 @@ import {
   ResearchForm,
 } from "../../../shared-module/bindings"
 import Button from "../../../shared-module/components/Button"
+import ErrorBanner from "../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../shared-module/components/Spinner"
 import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
 import useToastMutation from "../../../shared-module/hooks/useToastMutation"
@@ -52,16 +53,22 @@ const ResearchForms: React.FC<React.PropsWithChildren<ResearchFormProps>> = ({ q
 
   const getResearchForm = useQuery({
     queryKey: [`courses-${courseId}-research-consent-form`],
-    queryFn: () => fetchResearchFormWithCourseId(courseId),
+    queryFn: () => {
+      const res = fetchResearchFormWithCourseId(courseId)
+      // This only works when gCTime is set to 0
+      setNeedToRunMigrationsAndValidations(true)
+      return res
+    },
+    gcTime: 0,
     select: (data) => {
+      if (data === null) {
+        return null
+      }
       const form: ResearchForm = {
         ...data,
         content: data.content as ResearchContent,
       }
       return form
-    },
-    onSuccess: () => {
-      setNeedToRunMigrationsAndValidations(true)
     },
   })
 
@@ -108,20 +115,25 @@ const ResearchForms: React.FC<React.PropsWithChildren<ResearchFormProps>> = ({ q
   return (
     <>
       {getResearchForm.isSuccess && (
-        <CourseContext.Provider value={{ courseId: assertNotNullOrUndefined(courseId) }}>
-          <ResearchFormEditor
-            data={getResearchForm.data}
-            handleSave={handleSave}
-            needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
-            setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
-          />
-        </CourseContext.Provider>
+        <>
+          {getResearchForm.data !== null && (
+            <CourseContext.Provider value={{ courseId: assertNotNullOrUndefined(courseId) }}>
+              <ResearchFormEditor
+                data={getResearchForm.data}
+                handleSave={handleSave}
+                needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
+                setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
+              />
+            </CourseContext.Provider>
+          )}
+          {getResearchForm.data === null && (
+            <Button variant="primary" size="medium" onClick={handleCreateNewForm}>
+              {t("button-text-create")}
+            </Button>
+          )}
+        </>
       )}
-      {getResearchForm.isError && (
-        <Button variant="primary" size="medium" onClick={handleCreateNewForm}>
-          {t("button-text-create")}
-        </Button>
-      )}
+      {getResearchForm.isError && <ErrorBanner error={getResearchForm.error} variant="readOnly" />}
     </>
   )
 }

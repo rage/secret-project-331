@@ -36,7 +36,7 @@ const HistoryPage: React.FC<React.PropsWithChildren<Props>> = ({
     return <ErrorBanner variant={"readOnly"} error={getPageHistory.error} />
   }
 
-  if (getPageHistory.isLoading) {
+  if (getPageHistory.isPending) {
     return <Spinner variant={"medium"} />
   }
 

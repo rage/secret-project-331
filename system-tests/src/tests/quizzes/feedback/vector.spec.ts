@@ -7,7 +7,7 @@ test.use({
   storageState: "src/states/user@example.com.json",
 })
 
-test("test quizzes vector feedback", async ({ page, headless }, testInfo) => {
+test("quizzes vector feedback", async ({ page, headless }, testInfo) => {
   await page.goto(
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/vector",
   )

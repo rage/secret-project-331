@@ -59,7 +59,7 @@ const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = (
       `}
     >
       {getExam.isError && <ErrorBanner variant={"readOnly"} error={getExam.error} />}
-      {getExam.isLoading && <Spinner variant={"medium"} />}
+      {getExam.isPending && <Spinner variant={"medium"} />}
       {getExam.isSuccess && (
         <>
           <h1>

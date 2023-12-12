@@ -6,7 +6,7 @@ test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
-test("test", async ({ page, headless }, testInfo) => {
+test("Configuring certificates works", async ({ page, headless }, testInfo) => {
   // go to config page
   await page.goto("http://project-331.local/")
   await page

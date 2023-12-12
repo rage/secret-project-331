@@ -28,7 +28,7 @@ const PublicPageList: React.FC<React.PropsWithChildren<PublicPageListProps>> = (
       {getAllCoursePages.isError && (
         <ErrorBanner variant={"readOnly"} error={getAllCoursePages.error} />
       )}
-      {getAllCoursePages.isLoading && <Spinner variant={"medium"} />}
+      {getAllCoursePages.isPending && <Spinner variant={"medium"} />}
       {getAllCoursePages.isSuccess && (
         <>
           {getAllCoursePages.data.length === 0 ? (

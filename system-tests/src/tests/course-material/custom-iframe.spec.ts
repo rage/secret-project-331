@@ -7,7 +7,7 @@ test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
-test("test", async ({ page, headless }, testInfo) => {
+test("Custom iframe blocks work", async ({ page, headless }, testInfo) => {
   // Mock response from example.com so that the test does not actually make a request there
   await page.route("https://example.com/iframe", (route) =>
     route.fulfill({

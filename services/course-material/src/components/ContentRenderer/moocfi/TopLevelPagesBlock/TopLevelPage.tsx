@@ -38,7 +38,7 @@ const TopLevelPages: React.FC<React.PropsWithChildren<TopLevelPagesProps>> = ({ 
       {getTopLevelPages.isError && (
         <ErrorBanner variant={"readOnly"} error={getTopLevelPages.error} />
       )}
-      {getTopLevelPages.isLoading && <Spinner variant={"medium"} />}
+      {getTopLevelPages.isPending && <Spinner variant={"medium"} />}
       {getTopLevelPages.isSuccess && (
         <>
           {getTopLevelPages.data && (

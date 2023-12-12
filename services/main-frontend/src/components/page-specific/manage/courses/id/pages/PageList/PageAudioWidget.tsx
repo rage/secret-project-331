@@ -128,7 +128,7 @@ const PageAudioWidget: React.FC<React.PropsWithChildren<AudioUploadAttributes>> 
         >
           <CloseIcon />
         </div>
-        {getPageAudioFiles.isLoading && (
+        {getPageAudioFiles.isPending && (
           <div
             className={css`
               margin-top: 40px;

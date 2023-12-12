@@ -8,7 +8,7 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test("test", async ({ page, headless }, testInfo) => {
+test("Making proposed edits works", async ({ page, headless }, testInfo) => {
   test.slow()
 
   await page.goto("http://project-331.local/")

@@ -63,7 +63,7 @@ const PagePage: React.FC = () => {
     if (getCoursePageByPath.isError) {
       // eslint-disable-next-line i18next/no-literal-string
       pageStateDispatch({ type: "setError", payload: getCoursePageByPath.error })
-    } else if (getCoursePageByPath.isLoading) {
+    } else if (getCoursePageByPath.isPending) {
       // eslint-disable-next-line i18next/no-literal-string
       pageStateDispatch({ type: "setLoading" })
     } else {
@@ -83,7 +83,7 @@ const PagePage: React.FC = () => {
     getCoursePageByPath.data,
     getCoursePageByPath.error,
     getCoursePageByPath.isError,
-    getCoursePageByPath.isLoading,
+    getCoursePageByPath.isPending,
     getCoursePageByPath.isSuccess,
   ])
 
@@ -125,7 +125,7 @@ const PagePage: React.FC = () => {
     return <ErrorBanner variant={"readOnly"} error={getCoursePageByPath.error} />
   }
 
-  if (getCoursePageByPath.isLoading) {
+  if (getCoursePageByPath.isPending) {
     return <Spinner variant={"small"} />
   }
 

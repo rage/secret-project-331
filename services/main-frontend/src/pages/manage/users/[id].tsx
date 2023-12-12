@@ -31,7 +31,7 @@ const UserPage: React.FC<React.PropsWithChildren<UserPageProps>> = ({ query }) =
   if (userDetailsQuery.isError) {
     return <ErrorBanner error={userDetailsQuery.error} variant="readOnly" />
   }
-  if (userDetailsQuery.isLoading) {
+  if (userDetailsQuery.isPending) {
     return <Spinner variant="medium" />
   }
 

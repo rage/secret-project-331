@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query"
 import dynamic from "next/dynamic"
 import React, { useState } from "react"
 
@@ -15,6 +16,7 @@ import useStateQuery from "../../../shared-module/hooks/useStateQuery"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import { assertNotNullOrUndefined } from "../../../shared-module/utils/nullability"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 
 const EditorLoading = <Spinner variant="medium" />
@@ -37,14 +39,20 @@ const EmailTemplateEdit: React.FC<React.PropsWithChildren<EmailTemplateEditProps
   const templateQuery = useStateQuery(["email-template", emailTemplateId], (_emailTemplateId) =>
     fetchEmailTemplateWithId(_emailTemplateId),
   )
-  const instanceQuery = useStateQuery(
-    // eslint-disable-next-line i18next/no-literal-string
-    ["course-id-of-instance", templateQuery.data?.course_instance_id],
-    (courseInstanceId) => fetchCourseInstance(courseInstanceId),
-    { onSuccess: () => setNeedToRunMigrationsAndValidations(true) },
-  )
+  const courseInstanceId = templateQuery.data?.course_instance_id
+  const instanceQuery = useQuery({
+    gcTime: 0,
+    queryKey: ["course-id-of-instance", courseInstanceId],
+    enabled: !!courseInstanceId,
+    queryFn: async () => {
+      const res = await fetchCourseInstance(assertNotNullOrUndefined(courseInstanceId))
+      // This only works when gCTime is set to 0
+      setNeedToRunMigrationsAndValidations(true)
+      return res
+    },
+  })
 
-  if (templateQuery.state === "error" || instanceQuery.state === "error") {
+  if (templateQuery.state === "error" || instanceQuery.isError) {
     return (
       <>
         <ErrorBanner variant={"readOnly"} error={templateQuery.error} />
@@ -57,7 +65,7 @@ const EmailTemplateEdit: React.FC<React.PropsWithChildren<EmailTemplateEditProps
     return <Spinner variant={"medium"} />
   }
 
-  if (instanceQuery.state !== "ready") {
+  if (instanceQuery.isPending) {
     return <Spinner variant={"medium"} />
   }
 

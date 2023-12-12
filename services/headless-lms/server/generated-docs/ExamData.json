@@ -9,5 +9,6 @@
   "enrollment_data": {
     "tag": "NotEnrolled",
     "can_enroll": true
-  }
+  },
+  "language": "en-US"
 }

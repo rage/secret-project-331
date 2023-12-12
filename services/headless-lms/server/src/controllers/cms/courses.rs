@@ -169,12 +169,13 @@ async fn get_research_form_with_course_id(
     course_id: web::Path<Uuid>,
     user: AuthUser,
     pool: web::Data<PgPool>,
-) -> ControllerResult<web::Json<ResearchForm>> {
+) -> ControllerResult<web::Json<Option<ResearchForm>>> {
     let mut conn = pool.acquire().await?;
 
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?;
-    let res =
-        models::research_forms::get_research_form_with_course_id(&mut conn, *course_id).await?;
+    let res = models::research_forms::get_research_form_with_course_id(&mut conn, *course_id)
+        .await
+        .optional()?;
 
     token.authorized_ok(web::Json(res))
 }

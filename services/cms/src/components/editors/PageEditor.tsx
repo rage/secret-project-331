@@ -231,8 +231,8 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
             data.chapter_id !== null || data.exam_id !== null
               ? blockTypeMapForPages
               : data.url_path === "/"
-              ? blockTypeMapForFrontPages
-              : blockTypeMapForTopLevelPages
+                ? blockTypeMapForFrontPages
+                : blockTypeMapForTopLevelPages
           }
           allowedBlocks={supportedCoreBlocks}
           allowedBlockVariations={allowedBlockVariants}

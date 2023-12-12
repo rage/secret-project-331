@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 import { differenceInSeconds, formatDuration } from "date-fns"
-import React from "react"
+import React, { useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
 import useTime from "../../../../hooks/useTime"
@@ -30,23 +30,28 @@ const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
   const getPageRoutingData = useQuery({
     queryKey: [`pages-${chapterId}-page-routing-data`, currentPageId],
     queryFn: () => fetchPageNavigationData(currentPageId),
-    onSuccess: (data) => {
-      if (!data.next_page) {
-        return
-      }
-      if (data.next_page.chapter_opens_at === null) {
-        setnextPageChapterOpen(true)
-        return
-      }
-      const diffSeconds = differenceInSeconds(data.next_page.chapter_opens_at, now)
-      setnextPageChapterOpen(diffSeconds <= 0)
-    },
   })
+
+  useEffect(() => {
+    if (!getPageRoutingData.data) {
+      return
+    }
+    if (!getPageRoutingData.data.next_page) {
+      return
+    }
+    if (getPageRoutingData.data.next_page.chapter_opens_at === null) {
+      setnextPageChapterOpen(true)
+      return
+    }
+    const diffSeconds = differenceInSeconds(getPageRoutingData.data.next_page.chapter_opens_at, now)
+    setnextPageChapterOpen(diffSeconds <= 0)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getPageRoutingData.data])
 
   if (getPageRoutingData.isError) {
     return <ErrorBanner variant={"readOnly"} error={getPageRoutingData.error} />
   }
-  if (getPageRoutingData.isLoading) {
+  if (getPageRoutingData.isPending) {
     return <Spinner variant={"medium"} />
   }
 

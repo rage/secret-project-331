@@ -17,7 +17,7 @@ interface ErrorState {
 }
 
 interface LoadingState<T> {
-  state: "loading"
+  state: "pending"
   data: T | null
   error: Error | null
   refetch: () => Promise<unknown>
@@ -78,9 +78,9 @@ export default function useStateQuery<T, A1 = unknown, A2 = unknown, A3 = unknow
         error: getQueryState.error,
         refetch: getQueryState.refetch,
       })
-    } else if (getQueryState.isLoading) {
+    } else if (getQueryState.isPending) {
       setQueryState({
-        state: "loading",
+        state: "pending",
         data: null,
         error: null,
         refetch: getQueryState.refetch,
@@ -97,7 +97,7 @@ export default function useStateQuery<T, A1 = unknown, A2 = unknown, A3 = unknow
     getQueryState.data,
     enabled,
     getQueryState.error,
-    getQueryState.isLoading,
+    getQueryState.isPending,
     getQueryState.refetch,
     getQueryState.isError,
     getQueryState.isSuccess,

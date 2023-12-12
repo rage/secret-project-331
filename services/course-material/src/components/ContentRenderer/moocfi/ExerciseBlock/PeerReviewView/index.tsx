@@ -10,7 +10,7 @@ import PeerReviewViewImpl from "./PeerReviewViewImpl"
 export interface PeerReviewViewProps {
   exerciseNumber: number
   exerciseId: string
-  parentExerciseQuery: UseQueryResult<unknown>
+  parentExerciseQuery: UseQueryResult<unknown, unknown>
 }
 
 export const getPeerReviewBeginningScrollingId = (exerciseId: string) =>

@@ -32,7 +32,13 @@ const Pages = ({ query }: PagesProps) => {
   const queryClient = useQueryClient()
   const getPage = useQuery({
     queryKey: [`page-${id}`],
-    queryFn: () => fetchPageWithId(id),
+    gcTime: 0,
+    queryFn: async () => {
+      const res = await fetchPageWithId(id)
+      // This only works when gCTime is set to 0
+      setNeedToRunMigrationsAndValidations(true)
+      return res
+    },
     select: (data) => {
       const page: Page = {
         ...data.page,
@@ -47,9 +53,6 @@ const Pages = ({ query }: PagesProps) => {
         }).content,
       }
       return page
-    },
-    onSuccess: () => {
-      setNeedToRunMigrationsAndValidations(true)
     },
   })
 
@@ -72,7 +75,7 @@ const Pages = ({ query }: PagesProps) => {
   return (
     <>
       {getPage.isError && <ErrorBanner variant={"readOnly"} error={getPage.error} />}
-      {getPage.isLoading && <Spinner variant={"medium"} />}
+      {getPage.isPending && <Spinner variant={"medium"} />}
       {getPage.isSuccess && (
         <PageContext.Provider value={{ page: getPage.data }}>
           <PageEditor

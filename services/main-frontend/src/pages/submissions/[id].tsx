@@ -37,7 +37,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
       {getSubmissionInfo.isError && (
         <ErrorBanner variant={"readOnly"} error={getSubmissionInfo.error} />
       )}
-      {getSubmissionInfo.isLoading && <Spinner variant={"medium"} />}
+      {getSubmissionInfo.isPending && <Spinner variant={"medium"} />}
       {getSubmissionInfo.isSuccess && (
         <>
           <h1

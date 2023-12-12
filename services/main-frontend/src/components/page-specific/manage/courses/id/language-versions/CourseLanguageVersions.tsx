@@ -31,12 +31,12 @@ const CourseLanguageVersionsPage: React.FC<React.PropsWithChildren<CourseManagem
     await postNewCourseTranslation(courseId, newCourse)
     await getCourseQuery.refetch()
     setShowNewLanguageVersionForm(false)
-    queryClient.invalidateQueries([formatLanguageVersionsQueryKey(courseId)])
+    queryClient.invalidateQueries({ queryKey: [formatLanguageVersionsQueryKey(courseId)] })
   }
   return (
     <>
       {getCourseQuery.isError && <ErrorBanner error={getCourseQuery.error} variant={"readOnly"} />}
-      {getCourseQuery.isLoading && <Spinner variant={"medium"} />}
+      {getCourseQuery.isPending && <Spinner variant={"medium"} />}
       {getCourseQuery.isSuccess && (
         <>
           {showNewLanguageVersionForm && (

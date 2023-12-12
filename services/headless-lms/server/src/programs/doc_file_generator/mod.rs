@@ -59,8 +59,8 @@ as well as `<SomeStruct as TS>::inline()` to generated-docs/SomeStruct.ts.
 
 Note that because it uses the example! macro, you can leave out values for fields the same way.
 
-The struct/enum literal can be prepended with T, Opt, or Vec, in order to generate docs for the given type (T), Option of the given type (Opt), or Vec of the given type (Vec).
-Note that they must be in the order T, Opt, Vec, though you can leave any (or all) of them out.
+The struct/enum literal can be prepended with T, Option, or Vec, in order to generate docs for the given type (T), Option of the given type (Opt), or Vec of the given type (Vec).
+Note that they must be in the order T, Option, Vec, though you can leave any (or all) of them out.
 
 For example,
 ```no_run
@@ -174,21 +174,21 @@ macro_rules! doc_path {
 // macro_export mainly for the docs that use it
 #[macro_export]
 macro_rules! doc {
-    (T, Opt, Vec, $($t:tt)*) => {
+    (T, Option, Vec, $($t:tt)*) => {
         ::doc_macro::example!($($t)*);
         doc!(@inner T, $($t)*);
-        doc!(@inner Opt, $($t)*);
+        doc!(@inner Option, $($t)*);
         doc!(@inner Vec, $($t)*);
     };
-    (Opt, Vec, $($t:tt)*) => {
+    (Option, Vec, $($t:tt)*) => {
         ::doc_macro::example!($($t)*);
-        doc!(@inner Opt, $($t)*);
+        doc!(@inner Option, $($t)*);
         doc!(@inner Vec, $($t)*);
     };
-    (T, Opt, $($t:tt)*) => {
+    (T, Option, $($t:tt)*) => {
         ::doc_macro::example!($($t)*);
         doc!(@inner T, $($t)*);
-        doc!(@inner Opt, $($t)*);
+        doc!(@inner Option, $($t)*);
     };
     (T, Vec, $($t:tt)*) => {
         ::doc_macro::example!($($t)*);
@@ -199,9 +199,9 @@ macro_rules! doc {
         ::doc_macro::example!($($t)*);
         doc!(@inner T, $($t)*);
     };
-    (Opt, $($t:tt)*) => {
+    (Option, $($t:tt)*) => {
         ::doc_macro::example!($($t)*);
-        doc!(@inner Opt, $($t)*);
+        doc!(@inner Option, $($t)*);
     };
     (Vec, $($t:tt)*) => {
         ::doc_macro::example!($($t)*);
@@ -211,7 +211,7 @@ macro_rules! doc {
     (@inner T, $i:ident :: $($t:tt)*) => {
         doc!($i, Example::example());
     };
-    (@inner Opt, $i:ident :: $($t:tt)*) => {
+    (@inner Option, $i:ident :: $($t:tt)*) => {
         doc!(Option<$i>, Example::example());
     };
     (@inner Vec, $i:ident :: $($t:tt)*) => {
@@ -221,7 +221,7 @@ macro_rules! doc {
     (@inner T, $i:ident $($t:tt)*) => {
         doc!($i, Example::example());
     };
-    (@inner Opt, $i:ident $($t:tt)*) => {
+    (@inner Option, $i:ident $($t:tt)*) => {
         doc!(Option<$i>, Example::example());
     };
     (@inner Vec, $i:ident $($t:tt)*) => {
@@ -341,7 +341,7 @@ fn controllers() {
         modules,
     });
     doc!(
-        Opt,
+        Option,
         UserInfo {
             user_id: Uuid::parse_str("cebcb32b-aa7e-40ad-bc79-9d5c534a8a5a").unwrap(),
             first_name: Some("Example".to_string()),
@@ -695,7 +695,7 @@ fn models() {
     });
 
     doc!(
-        Opt,
+        Option,
         CourseModuleCompletionCertificate {
             id,
             created_at,
@@ -860,7 +860,7 @@ fn models() {
     });
     doc!(
         T,
-        Opt,
+        Option,
         Vec,
         CourseInstance {
             id,
@@ -878,7 +878,7 @@ fn models() {
         }
     );
     doc!(
-        Opt,
+        Option,
         UserCourseSettings {
             user_id,
             course_language_group_id: Uuid::parse_str("4b316fae-07d6-4e64-9294-9960cfd1c0ca")
@@ -910,7 +910,7 @@ fn models() {
         ]
     );
     doc!(
-        Opt,
+        Option,
         ExamEnrollment {
             user_id,
             exam_id,
@@ -1116,7 +1116,7 @@ fn models() {
     );
     doc!(
         T,
-        Opt,
+        Option,
         Vec,
         Page {
             id,
@@ -1713,33 +1713,37 @@ fn models() {
         }
     );
 
-    doc!(ResearchForm {
-        id,
-        course_id,
-        content: serde_json::json!([
-          {
-            "name": "core/paragraph",
-            "isValid": true,
-            "clientId": "c68f55ae-65c4-4e9b-aded-0b52e36e344a",
-            "attributes": {
-              "content": "Please answer this"
-            },
-            "innerBlocks": []
-          },
-          {
-            "name": "moocfi/research-consent-checkbox",
-            "isValid": true,
-            "clientId": "415ecc4c-a5c6-410e-a43f-c14b8ee910ea",
-            "attributes": {
-                "content": "I agree to everything"
-            },
-            "innerBlocks": []
-          }
-        ]),
-        created_at,
-        updated_at,
-        deleted_at,
-    });
+    doc!(
+        T,
+        Option,
+        ResearchForm {
+            id,
+            course_id,
+            content: serde_json::json!([
+              {
+                "name": "core/paragraph",
+                "isValid": true,
+                "clientId": "c68f55ae-65c4-4e9b-aded-0b52e36e344a",
+                "attributes": {
+                  "content": "Please answer this"
+                },
+                "innerBlocks": []
+              },
+              {
+                "name": "moocfi/research-consent-checkbox",
+                "isValid": true,
+                "clientId": "415ecc4c-a5c6-410e-a43f-c14b8ee910ea",
+                "attributes": {
+                    "content": "I agree to everything"
+                },
+                "innerBlocks": []
+              }
+            ]),
+            created_at,
+            updated_at,
+            deleted_at,
+        }
+    );
 
     doc!(
         T,

@@ -75,11 +75,11 @@ const CourseInstanceExerciseStatusList: React.FC<
   }
 
   if (
-    exerciseStatusSummariesQuery.isLoading ||
-    courseStructure.isLoading ||
-    courseModuleCompletionsQuery.isLoading ||
+    exerciseStatusSummariesQuery.isPending ||
+    courseStructure.isPending ||
+    courseModuleCompletionsQuery.isPending ||
     !exerciseStatusSummariesQuery.data ||
-    courseInstanceProgresses.isLoading
+    courseInstanceProgresses.isPending
   ) {
     return <Spinner variant="medium" />
   }

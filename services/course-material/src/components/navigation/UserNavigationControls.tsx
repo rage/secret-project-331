@@ -31,7 +31,7 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
   const returnTo = useCurrentPagePathForReturnTo(currentPagePath)
   const queryClient = useQueryClient()
 
-  if (loginStateContext.isLoading) {
+  if (loginStateContext.isPending) {
     return <Spinner variant="large" />
   }
 

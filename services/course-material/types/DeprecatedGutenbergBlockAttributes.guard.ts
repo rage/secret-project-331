@@ -92,7 +92,13 @@ export function isAudioDeprecated1Attributes(obj: unknown): obj is AudioDeprecat
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -110,7 +116,13 @@ export function isButtonDeprecated10Attributes(obj: unknown): obj is ButtonDepre
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -128,7 +140,13 @@ export function isButtonDeprecated11Attributes(obj: unknown): obj is ButtonDepre
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -166,7 +184,15 @@ export function isButtonDeprecated1Attributes(obj: unknown): obj is ButtonDeprec
     (typeof typedObj["style"] === "undefined" ||
       (((typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
         typeof typedObj["style"] === "function") &&
-        Object.entries<any>(typedObj["style"]).every(([key, _value]) => typeof key === "string")))
+        Object.entries<any>(typedObj["style"]).every(
+          ([key, _value]) => typeof key === "string",
+        ))) &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -204,7 +230,15 @@ export function isButtonDeprecated2Attributes(obj: unknown): obj is ButtonDeprec
     (typeof typedObj["style"] === "undefined" ||
       (((typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
         typeof typedObj["style"] === "function") &&
-        Object.entries<any>(typedObj["style"]).every(([key, _value]) => typeof key === "string")))
+        Object.entries<any>(typedObj["style"]).every(
+          ([key, _value]) => typeof key === "string",
+        ))) &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -242,7 +276,15 @@ export function isButtonDeprecated3Attributes(obj: unknown): obj is ButtonDeprec
     (typeof typedObj["style"] === "undefined" ||
       (((typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
         typeof typedObj["style"] === "function") &&
-        Object.entries<any>(typedObj["style"]).every(([key, _value]) => typeof key === "string")))
+        Object.entries<any>(typedObj["style"]).every(
+          ([key, _value]) => typeof key === "string",
+        ))) &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -282,7 +324,13 @@ export function isButtonDeprecated4Attributes(obj: unknown): obj is ButtonDeprec
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
     (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -322,7 +370,13 @@ export function isButtonDeprecated5Attributes(obj: unknown): obj is ButtonDeprec
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
     (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -360,7 +414,13 @@ export function isButtonDeprecated6Attributes(obj: unknown): obj is ButtonDeprec
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -398,7 +458,13 @@ export function isButtonDeprecated7Attributes(obj: unknown): obj is ButtonDeprec
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -425,7 +491,13 @@ export function isButtonDeprecated8Attributes(obj: unknown): obj is ButtonDeprec
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -448,7 +520,13 @@ export function isButtonDeprecated9Attributes(obj: unknown): obj is ButtonDeprec
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -475,7 +553,15 @@ export function isButtonsDeprecated1Attributes(obj: unknown): obj is ButtonsDepr
     (typeof typedObj["style"] === "undefined" ||
       (((typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
         typeof typedObj["style"] === "function") &&
-        Object.entries<any>(typedObj["style"]).every(([key, _value]) => typeof key === "string")))
+        Object.entries<any>(typedObj["style"]).every(
+          ([key, _value]) => typeof key === "string",
+        ))) &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -495,7 +581,13 @@ export function isButtonsDeprecated2Attributes(obj: unknown): obj is ButtonsDepr
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
     (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -510,7 +602,13 @@ export function isColumnDeprecated1Attributes(obj: unknown): obj is ColumnDeprec
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -531,7 +629,13 @@ export function isColumnsDeprecated1Attributes(obj: unknown): obj is ColumnsDepr
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -544,7 +648,13 @@ export function isColumnsDeprecated2Attributes(obj: unknown): obj is ColumnsDepr
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -557,7 +667,13 @@ export function isColumnsDeprecated3Attributes(obj: unknown): obj is ColumnsDepr
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -578,6 +694,12 @@ export function isEmbedDeprecated1Attributes(obj: unknown): obj is EmbedDeprecat
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
     (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        ))) &&
     (typeof typedObj["height"] === "undefined" || typeof typedObj["height"] === "number") &&
     (typeof typedObj["title"] === "undefined" || typeof typedObj["title"] === "string")
   )
@@ -600,6 +722,12 @@ export function isEmbedDeprecated2Attributes(obj: unknown): obj is EmbedDeprecat
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
     (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        ))) &&
     (typeof typedObj["height"] === "undefined" || typeof typedObj["height"] === "number") &&
     (typeof typedObj["title"] === "undefined" || typeof typedObj["title"] === "string")
   )
@@ -636,7 +764,13 @@ export function isFileDeprecated1Attributes(obj: unknown): obj is FileDeprecated
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
     (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -671,7 +805,13 @@ export function isFileDeprecated2Attributes(obj: unknown): obj is FileDeprecated
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
     (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -705,7 +845,13 @@ export function isFileDeprecated3Attributes(obj: unknown): obj is FileDeprecated
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
     (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -740,7 +886,15 @@ export function isHeadingDeprecated1Attributes(obj: unknown): obj is HeadingDepr
     (typeof typedObj["style"] === "undefined" ||
       (((typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
         typeof typedObj["style"] === "function") &&
-        Object.entries<any>(typedObj["style"]).every(([key, _value]) => typeof key === "string")))
+        Object.entries<any>(typedObj["style"]).every(
+          ([key, _value]) => typeof key === "string",
+        ))) &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -765,7 +919,15 @@ export function isHeadingDeprecated2Attributes(obj: unknown): obj is HeadingDepr
     (typeof typedObj["style"] === "undefined" ||
       (((typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
         typeof typedObj["style"] === "function") &&
-        Object.entries<any>(typedObj["style"]).every(([key, _value]) => typeof key === "string")))
+        Object.entries<any>(typedObj["style"]).every(
+          ([key, _value]) => typeof key === "string",
+        ))) &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -786,7 +948,13 @@ export function isHeadingDeprecated3Attributes(obj: unknown): obj is HeadingDepr
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
     (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -807,7 +975,13 @@ export function isHeadingDeprecated4Attributes(obj: unknown): obj is HeadingDepr
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
     (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -828,7 +1002,13 @@ export function isHeadingDeprecated5Attributes(obj: unknown): obj is HeadingDepr
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
     (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -873,6 +1053,12 @@ export function isImageDeprecated1Attributes(obj: unknown): obj is ImageDeprecat
         Object.entries<any>(typedObj["style"]).every(
           ([key, _value]) => typeof key === "string",
         ))) &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        ))) &&
     typeof typedObj["blurDataUrl"] === "string"
   )
 }
@@ -910,6 +1096,12 @@ export function isImageDeprecated2Attributes(obj: unknown): obj is ImageDeprecat
       (((typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
         typeof typedObj["style"] === "function") &&
         Object.entries<any>(typedObj["style"]).every(
+          ([key, _value]) => typeof key === "string",
+        ))) &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
           ([key, _value]) => typeof key === "string",
         ))) &&
     typeof typedObj["blurDataUrl"] === "string"
@@ -951,6 +1143,12 @@ export function isImageDeprecated3Attributes(obj: unknown): obj is ImageDeprecat
         Object.entries<any>(typedObj["style"]).every(
           ([key, _value]) => typeof key === "string",
         ))) &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        ))) &&
     typeof typedObj["blurDataUrl"] === "string"
   )
 }
@@ -985,6 +1183,12 @@ export function isImageDeprecated4Attributes(obj: unknown): obj is ImageDeprecat
         Object.entries<any>(typedObj["style"]).every(
           ([key, _value]) => typeof key === "string",
         ))) &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        ))) &&
     typeof typedObj["blurDataUrl"] === "string"
   )
 }
@@ -1013,6 +1217,12 @@ export function isImageDeprecated5Attributes(obj: unknown): obj is ImageDeprecat
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
     (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
     (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        ))) &&
     typeof typedObj["blurDataUrl"] === "string"
   )
 }
@@ -1035,6 +1245,12 @@ export function isImageDeprecated6Attributes(obj: unknown): obj is ImageDeprecat
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
     (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        ))) &&
     typeof typedObj["blurDataUrl"] === "string"
   )
 }
@@ -1056,6 +1272,12 @@ export function isImageDeprecated7Attributes(obj: unknown): obj is ImageDeprecat
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
     (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        ))) &&
     typeof typedObj["blurDataUrl"] === "string"
   )
 }
@@ -1077,6 +1299,12 @@ export function isImageDeprecated8Attributes(obj: unknown): obj is ImageDeprecat
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
     (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        ))) &&
     typeof typedObj["blurDataUrl"] === "string"
   )
 }
@@ -1109,7 +1337,15 @@ export function isListDeprecated1Attributes(obj: unknown): obj is ListDeprecated
     (typeof typedObj["style"] === "undefined" ||
       (((typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
         typeof typedObj["style"] === "function") &&
-        Object.entries<any>(typedObj["style"]).every(([key, _value]) => typeof key === "string")))
+        Object.entries<any>(typedObj["style"]).every(
+          ([key, _value]) => typeof key === "string",
+        ))) &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -1141,7 +1377,15 @@ export function isListDeprecated2Attributes(obj: unknown): obj is ListDeprecated
     (typeof typedObj["style"] === "undefined" ||
       (((typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
         typeof typedObj["style"] === "function") &&
-        Object.entries<any>(typedObj["style"]).every(([key, _value]) => typeof key === "string")))
+        Object.entries<any>(typedObj["style"]).every(
+          ([key, _value]) => typeof key === "string",
+        ))) &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -1173,7 +1417,15 @@ export function isListDeprecated3Attributes(obj: unknown): obj is ListDeprecated
     (typeof typedObj["style"] === "undefined" ||
       (((typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
         typeof typedObj["style"] === "function") &&
-        Object.entries<any>(typedObj["style"]).every(([key, _value]) => typeof key === "string")))
+        Object.entries<any>(typedObj["style"]).every(
+          ([key, _value]) => typeof key === "string",
+        ))) &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -1205,7 +1457,13 @@ export function isParagraphDeprecated1Attributes(
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -1237,7 +1495,13 @@ export function isParagraphDeprecated2Attributes(
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -1269,7 +1533,13 @@ export function isParagraphDeprecated3Attributes(
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -1302,7 +1572,13 @@ export function isParagraphDeprecated4Attributes(
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -1328,7 +1604,13 @@ export function isParagraphDeprecated5Attributes(
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -1360,7 +1642,13 @@ export function isParagraphDeprecated6Attributes(
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -1377,7 +1665,13 @@ export function isPullquoteDeprecated1Attributes(
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -1399,7 +1693,13 @@ export function isPullquoteDeprecated2Attributes(
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -1427,7 +1727,13 @@ export function isPullquoteDeprecated3Attributes(
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -1449,7 +1755,13 @@ export function isPullquoteDeprecated4Attributes(
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -1471,7 +1783,13 @@ export function isPullquoteDeprecated5Attributes(
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -1494,7 +1812,13 @@ export function isPullquoteDeprecated6Attributes(
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -1515,7 +1839,15 @@ export function isQuoteDeprecated1Attributes(obj: unknown): obj is QuoteDeprecat
     (typeof typedObj["style"] === "undefined" ||
       (((typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
         typeof typedObj["style"] === "function") &&
-        Object.entries<any>(typedObj["style"]).every(([key, _value]) => typeof key === "string")))
+        Object.entries<any>(typedObj["style"]).every(
+          ([key, _value]) => typeof key === "string",
+        ))) &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -1530,7 +1862,13 @@ export function isQuoteDeprecated2Attributes(obj: unknown): obj is QuoteDeprecat
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -1546,7 +1884,13 @@ export function isQuoteDeprecated3Attributes(obj: unknown): obj is QuoteDeprecat
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -1562,7 +1906,13 @@ export function isQuoteDeprecated4Attributes(obj: unknown): obj is QuoteDeprecat
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -1579,7 +1929,13 @@ export function isSeparatorDeprecated1Attributes(
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -1593,7 +1949,13 @@ export function isSpacerDeprecated1Attributes(obj: unknown): obj is SpacerDeprec
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -1618,7 +1980,15 @@ export function isVerseDeprecated1Attributes(obj: unknown): obj is VerseDeprecat
     (typeof typedObj["style"] === "undefined" ||
       (((typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
         typeof typedObj["style"] === "function") &&
-        Object.entries<any>(typedObj["style"]).every(([key, _value]) => typeof key === "string")))
+        Object.entries<any>(typedObj["style"]).every(
+          ([key, _value]) => typeof key === "string",
+        ))) &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 
@@ -1632,6 +2002,12 @@ export function isVerseDeprecated2Attributes(obj: unknown): obj is VerseDeprecat
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }

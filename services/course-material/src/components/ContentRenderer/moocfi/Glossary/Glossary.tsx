@@ -20,7 +20,7 @@ const Glossary: React.FC<React.PropsWithChildren<Props>> = ({ courseId }) => {
     queryFn: () => fetchGlossary(courseId),
   })
 
-  if (glossary.isLoading) {
+  if (glossary.isPending) {
     return <Spinner variant={"small"} />
   }
 

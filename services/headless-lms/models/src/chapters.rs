@@ -501,9 +501,7 @@ pub async fn get_user_course_instance_chapter_progress(
             user_chapter_metrics.score_given,
         ),
         score_maximum,
-        total_exercises: Some(exercise_ids.len())
-            .map(TryInto::try_into)
-            .transpose()?,
+        total_exercises: Some(TryInto::try_into(exercise_ids.len())).transpose()?,
         attempted_exercises: user_chapter_metrics
             .attempted_exercises
             .map(TryInto::try_into)

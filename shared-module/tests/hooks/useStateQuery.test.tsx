@@ -8,7 +8,7 @@ const testClient = new QueryClient({
   defaultOptions: {
     queries: {
       //Long cache time to prevent unnecessary refetching but remember to use different keys in tests
-      cacheTime: 10000,
+      gcTime: 10000,
       // Do not attempt to refetch when testing
       retry: () => false,
     },
@@ -37,7 +37,7 @@ describe("useStateQuery hook", () => {
       wrapper: Wrapper,
     })
     hookResult.rerender()
-    expect(hookResult.result.current.state).toBe("loading")
+    expect(hookResult.result.current.state).toBe("pending")
 
     await waitFor(() => {
       expect(hookResult.result.current.state).toBe("ready")
@@ -55,7 +55,7 @@ describe("useStateQuery hook", () => {
       wrapper: Wrapper,
     })
     hookResult.rerender()
-    expect(hookResult.result.current.state).toBe("loading")
+    expect(hookResult.result.current.state).toBe("pending")
     await waitFor(() => {
       expect(hookResult.result.current.state).toBe("error")
     })

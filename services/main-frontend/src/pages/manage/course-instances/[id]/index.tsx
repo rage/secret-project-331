@@ -155,7 +155,7 @@ const ManageCourseInstances: React.FC<React.PropsWithChildren<ManageCourseInstan
       {getCourseInstances.isError && (
         <ErrorBanner variant={"readOnly"} error={getCourseInstances.error} />
       )}
-      {getCourseInstances.isLoading && <Spinner variant={"medium"} />}
+      {getCourseInstances.isPending && <Spinner variant={"medium"} />}
       {getCourseInstances.isSuccess && instanceInfo}
     </div>
   )

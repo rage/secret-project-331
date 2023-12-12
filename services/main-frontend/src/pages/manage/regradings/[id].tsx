@@ -21,7 +21,10 @@ const ViewRegradingPage: React.FC<React.PropsWithChildren<unknown>> = () => {
     queryKey: [`regrading`, id],
     queryFn: () => fetchRegradingInfo(id),
     refetchInterval: (query) => {
-      if (!query.state.data || query.state.data.regrading.total_grading_progress === "FullyGraded") {
+      if (
+        !query.state.data ||
+        query.state.data.regrading.total_grading_progress === "FullyGraded"
+      ) {
         return false
       }
       return 3000

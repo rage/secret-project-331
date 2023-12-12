@@ -31,7 +31,7 @@ const CourseLanguageVersionsPage: React.FC<React.PropsWithChildren<CourseManagem
     await postNewCourseTranslation(courseId, newCourse)
     await getCourseQuery.refetch()
     setShowNewLanguageVersionForm(false)
-    queryClient.invalidateQueries({ queryKey: [formatLanguageVersionsQueryKey(courseId)]})
+    queryClient.invalidateQueries({ queryKey: [formatLanguageVersionsQueryKey(courseId)] })
   }
   return (
     <>

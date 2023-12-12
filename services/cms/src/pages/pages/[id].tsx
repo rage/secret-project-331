@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import dynamic from "next/dynamic"
-import React, { useEffect, useState } from "react"
+import React, { useState } from "react"
 
 import PageContext from "../../contexts/PageContext"
 import { fetchPageWithId, updateExistingPage } from "../../services/backend/pages"

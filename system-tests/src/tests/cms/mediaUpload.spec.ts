@@ -51,13 +51,11 @@ test.describe("Uploading media as admin", async () => {
     ])
     await fileChooser.setFiles("src/fixtures/media/welcome_exercise_decorations.png")
 
-    // This is needed so we get another Gutenberg popup "disabled".
-    await page.click('img[alt="Add alt"]')
     await page.locator("text=Replace").click()
 
     const [newPage] = await Promise.all([
       page.waitForEvent("popup"),
-      page.locator("a[href$='.png']").click(),
+      page.locator("a[href$='.png']").nth(1).click(),
     ])
 
     await expectScreenshotsToMatchSnapshots({

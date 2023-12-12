@@ -13,12 +13,12 @@ test("Error notifications work", async ({ page, headless }, testInfo) => {
   await page.click(`button:text("Edit page"):right-of(:text("In the second chapter..."))`)
 
   await page.locator("text=Add task").click()
-
+  await showNextToastsInfinitely(page)
   await page.click(`button:text-is("Save") >> visible=true`)
   await page.evaluate(() => {
     window.scrollTo(0, 0)
   })
-  await showNextToastsInfinitely(page)
+
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,

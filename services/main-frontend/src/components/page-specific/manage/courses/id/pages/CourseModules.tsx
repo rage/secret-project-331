@@ -240,8 +240,10 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
     if (!courseStructureQuery.data) {
       return
     }
-    setModuleList(courseStructureQuery.data.moduleList)
-  }, [courseStructureQuery.data])
+    if (moduleList === null) {
+      setModuleList(courseStructureQuery.data.moduleList)
+    }
+  }, [courseStructureQuery.data, moduleList])
 
   const moduleUpdatesMutation = useToastMutation(
     () => {
@@ -603,8 +605,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
         show={edited}
         leftButtonText={t("save-changes")}
         leftButtonDisabled={
-          moduleList?.error !== null ||
-          moduleList?.error !== undefined ||
+          (moduleList?.error !== null && moduleList?.error !== undefined) ||
           moduleUpdatesMutation.isPending
         }
         onClickLeft={handleSubmit}

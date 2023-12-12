@@ -53,21 +53,17 @@ const ResearchForms: React.FC<React.PropsWithChildren<ResearchFormProps>> = ({ q
   const getResearchForm = useQuery({
     queryKey: [`courses-${courseId}-research-consent-form`],
     queryFn: () => fetchResearchFormWithCourseId(courseId),
+    gcTime: 0,
     select: (data) => {
       const form: ResearchForm = {
         ...data,
         content: data.content as ResearchContent,
       }
+      // This only works when gCTime is set to 0
+      setNeedToRunMigrationsAndValidations(true)
       return form
     },
   })
-
-  useEffect(() => {
-    if (!getResearchForm.data) {
-      return
-    }
-    setNeedToRunMigrationsAndValidations(true)
-  }, [getResearchForm.data])
 
   const handleCreateNewForm = async () => {
     await upsertResearchForm(assertNotNullOrUndefined(courseId), {

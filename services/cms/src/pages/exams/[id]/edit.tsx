@@ -33,15 +33,14 @@ const ExamsInstructionsEditor: React.FC<React.PropsWithChildren<ExamInstructions
   const examsId = query.id
   const getExamsInstructions = useQuery({
     queryKey: [`exam-${examsId}-instructions`],
-    queryFn: () => fetchExamsInstructions(examsId),
+    gcTime: 0,
+    queryFn: async () => {
+      const res = await fetchExamsInstructions(examsId)
+      // Only works when gCTime is set to 0
+      setNeedToRunMigrationsAndValidations(true)
+      return res
+    },
   })
-
-  useEffect(() => {
-    if (!getExamsInstructions.data) {
-      return
-    }
-    setNeedToRunMigrationsAndValidations(true)
-  }, [getExamsInstructions.data])
 
   const handleSave = async (instructions: ExamInstructionsUpdate): Promise<ExamInstructions> => {
     const res = await updateExamsInstructions(examsId, {

@@ -114,9 +114,7 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
               padding-bottom: 24px;
             `}
           >
-            {t("research-consent-director-info", {
-              "director-name": "Petri Ihantola",
-            })}
+            {t("research-consent-responsible")}
             <a
               className={css`
                 color: ${baseTheme.colors.blue[700]}!important;

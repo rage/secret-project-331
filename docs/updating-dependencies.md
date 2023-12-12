@@ -70,8 +70,7 @@ Compile the system with `bin/dev` and `bin/test`. Try to use the different parts
 
 ## Base image updates
 
-1. Run command: `bin/build-dockerfile-development-base && docker push eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base`
-2. Run command: `bin/build-dockerfile-production-base && docker push eu.gcr.io/moocfi-public/project-331-headless-lms-production-base`
-3. Run command: `bin/build-dockerfile-node-base && docker push eu.gcr.io/moocfi-public/project-331-node-base`
+1. Run command: `bin/build-dockerfile-development-base && docker push eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base && bin/build-dockerfile-production-base && docker push eu.gcr.io/moocfi-public/project-331-headless-lms-production-base`
+2. Run command: `bin/build-dockerfile-node-base && docker push eu.gcr.io/moocfi-public/project-331-node-base`
 
 Run `bin/minikube-pull-images` on your host and instruct others to run this command as well once your update PR is merged.

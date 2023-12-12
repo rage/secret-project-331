@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/slotmap-1.0.6/src/dense.rs`."><title>dense.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-fa3bb1812debf86c.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="slotmap" data-themes="" data-resource-suffix="" data-rustdoc-version="1.74.0 (79e9716c9 2023-11-13)" data-channel="1.74.0" data-search-js="search-8be46b629f5f14a8.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-c5bd66d33317d69f.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../slotmap/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/slotmap-1.0.7/src/dense.rs`."><title>dense.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-fa3bb1812debf86c.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="slotmap" data-themes="" data-resource-suffix="" data-rustdoc-version="1.74.1 (a28077b28 2023-12-04)" data-channel="1.74.1" data-search-js="search-8be46b629f5f14a8.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-c5bd66d33317d69f.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../slotmap/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1324,6 +1324,77 @@
 <a href="#1324" id="1324">1324</a>
 <a href="#1325" id="1325">1325</a>
 <a href="#1326" id="1326">1326</a>
+<a href="#1327" id="1327">1327</a>
+<a href="#1328" id="1328">1328</a>
+<a href="#1329" id="1329">1329</a>
+<a href="#1330" id="1330">1330</a>
+<a href="#1331" id="1331">1331</a>
+<a href="#1332" id="1332">1332</a>
+<a href="#1333" id="1333">1333</a>
+<a href="#1334" id="1334">1334</a>
+<a href="#1335" id="1335">1335</a>
+<a href="#1336" id="1336">1336</a>
+<a href="#1337" id="1337">1337</a>
+<a href="#1338" id="1338">1338</a>
+<a href="#1339" id="1339">1339</a>
+<a href="#1340" id="1340">1340</a>
+<a href="#1341" id="1341">1341</a>
+<a href="#1342" id="1342">1342</a>
+<a href="#1343" id="1343">1343</a>
+<a href="#1344" id="1344">1344</a>
+<a href="#1345" id="1345">1345</a>
+<a href="#1346" id="1346">1346</a>
+<a href="#1347" id="1347">1347</a>
+<a href="#1348" id="1348">1348</a>
+<a href="#1349" id="1349">1349</a>
+<a href="#1350" id="1350">1350</a>
+<a href="#1351" id="1351">1351</a>
+<a href="#1352" id="1352">1352</a>
+<a href="#1353" id="1353">1353</a>
+<a href="#1354" id="1354">1354</a>
+<a href="#1355" id="1355">1355</a>
+<a href="#1356" id="1356">1356</a>
+<a href="#1357" id="1357">1357</a>
+<a href="#1358" id="1358">1358</a>
+<a href="#1359" id="1359">1359</a>
+<a href="#1360" id="1360">1360</a>
+<a href="#1361" id="1361">1361</a>
+<a href="#1362" id="1362">1362</a>
+<a href="#1363" id="1363">1363</a>
+<a href="#1364" id="1364">1364</a>
+<a href="#1365" id="1365">1365</a>
+<a href="#1366" id="1366">1366</a>
+<a href="#1367" id="1367">1367</a>
+<a href="#1368" id="1368">1368</a>
+<a href="#1369" id="1369">1369</a>
+<a href="#1370" id="1370">1370</a>
+<a href="#1371" id="1371">1371</a>
+<a href="#1372" id="1372">1372</a>
+<a href="#1373" id="1373">1373</a>
+<a href="#1374" id="1374">1374</a>
+<a href="#1375" id="1375">1375</a>
+<a href="#1376" id="1376">1376</a>
+<a href="#1377" id="1377">1377</a>
+<a href="#1378" id="1378">1378</a>
+<a href="#1379" id="1379">1379</a>
+<a href="#1380" id="1380">1380</a>
+<a href="#1381" id="1381">1381</a>
+<a href="#1382" id="1382">1382</a>
+<a href="#1383" id="1383">1383</a>
+<a href="#1384" id="1384">1384</a>
+<a href="#1385" id="1385">1385</a>
+<a href="#1386" id="1386">1386</a>
+<a href="#1387" id="1387">1387</a>
+<a href="#1388" id="1388">1388</a>
+<a href="#1389" id="1389">1389</a>
+<a href="#1390" id="1390">1390</a>
+<a href="#1391" id="1391">1391</a>
+<a href="#1392" id="1392">1392</a>
+<a href="#1393" id="1393">1393</a>
+<a href="#1394" id="1394">1394</a>
+<a href="#1395" id="1395">1395</a>
+<a href="#1396" id="1396">1396</a>
+<a href="#1397" id="1397">1397</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Contains the dense slot map implementation.
 
 </span><span class="comment">// There is quite a lot of unsafe code in this implementation. To prevent the
@@ -1340,6 +1411,7 @@
 </span><span class="kw">use </span>core::mem::MaybeUninit;
 <span class="kw">use </span>core::ops::{Index, IndexMut};
 
+<span class="kw">use </span><span class="kw">crate</span>::util::{Never, UnwrapUnchecked};
 <span class="kw">use crate</span>::{DefaultKey, Key, KeyData};
 
 <span class="comment">// A slot, which represents storage for an index and a current version.
@@ -1356,7 +1428,7 @@
 <span class="doccomment">/// Dense slot map, storage with stable unique keys.
 ///
 /// See [crate documentation](crate) for more details.
-</span><span class="attr">#[derive(Debug, Clone)]
+</span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>DenseSlotMap&lt;K: Key, V&gt; {
     keys: Vec&lt;K&gt;,
     values: Vec&lt;V&gt;,
@@ -1575,8 +1647,9 @@
     /// let key = sm.insert(42);
     /// assert_eq!(sm[key], 42);
     /// ```
+    </span><span class="attr">#[inline(always)]
     </span><span class="kw">pub fn </span>insert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: V) -&gt; K {
-        <span class="self">self</span>.insert_with_key(|<span class="kw">_</span>| value)
+        <span class="kw">unsafe </span>{ <span class="self">self</span>.try_insert_with_key::&lt;<span class="kw">_</span>, Never&gt;(<span class="kw">move </span>|<span class="kw">_</span>| <span class="prelude-val">Ok</span>(value)).unwrap_unchecked_() }
     }
 
     <span class="doccomment">/// Inserts a value given by `f` into the slot map. The key where the
@@ -1596,9 +1669,38 @@
     /// let key = sm.insert_with_key(|k| (k, 20));
     /// assert_eq!(sm[key], (key, 20));
     /// ```
+    </span><span class="attr">#[inline(always)]
     </span><span class="kw">pub fn </span>insert_with_key&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, f: F) -&gt; K
     <span class="kw">where
         </span>F: FnOnce(K) -&gt; V,
+    {
+        <span class="kw">unsafe </span>{ <span class="self">self</span>.try_insert_with_key::&lt;<span class="kw">_</span>, Never&gt;(<span class="kw">move </span>|k| <span class="prelude-val">Ok</span>(f(k))).unwrap_unchecked_() }
+    }
+
+    <span class="doccomment">/// Inserts a value given by `f` into the slot map. The key where the
+    /// value will be stored is passed into `f`. This is useful to store values
+    /// that contain their own key.
+    ///
+    /// If `f` returns `Err`, this method returns the error. The slotmap is untouched.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the number of elements in the slot map equals
+    /// 2&lt;sup&gt;32&lt;/sup&gt; - 2.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use slotmap::*;
+    /// let mut sm = DenseSlotMap::new();
+    /// let key = sm.try_insert_with_key::&lt;_, ()&gt;(|k| Ok((k, 20))).unwrap();
+    /// assert_eq!(sm[key], (key, 20));
+    ///
+    /// sm.try_insert_with_key::&lt;_, ()&gt;(|k| Err(())).unwrap_err();
+    /// ```
+    </span><span class="kw">pub fn </span>try_insert_with_key&lt;F, E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, f: F) -&gt; <span class="prelude-ty">Result</span>&lt;K, E&gt;
+    <span class="kw">where
+        </span>F: FnOnce(K) -&gt; <span class="prelude-ty">Result</span>&lt;V, E&gt;,
     {
         <span class="kw">if </span><span class="self">self</span>.len() &gt;= (core::u32::MAX - <span class="number">1</span>) <span class="kw">as </span>usize {
             <span class="macro">panic!</span>(<span class="string">&quot;DenseSlotMap number of elements overflow&quot;</span>);
@@ -1610,25 +1712,25 @@
             <span class="kw">let </span>occupied_version = slot.version | <span class="number">1</span>;
             <span class="kw">let </span>key = KeyData::new(idx, occupied_version).into();
 
-            <span class="comment">// Push value before adjusting slots/freelist in case f panics.
-            </span><span class="self">self</span>.values.push(f(key));
+            <span class="comment">// Push value before adjusting slots/freelist in case f panics or returns an error.
+            </span><span class="self">self</span>.values.push(f(key)<span class="question-mark">?</span>);
             <span class="self">self</span>.keys.push(key);
             <span class="self">self</span>.free_head = slot.idx_or_free;
             slot.idx_or_free = <span class="self">self</span>.keys.len() <span class="kw">as </span>u32 - <span class="number">1</span>;
             slot.version = occupied_version;
-            <span class="kw">return </span>key;
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(key);
         }
 
-        <span class="comment">// Push value before adjusting slots/freelist in case f panics.
+        <span class="comment">// Push value before adjusting slots/freelist in case f panics or returns an error.
         </span><span class="kw">let </span>key = KeyData::new(idx, <span class="number">1</span>).into();
-        <span class="self">self</span>.values.push(f(key));
+        <span class="self">self</span>.values.push(f(key)<span class="question-mark">?</span>);
         <span class="self">self</span>.keys.push(key);
         <span class="self">self</span>.slots.push(Slot {
             version: <span class="number">1</span>,
             idx_or_free: <span class="self">self</span>.keys.len() <span class="kw">as </span>u32 - <span class="number">1</span>,
         });
         <span class="self">self</span>.free_head = <span class="self">self</span>.slots.len() <span class="kw">as </span>u32;
-        key
+        <span class="prelude-val">Ok</span>(key)
     }
 
     <span class="comment">// Helper function to add a slot to the freelist. Returns the index that
@@ -1810,10 +1912,7 @@
     /// ```
     </span><span class="kw">pub unsafe fn </span>get_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>, key: K) -&gt; <span class="kw-2">&amp;</span>V {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.contains_key(key));
-        <span class="kw">let </span>idx = <span class="self">self
-            </span>.slots
-            .get_unchecked(key.data().idx <span class="kw">as </span>usize)
-            .idx_or_free;
+        <span class="kw">let </span>idx = <span class="self">self</span>.slots.get_unchecked(key.data().idx <span class="kw">as </span>usize).idx_or_free;
         <span class="kw-2">&amp;</span><span class="self">self</span>.values.get_unchecked(idx <span class="kw">as </span>usize)
     }
 
@@ -1863,10 +1962,7 @@
     /// ```
     </span><span class="kw">pub unsafe fn </span>get_unchecked_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K) -&gt; <span class="kw-2">&amp;mut </span>V {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.contains_key(key));
-        <span class="kw">let </span>idx = <span class="self">self
-            </span>.slots
-            .get_unchecked(key.data().idx <span class="kw">as </span>usize)
-            .idx_or_free;
+        <span class="kw">let </span>idx = <span class="self">self</span>.slots.get_unchecked(key.data().idx <span class="kw">as </span>usize).idx_or_free;
         <span class="self">self</span>.values.get_unchecked_mut(idx <span class="kw">as </span>usize)
     }
 
@@ -2088,6 +2184,27 @@
     }
 }
 
+<span class="kw">impl</span>&lt;K: Key, V&gt; Clone <span class="kw">for </span>DenseSlotMap&lt;K, V&gt;
+<span class="kw">where
+    </span>V: Clone,
+{
+    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            keys: <span class="self">self</span>.keys.clone(),
+            values: <span class="self">self</span>.values.clone(),
+            slots: <span class="self">self</span>.slots.clone(),
+            ..<span class="kw-2">*</span><span class="self">self
+        </span>}
+    }
+
+    <span class="kw">fn </span>clone_from(<span class="kw-2">&amp;mut </span><span class="self">self</span>, source: <span class="kw-2">&amp;</span><span class="self">Self</span>) {
+        <span class="self">self</span>.keys.clone_from(<span class="kw-2">&amp;</span>source.keys);
+        <span class="self">self</span>.values.clone_from(<span class="kw-2">&amp;</span>source.values);
+        <span class="self">self</span>.slots.clone_from(<span class="kw-2">&amp;</span>source.slots);
+        <span class="self">self</span>.free_head = source.free_head;
+    }
+}
+
 <span class="kw">impl</span>&lt;K: Key, V&gt; Default <span class="kw">for </span>DenseSlotMap&lt;K, V&gt; {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::with_key()
@@ -2136,10 +2253,19 @@
 <span class="doccomment">/// An iterator over the key-value pairs in a [`DenseSlotMap`].
 ///
 /// This iterator is created by [`DenseSlotMap::iter`].
-</span><span class="attr">#[derive(Debug, Clone)]
+</span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>Iter&lt;<span class="lifetime">&#39;a</span>, K: <span class="lifetime">&#39;a </span>+ Key, V: <span class="lifetime">&#39;a</span>&gt; {
     inner_keys: core::slice::Iter&lt;<span class="lifetime">&#39;a</span>, K&gt;,
     inner_values: core::slice::Iter&lt;<span class="lifetime">&#39;a</span>, V&gt;,
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K: <span class="lifetime">&#39;a </span>+ Key, V: <span class="lifetime">&#39;a</span>&gt; Clone <span class="kw">for </span>Iter&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
+    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        Iter {
+            inner_keys: <span class="self">self</span>.inner_keys.clone(),
+            inner_values: <span class="self">self</span>.inner_values.clone(),
+        }
+    }
 }
 
 <span class="doccomment">/// A mutable iterator over the key-value pairs in a [`DenseSlotMap`].
@@ -2154,17 +2280,33 @@
 <span class="doccomment">/// An iterator over the keys in a [`DenseSlotMap`].
 ///
 /// This iterator is created by [`DenseSlotMap::keys`].
-</span><span class="attr">#[derive(Debug, Clone)]
+</span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>Keys&lt;<span class="lifetime">&#39;a</span>, K: <span class="lifetime">&#39;a </span>+ Key, V&gt; {
     inner: Iter&lt;<span class="lifetime">&#39;a</span>, K, V&gt;,
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K: <span class="lifetime">&#39;a </span>+ Key, V: <span class="lifetime">&#39;a</span>&gt; Clone <span class="kw">for </span>Keys&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
+    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        Keys {
+            inner: <span class="self">self</span>.inner.clone(),
+        }
+    }
 }
 
 <span class="doccomment">/// An iterator over the values in a [`DenseSlotMap`].
 ///
 /// This iterator is created by [`DenseSlotMap::values`].
-</span><span class="attr">#[derive(Debug, Clone)]
+</span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>Values&lt;<span class="lifetime">&#39;a</span>, K: <span class="lifetime">&#39;a </span>+ Key, V&gt; {
     inner: Iter&lt;<span class="lifetime">&#39;a</span>, K, V&gt;,
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K: <span class="lifetime">&#39;a </span>+ Key, V: <span class="lifetime">&#39;a</span>&gt; Clone <span class="kw">for </span>Values&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
+    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        Values {
+            inner: <span class="self">self</span>.inner.clone(),
+        }
+    }
 }
 
 <span class="doccomment">/// A mutable iterator over the values in a [`DenseSlotMap`].
@@ -2345,8 +2487,9 @@
 <span class="comment">// Serialization with serde.
 </span><span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
 </span><span class="kw">mod </span>serialize {
-    <span class="kw">use super</span>::<span class="kw-2">*</span>;
     <span class="kw">use </span>serde::{de, Deserialize, Deserializer, Serialize, Serializer};
+
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
     <span class="attr">#[derive(Serialize, Deserialize)]
     </span><span class="kw">struct </span>SerdeSlot&lt;T&gt; {
@@ -2386,10 +2529,7 @@
             }
 
             <span class="comment">// Ensure the first slot exists and is empty for the sentinel.
-            </span><span class="kw">if </span>serde_slots
-                .get(<span class="number">0</span>)
-                .map_or(<span class="bool-val">true</span>, |slot| slot.version % <span class="number">2 </span>== <span class="number">1</span>)
-            {
+            </span><span class="kw">if </span>serde_slots.get(<span class="number">0</span>).map_or(<span class="bool-val">true</span>, |slot| slot.version % <span class="number">2 </span>== <span class="number">1</span>) {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(de::Error::custom(<span class="kw-2">&amp;</span><span class="string">&quot;first slot not empty&quot;</span>));
             }
 
@@ -2438,9 +2578,11 @@
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
-    <span class="kw">use super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use </span>quickcheck::quickcheck;
     <span class="kw">use </span>std::collections::{HashMap, HashSet};
+
+    <span class="kw">use </span>quickcheck::quickcheck;
+
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
     <span class="attr">#[derive(Clone)]
     </span><span class="kw">struct </span>CountDrop&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>core::cell::RefCell&lt;usize&gt;);

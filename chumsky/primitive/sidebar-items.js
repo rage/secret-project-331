@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["any","choice","custom","empty","end","filter","filter_map","just","none_of","one_of","seq","take_until","todo"],"struct":["Choice","Custom","Empty","End","Filter","FilterMap","Just","NoneOf","OneOf","Seq","TakeUntil","Todo"],"trait":["Container","OrderedContainer"],"type":["Any"]};

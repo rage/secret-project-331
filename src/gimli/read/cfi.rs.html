@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gimli-0.28.0/src/read/cfi.rs`."><title>cfi.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-fa3bb1812debf86c.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="gimli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.74.0 (79e9716c9 2023-11-13)" data-channel="1.74.0" data-search-js="search-8be46b629f5f14a8.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-c5bd66d33317d69f.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../gimli/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gimli-0.28.1/src/read/cfi.rs`."><title>cfi.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-fa3bb1812debf86c.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="gimli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.74.1 (a28077b28 2023-12-04)" data-channel="1.74.1" data-search-js="search-8be46b629f5f14a8.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-c5bd66d33317d69f.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../gimli/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -7710,8 +7710,119 @@
 <a href="#7710" id="7710">7710</a>
 <a href="#7711" id="7711">7711</a>
 <a href="#7712" id="7712">7712</a>
+<a href="#7713" id="7713">7713</a>
+<a href="#7714" id="7714">7714</a>
+<a href="#7715" id="7715">7715</a>
+<a href="#7716" id="7716">7716</a>
+<a href="#7717" id="7717">7717</a>
+<a href="#7718" id="7718">7718</a>
+<a href="#7719" id="7719">7719</a>
+<a href="#7720" id="7720">7720</a>
+<a href="#7721" id="7721">7721</a>
+<a href="#7722" id="7722">7722</a>
+<a href="#7723" id="7723">7723</a>
+<a href="#7724" id="7724">7724</a>
+<a href="#7725" id="7725">7725</a>
+<a href="#7726" id="7726">7726</a>
+<a href="#7727" id="7727">7727</a>
+<a href="#7728" id="7728">7728</a>
+<a href="#7729" id="7729">7729</a>
+<a href="#7730" id="7730">7730</a>
+<a href="#7731" id="7731">7731</a>
+<a href="#7732" id="7732">7732</a>
+<a href="#7733" id="7733">7733</a>
+<a href="#7734" id="7734">7734</a>
+<a href="#7735" id="7735">7735</a>
+<a href="#7736" id="7736">7736</a>
+<a href="#7737" id="7737">7737</a>
+<a href="#7738" id="7738">7738</a>
+<a href="#7739" id="7739">7739</a>
+<a href="#7740" id="7740">7740</a>
+<a href="#7741" id="7741">7741</a>
+<a href="#7742" id="7742">7742</a>
+<a href="#7743" id="7743">7743</a>
+<a href="#7744" id="7744">7744</a>
+<a href="#7745" id="7745">7745</a>
+<a href="#7746" id="7746">7746</a>
+<a href="#7747" id="7747">7747</a>
+<a href="#7748" id="7748">7748</a>
+<a href="#7749" id="7749">7749</a>
+<a href="#7750" id="7750">7750</a>
+<a href="#7751" id="7751">7751</a>
+<a href="#7752" id="7752">7752</a>
+<a href="#7753" id="7753">7753</a>
+<a href="#7754" id="7754">7754</a>
+<a href="#7755" id="7755">7755</a>
+<a href="#7756" id="7756">7756</a>
+<a href="#7757" id="7757">7757</a>
+<a href="#7758" id="7758">7758</a>
+<a href="#7759" id="7759">7759</a>
+<a href="#7760" id="7760">7760</a>
+<a href="#7761" id="7761">7761</a>
+<a href="#7762" id="7762">7762</a>
+<a href="#7763" id="7763">7763</a>
+<a href="#7764" id="7764">7764</a>
+<a href="#7765" id="7765">7765</a>
+<a href="#7766" id="7766">7766</a>
+<a href="#7767" id="7767">7767</a>
+<a href="#7768" id="7768">7768</a>
+<a href="#7769" id="7769">7769</a>
+<a href="#7770" id="7770">7770</a>
+<a href="#7771" id="7771">7771</a>
+<a href="#7772" id="7772">7772</a>
+<a href="#7773" id="7773">7773</a>
+<a href="#7774" id="7774">7774</a>
+<a href="#7775" id="7775">7775</a>
+<a href="#7776" id="7776">7776</a>
+<a href="#7777" id="7777">7777</a>
+<a href="#7778" id="7778">7778</a>
+<a href="#7779" id="7779">7779</a>
+<a href="#7780" id="7780">7780</a>
+<a href="#7781" id="7781">7781</a>
+<a href="#7782" id="7782">7782</a>
+<a href="#7783" id="7783">7783</a>
+<a href="#7784" id="7784">7784</a>
+<a href="#7785" id="7785">7785</a>
+<a href="#7786" id="7786">7786</a>
+<a href="#7787" id="7787">7787</a>
+<a href="#7788" id="7788">7788</a>
+<a href="#7789" id="7789">7789</a>
+<a href="#7790" id="7790">7790</a>
+<a href="#7791" id="7791">7791</a>
+<a href="#7792" id="7792">7792</a>
+<a href="#7793" id="7793">7793</a>
+<a href="#7794" id="7794">7794</a>
+<a href="#7795" id="7795">7795</a>
+<a href="#7796" id="7796">7796</a>
+<a href="#7797" id="7797">7797</a>
+<a href="#7798" id="7798">7798</a>
+<a href="#7799" id="7799">7799</a>
+<a href="#7800" id="7800">7800</a>
+<a href="#7801" id="7801">7801</a>
+<a href="#7802" id="7802">7802</a>
+<a href="#7803" id="7803">7803</a>
+<a href="#7804" id="7804">7804</a>
+<a href="#7805" id="7805">7805</a>
+<a href="#7806" id="7806">7806</a>
+<a href="#7807" id="7807">7807</a>
+<a href="#7808" id="7808">7808</a>
+<a href="#7809" id="7809">7809</a>
+<a href="#7810" id="7810">7810</a>
+<a href="#7811" id="7811">7811</a>
+<a href="#7812" id="7812">7812</a>
+<a href="#7813" id="7813">7813</a>
+<a href="#7814" id="7814">7814</a>
+<a href="#7815" id="7815">7815</a>
+<a href="#7816" id="7816">7816</a>
+<a href="#7817" id="7817">7817</a>
+<a href="#7818" id="7818">7818</a>
+<a href="#7819" id="7819">7819</a>
+<a href="#7820" id="7820">7820</a>
+<a href="#7821" id="7821">7821</a>
+<a href="#7822" id="7822">7822</a>
+<a href="#7823" id="7823">7823</a>
 </pre></div><pre class="rust"><code><span class="attr">#[cfg(feature = <span class="string">&quot;read&quot;</span>)]
-</span><span class="kw">use </span>alloc::vec::Vec;
+</span><span class="kw">use </span>alloc::boxed::Box;
 
 <span class="kw">use </span>core::cmp::{Ord, Ordering};
 <span class="kw">use </span>core::fmt::{<span class="self">self</span>, Debug};
@@ -9300,6 +9411,24 @@
             get_cie,
         )
     }
+
+    <span class="doccomment">/// Get the offset of this entry from the start of its containing section.
+    </span><span class="kw">pub fn </span>offset(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; R::Offset {
+        <span class="self">self</span>.offset
+    }
+
+    <span class="doccomment">/// Get the offset of this FDE&#39;s CIE.
+    </span><span class="kw">pub fn </span>cie_offset(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Section::Offset {
+        <span class="self">self</span>.cie_offset
+    }
+
+    <span class="doccomment">/// &gt; A constant that gives the number of bytes of the header and
+    /// &gt; instruction stream for this function, not including the length field
+    /// &gt; itself (see Section 7.2.2). The size of the length field plus the value
+    /// &gt; of length must be an integral multiple of the address size.
+    </span><span class="kw">pub fn </span>entry_len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; R::Offset {
+        <span class="self">self</span>.length
+    }
 }
 
 <span class="doccomment">/// A `FrameDescriptionEntry` is a set of CFA instructions for an address range.
@@ -9606,11 +9735,13 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
 
 <span class="attr">#[cfg(feature = <span class="string">&quot;read&quot;</span>)]
 </span><span class="kw">const </span>MAX_RULES: usize = <span class="number">192</span>;
+<span class="attr">#[cfg(feature = <span class="string">&quot;read&quot;</span>)]
+</span><span class="kw">const </span>MAX_UNWIND_STACK_DEPTH: usize = <span class="number">4</span>;
 
 <span class="attr">#[cfg(feature = <span class="string">&quot;read&quot;</span>)]
 </span><span class="kw">impl</span>&lt;R: Reader&gt; UnwindContextStorage&lt;R&gt; <span class="kw">for </span>StoreOnHeap {
     <span class="kw">type </span>Rules = [(Register, RegisterRule&lt;R&gt;); MAX_RULES];
-    <span class="kw">type </span>Stack = Vec&lt;UnwindTableRow&lt;R, <span class="self">Self</span>&gt;&gt;;
+    <span class="kw">type </span>Stack = Box&lt;[UnwindTableRow&lt;R, <span class="self">Self</span>&gt;; MAX_UNWIND_STACK_DEPTH]&gt;;
 }
 
 <span class="doccomment">/// Common context needed when evaluating the call frame unwinding information.
@@ -9706,9 +9837,8 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
         bases: <span class="kw-2">&amp;</span>BaseAddresses,
         cie: <span class="kw-2">&amp;</span>CommonInformationEntry&lt;R&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">if </span><span class="self">self</span>.is_initialized {
-            <span class="self">self</span>.reset();
-        }
+        <span class="comment">// Always reset because previous initialization failure may leave dirty state.
+        </span><span class="self">self</span>.reset();
 
         <span class="kw">let </span><span class="kw-2">mut </span>table = UnwindTable::new_for_cie(section, bases, <span class="self">self</span>, cie);
         <span class="kw">while </span>table.next_row()<span class="question-mark">?</span>.is_some() {}
@@ -10854,7 +10984,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
     /// &gt;
     /// &gt; AArch64 Extension
     /// &gt;
-    /// &gt; The DW_CFA_AARCH64_negate_ra_state operation negates bit[0] of the
+    /// &gt; The DW_CFA_AARCH64_negate_ra_state operation negates bit 0 of the
     /// &gt; RA_SIGN_STATE pseudo-register. It does not take any operands. The
     /// &gt; DW_CFA_AARCH64_negate_ra_state must not be mixed with other DWARF Register
     /// &gt; Rule Instructions on the RA_SIGN_STATE pseudo-register in one Common
@@ -13584,6 +13714,98 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
         <span class="comment">// All done!
         </span><span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>), table.next_row());
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>), table.next_row());
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_unwind_table_cie_invalid_rule() {
+        <span class="kw">let </span>initial_instructions1 = Section::with_endian(Endian::Little)
+            <span class="comment">// Test that stack length is reset.
+            </span>.D8(constants::DW_CFA_remember_state.<span class="number">0</span>)
+            <span class="comment">// Test that stack value is reset (different register from that used later).
+            </span>.D8(constants::DW_CFA_offset.<span class="number">0 </span>| <span class="number">4</span>)
+            .uleb(<span class="number">8</span>)
+            <span class="comment">// Invalid due to missing operands.
+            </span>.D8(constants::DW_CFA_offset.<span class="number">0</span>);
+        <span class="kw">let </span>initial_instructions1 = initial_instructions1.get_contents().unwrap();
+
+        <span class="kw">let </span>cie1 = CommonInformationEntry {
+            offset: <span class="number">0</span>,
+            length: <span class="number">0</span>,
+            format: Format::Dwarf32,
+            version: <span class="number">4</span>,
+            augmentation: <span class="prelude-val">None</span>,
+            address_size: <span class="number">8</span>,
+            segment_size: <span class="number">0</span>,
+            code_alignment_factor: <span class="number">1</span>,
+            data_alignment_factor: <span class="number">1</span>,
+            return_address_register: Register(<span class="number">3</span>),
+            initial_instructions: EndianSlice::new(<span class="kw-2">&amp;</span>initial_instructions1, LittleEndian),
+        };
+
+        <span class="kw">let </span>initial_instructions2 = Section::with_endian(Endian::Little)
+            <span class="comment">// Register 3 is 4 from the CFA.
+            </span>.D8(constants::DW_CFA_offset.<span class="number">0 </span>| <span class="number">3</span>)
+            .uleb(<span class="number">4</span>)
+            .append_repeated(constants::DW_CFA_nop.<span class="number">0</span>, <span class="number">4</span>);
+        <span class="kw">let </span>initial_instructions2 = initial_instructions2.get_contents().unwrap();
+
+        <span class="kw">let </span>cie2 = CommonInformationEntry {
+            offset: <span class="number">0</span>,
+            length: <span class="number">0</span>,
+            format: Format::Dwarf32,
+            version: <span class="number">4</span>,
+            augmentation: <span class="prelude-val">None</span>,
+            address_size: <span class="number">8</span>,
+            segment_size: <span class="number">0</span>,
+            code_alignment_factor: <span class="number">1</span>,
+            data_alignment_factor: <span class="number">1</span>,
+            return_address_register: Register(<span class="number">3</span>),
+            initial_instructions: EndianSlice::new(<span class="kw-2">&amp;</span>initial_instructions2, LittleEndian),
+        };
+
+        <span class="kw">let </span>fde1 = FrameDescriptionEntry {
+            offset: <span class="number">0</span>,
+            length: <span class="number">0</span>,
+            format: Format::Dwarf32,
+            cie: cie1.clone(),
+            initial_segment: <span class="number">0</span>,
+            initial_address: <span class="number">0</span>,
+            address_range: <span class="number">100</span>,
+            augmentation: <span class="prelude-val">None</span>,
+            instructions: EndianSlice::new(<span class="kw-2">&amp;</span>[], LittleEndian),
+        };
+
+        <span class="kw">let </span>fde2 = FrameDescriptionEntry {
+            offset: <span class="number">0</span>,
+            length: <span class="number">0</span>,
+            format: Format::Dwarf32,
+            cie: cie2.clone(),
+            initial_segment: <span class="number">0</span>,
+            initial_address: <span class="number">0</span>,
+            address_range: <span class="number">100</span>,
+            augmentation: <span class="prelude-val">None</span>,
+            instructions: EndianSlice::new(<span class="kw-2">&amp;</span>[], LittleEndian),
+        };
+
+        <span class="kw">let </span>section = <span class="kw-2">&amp;</span>DebugFrame::from(EndianSlice::default());
+        <span class="kw">let </span>bases = <span class="kw-2">&amp;</span>BaseAddresses::default();
+        <span class="kw">let </span><span class="kw-2">mut </span>ctx = Box::new(UnwindContext::new());
+
+        <span class="kw">let </span>table = fde1
+            .rows(section, bases, <span class="kw-2">&amp;mut </span>ctx)
+            .map_eof(<span class="kw-2">&amp;</span>initial_instructions1);
+        <span class="macro">assert_eq!</span>(table.err(), <span class="prelude-val">Some</span>(Error::UnexpectedEof(ReaderOffsetId(<span class="number">4</span>))));
+        <span class="macro">assert!</span>(!ctx.is_initialized);
+        <span class="macro">assert_eq!</span>(ctx.stack.len(), <span class="number">2</span>);
+        <span class="macro">assert_eq!</span>(ctx.initial_rule, <span class="prelude-val">None</span>);
+
+        <span class="kw">let </span>_table = fde2
+            .rows(section, bases, <span class="kw-2">&amp;mut </span>ctx)
+            .expect(<span class="string">&quot;Should run initial program OK&quot;</span>);
+        <span class="macro">assert!</span>(ctx.is_initialized);
+        <span class="macro">assert_eq!</span>(ctx.stack.len(), <span class="number">1</span>);
+        <span class="kw">let </span>expected_initial_rule = (Register(<span class="number">3</span>), RegisterRule::Offset(<span class="number">4</span>));
+        <span class="macro">assert_eq!</span>(ctx.initial_rule, <span class="prelude-val">Some</span>(expected_initial_rule));
     }
 
     <span class="attr">#[test]

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_provider-1.3.2/src/request.rs`."><title>request.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-fa3bb1812debf86c.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_provider" data-themes="" data-resource-suffix="" data-rustdoc-version="1.74.0 (79e9716c9 2023-11-13)" data-channel="1.74.0" data-search-js="search-8be46b629f5f14a8.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-c5bd66d33317d69f.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../icu_provider/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_provider-1.4.0/src/request.rs`."><title>request.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-fa3bb1812debf86c.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_provider" data-themes="" data-resource-suffix="" data-rustdoc-version="1.74.1 (a28077b28 2023-12-04)" data-channel="1.74.1" data-search-js="search-8be46b629f5f14a8.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-c5bd66d33317d69f.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../icu_provider/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1104,6 +1104,21 @@
 <a href="#1104" id="1104">1104</a>
 <a href="#1105" id="1105">1105</a>
 <a href="#1106" id="1106">1106</a>
+<a href="#1107" id="1107">1107</a>
+<a href="#1108" id="1108">1108</a>
+<a href="#1109" id="1109">1109</a>
+<a href="#1110" id="1110">1110</a>
+<a href="#1111" id="1111">1111</a>
+<a href="#1112" id="1112">1112</a>
+<a href="#1113" id="1113">1113</a>
+<a href="#1114" id="1114">1114</a>
+<a href="#1115" id="1115">1115</a>
+<a href="#1116" id="1116">1116</a>
+<a href="#1117" id="1117">1117</a>
+<a href="#1118" id="1118">1118</a>
+<a href="#1119" id="1119">1119</a>
+<a href="#1120" id="1120">1120</a>
+<a href="#1121" id="1121">1121</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
@@ -1125,12 +1140,12 @@
 <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
 </span><span class="kw">use </span>core::ops::Deref;
 <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+</span><span class="kw">use </span>icu_locid::extensions::private::Subtag;
+<span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
 </span><span class="kw">use </span>tinystr::TinyAsciiStr;
 
 <span class="attr">#[cfg(doc)]
 </span><span class="kw">use </span>icu_locid::subtags::Variant;
-
-<span class="kw">const </span>AUXILIARY_KEY_SEPARATOR: u8 = <span class="string">b&#39;+&#39;</span>;
 
 <span class="doccomment">/// The request type passed into all data provider implementations.
 </span><span class="attr">#[derive(Default, Debug, Clone, Copy, PartialEq, Eq)]
@@ -1258,7 +1273,7 @@
         }
         <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(aux) = <span class="self">self</span>.aux.as_ref() {
-            sink.write_char(AuxiliaryKeys::separator() <span class="kw">as </span>char)<span class="question-mark">?</span>;
+            sink.write_str(<span class="string">&quot;-x-&quot;</span>)<span class="question-mark">?</span>;
             aux.write_to(sink)<span class="question-mark">?</span>;
         }
         <span class="prelude-val">Ok</span>(())
@@ -1271,7 +1286,7 @@
         }
         <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(aux) = <span class="self">self</span>.aux.as_ref() {
-            length_hint += aux.writeable_length_hint() + <span class="number">1</span>;
+            length_hint += aux.writeable_length_hint() + <span class="number">3</span>;
         }
         length_hint
     }
@@ -1312,7 +1327,7 @@
             langid: locale.id,
             keywords: locale.extensions.unicode.keywords,
             <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-            </span>aux: <span class="prelude-val">None</span>,
+            </span>aux: AuxiliaryKeys::try_from_iter(locale.extensions.private.iter().copied()).ok(),
         }
     }
 }
@@ -1334,7 +1349,7 @@
             langid: locale.id.clone(),
             keywords: locale.extensions.unicode.keywords.clone(),
             <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-            </span>aux: <span class="prelude-val">None</span>,
+            </span>aux: AuxiliaryKeys::try_from_iter(locale.extensions.private.iter().copied()).ok(),
         }
     }
 }
@@ -1342,31 +1357,13 @@
 <span class="kw">impl </span>FromStr <span class="kw">for </span>DataLocale {
     <span class="kw">type </span><span class="prelude-val">Err </span>= DataError;
     <span class="kw">fn </span>from_str(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>aux_iter = s.splitn(<span class="number">2</span>, AUXILIARY_KEY_SEPARATOR <span class="kw">as </span>char);
-        <span class="kw">let </span><span class="prelude-val">Some</span>(locale_str) = aux_iter.next() <span class="kw">else </span>{
-            <span class="kw">return </span><span class="prelude-val">Err</span>(DataErrorKind::KeyLocaleSyntax
-                .into_error()
-                .with_display_context(s));
-        };
-        <span class="kw">let </span>locale = Locale::from_str(locale_str).map_err(|e| {
+        <span class="kw">let </span>locale = Locale::from_str(s).map_err(|e| {
             DataErrorKind::KeyLocaleSyntax
                 .into_error()
                 .with_display_context(s)
                 .with_display_context(<span class="kw-2">&amp;</span>e)
         })<span class="question-mark">?</span>;
-        <span class="attr">#[cfg_attr(not(feature = <span class="string">&quot;experimental&quot;</span>), allow(unused_mut))]
-        </span><span class="kw">let </span><span class="kw-2">mut </span>data_locale = DataLocale::from(locale);
-        <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(aux_str) = aux_iter.next() {
-            <span class="kw">let </span>aux = AuxiliaryKeys::from_str(aux_str)<span class="question-mark">?</span>;
-            data_locale.set_aux(aux);
-        }
-        <span class="kw">if </span>aux_iter.next().is_some() {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(DataErrorKind::KeyLocaleSyntax
-                .into_error()
-                .with_display_context(s));
-        }
-        <span class="prelude-val">Ok</span>(data_locale)
+        <span class="prelude-val">Ok</span>(DataLocale::from(locale))
     }
 }
 
@@ -1388,20 +1385,21 @@
     ///
     /// let bcp47_strings: &amp;[&amp;str] = &amp;[
     ///     &quot;ca&quot;,
-    ///     &quot;ca+EUR&quot;,
     ///     &quot;ca-ES&quot;,
-    ///     &quot;ca-ES+GBP&quot;,
-    ///     &quot;ca-ES+GBP+short&quot;,
-    ///     &quot;ca-ES+USD&quot;,
     ///     &quot;ca-ES-u-ca-buddhist&quot;,
     ///     &quot;ca-ES-valencia&quot;,
+    ///     &quot;ca-ES-x-gbp&quot;,
+    ///     &quot;ca-ES-x-gbp-short&quot;,
+    ///     &quot;ca-ES-x-usd&quot;,
+    ///     &quot;ca-ES-xyzabc&quot;,
+    ///     &quot;ca-x-eur&quot;,
     ///     &quot;cat&quot;,
     ///     &quot;pl-Latn-PL&quot;,
     ///     &quot;und&quot;,
-    ///     &quot;und+MXN&quot;,
     ///     &quot;und-fonipa&quot;,
     ///     &quot;und-u-ca-hebrew&quot;,
     ///     &quot;und-u-ca-japanese&quot;,
+    ///     &quot;und-x-mxn&quot;,
     ///     &quot;zh&quot;,
     /// ];
     ///
@@ -1450,28 +1448,22 @@
     /// let invalid_strings: &amp;[&amp;str] = &amp;[
     ///     // Less than &quot;ca-ES&quot;
     ///     &quot;CA&quot;,
-    ///     &quot;ar+GBP+FOO&quot;,
-    ///     // Greater than &quot;ca-ES+GBP&quot;
+    ///     &quot;ar-x-gbp-FOO&quot;,
+    ///     // Greater than &quot;ca-ES-x-gbp&quot;
     ///     &quot;ca_ES&quot;,
-    ///     &quot;ca-ES+GBP+FOO&quot;,
+    ///     &quot;ca-ES-x-gbp-FOO&quot;,
     /// ];
     ///
-    /// let data_locale = &quot;ca-ES+GBP&quot;.parse::&lt;DataLocale&gt;().unwrap();
+    /// let data_locale = &quot;ca-ES-x-gbp&quot;.parse::&lt;DataLocale&gt;().unwrap();
     ///
     /// for s in invalid_strings.iter() {
-    ///     let expected_ordering = &quot;ca-ES+GBP&quot;.cmp(s);
+    ///     let expected_ordering = &quot;ca-ES-x-gbp&quot;.cmp(s);
     ///     let actual_ordering = data_locale.strict_cmp(s.as_bytes());
     ///     assert_eq!(expected_ordering, actual_ordering, &quot;{}&quot;, s);
     /// }
     /// ```
     </span><span class="kw">pub fn </span>strict_cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>[u8]) -&gt; Ordering {
-        <span class="kw">let </span><span class="kw-2">mut </span>aux_iter = other.splitn(<span class="number">2</span>, |b| <span class="kw-2">*</span>b == AUXILIARY_KEY_SEPARATOR);
-        <span class="kw">let </span><span class="prelude-val">Some</span>(locale_str) = aux_iter.next() <span class="kw">else </span>{
-            <span class="macro">debug_assert!</span>(other.is_empty());
-            <span class="kw">return </span>Ordering::Greater;
-        };
-        <span class="kw">let </span>aux_str = aux_iter.next();
-        <span class="kw">let </span>subtags = locale_str.split(|b| <span class="kw-2">*</span>b == <span class="string">b&#39;-&#39;</span>);
+        <span class="kw">let </span>subtags = other.split(|b| <span class="kw-2">*</span>b == <span class="string">b&#39;-&#39;</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>subtag_result = <span class="self">self</span>.langid.strict_cmp_iter(subtags);
         <span class="kw">if </span><span class="self">self</span>.has_unicode_ext() {
             <span class="kw">let </span><span class="kw-2">mut </span>subtags = <span class="kw">match </span>subtag_result {
@@ -1485,38 +1477,20 @@
             }
             subtag_result = <span class="self">self</span>.keywords.strict_cmp_iter(subtags);
         }
-        <span class="kw">let </span>has_more_subtags = <span class="kw">match </span>subtag_result {
-            SubtagOrderingResult::Subtags(<span class="kw-2">mut </span>s) =&gt; s.next().is_some(),
-            SubtagOrderingResult::Ordering(o) =&gt; <span class="kw">return </span>o,
-        };
-        <span class="comment">// If we get here, `self` has equal or fewer subtags than the `other`.
-        // There are 2^3 = 8 cases to handle for auxiliary keys, expanded below.
-        </span><span class="kw">match </span>(has_more_subtags, <span class="self">self</span>.get_aux(), aux_str) {
-            (<span class="bool-val">false</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; {
-                <span class="comment">// foo == foo
-                </span>Ordering::Equal
+        <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(aux) = <span class="self">self</span>.get_aux() {
+            <span class="kw">let </span><span class="kw-2">mut </span>subtags = <span class="kw">match </span>subtag_result {
+                SubtagOrderingResult::Subtags(s) =&gt; s,
+                SubtagOrderingResult::Ordering(o) =&gt; <span class="kw">return </span>o,
+            };
+            <span class="kw">match </span>subtags.next() {
+                <span class="prelude-val">Some</span>(<span class="string">b&quot;x&quot;</span>) =&gt; (),
+                <span class="prelude-val">Some</span>(s) =&gt; <span class="kw">return </span>s.cmp(<span class="string">b&quot;x&quot;</span>).reverse(),
+                <span class="prelude-val">None </span>=&gt; <span class="kw">return </span>Ordering::Greater,
             }
-            (<span class="bool-val">false</span>, <span class="prelude-val">Some</span>(self_aux), <span class="prelude-val">Some</span>(other_aux)) =&gt; {
-                <span class="comment">// foo+BAR1 ?= foo+BAR2
-                </span><span class="kw">let </span>aux_ordering = self_aux.as_bytes().cmp(other_aux);
-                <span class="kw">if </span>aux_ordering != Ordering::Equal {
-                    <span class="kw">return </span>aux_ordering;
-                }
-                Ordering::Equal
-            }
-            (<span class="bool-val">false</span>, <span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="prelude-val">None</span>) =&gt; {
-                <span class="comment">// foo+BAR &gt; foo
-                </span>Ordering::Greater
-            }
-            (<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
-                <span class="comment">// foo &lt; foo-bar
-                // foo &lt; foo-bar+BAR
-                // foo &lt; foo+BAR
-                // foo+BAR &lt; foo-bar
-                // foo+BAR &lt; foo-bar+BAR
-                </span>Ordering::Less
-            }
+            subtag_result = aux.strict_cmp_iter(subtags);
         }
+        subtag_result.end()
     }
 }
 
@@ -1538,7 +1512,7 @@
     ///     .parse::&lt;DataLocale&gt;()
     ///     .unwrap()
     ///     .is_empty());
-    /// assert!(!&quot;und+auxiliary&quot;.parse::&lt;DataLocale&gt;().unwrap().is_empty());
+    /// assert!(!&quot;und-x-aux&quot;.parse::&lt;DataLocale&gt;().unwrap().is_empty());
     /// assert!(!&quot;ca-ES&quot;.parse::&lt;DataLocale&gt;().unwrap().is_empty());
     /// ```
     </span><span class="kw">pub fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
@@ -1561,7 +1535,7 @@
     ///
     /// assert!(&quot;und&quot;.parse::&lt;DataLocale&gt;().unwrap().is_und());
     /// assert!(!&quot;und-u-ca-buddhist&quot;.parse::&lt;DataLocale&gt;().unwrap().is_und());
-    /// assert!(&quot;und+auxiliary&quot;.parse::&lt;DataLocale&gt;().unwrap().is_und());
+    /// assert!(&quot;und-x-aux&quot;.parse::&lt;DataLocale&gt;().unwrap().is_und());
     /// assert!(!&quot;ca-ES&quot;.parse::&lt;DataLocale&gt;().unwrap().is_und());
     /// ```
     </span><span class="kw">pub fn </span>is_und(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
@@ -1587,10 +1561,7 @@
     ///     .parse::&lt;DataLocale&gt;()
     ///     .unwrap()
     ///     .is_langid_und());
-    /// assert!(&quot;und+auxiliary&quot;
-    ///     .parse::&lt;DataLocale&gt;()
-    ///     .unwrap()
-    ///     .is_langid_und());
+    /// assert!(&quot;und-x-aux&quot;.parse::&lt;DataLocale&gt;().unwrap().is_langid_und());
     /// assert!(!&quot;ca-ES&quot;.parse::&lt;DataLocale&gt;().unwrap().is_langid_und());
     /// ```
     </span><span class="kw">pub fn </span>is_langid_und(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
@@ -1664,12 +1635,32 @@
     /// let locale = locale.into_locale();
     /// assert_eq!(locale, locale!(&quot;it-IT-u-ca-coptic&quot;));
     /// ```
+    ///
+    /// Auxiliary keys are retained:
+    ///
+    /// ```
+    /// use icu_locid::Locale;
+    /// use icu_provider::prelude::*;
+    /// use writeable::assert_writeable_eq;
+    ///
+    /// let locale: Locale = &quot;und-u-nu-arab-x-gbp&quot;.parse().unwrap();
+    /// let data_locale = DataLocale::from(locale);
+    /// assert_writeable_eq!(data_locale, &quot;und-u-nu-arab-x-gbp&quot;);
+    ///
+    /// let recovered_locale = data_locale.into_locale();
+    /// assert_writeable_eq!(recovered_locale, &quot;und-u-nu-arab-x-gbp&quot;);
+    /// ```
     </span><span class="kw">pub fn </span>into_locale(<span class="self">self</span>) -&gt; Locale {
         <span class="kw">let </span><span class="kw-2">mut </span>loc = Locale {
             id: <span class="self">self</span>.langid,
             ..Default::default()
         };
         loc.extensions.unicode.keywords = <span class="self">self</span>.keywords;
+        <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(aux) = <span class="self">self</span>.aux {
+            loc.extensions.private =
+                icu_locid::extensions::private::Private::from_vec_unchecked(aux.iter().collect());
+        }
         loc
     }
 
@@ -1803,11 +1794,6 @@
         <span class="self">self</span>.aux.as_ref()
     }
 
-    <span class="attr">#[cfg(not(feature = <span class="string">&quot;experimental&quot;</span>))]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get_aux(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
-        <span class="prelude-val">None
-    </span>}
-
     <span class="doccomment">/// Returns whether this [`DataLocale`] has an auxiliary key.
     ///
     /// For more information and examples, see [`AuxiliaryKeys`].
@@ -1836,15 +1822,15 @@
     /// use writeable::assert_writeable_eq;
     ///
     /// let mut data_locale: DataLocale = locale!(&quot;ar-EG&quot;).into();
-    /// let aux = &quot;GBP&quot;
+    /// let aux = &quot;gbp&quot;
     ///     .parse::&lt;AuxiliaryKeys&gt;()
     ///     .expect(&quot;contains valid characters&quot;);
     /// data_locale.set_aux(aux);
-    /// assert_writeable_eq!(data_locale, &quot;ar-EG+GBP&quot;);
+    /// assert_writeable_eq!(data_locale, &quot;ar-EG-x-gbp&quot;);
     ///
     /// let maybe_aux = data_locale.remove_aux();
     /// assert_writeable_eq!(data_locale, &quot;ar-EG&quot;);
-    /// assert_writeable_eq!(maybe_aux.unwrap(), &quot;GBP&quot;);
+    /// assert_writeable_eq!(maybe_aux.unwrap(), &quot;gbp&quot;);
     /// ```
     </span><span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
     </span><span class="kw">pub fn </span>remove_aux(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;AuxiliaryKeys&gt; {
@@ -1856,10 +1842,9 @@
 /// information that does not fit into the [`LanguageIdentifier`] or [`Keywords`].
 ///
 /// A [`DataLocale`] can have multiple auxiliary keys, represented by this struct. The auxiliary
-/// keys are separated from the BCP-47 locale and from each other with the character returned by
-/// [`AuxiliaryKeys::separator()`].
+/// keys are stored as private use subtags following `-x-`.
 ///
-/// An auxiliary key currently allows alphanumerics and `-`.
+/// An auxiliary key currently allows 1-8 lowercase alphanumerics.
 ///
 /// &lt;div class=&quot;stab unstable&quot;&gt;
 /// 🚧 This code is experimental; it may change at any time, in breaking or non-breaking ways,
@@ -1880,14 +1865,14 @@
 /// assert!(!data_locale.has_aux());
 /// assert_eq!(data_locale.get_aux(), None);
 ///
-/// let aux = &quot;GBP&quot;
+/// let aux = &quot;gbp&quot;
 ///     .parse::&lt;AuxiliaryKeys&gt;()
 ///     .expect(&quot;contains valid characters&quot;);
 ///
 /// data_locale.set_aux(aux);
-/// assert_writeable_eq!(data_locale, &quot;ar-EG+GBP&quot;);
+/// assert_writeable_eq!(data_locale, &quot;ar-EG-x-gbp&quot;);
 /// assert!(data_locale.has_aux());
-/// assert_eq!(data_locale.get_aux(), Some(&amp;&quot;GBP&quot;.parse().unwrap()));
+/// assert_eq!(data_locale.get_aux(), Some(&amp;&quot;gbp&quot;.parse().unwrap()));
 /// ```
 ///
 /// Multiple auxiliary keys are allowed:
@@ -1897,32 +1882,31 @@
 /// use icu_provider::prelude::*;
 /// use writeable::assert_writeable_eq;
 ///
-/// let data_locale = &quot;ar-EG+GBP+long&quot;.parse::&lt;DataLocale&gt;().unwrap();
-/// assert_writeable_eq!(data_locale, &quot;ar-EG+GBP+long&quot;);
+/// let data_locale = &quot;ar-EG-x-gbp-long&quot;.parse::&lt;DataLocale&gt;().unwrap();
+/// assert_writeable_eq!(data_locale, &quot;ar-EG-x-gbp-long&quot;);
 /// assert_eq!(data_locale.get_aux().unwrap().iter().count(), 2);
 /// ```
 ///
-/// Not all strings are valid auxiliary keys:
+/// Not all strings are valid auxiliary keys.
+/// The string must be well-formed and case-normalized:
 ///
 /// ```
 /// use icu_provider::prelude::*;
 ///
 /// assert!(&quot;abcdefg&quot;.parse::&lt;AuxiliaryKeys&gt;().is_ok());
-/// assert!(&quot;ABC123&quot;.parse::&lt;AuxiliaryKeys&gt;().is_ok());
 /// assert!(&quot;abc-xyz&quot;.parse::&lt;AuxiliaryKeys&gt;().is_ok());
 ///
 /// assert!(&quot;&quot;.parse::&lt;AuxiliaryKeys&gt;().is_err());
 /// assert!(&quot;!@#$%&quot;.parse::&lt;AuxiliaryKeys&gt;().is_err());
 /// assert!(&quot;abc_xyz&quot;.parse::&lt;AuxiliaryKeys&gt;().is_err());
+/// assert!(&quot;ABC123&quot;.parse::&lt;AuxiliaryKeys&gt;().is_err());
 /// ```
 ///
 /// [`Keywords`]: unicode_ext::Keywords
 </span><span class="attr">#[derive(Debug, PartialEq, Clone, Eq, Hash)]
 #[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
 </span><span class="kw">pub struct </span>AuxiliaryKeys {
-    <span class="comment">// DISCUSS: SmallStr? TinyStrAuto?
-    // DISCUSS: Make this a dynamically sized type so references can be taken?
-    </span>value: AuxiliaryKeysInner,
+    value: AuxiliaryKeysInner,
 }
 
 <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
@@ -2000,59 +1984,44 @@
 
 <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
 </span><span class="kw">impl </span>AuxiliaryKeys {
-    <span class="doccomment">/// Returns this [`AuxiliaryKeys`] as a single byte slice.
-    ///
-    /// NOTE: Do not make this public because we might not always store these in a single string.
-    /// External clients who need this can use `&lt;Self as Writeable&gt;::write_to_string`.
-    </span><span class="attr">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>as_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
-        <span class="self">self</span>.value.as_bytes()
-    }
-
     <span class="doccomment">/// Creates an [`AuxiliaryKeys`] from an iterator of individual keys.
     ///
     /// # Examples
     ///
     /// ```
+    /// use icu_locid::extensions::private::subtag;
     /// use icu_provider::prelude::*;
     ///
     /// // Single auxiliary key:
-    /// let a = AuxiliaryKeys::try_from_iter([&quot;abc&quot;]).unwrap();
+    /// let a = AuxiliaryKeys::try_from_iter([subtag!(&quot;abc&quot;)]).unwrap();
     /// let b = &quot;abc&quot;.parse::&lt;AuxiliaryKeys&gt;().unwrap();
     /// assert_eq!(a, b);
     ///
     /// // Multiple auxiliary keys:
-    /// let a = AuxiliaryKeys::try_from_iter([&quot;abc&quot;, &quot;defg&quot;]).unwrap();
-    /// let b = &quot;abc+defg&quot;.parse::&lt;AuxiliaryKeys&gt;().unwrap();
+    /// let a = AuxiliaryKeys::try_from_iter([subtag!(&quot;abc&quot;), subtag!(&quot;defg&quot;)])
+    ///     .unwrap();
+    /// let b = &quot;abc-defg&quot;.parse::&lt;AuxiliaryKeys&gt;().unwrap();
     /// assert_eq!(a, b);
     /// ```
     ///
-    /// Don&#39;t include the auxiliary key separator or other invalid chars in the iterator strings:
+    /// The iterator can&#39;t be empty:
     ///
     /// ```
     /// use icu_provider::prelude::*;
     ///
-    /// assert!(AuxiliaryKeys::try_from_iter([&quot;abc+defg&quot;]).is_err());
-    /// assert!(AuxiliaryKeys::try_from_iter([&quot;AB$C&quot;]).is_err());
+    /// assert!(AuxiliaryKeys::try_from_iter([]).is_err());
     /// ```
-    </span><span class="kw">pub fn </span>try_from_iter&lt;<span class="lifetime">&#39;a</span>&gt;(iter: <span class="kw">impl </span>IntoIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, DataError&gt; {
+    </span><span class="kw">pub fn </span>try_from_iter(iter: <span class="kw">impl </span>IntoIterator&lt;Item = Subtag&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, DataError&gt; {
         <span class="comment">// TODO: Avoid the allocation when possible
         </span><span class="kw">let </span><span class="kw-2">mut </span>builder = String::new();
         <span class="kw">for </span>item <span class="kw">in </span>iter {
-            <span class="kw">if </span>!item.is_empty()
-                &amp;&amp; item
-                    .bytes()
-                    .all(|b| b.is_ascii_alphanumeric() || <span class="macro">matches!</span>(b, <span class="string">b&#39;-&#39;</span>))
-            {
-                <span class="kw">if </span>!builder.is_empty() {
-                    builder.push(AuxiliaryKeys::separator() <span class="kw">as </span>char);
-                }
-                builder.push_str(item)
-            } <span class="kw">else </span>{
-                <span class="kw">return </span><span class="prelude-val">Err</span>(DataErrorKind::KeyLocaleSyntax
-                    .into_error()
-                    .with_display_context(item));
+            <span class="kw">if </span>!builder.is_empty() {
+                builder.push(AuxiliaryKeys::separator());
             }
+            builder.push_str(item.as_str())
+        }
+        <span class="kw">if </span>builder.is_empty() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(DataErrorKind::KeyLocaleSyntax.with_str_context(<span class="string">&quot;empty aux iterator&quot;</span>));
         }
         <span class="kw">if </span>builder.len() &lt;= <span class="number">23 </span>{
             <span class="attr">#[allow(clippy::unwrap_used)] </span><span class="comment">// we just checked that the string is ascii
@@ -2066,10 +2035,35 @@
         }
     }
 
+    <span class="doccomment">/// Creates an [`AuxiliaryKeys`] from a single subtag.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use icu_locid::extensions::private::subtag;
+    /// use icu_provider::prelude::*;
+    ///
+    /// // Single auxiliary key:
+    /// let a = AuxiliaryKeys::from_subtag(subtag!(&quot;abc&quot;));
+    /// let b = &quot;abc&quot;.parse::&lt;AuxiliaryKeys&gt;().unwrap();
+    /// assert_eq!(a, b);
+    /// ```
+    </span><span class="kw">pub const fn </span>from_subtag(input: Subtag) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            value: AuxiliaryKeysInner::Stack(input.into_tinystr().resize()),
+        }
+    }
+
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>try_from_str(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, DataError&gt; {
         <span class="kw">if </span>!s.is_empty()
-            &amp;&amp; s.bytes()
-                .all(|b| b.is_ascii_alphanumeric() || <span class="macro">matches!</span>(b, <span class="string">b&#39;-&#39; </span>| <span class="string">b&#39;+&#39;</span>))
+            &amp;&amp; s.split(<span class="self">Self</span>::separator()).all(|b| {
+                <span class="kw">if let </span><span class="prelude-val">Ok</span>(subtag) = Subtag::from_str(b) {
+                    <span class="comment">// Enforces normalization:
+                    </span>b == subtag.as_str()
+                } <span class="kw">else </span>{
+                    <span class="bool-val">false
+                </span>}
+            })
         {
             <span class="kw">if </span>s.len() &lt;= <span class="number">23 </span>{
                 <span class="attr">#[allow(clippy::unwrap_used)] </span><span class="comment">// we just checked that the string is ascii
@@ -2093,27 +2087,63 @@
     /// # Example
     ///
     /// ```
+    /// use icu_locid::extensions::private::subtag;
     /// use icu_provider::AuxiliaryKeys;
     ///
-    /// let aux: AuxiliaryKeys = &quot;abc+defg&quot;.parse().unwrap();
-    /// assert_eq!(aux.iter().collect::&lt;Vec&lt;_&gt;&gt;(), vec![&quot;abc&quot;, &quot;defg&quot;]);
+    /// let aux: AuxiliaryKeys = &quot;abc-defg&quot;.parse().unwrap();
+    /// assert_eq!(
+    ///     aux.iter().collect::&lt;Vec&lt;_&gt;&gt;(),
+    ///     vec![subtag!(&quot;abc&quot;), subtag!(&quot;defg&quot;)]
+    /// );
     /// ```
-    </span><span class="kw">pub fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span>str&gt; + <span class="lifetime">&#39;_ </span>{
-        <span class="self">self</span>.value.split(<span class="self">Self</span>::separator() <span class="kw">as </span>char)
+    </span><span class="kw">pub fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = Subtag&gt; + <span class="lifetime">&#39;_ </span>{
+        <span class="self">self</span>.value
+            .split(<span class="self">Self</span>::separator())
+            .filter_map(|x| <span class="kw">match </span>x.parse() {
+                <span class="prelude-val">Ok</span>(x) =&gt; <span class="prelude-val">Some</span>(x),
+                <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
+                    <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;failed to convert to subtag: {x}&quot;</span>);
+                    <span class="prelude-val">None
+                </span>}
+            })
     }
 
-    <span class="doccomment">/// Returns the separator byte used for auxiliary keys in data locales.
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>strict_cmp_iter&lt;<span class="lifetime">&#39;l</span>, I&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>subtags: I) -&gt; SubtagOrderingResult&lt;I&gt;
+    <span class="kw">where
+        </span>I: Iterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;l </span>[u8]&gt;,
+    {
+        <span class="kw">for </span>subtag <span class="kw">in </span><span class="self">self</span>.value.split(<span class="self">Self</span>::separator()) {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(other) = subtags.next() {
+                <span class="kw">match </span>subtag.as_bytes().cmp(other) {
+                    Ordering::Equal =&gt; (),
+                    not_equal =&gt; <span class="kw">return </span>SubtagOrderingResult::Ordering(not_equal),
+                }
+            } <span class="kw">else </span>{
+                <span class="kw">return </span>SubtagOrderingResult::Ordering(Ordering::Greater);
+            }
+        }
+        SubtagOrderingResult::Subtags(subtags)
+    }
+
+    <span class="doccomment">/// Returns the internal separator byte used for auxiliary keys in data locales.
     ///
-    /// # Examples
-    ///
-    /// ```
-    /// use icu_provider::AuxiliaryKeys;
-    ///
-    /// assert_eq!(AuxiliaryKeys::separator(), b&#39;+&#39;);
-    /// ```
+    /// This is, according to BCP-47, an ASCII hyphen.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub const fn </span>separator() -&gt; u8 {
-        AUXILIARY_KEY_SEPARATOR
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const fn </span>separator() -&gt; char {
+        <span class="string">&#39;-&#39;
+    </span>}
+}
+
+<span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+</span><span class="kw">impl </span>From&lt;Subtag&gt; <span class="kw">for </span>AuxiliaryKeys {
+    <span class="kw">fn </span>from(subtag: Subtag) -&gt; <span class="self">Self </span>{
+        <span class="attr">#[allow(clippy::expect_used)] </span><span class="comment">// subtags definitely fit within auxiliary keys
+        </span><span class="self">Self </span>{
+            value: AuxiliaryKeysInner::Stack(
+                TinyAsciiStr::from_bytes(subtag.as_str().as_bytes())
+                    .expect(<span class="string">&quot;Subtags are capped to 8 elements, AuxiliaryKeys supports up to 23&quot;</span>),
+            ),
+        }
     }
 }
 
@@ -2146,8 +2176,8 @@
         <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
         </span>TestCase {
             locale: <span class="macro">locale!</span>(<span class="string">&quot;en-ZA-u-nu-arab&quot;</span>),
-            aux: <span class="prelude-val">Some</span>(<span class="string">&quot;GBP&quot;</span>),
-            expected: <span class="string">&quot;en-ZA-u-nu-arab+GBP&quot;</span>,
+            aux: <span class="prelude-val">Some</span>(<span class="string">&quot;gbp&quot;</span>),
+            expected: <span class="string">&quot;en-ZA-u-nu-arab-x-gbp&quot;</span>,
         },
     ] {
         <span class="kw">let </span><span class="kw-2">mut </span>data_locale = DataLocale::from(cas.locale);
@@ -2186,12 +2216,12 @@
         },
         <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
         </span>TestCase {
-            input: <span class="string">&quot;en-ZA-u-nu-arab+GBP&quot;</span>,
+            input: <span class="string">&quot;en-ZA-u-nu-arab-x-gbp&quot;</span>,
             success: <span class="bool-val">true</span>,
         },
         <span class="attr">#[cfg(not(feature = <span class="string">&quot;experimental&quot;</span>))]
         </span>TestCase {
-            input: <span class="string">&quot;en-ZA-u-nu-arab+GBP&quot;</span>,
+            input: <span class="string">&quot;en-ZA-u-nu-arab-x-gbp&quot;</span>,
             success: <span class="bool-val">false</span>,
         },
     ] {

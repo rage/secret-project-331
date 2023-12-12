@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["ParseMode","QuotedPrintableError"],"fn":["decode","encode","encode_binary","encode_binary_to_str","encode_to_str"]};
+window.SIDEBAR_ITEMS = {"enum":["InputMode","ParseMode","QuotedPrintableError"],"fn":["decode","decode_with_options","encode","encode_binary","encode_binary_to_str","encode_to_str","encode_with_options"],"struct":["Options"]};

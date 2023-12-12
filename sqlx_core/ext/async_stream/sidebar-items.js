@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["TryAsyncStream"]};
+window.SIDEBAR_ITEMS = {"struct":["TryAsyncStream","Yielder"]};

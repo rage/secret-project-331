@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/lettre-0.10.4/src/message/mailbox/types.rs`."><title>types.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-fa3bb1812debf86c.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="lettre" data-themes="" data-resource-suffix="" data-rustdoc-version="1.74.0 (79e9716c9 2023-11-13)" data-channel="1.74.0" data-search-js="search-8be46b629f5f14a8.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-c5bd66d33317d69f.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../lettre/index.html"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/lettre-0.11.2/src/message/mailbox/types.rs`."><title>types.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-fa3bb1812debf86c.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="lettre" data-themes="" data-resource-suffix="" data-rustdoc-version="1.74.1 (a28077b28 2023-12-04)" data-channel="1.74.1" data-search-js="search-8be46b629f5f14a8.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-c5bd66d33317d69f.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../lettre/index.html"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -596,38 +596,6 @@
 <a href="#596" id="596">596</a>
 <a href="#597" id="597">597</a>
 <a href="#598" id="598">598</a>
-<a href="#599" id="599">599</a>
-<a href="#600" id="600">600</a>
-<a href="#601" id="601">601</a>
-<a href="#602" id="602">602</a>
-<a href="#603" id="603">603</a>
-<a href="#604" id="604">604</a>
-<a href="#605" id="605">605</a>
-<a href="#606" id="606">606</a>
-<a href="#607" id="607">607</a>
-<a href="#608" id="608">608</a>
-<a href="#609" id="609">609</a>
-<a href="#610" id="610">610</a>
-<a href="#611" id="611">611</a>
-<a href="#612" id="612">612</a>
-<a href="#613" id="613">613</a>
-<a href="#614" id="614">614</a>
-<a href="#615" id="615">615</a>
-<a href="#616" id="616">616</a>
-<a href="#617" id="617">617</a>
-<a href="#618" id="618">618</a>
-<a href="#619" id="619">619</a>
-<a href="#620" id="620">620</a>
-<a href="#621" id="621">621</a>
-<a href="#622" id="622">622</a>
-<a href="#623" id="623">623</a>
-<a href="#624" id="624">624</a>
-<a href="#625" id="625">625</a>
-<a href="#626" id="626">626</a>
-<a href="#627" id="627">627</a>
-<a href="#628" id="628">628</a>
-<a href="#629" id="629">629</a>
-<a href="#630" id="630">630</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::{
     fmt::{Display, Formatter, <span class="prelude-ty">Result </span><span class="kw">as </span>FmtResult, Write},
     mem,
@@ -635,15 +603,17 @@
     str::FromStr,
 };
 
+<span class="kw">use </span>chumsky::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span>email_encoding::headers::EmailWriter;
 
+<span class="kw">use </span><span class="kw">super</span>::parsers;
 <span class="kw">use </span><span class="kw">crate</span>::address::{Address, AddressError};
 
 <span class="doccomment">/// Represents an email address with an optional name for the sender/recipient.
 ///
 /// This type contains email address and the sender/recipient name (_Some Name \&lt;user@domain.tld\&gt;_ or _withoutname@domain.tld_).
 ///
-/// **NOTE**: Enable feature &quot;serde&quot; to be able serialize/deserialize it using [serde](https://serde.rs/).
+/// **NOTE**: Enable feature &quot;serde&quot; to be able to serialize/deserialize it using [serde](https://serde.rs/).
 ///
 /// # Examples
 ///
@@ -738,40 +708,24 @@
     }
 }
 
-<span class="comment">/*
-impl&lt;S: AsRef&lt;&amp;str&gt;, T: AsRef&lt;&amp;str&gt;&gt; TryFrom&lt;(S, T)&gt; for Mailbox {
-    type Error = AddressError;
-
-    fn try_from(header: (S, T)) -&gt; Result&lt;Self, Self::Error&gt; {
-        let (name, address) = header;
-        Ok(Mailbox::new(Some(name.as_ref()), address.as_ref().parse()?))
-    }
-}*/
-
-</span><span class="kw">impl </span>FromStr <span class="kw">for </span>Mailbox {
+<span class="kw">impl </span>FromStr <span class="kw">for </span>Mailbox {
     <span class="kw">type </span><span class="prelude-val">Err </span>= AddressError;
 
     <span class="kw">fn </span>from_str(src: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Mailbox, <span class="self">Self</span>::Err&gt; {
-        <span class="kw">match </span>(src.find(<span class="string">&#39;&lt;&#39;</span>), src.find(<span class="string">&#39;&gt;&#39;</span>)) {
-            (<span class="prelude-val">Some</span>(addr_open), <span class="prelude-val">Some</span>(addr_close)) <span class="kw">if </span>addr_open &lt; addr_close =&gt; {
-                <span class="kw">let </span>name = src.split_at(addr_open).<span class="number">0</span>;
-                <span class="kw">let </span>addr_open = addr_open + <span class="number">1</span>;
-                <span class="kw">let </span>addr = src.split_at(addr_open).<span class="number">1</span>.split_at(addr_close - addr_open).<span class="number">0</span>;
-                <span class="kw">let </span>addr = addr.parse()<span class="question-mark">?</span>;
-                <span class="kw">let </span>name = name.trim();
-                <span class="kw">let </span>name = <span class="kw">if </span>name.is_empty() {
-                    <span class="prelude-val">None
-                </span>} <span class="kw">else </span>{
-                    <span class="prelude-val">Some</span>(name.into())
-                };
-                <span class="prelude-val">Ok</span>(Mailbox::new(name, addr))
-            }
-            (<span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(AddressError::Unbalanced),
-            <span class="kw">_ </span>=&gt; {
-                <span class="kw">let </span>addr = src.parse()<span class="question-mark">?</span>;
-                <span class="prelude-val">Ok</span>(Mailbox::new(<span class="prelude-val">None</span>, addr))
-            }
-        }
+        <span class="kw">let </span>(name, (user, domain)) = parsers::mailbox().parse(src).map_err(|_errs| {
+            <span class="comment">// TODO: improve error management
+            </span>AddressError::InvalidInput
+        })<span class="question-mark">?</span>;
+
+        <span class="kw">let </span>mailbox = Mailbox::new(name, Address::new(user, domain)<span class="question-mark">?</span>);
+
+        <span class="prelude-val">Ok</span>(mailbox)
+    }
+}
+
+<span class="kw">impl </span>From&lt;Address&gt; <span class="kw">for </span>Mailbox {
+    <span class="kw">fn </span>from(value: Address) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new(<span class="prelude-val">None</span>, value)
     }
 }
 
@@ -779,7 +733,7 @@ impl&lt;S: AsRef&lt;&amp;str&gt;, T: AsRef&lt;&amp;str&gt;&gt; TryFrom&lt;(S, T)
 ///
 /// This type contains a sequence of mailboxes (_Some Name \&lt;user@domain.tld\&gt;, Another Name \&lt;other@domain.tld\&gt;, withoutname@domain.tld, ..._).
 ///
-/// **NOTE**: Enable feature &quot;serde&quot; to be able serialize/deserialize it using [serde](https://serde.rs/).
+/// **NOTE**: Enable feature &quot;serde&quot; to be able to serialize/deserialize it using [serde](https://serde.rs/).
 </span><span class="attr">#[derive(Debug, Clone, PartialOrd, Ord, PartialEq, Eq, Hash)]
 </span><span class="kw">pub struct </span>Mailboxes(Vec&lt;Mailbox&gt;);
 
@@ -986,34 +940,16 @@ impl&lt;S: AsRef&lt;&amp;str&gt;, T: AsRef&lt;&amp;str&gt;&gt; TryFrom&lt;(S, T)
 <span class="kw">impl </span>FromStr <span class="kw">for </span>Mailboxes {
     <span class="kw">type </span><span class="prelude-val">Err </span>= AddressError;
 
-    <span class="kw">fn </span>from_str(<span class="kw-2">mut </span>src: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt; {
+    <span class="kw">fn </span>from_str(src: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>mailboxes = Vec::new();
 
-        <span class="kw">if </span>!src.is_empty() {
-            <span class="comment">// n-1 elements
-            </span><span class="kw">let </span><span class="kw-2">mut </span>skip = <span class="number">0</span>;
-            <span class="kw">while let </span><span class="prelude-val">Some</span>(i) = src[skip..].find(<span class="string">&#39;,&#39;</span>) {
-                <span class="kw">let </span>left = <span class="kw-2">&amp;</span>src[..skip + i];
+        <span class="kw">let </span>parsed_mailboxes = parsers::mailbox_list().parse(src).map_err(|_errs| {
+            <span class="comment">// TODO: improve error management
+            </span>AddressError::InvalidInput
+        })<span class="question-mark">?</span>;
 
-                <span class="kw">match </span>left.trim().parse() {
-                    <span class="prelude-val">Ok</span>(mailbox) =&gt; {
-                        mailboxes.push(mailbox);
-
-                        src = <span class="kw-2">&amp;</span>src[left.len() + <span class="string">&quot;,&quot;</span>.len()..];
-                        skip = <span class="number">0</span>;
-                    }
-                    <span class="prelude-val">Err</span>(AddressError::MissingParts) =&gt; {
-                        skip = left.len() + <span class="string">&quot;,&quot;</span>.len();
-                    }
-                    <span class="prelude-val">Err</span>(err) =&gt; {
-                        <span class="kw">return </span><span class="prelude-val">Err</span>(err);
-                    }
-                }
-            }
-
-            <span class="comment">// last element
-            </span><span class="kw">let </span>mailbox = src.trim().parse()<span class="question-mark">?</span>;
-            mailboxes.push(mailbox);
+        <span class="kw">for </span>(name, (user, domain)) <span class="kw">in </span>parsed_mailboxes {
+            mailboxes.push(Mailbox::new(name, Address::new(user, domain)<span class="question-mark">?</span>))
         }
 
         <span class="prelude-val">Ok</span>(Mailboxes(mailboxes))
@@ -1066,7 +1002,7 @@ impl&lt;S: AsRef&lt;&amp;str&gt;, T: AsRef&lt;&amp;str&gt;&gt; TryFrom&lt;(S, T)
 		<span class="string">b&#39;}&#39; </span>|
 		<span class="string">b&#39;~&#39; </span>|
 
-		<span class="comment">// Not techically allowed but will be escaped into allowed characters.
+		<span class="comment">// Not technically allowed but will be escaped into allowed characters.
 		</span><span class="number">128</span>..=<span class="number">255</span>)
 }
 

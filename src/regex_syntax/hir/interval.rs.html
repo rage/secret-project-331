@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/regex-syntax-0.8.0/src/hir/interval.rs`."><title>interval.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-fa3bb1812debf86c.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="regex_syntax" data-themes="" data-resource-suffix="" data-rustdoc-version="1.74.0 (79e9716c9 2023-11-13)" data-channel="1.74.0" data-search-js="search-8be46b629f5f14a8.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-c5bd66d33317d69f.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../regex_syntax/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/regex-syntax-0.8.2/src/hir/interval.rs`."><title>interval.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-fa3bb1812debf86c.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="regex_syntax" data-themes="" data-resource-suffix="" data-rustdoc-version="1.74.1 (a28077b28 2023-12-04)" data-channel="1.74.1" data-search-js="search-8be46b629f5f14a8.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-c5bd66d33317d69f.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../regex_syntax/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -579,94 +579,6 @@
 <a href="#579" id="579">579</a>
 <a href="#580" id="580">580</a>
 <a href="#581" id="581">581</a>
-<a href="#582" id="582">582</a>
-<a href="#583" id="583">583</a>
-<a href="#584" id="584">584</a>
-<a href="#585" id="585">585</a>
-<a href="#586" id="586">586</a>
-<a href="#587" id="587">587</a>
-<a href="#588" id="588">588</a>
-<a href="#589" id="589">589</a>
-<a href="#590" id="590">590</a>
-<a href="#591" id="591">591</a>
-<a href="#592" id="592">592</a>
-<a href="#593" id="593">593</a>
-<a href="#594" id="594">594</a>
-<a href="#595" id="595">595</a>
-<a href="#596" id="596">596</a>
-<a href="#597" id="597">597</a>
-<a href="#598" id="598">598</a>
-<a href="#599" id="599">599</a>
-<a href="#600" id="600">600</a>
-<a href="#601" id="601">601</a>
-<a href="#602" id="602">602</a>
-<a href="#603" id="603">603</a>
-<a href="#604" id="604">604</a>
-<a href="#605" id="605">605</a>
-<a href="#606" id="606">606</a>
-<a href="#607" id="607">607</a>
-<a href="#608" id="608">608</a>
-<a href="#609" id="609">609</a>
-<a href="#610" id="610">610</a>
-<a href="#611" id="611">611</a>
-<a href="#612" id="612">612</a>
-<a href="#613" id="613">613</a>
-<a href="#614" id="614">614</a>
-<a href="#615" id="615">615</a>
-<a href="#616" id="616">616</a>
-<a href="#617" id="617">617</a>
-<a href="#618" id="618">618</a>
-<a href="#619" id="619">619</a>
-<a href="#620" id="620">620</a>
-<a href="#621" id="621">621</a>
-<a href="#622" id="622">622</a>
-<a href="#623" id="623">623</a>
-<a href="#624" id="624">624</a>
-<a href="#625" id="625">625</a>
-<a href="#626" id="626">626</a>
-<a href="#627" id="627">627</a>
-<a href="#628" id="628">628</a>
-<a href="#629" id="629">629</a>
-<a href="#630" id="630">630</a>
-<a href="#631" id="631">631</a>
-<a href="#632" id="632">632</a>
-<a href="#633" id="633">633</a>
-<a href="#634" id="634">634</a>
-<a href="#635" id="635">635</a>
-<a href="#636" id="636">636</a>
-<a href="#637" id="637">637</a>
-<a href="#638" id="638">638</a>
-<a href="#639" id="639">639</a>
-<a href="#640" id="640">640</a>
-<a href="#641" id="641">641</a>
-<a href="#642" id="642">642</a>
-<a href="#643" id="643">643</a>
-<a href="#644" id="644">644</a>
-<a href="#645" id="645">645</a>
-<a href="#646" id="646">646</a>
-<a href="#647" id="647">647</a>
-<a href="#648" id="648">648</a>
-<a href="#649" id="649">649</a>
-<a href="#650" id="650">650</a>
-<a href="#651" id="651">651</a>
-<a href="#652" id="652">652</a>
-<a href="#653" id="653">653</a>
-<a href="#654" id="654">654</a>
-<a href="#655" id="655">655</a>
-<a href="#656" id="656">656</a>
-<a href="#657" id="657">657</a>
-<a href="#658" id="658">658</a>
-<a href="#659" id="659">659</a>
-<a href="#660" id="660">660</a>
-<a href="#661" id="661">661</a>
-<a href="#662" id="662">662</a>
-<a href="#663" id="663">663</a>
-<a href="#664" id="664">664</a>
-<a href="#665" id="665">665</a>
-<a href="#666" id="666">666</a>
-<a href="#667" id="667">667</a>
-<a href="#668" id="668">668</a>
-<a href="#669" id="669">669</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>core::{char, cmp, fmt::Debug, slice};
 
 <span class="kw">use </span>alloc::vec::Vec;
@@ -688,7 +600,7 @@
 //
 // Some of the implementation complexity here is a result of me wanting to
 // preserve the sequential representation without using additional memory.
-// In some cases, we do use linear extra memory, but it is at most 2x and it
+// In many cases, we do use linear extra memory, but it is at most 2x and it
 // is amortized. If we relaxed the memory requirements, this implementation
 // could become much simpler. The extra memory is honestly probably OK, but
 // character classes (especially of the Unicode variety) can become quite
@@ -750,45 +662,14 @@
 
     <span class="doccomment">/// Add a new interval to this set.
     </span><span class="kw">pub fn </span>push(<span class="kw-2">&amp;mut </span><span class="self">self</span>, interval: I) {
+        <span class="comment">// TODO: This could be faster. e.g., Push the interval such that
+        // it preserves canonicalization.
+        </span><span class="self">self</span>.ranges.push(interval);
+        <span class="self">self</span>.canonicalize();
         <span class="comment">// We don&#39;t know whether the new interval added here is considered
         // case folded, so we conservatively assume that the entire set is
         // no longer case folded if it was previously.
         </span><span class="self">self</span>.folded = <span class="bool-val">false</span>;
-
-        <span class="kw">if </span><span class="self">self</span>.ranges.is_empty() {
-            <span class="self">self</span>.ranges.push(interval);
-            <span class="kw">return</span>;
-        }
-
-        <span class="comment">// Find the first range that is not greater than the new interval.
-        // This is the first range that could possibly be unioned with the
-        // new interval.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>drain_end = <span class="self">self</span>.ranges.len();
-        <span class="kw">while </span>drain_end &gt; <span class="number">0
-            </span>&amp;&amp; <span class="self">self</span>.ranges[drain_end - <span class="number">1</span>].lower() &gt; interval.upper()
-            &amp;&amp; !<span class="self">self</span>.ranges[drain_end - <span class="number">1</span>].is_contiguous(<span class="kw-2">&amp;</span>interval)
-        {
-            drain_end -= <span class="number">1</span>;
-        }
-
-        <span class="comment">// Try to union the new interval with old intervals backwards.
-        </span><span class="kw">if </span>drain_end &gt; <span class="number">0 </span>&amp;&amp; <span class="self">self</span>.ranges[drain_end - <span class="number">1</span>].is_contiguous(<span class="kw-2">&amp;</span>interval)
-        {
-            <span class="self">self</span>.ranges[drain_end - <span class="number">1</span>] =
-                <span class="self">self</span>.ranges[drain_end - <span class="number">1</span>].union(<span class="kw-2">&amp;</span>interval).unwrap();
-            <span class="kw">for </span>i <span class="kw">in </span>(<span class="number">0</span>..drain_end - <span class="number">1</span>).rev() {
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(union) =
-                    <span class="self">self</span>.ranges[drain_end - <span class="number">1</span>].union(<span class="kw-2">&amp;</span><span class="self">self</span>.ranges[i])
-                {
-                    <span class="self">self</span>.ranges[drain_end - <span class="number">1</span>] = union;
-                } <span class="kw">else </span>{
-                    <span class="self">self</span>.ranges.drain(i + <span class="number">1</span>..drain_end - <span class="number">1</span>);
-                    <span class="kw">break</span>;
-                }
-            }
-        } <span class="kw">else </span>{
-            <span class="self">self</span>.ranges.insert(drain_end, interval);
-        }
     }
 
     <span class="doccomment">/// Return an iterator over all intervals in this set.
@@ -892,13 +773,34 @@
         // Folks seem to suggest interval or segment trees, but I&#39;d like to
         // avoid the overhead (both runtime and conceptual) of that.
         //
+        // The following is basically my Shitty First Draft. Therefore, in
+        // order to grok it, you probably need to read each line carefully.
+        // Simplifications are most welcome!
+        //
         // Remember, we can assume the canonical format invariant here, which
         // says that all ranges are sorted, not overlapping and not adjacent in
         // each class.
         </span><span class="kw">let </span>drain_end = <span class="self">self</span>.ranges.len();
+        <span class="kw">let </span>(<span class="kw-2">mut </span>a, <span class="kw-2">mut </span>b) = (<span class="number">0</span>, <span class="number">0</span>);
+        <span class="lifetime">&#39;LOOP</span>: <span class="kw">while </span>a &lt; drain_end &amp;&amp; b &lt; other.ranges.len() {
+            <span class="comment">// Basically, the easy cases are when neither range overlaps with
+            // each other. If the `b` range is less than our current `a`
+            // range, then we can skip it and move on.
+            </span><span class="kw">if </span>other.ranges[b].upper() &lt; <span class="self">self</span>.ranges[a].lower() {
+                b += <span class="number">1</span>;
+                <span class="kw">continue</span>;
+            }
+            <span class="comment">// ... similarly for the `a` range. If it&#39;s less than the smallest
+            // `b` range, then we can add it as-is.
+            </span><span class="kw">if </span><span class="self">self</span>.ranges[a].upper() &lt; other.ranges[b].lower() {
+                <span class="kw">let </span>range = <span class="self">self</span>.ranges[a];
+                <span class="self">self</span>.ranges.push(range);
+                a += <span class="number">1</span>;
+                <span class="kw">continue</span>;
+            }
+            <span class="comment">// Otherwise, we have overlapping ranges.
+            </span><span class="macro">assert!</span>(!<span class="self">self</span>.ranges[a].is_intersection_empty(<span class="kw-2">&amp;</span>other.ranges[b]));
 
-        <span class="kw">let </span><span class="kw-2">mut </span>b = <span class="number">0</span>;
-        <span class="kw">for </span>a <span class="kw">in </span><span class="number">0</span>..drain_end {
             <span class="comment">// This part is tricky and was non-obvious to me without looking
             // at explicit examples (see the tests). The trickiness stems from
             // two things: 1) subtracting a range from another range could
@@ -910,34 +812,47 @@
             // For example, if our `a` range is `a-t` and our next three `b`
             // ranges are `a-c`, `g-i`, `r-t` and `x-z`, then we need to apply
             // subtraction three times before moving on to the next `a` range.
-            </span><span class="self">self</span>.ranges.push(<span class="self">self</span>.ranges[a]);
-            <span class="comment">// Only when `b` is not above `a`, `b` might apply to current
-            // `a` range.
-            </span><span class="kw">while </span>b &lt; other.ranges.len()
-                &amp;&amp; other.ranges[b].lower() &lt;= <span class="self">self</span>.ranges[a].upper()
+            </span><span class="kw">let </span><span class="kw-2">mut </span>range = <span class="self">self</span>.ranges[a];
+            <span class="kw">while </span>b &lt; other.ranges.len()
+                &amp;&amp; !range.is_intersection_empty(<span class="kw-2">&amp;</span>other.ranges[b])
             {
-                <span class="kw">match </span><span class="self">self</span>.ranges.pop().unwrap().difference(<span class="kw-2">&amp;</span>other.ranges[b]) {
-                    (<span class="prelude-val">Some</span>(range1), <span class="prelude-val">None</span>) | (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(range1)) =&gt; {
-                        <span class="self">self</span>.ranges.push(range1);
+                <span class="kw">let </span>old_range = range;
+                range = <span class="kw">match </span>range.difference(<span class="kw-2">&amp;</span>other.ranges[b]) {
+                    (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; {
+                        <span class="comment">// We lost the entire range, so move on to the next
+                        // without adding this one.
+                        </span>a += <span class="number">1</span>;
+                        <span class="kw">continue </span><span class="lifetime">&#39;LOOP</span>;
                     }
+                    (<span class="prelude-val">Some</span>(range1), <span class="prelude-val">None</span>) | (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(range1)) =&gt; range1,
                     (<span class="prelude-val">Some</span>(range1), <span class="prelude-val">Some</span>(range2)) =&gt; {
                         <span class="self">self</span>.ranges.push(range1);
-                        <span class="self">self</span>.ranges.push(range2);
+                        range2
                     }
-                    (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; {}
+                };
+                <span class="comment">// It&#39;s possible that the `b` range has more to contribute
+                // here. In particular, if it is greater than the original
+                // range, then it might impact the next `a` range *and* it
+                // has impacted the current `a` range as much as possible,
+                // so we can quit. We don&#39;t bump `b` so that the next `a`
+                // range can apply it.
+                </span><span class="kw">if </span>other.ranges[b].upper() &gt; old_range.upper() {
+                    <span class="kw">break</span>;
                 }
-                <span class="comment">// The next `b` range might apply to the current
+                <span class="comment">// Otherwise, the next `b` range might apply to the current
                 // `a` range.
                 </span>b += <span class="number">1</span>;
             }
-            <span class="comment">// It&#39;s possible that the last `b` range has more to
-            // contribute to the next `a`. We don&#39;t bump the last
-            // `b` so that the next `a` range can apply it.
-            </span>b = b.saturating_sub(<span class="number">1</span>);
+            <span class="self">self</span>.ranges.push(range);
+            a += <span class="number">1</span>;
         }
-
+        <span class="kw">while </span>a &lt; drain_end {
+            <span class="kw">let </span>range = <span class="self">self</span>.ranges[a];
+            <span class="self">self</span>.ranges.push(range);
+            a += <span class="number">1</span>;
+        }
         <span class="self">self</span>.ranges.drain(..drain_end);
-        <span class="self">self</span>.folded = <span class="self">self</span>.ranges.is_empty() || (<span class="self">self</span>.folded &amp;&amp; other.folded);
+        <span class="self">self</span>.folded = <span class="self">self</span>.folded &amp;&amp; other.folded;
     }
 
     <span class="doccomment">/// Compute the symmetric difference of the two sets, in place.
@@ -948,83 +863,11 @@
     /// set. That is, the set will contain all elements in either set,
     /// but will not contain any elements that are in both sets.
     </span><span class="kw">pub fn </span>symmetric_difference(<span class="kw-2">&amp;mut </span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>IntervalSet&lt;I&gt;) {
-        <span class="kw">if </span><span class="self">self</span>.ranges.is_empty() {
-            <span class="self">self</span>.ranges.extend(<span class="kw-2">&amp;</span>other.ranges);
-            <span class="self">self</span>.folded = other.folded;
-            <span class="kw">return</span>;
-        }
-        <span class="kw">if </span>other.ranges.is_empty() {
-            <span class="kw">return</span>;
-        }
-
-        <span class="comment">// There should be a way to do this in-place with constant memory,
-        // but I couldn&#39;t figure out a simple way to do it. So just append
-        // the symmetric difference to the end of this range, and then drain
-        // it before we&#39;re done.
-        </span><span class="kw">let </span>drain_end = <span class="self">self</span>.ranges.len();
-        <span class="kw">let </span><span class="kw-2">mut </span>b = <span class="number">0</span>;
-        <span class="kw">let </span><span class="kw-2">mut </span>b_range = <span class="prelude-val">Some</span>(other.ranges[b]);
-        <span class="kw">for </span>a <span class="kw">in </span><span class="number">0</span>..drain_end {
-            <span class="self">self</span>.ranges.push(<span class="self">self</span>.ranges[a]);
-            <span class="kw">while </span>b_range
-                .map_or(<span class="bool-val">false</span>, |r| r.lower() &lt;= <span class="self">self</span>.ranges[a].upper())
-            {
-                <span class="kw">let </span>(range1, range2) = <span class="kw">match </span><span class="self">self
-                    </span>.ranges
-                    .pop()
-                    .unwrap()
-                    .symmetric_difference(<span class="kw-2">&amp;</span>b_range.as_ref().unwrap())
-                {
-                    (<span class="prelude-val">Some</span>(range1), <span class="prelude-val">None</span>) | (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(range1)) =&gt; {
-                        (<span class="prelude-val">Some</span>(range1), <span class="prelude-val">None</span>)
-                    }
-                    (<span class="prelude-val">Some</span>(range1), <span class="prelude-val">Some</span>(range2)) =&gt; {
-                        (<span class="prelude-val">Some</span>(range1), <span class="prelude-val">Some</span>(range2))
-                    }
-                    (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>),
-                };
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(range) = range1 {
-                    <span class="kw">if </span><span class="self">self</span>.ranges.len() &gt; drain_end
-                        &amp;&amp; <span class="self">self</span>.ranges.last().unwrap().is_contiguous(<span class="kw-2">&amp;</span>range)
-                    {
-                        <span class="self">self</span>.ranges
-                            .last_mut()
-                            .map(|last| <span class="kw-2">*</span>last = last.union(<span class="kw-2">&amp;</span>range).unwrap());
-                    } <span class="kw">else </span>{
-                        <span class="self">self</span>.ranges.push(range);
-                    }
-                }
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(range) = range2 {
-                    <span class="self">self</span>.ranges.push(range);
-                }
-
-                b_range = <span class="kw">if </span><span class="self">self</span>.ranges.len() &gt; drain_end
-                    &amp;&amp; <span class="self">self</span>.ranges.last().unwrap().upper()
-                        &gt; <span class="self">self</span>.ranges[a].upper()
-                {
-                    <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="self">self</span>.ranges.last().unwrap())
-                } <span class="kw">else </span>{
-                    b += <span class="number">1</span>;
-                    other.ranges.get(b).cloned()
-                };
-            }
-        }
-        <span class="kw">while let </span><span class="prelude-val">Some</span>(range) = b_range {
-            <span class="kw">if </span><span class="self">self</span>.ranges.len() &gt; drain_end
-                &amp;&amp; <span class="self">self</span>.ranges.last().unwrap().is_contiguous(<span class="kw-2">&amp;</span>range)
-            {
-                <span class="self">self</span>.ranges
-                    .last_mut()
-                    .map(|last| <span class="kw-2">*</span>last = last.union(<span class="kw-2">&amp;</span>range).unwrap());
-            } <span class="kw">else </span>{
-                <span class="self">self</span>.ranges.push(range);
-            }
-            b += <span class="number">1</span>;
-            b_range = other.ranges.get(b).cloned();
-        }
-
-        <span class="self">self</span>.ranges.drain(..drain_end);
-        <span class="self">self</span>.folded = <span class="self">self</span>.ranges.is_empty() || (<span class="self">self</span>.folded &amp;&amp; other.folded);
+        <span class="comment">// TODO(burntsushi): Fix this so that it amortizes allocation.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>intersection = <span class="self">self</span>.clone();
+        intersection.intersect(other);
+        <span class="self">self</span>.union(other);
+        <span class="self">self</span>.difference(<span class="kw-2">&amp;</span>intersection);
     }
 
     <span class="doccomment">/// Negate this interval set.
@@ -1040,44 +883,28 @@
             <span class="kw">return</span>;
         }
 
+        <span class="comment">// There should be a way to do this in-place with constant memory,
+        // but I couldn&#39;t figure out a simple way to do it. So just append
+        // the negation to the end of this range, and then drain it before
+        // we&#39;re done.
+        </span><span class="kw">let </span>drain_end = <span class="self">self</span>.ranges.len();
+
         <span class="comment">// We do checked arithmetic below because of the canonical ordering
         // invariant.
         </span><span class="kw">if </span><span class="self">self</span>.ranges[<span class="number">0</span>].lower() &gt; I::Bound::min_value() {
-            <span class="kw">let </span><span class="kw-2">mut </span>pre_upper = <span class="self">self</span>.ranges[<span class="number">0</span>].upper();
-            <span class="self">self</span>.ranges[<span class="number">0</span>] = I::create(
-                I::Bound::min_value(),
-                <span class="self">self</span>.ranges[<span class="number">0</span>].lower().decrement(),
-            );
-            <span class="kw">for </span>i <span class="kw">in </span><span class="number">1</span>..<span class="self">self</span>.ranges.len() {
-                <span class="kw">let </span>lower = pre_upper.increment();
-                pre_upper = <span class="self">self</span>.ranges[i].upper();
-                <span class="self">self</span>.ranges[i] =
-                    I::create(lower, <span class="self">self</span>.ranges[i].lower().decrement());
-            }
-            <span class="kw">if </span>pre_upper &lt; I::Bound::max_value() {
-                <span class="self">self</span>.ranges.push(I::create(
-                    pre_upper.increment(),
-                    I::Bound::max_value(),
-                ));
-            }
-        } <span class="kw">else </span>{
-            <span class="kw">for </span>i <span class="kw">in </span><span class="number">1</span>..<span class="self">self</span>.ranges.len() {
-                <span class="self">self</span>.ranges[i - <span class="number">1</span>] = I::create(
-                    <span class="self">self</span>.ranges[i - <span class="number">1</span>].upper().increment(),
-                    <span class="self">self</span>.ranges[i].lower().decrement(),
-                );
-            }
-            <span class="kw">if </span><span class="self">self</span>.ranges.last().unwrap().upper() &lt; I::Bound::max_value() {
-                <span class="self">self</span>.ranges.last_mut().map(|range| {
-                    <span class="kw-2">*</span>range = I::create(
-                        range.upper().increment(),
-                        I::Bound::max_value(),
-                    )
-                });
-            } <span class="kw">else </span>{
-                <span class="self">self</span>.ranges.pop();
-            }
+            <span class="kw">let </span>upper = <span class="self">self</span>.ranges[<span class="number">0</span>].lower().decrement();
+            <span class="self">self</span>.ranges.push(I::create(I::Bound::min_value(), upper));
         }
+        <span class="kw">for </span>i <span class="kw">in </span><span class="number">1</span>..drain_end {
+            <span class="kw">let </span>lower = <span class="self">self</span>.ranges[i - <span class="number">1</span>].upper().increment();
+            <span class="kw">let </span>upper = <span class="self">self</span>.ranges[i].lower().decrement();
+            <span class="self">self</span>.ranges.push(I::create(lower, upper));
+        }
+        <span class="kw">if </span><span class="self">self</span>.ranges[drain_end - <span class="number">1</span>].upper() &lt; I::Bound::max_value() {
+            <span class="kw">let </span>lower = <span class="self">self</span>.ranges[drain_end - <span class="number">1</span>].upper().increment();
+            <span class="self">self</span>.ranges.push(I::create(lower, I::Bound::max_value()));
+        }
+        <span class="self">self</span>.ranges.drain(..drain_end);
         <span class="comment">// We don&#39;t need to update whether this set is folded or not, because
         // it is conservatively preserved through negation. Namely, if a set
         // is not folded, then it is possible that its negation is folded, for
@@ -1091,8 +918,7 @@
         // of case folded characters. Negating it in turn means that all
         // equivalence classes in the set are negated, and any equivalence
         // class that was previously not in the set is now entirely in the set.
-        </span><span class="self">self</span>.folded = <span class="self">self</span>.ranges.is_empty() || <span class="self">self</span>.folded;
-    }
+    </span>}
 
     <span class="doccomment">/// Converts this set into a canonical ordering.
     </span><span class="kw">fn </span>canonicalize(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
@@ -1102,20 +928,24 @@
         <span class="self">self</span>.ranges.sort();
         <span class="macro">assert!</span>(!<span class="self">self</span>.ranges.is_empty());
 
-        <span class="comment">// We maintain the canonicalization results in-place at `0..newi`.
-        // `newi` will keep track of the end of the canonicalized ranges.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>newi = <span class="number">0</span>;
-        <span class="kw">for </span>oldi <span class="kw">in </span><span class="number">1</span>..<span class="self">self</span>.ranges.len() {
-            <span class="comment">// The last new range gets merged with currnet old range when
-            // unionable. If not, we update `newi` and store it as a new range.
-            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(union) = <span class="self">self</span>.ranges[newi].union(<span class="kw-2">&amp;</span><span class="self">self</span>.ranges[oldi]) {
-                <span class="self">self</span>.ranges[newi] = union;
-            } <span class="kw">else </span>{
-                newi += <span class="number">1</span>;
-                <span class="self">self</span>.ranges[newi] = <span class="self">self</span>.ranges[oldi];
+        <span class="comment">// Is there a way to do this in-place with constant memory? I couldn&#39;t
+        // figure out a way to do it. So just append the canonicalization to
+        // the end of this range, and then drain it before we&#39;re done.
+        </span><span class="kw">let </span>drain_end = <span class="self">self</span>.ranges.len();
+        <span class="kw">for </span>oldi <span class="kw">in </span><span class="number">0</span>..drain_end {
+            <span class="comment">// If we&#39;ve added at least one new range, then check if we can
+            // merge this range in the previously added range.
+            </span><span class="kw">if </span><span class="self">self</span>.ranges.len() &gt; drain_end {
+                <span class="kw">let </span>(last, rest) = <span class="self">self</span>.ranges.split_last_mut().unwrap();
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(union) = last.union(<span class="kw-2">&amp;</span>rest[oldi]) {
+                    <span class="kw-2">*</span>last = union;
+                    <span class="kw">continue</span>;
+                }
             }
+            <span class="kw">let </span>range = <span class="self">self</span>.ranges[oldi];
+            <span class="self">self</span>.ranges.push(range);
         }
-        <span class="self">self</span>.ranges.truncate(newi + <span class="number">1</span>);
+        <span class="self">self</span>.ranges.drain(..drain_end);
     }
 
     <span class="doccomment">/// Returns true if and only if this class is in a canonical ordering.
@@ -1237,13 +1067,7 @@
         other: <span class="kw-2">&amp;</span><span class="self">Self</span>,
     ) -&gt; (<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt;, <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt;) {
         <span class="kw">let </span>union = <span class="kw">match </span><span class="self">self</span>.union(other) {
-            <span class="prelude-val">None </span>=&gt; {
-                <span class="kw">return if </span><span class="self">self</span>.upper() &lt; other.lower() {
-                    (<span class="prelude-val">Some</span>(<span class="self">self</span>.clone()), <span class="prelude-val">Some</span>(other.clone()))
-                } <span class="kw">else </span>{
-                    (<span class="prelude-val">Some</span>(other.clone()), <span class="prelude-val">Some</span>(<span class="self">self</span>.clone()))
-                }
-            }
+            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span>(<span class="prelude-val">Some</span>(<span class="self">self</span>.clone()), <span class="prelude-val">Some</span>(other.clone())),
             <span class="prelude-val">Some</span>(union) =&gt; union,
         };
         <span class="kw">let </span>intersection = <span class="kw">match </span><span class="self">self</span>.intersect(other) {

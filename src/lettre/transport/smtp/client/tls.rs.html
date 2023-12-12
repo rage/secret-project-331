@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/lettre-0.10.4/src/transport/smtp/client/tls.rs`."><title>tls.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-fa3bb1812debf86c.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="lettre" data-themes="" data-resource-suffix="" data-rustdoc-version="1.74.0 (79e9716c9 2023-11-13)" data-channel="1.74.0" data-search-js="search-8be46b629f5f14a8.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-c5bd66d33317d69f.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../../lettre/index.html"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/lettre-0.11.2/src/transport/smtp/client/tls.rs`."><title>tls.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-fa3bb1812debf86c.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="lettre" data-themes="" data-resource-suffix="" data-rustdoc-version="1.74.1 (a28077b28 2023-12-04)" data-channel="1.74.1" data-search-js="search-8be46b629f5f14a8.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-c5bd66d33317d69f.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../../lettre/index.html"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -572,9 +572,6 @@
 <a href="#572" id="572">572</a>
 <a href="#573" id="573">573</a>
 <a href="#574" id="574">574</a>
-<a href="#575" id="575">575</a>
-<a href="#576" id="576">576</a>
-<a href="#577" id="577">577</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt::{<span class="self">self</span>, Debug};
 <span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
 </span><span class="kw">use </span>std::{sync::Arc, time::SystemTime};
@@ -624,9 +621,9 @@
     </span>Tlsv12,
     <span class="doccomment">/// TLS 1.3
     ///
-    /// The most secure option, altough not supported by all SMTP servers.
+    /// The most secure option, although not supported by all SMTP servers.
     ///
-    /// Altough it is technically supported by all TLS backends,
+    /// Although it is technically supported by all TLS backends,
     /// trying to set it for `native-tls` will give a runtime error.
     </span>Tlsv13,
 }
@@ -664,11 +661,11 @@
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self </span>{
             <span class="self">Self</span>::None =&gt; f.pad(<span class="string">&quot;None&quot;</span>),
-            <span class="attr">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+            <span class="attr">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
             </span><span class="self">Self</span>::Opportunistic(<span class="kw">_</span>) =&gt; f.pad(<span class="string">&quot;Opportunistic&quot;</span>),
-            <span class="attr">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+            <span class="attr">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
             </span><span class="self">Self</span>::Required(<span class="kw">_</span>) =&gt; f.pad(<span class="string">&quot;Required&quot;</span>),
-            <span class="attr">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+            <span class="attr">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
             </span><span class="self">Self</span>::Wrapper(<span class="kw">_</span>) =&gt; f.pad(<span class="string">&quot;Wrapper&quot;</span>),
         }
     }
@@ -676,7 +673,7 @@
 
 <span class="doccomment">/// Source for the base set of root certificates to trust.
 </span><span class="attr">#[allow(missing_copy_implementations)]
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 </span><span class="kw">pub enum </span>CertificateStore {
     <span class="doccomment">/// Use the default for the TLS backend.
     ///
@@ -687,20 +684,15 @@
     /// enabled, or will fall back to `webpki-roots`.
     ///
     /// The boring-tls backend uses the same logic as OpenSSL on all platforms.
+    </span><span class="attr">#[default]
     </span>Default,
     <span class="doccomment">/// Use a hardcoded set of Mozilla roots via the `webpki-roots` crate.
     ///
     /// This option is only available in the rustls backend.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;webpki-roots&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
     </span>WebpkiRoots,
     <span class="doccomment">/// Don&#39;t use any system certificates.
     </span><span class="prelude-val">None</span>,
-}
-
-<span class="kw">impl </span>Default <span class="kw">for </span>CertificateStore {
-    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
-        CertificateStore::Default
-    }
 }
 
 <span class="doccomment">/// Parameters to use for secure clients
@@ -966,9 +958,11 @@
                 <span class="prelude-val">Ok</span>(())
             }
 
-            <span class="attr">#[cfg(feature = <span class="string">&quot;webpki-roots&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
             </span><span class="kw">fn </span>load_webpki_roots(store: <span class="kw-2">&amp;mut </span>RootCertStore) {
-                store.add_server_trust_anchors(webpki_roots::TLS_SERVER_ROOTS.<span class="number">0</span>.iter().map(|ta| {
+                <span class="comment">// TODO: handle this in the rustls 0.22 upgrade
+                </span><span class="attr">#[allow(deprecated)]
+                </span>store.add_server_trust_anchors(webpki_roots::TLS_SERVER_ROOTS.iter().map(|ta| {
                     rustls::OwnedTrustAnchor::from_subject_spki_name_constraints(
                         ta.subject,
                         ta.spki,
@@ -981,10 +975,10 @@
                 CertificateStore::Default =&gt; {
                     <span class="attr">#[cfg(feature = <span class="string">&quot;rustls-native-certs&quot;</span>)]
                     </span>load_native_roots(<span class="kw-2">&amp;mut </span>root_cert_store)<span class="question-mark">?</span>;
-                    <span class="attr">#[cfg(all(not(feature = <span class="string">&quot;rustls-native-certs&quot;</span>), feature = <span class="string">&quot;webpki-roots&quot;</span>))]
+                    <span class="attr">#[cfg(not(feature = <span class="string">&quot;rustls-native-certs&quot;</span>))]
                     </span>load_webpki_roots(<span class="kw-2">&amp;mut </span>root_cert_store);
                 }
-                <span class="attr">#[cfg(feature = <span class="string">&quot;webpki-roots&quot;</span>)]
+                <span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
                 </span>CertificateStore::WebpkiRoots =&gt; {
                     load_webpki_roots(<span class="kw-2">&amp;mut </span>root_cert_store);
                 }

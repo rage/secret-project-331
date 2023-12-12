@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["Utf8CharIndices","Utf8Chars"],"trait":["Utf8CharsEx"]};
+window.SIDEBAR_ITEMS = {"struct":["ErrorReportingUtf8Chars","Utf8CharIndices","Utf8Chars","Utf8CharsError"],"trait":["Utf8CharsEx"]};

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/lettre-0.10.4/src/transport/smtp/transport.rs`."><title>transport.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-fa3bb1812debf86c.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="lettre" data-themes="" data-resource-suffix="" data-rustdoc-version="1.74.0 (79e9716c9 2023-11-13)" data-channel="1.74.0" data-search-js="search-8be46b629f5f14a8.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-c5bd66d33317d69f.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../lettre/index.html"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/lettre-0.11.2/src/transport/smtp/transport.rs`."><title>transport.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-fa3bb1812debf86c.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="lettre" data-themes="" data-resource-suffix="" data-rustdoc-version="1.74.1 (a28077b28 2023-12-04)" data-channel="1.74.1" data-search-js="search-8be46b629f5f14a8.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-c5bd66d33317d69f.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../lettre/index.html"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -252,6 +252,156 @@
 <a href="#252" id="252">252</a>
 <a href="#253" id="253">253</a>
 <a href="#254" id="254">254</a>
+<a href="#255" id="255">255</a>
+<a href="#256" id="256">256</a>
+<a href="#257" id="257">257</a>
+<a href="#258" id="258">258</a>
+<a href="#259" id="259">259</a>
+<a href="#260" id="260">260</a>
+<a href="#261" id="261">261</a>
+<a href="#262" id="262">262</a>
+<a href="#263" id="263">263</a>
+<a href="#264" id="264">264</a>
+<a href="#265" id="265">265</a>
+<a href="#266" id="266">266</a>
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
+<a href="#361" id="361">361</a>
+<a href="#362" id="362">362</a>
+<a href="#363" id="363">363</a>
+<a href="#364" id="364">364</a>
+<a href="#365" id="365">365</a>
+<a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
 </pre></div><pre class="rust"><code><span class="attr">#[cfg(feature = <span class="string">&quot;pool&quot;</span>)]
 </span><span class="kw">use </span>std::sync::Arc;
 <span class="kw">use </span>std::time::Duration;
@@ -312,7 +462,7 @@
             .tls(Tls::Wrapper(tls_parameters)))
     }
 
-    <span class="doccomment">/// Simple an secure transport, using STARTTLS to obtain encrypted connections
+    <span class="doccomment">/// Simple and secure transport, using STARTTLS to obtain encrypted connections
     ///
     /// Alternative to [`SmtpTransport::relay`](#method.relay), for SMTP servers
     /// that don&#39;t take SMTPS connections.
@@ -349,29 +499,106 @@
     ///
     /// * No authentication
     /// * No TLS
-    /// * A 60 seconds timeout for smtp commands
+    /// * A 60-seconds timeout for smtp commands
     /// * Port 25
     ///
     /// Consider using [`SmtpTransport::relay`](#method.relay) or
     /// [`SmtpTransport::starttls_relay`](#method.starttls_relay) instead,
     /// if possible.
     </span><span class="kw">pub fn </span>builder_dangerous&lt;T: Into&lt;String&gt;&gt;(server: T) -&gt; SmtpTransportBuilder {
-        <span class="kw">let </span>new = SmtpInfo {
-            server: server.into(),
-            ..Default::default()
-        };
+        SmtpTransportBuilder::new(server)
+    }
 
-        SmtpTransportBuilder {
-            info: new,
-            <span class="attr">#[cfg(feature = <span class="string">&quot;pool&quot;</span>)]
-            </span>pool_config: PoolConfig::default(),
-        }
+    <span class="doccomment">/// Creates a `SmtpTransportBuilder` from a connection URL
+    ///
+    /// The protocol, credentials, host and port can be provided in a single URL.
+    /// Use the scheme `smtp` for an unencrypted relay (optionally in combination with the
+    /// `tls` parameter to allow/require STARTTLS) or `smtps` for SMTP over TLS.
+    /// The path section of the url can be used to set an alternative name for
+    /// the HELO / EHLO command.
+    /// For example `smtps://username:password@smtp.example.com/client.example.com:465`
+    /// will set the HELO / EHLO name `client.example.com`.
+    ///
+    /// &lt;table&gt;
+    ///   &lt;thead&gt;
+    ///     &lt;tr&gt;
+    ///       &lt;th&gt;scheme&lt;/th&gt;
+    ///       &lt;th&gt;tls parameter&lt;/th&gt;
+    ///       &lt;th&gt;example&lt;/th&gt;
+    ///       &lt;th&gt;remarks&lt;/th&gt;
+    ///     &lt;/tr&gt;
+    ///   &lt;/thead&gt;
+    ///   &lt;tbody&gt;
+    ///     &lt;tr&gt;
+    ///      &lt;td&gt;smtps&lt;/td&gt;
+    ///      &lt;td&gt;-&lt;/td&gt;
+    ///      &lt;td&gt;smtps://smtp.example.com&lt;/td&gt;
+    ///      &lt;td&gt;SMTP over TLS, recommended method&lt;/td&gt;
+    ///     &lt;/tr&gt;
+    ///     &lt;tr&gt;
+    ///      &lt;td&gt;smtp&lt;/td&gt;
+    ///      &lt;td&gt;required&lt;/td&gt;
+    ///      &lt;td&gt;smtp://smtp.example.com?tls=required&lt;/td&gt;
+    ///      &lt;td&gt;SMTP with STARTTLS required, when SMTP over TLS is not available&lt;/td&gt;
+    ///     &lt;/tr&gt;
+    ///     &lt;tr&gt;
+    ///      &lt;td&gt;smtp&lt;/td&gt;
+    ///      &lt;td&gt;opportunistic&lt;/td&gt;
+    ///      &lt;td&gt;smtp://smtp.example.com?tls=opportunistic&lt;/td&gt;
+    ///      &lt;td&gt;
+    ///         SMTP with optionally STARTTLS when supported by the server.
+    ///         Caution: this method is vulnerable to a man-in-the-middle attack.
+    ///         Not recommended for production use.
+    ///       &lt;/td&gt;
+    ///     &lt;/tr&gt;
+    ///     &lt;tr&gt;
+    ///      &lt;td&gt;smtp&lt;/td&gt;
+    ///      &lt;td&gt;-&lt;/td&gt;
+    ///      &lt;td&gt;smtp://smtp.example.com&lt;/td&gt;
+    ///      &lt;td&gt;Unencrypted SMTP, not recommended for production use.&lt;/td&gt;
+    ///     &lt;/tr&gt;
+    ///   &lt;/tbody&gt;
+    /// &lt;/table&gt;
+    ///
+    /// ```rust,no_run
+    /// use lettre::{
+    ///     message::header::ContentType, transport::smtp::authentication::Credentials, Message,
+    ///     SmtpTransport, Transport,
+    /// };
+    ///
+    /// let email = Message::builder()
+    ///     .from(&quot;NoBody &lt;nobody@domain.tld&gt;&quot;.parse().unwrap())
+    ///     .reply_to(&quot;Yuin &lt;yuin@domain.tld&gt;&quot;.parse().unwrap())
+    ///     .to(&quot;Hei &lt;hei@domain.tld&gt;&quot;.parse().unwrap())
+    ///     .subject(&quot;Happy new year&quot;)
+    ///     .header(ContentType::TEXT_PLAIN)
+    ///     .body(String::from(&quot;Be happy!&quot;))
+    ///     .unwrap();
+    ///
+    /// // Open a remote connection to example
+    /// let mailer = SmtpTransport::from_url(&quot;smtps://username:password@smtp.example.com:465&quot;)
+    ///     .unwrap()
+    ///     .build();
+    ///
+    /// // Send the email
+    /// match mailer.send(&amp;email) {
+    ///     Ok(_) =&gt; println!(&quot;Email sent successfully!&quot;),
+    ///     Err(e) =&gt; panic!(&quot;Could not send email: {e:?}&quot;),
+    /// }
+    /// ```
+    </span><span class="attr">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+    #[cfg_attr(
+        docsrs,
+        doc(cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>)))
+    )]
+    </span><span class="kw">pub fn </span>from_url(connection_url: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;SmtpTransportBuilder, Error&gt; {
+        <span class="kw">super</span>::connection_url::from_connection_url(connection_url)
     }
 
     <span class="doccomment">/// Tests the SMTP connection
     ///
     /// `test_connection()` tests the connection by using the SMTP NOOP command.
-    /// The connection is closed afterwards if a connection pool is not used.
+    /// The connection is closed afterward if a connection pool is not used.
     </span><span class="kw">pub fn </span>test_connection(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;bool, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>conn = <span class="self">self</span>.inner.connection()<span class="question-mark">?</span>;
 
@@ -395,6 +622,20 @@
 
 <span class="doccomment">/// Builder for the SMTP `SmtpTransport`
 </span><span class="kw">impl </span>SmtpTransportBuilder {
+    <span class="comment">// Create new builder with default parameters
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new&lt;T: Into&lt;String&gt;&gt;(server: T) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>new = SmtpInfo {
+            server: server.into(),
+            ..Default::default()
+        };
+
+        <span class="self">Self </span>{
+            info: new,
+            <span class="attr">#[cfg(feature = <span class="string">&quot;pool&quot;</span>)]
+            </span>pool_config: PoolConfig::default(),
+        }
+    }
+
     <span class="doccomment">/// Set the name used during EHLO
     </span><span class="kw">pub fn </span>hello_name(<span class="kw-2">mut </span><span class="self">self</span>, name: ClientId) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.info.hello_name = name;
@@ -448,7 +689,7 @@
 
     <span class="doccomment">/// Build the transport
     ///
-    /// If the `pool` feature is enabled an `Arc` wrapped pool is be created.
+    /// If the `pool` feature is enabled, an `Arc` wrapped pool is created.
     /// Defaults can be found at [`PoolConfig`]
     </span><span class="kw">pub fn </span>build(<span class="self">self</span>) -&gt; SmtpTransport {
         <span class="kw">let </span>client = SmtpClient { info: <span class="self">self</span>.info };
@@ -504,6 +745,65 @@
             conn.auth(<span class="kw-2">&amp;</span><span class="self">self</span>.info.authentication, credentials)<span class="question-mark">?</span>;
         }
         <span class="prelude-val">Ok</span>(conn)
+    }
+}
+
+<span class="attr">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use crate</span>::{
+        transport::smtp::{authentication::Credentials, client::Tls},
+        SmtpTransport,
+    };
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>transport_from_url() {
+        <span class="kw">let </span>builder = SmtpTransport::from_url(<span class="string">&quot;smtp://127.0.0.1:2525&quot;</span>).unwrap();
+
+        <span class="macro">assert_eq!</span>(builder.info.port, <span class="number">2525</span>);
+        <span class="macro">assert!</span>(<span class="macro">matches!</span>(builder.info.tls, Tls::None));
+        <span class="macro">assert_eq!</span>(builder.info.server, <span class="string">&quot;127.0.0.1&quot;</span>);
+
+        <span class="kw">let </span>builder =
+            SmtpTransport::from_url(<span class="string">&quot;smtps://username:password@smtp.example.com:465&quot;</span>).unwrap();
+
+        <span class="macro">assert_eq!</span>(builder.info.port, <span class="number">465</span>);
+        <span class="macro">assert_eq!</span>(
+            builder.info.credentials,
+            <span class="prelude-val">Some</span>(Credentials::new(
+                <span class="string">&quot;username&quot;</span>.to_owned(),
+                <span class="string">&quot;password&quot;</span>.to_owned()
+            ))
+        );
+        <span class="macro">assert!</span>(<span class="macro">matches!</span>(builder.info.tls, Tls::Wrapper(<span class="kw">_</span>)));
+        <span class="macro">assert_eq!</span>(builder.info.server, <span class="string">&quot;smtp.example.com&quot;</span>);
+
+        <span class="kw">let </span>builder =
+            SmtpTransport::from_url(<span class="string">&quot;smtp://username:password@smtp.example.com:587?tls=required&quot;</span>)
+                .unwrap();
+
+        <span class="macro">assert_eq!</span>(builder.info.port, <span class="number">587</span>);
+        <span class="macro">assert_eq!</span>(
+            builder.info.credentials,
+            <span class="prelude-val">Some</span>(Credentials::new(
+                <span class="string">&quot;username&quot;</span>.to_owned(),
+                <span class="string">&quot;password&quot;</span>.to_owned()
+            ))
+        );
+        <span class="macro">assert!</span>(<span class="macro">matches!</span>(builder.info.tls, Tls::Required(<span class="kw">_</span>)));
+
+        <span class="kw">let </span>builder = SmtpTransport::from_url(
+            <span class="string">&quot;smtp://username:password@smtp.example.com:587?tls=opportunistic&quot;</span>,
+        )
+        .unwrap();
+
+        <span class="macro">assert_eq!</span>(builder.info.port, <span class="number">587</span>);
+        <span class="macro">assert!</span>(<span class="macro">matches!</span>(builder.info.tls, Tls::Opportunistic(<span class="kw">_</span>)));
+
+        <span class="kw">let </span>builder = SmtpTransport::from_url(<span class="string">&quot;smtps://smtp.example.com&quot;</span>).unwrap();
+
+        <span class="macro">assert_eq!</span>(builder.info.port, <span class="number">465</span>);
+        <span class="macro">assert_eq!</span>(builder.info.credentials, <span class="prelude-val">None</span>);
+        <span class="macro">assert!</span>(<span class="macro">matches!</span>(builder.info.tls, Tls::Wrapper(<span class="kw">_</span>)));
     }
 }
 </code></pre></div></section></main></body></html>

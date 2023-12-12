@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.7.2/src/ext/async_stream.rs`."><title>async_stream.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-fa3bb1812debf86c.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.74.0 (79e9716c9 2023-11-13)" data-channel="1.74.0" data-search-js="search-8be46b629f5f14a8.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-c5bd66d33317d69f.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../sqlx_core/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.7.3/src/ext/async_stream.rs`."><title>async_stream.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-fa3bb1812debf86c.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.74.1 (a28077b28 2023-12-04)" data-channel="1.74.1" data-search-js="search-8be46b629f5f14a8.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-c5bd66d33317d69f.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../sqlx_core/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -72,43 +72,164 @@
 <a href="#72" id="72">72</a>
 <a href="#73" id="73">73</a>
 <a href="#74" id="74">74</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::future::Future;
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
+<a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+</pre></div><pre class="rust"><code><span class="doccomment">//! A minimalist clone of the `async-stream` crate in 100% safe code, without proc macros.
+//!
+//! This was created initially to get around some weird compiler errors we were getting with
+//! `async-stream`, and now it&#39;d just be more work to replace.
+
+</span><span class="kw">use </span>std::future::Future;
 <span class="kw">use </span>std::pin::Pin;
+<span class="kw">use </span>std::sync::{Arc, Mutex};
 <span class="kw">use </span>std::task::{Context, Poll};
 
-<span class="kw">use </span>futures_channel::mpsc;
 <span class="kw">use </span>futures_core::future::BoxFuture;
 <span class="kw">use </span>futures_core::stream::Stream;
-<span class="kw">use </span>futures_util::{pin_mut, FutureExt, SinkExt};
+<span class="kw">use </span>futures_core::FusedFuture;
+<span class="kw">use </span>futures_util::future::Fuse;
+<span class="kw">use </span>futures_util::FutureExt;
 
 <span class="kw">use </span><span class="kw">crate</span>::error::Error;
 
 <span class="kw">pub struct </span>TryAsyncStream&lt;<span class="lifetime">&#39;a</span>, T&gt; {
-    receiver: mpsc::Receiver&lt;<span class="prelude-ty">Result</span>&lt;T, Error&gt;&gt;,
-    future: BoxFuture&lt;<span class="lifetime">&#39;a</span>, <span class="prelude-ty">Result</span>&lt;(), Error&gt;&gt;,
+    yielder: Yielder&lt;T&gt;,
+    future: Fuse&lt;BoxFuture&lt;<span class="lifetime">&#39;a</span>, <span class="prelude-ty">Result</span>&lt;(), Error&gt;&gt;&gt;,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; TryAsyncStream&lt;<span class="lifetime">&#39;a</span>, T&gt; {
     <span class="kw">pub fn </span>new&lt;F, Fut&gt;(f: F) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>F: FnOnce(mpsc::Sender&lt;<span class="prelude-ty">Result</span>&lt;T, Error&gt;&gt;) -&gt; Fut + Send,
+        </span>F: FnOnce(Yielder&lt;T&gt;) -&gt; Fut + Send,
         Fut: <span class="lifetime">&#39;a </span>+ Future&lt;Output = <span class="prelude-ty">Result</span>&lt;(), Error&gt;&gt; + Send,
         T: <span class="lifetime">&#39;a </span>+ Send,
     {
-        <span class="kw">let </span>(<span class="kw-2">mut </span>sender, receiver) = mpsc::channel(<span class="number">0</span>);
+        <span class="kw">let </span>yielder = Yielder::new();
 
-        <span class="kw">let </span>future = f(sender.clone());
-        <span class="kw">let </span>future = <span class="kw">async move </span>{
-            <span class="kw">if let </span><span class="prelude-val">Err</span>(error) = future.<span class="kw">await </span>{
-                <span class="kw">let _ </span>= sender.send(<span class="prelude-val">Err</span>(error)).<span class="kw">await</span>;
-            }
+        <span class="kw">let </span>future = f(yielder.duplicate()).boxed().fuse();
 
-            <span class="prelude-val">Ok</span>(())
+        <span class="self">Self </span>{ future, yielder }
+    }
+}
+
+<span class="kw">pub struct </span>Yielder&lt;T&gt; {
+    <span class="comment">// This mutex should never have any contention in normal operation.
+    // We&#39;re just using it because `Rc&lt;Cell&lt;Option&lt;T&gt;&gt;&gt;` would not be `Send`.
+    </span>value: Arc&lt;Mutex&lt;<span class="prelude-ty">Option</span>&lt;T&gt;&gt;&gt;,
+}
+
+<span class="kw">impl</span>&lt;T&gt; Yielder&lt;T&gt; {
+    <span class="kw">fn </span>new() -&gt; <span class="self">Self </span>{
+        Yielder {
+            value: Arc::new(Mutex::new(<span class="prelude-val">None</span>)),
         }
-        .fuse()
-        .boxed();
+    }
 
-        <span class="self">Self </span>{ future, receiver }
+    <span class="comment">// Don&#39;t want to expose a `Clone` impl
+    </span><span class="kw">fn </span>duplicate(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        Yielder {
+            value: <span class="self">self</span>.value.clone(),
+        }
+    }
+
+    <span class="doccomment">/// NOTE: may deadlock the task if called from outside the future passed to `TryAsyncStream`.
+    </span><span class="kw">pub async fn </span>r#yield(<span class="kw-2">&amp;</span><span class="self">self</span>, val: T) {
+        <span class="kw">let </span>replaced = <span class="self">self
+            </span>.value
+            .lock()
+            .expect(<span class="string">&quot;BUG: panicked while holding a lock&quot;</span>)
+            .replace(val);
+
+        <span class="macro">debug_assert!</span>(
+            replaced.is_none(),
+            <span class="string">&quot;BUG: previously yielded value not taken&quot;
+        </span>);
+
+        <span class="kw">let </span><span class="kw-2">mut </span>yielded = <span class="bool-val">false</span>;
+
+        <span class="comment">// Allows the generating future to suspend its execution without changing the task priority,
+        // which would happen with `tokio::task::yield_now()`.
+        //
+        // Note that because this has no way to schedule a wakeup, this could deadlock the task
+        // if called in the wrong place.
+        </span>futures_util::future::poll_fn(|_cx| {
+            <span class="kw">if </span>!yielded {
+                yielded = <span class="bool-val">true</span>;
+                Poll::Pending
+            } <span class="kw">else </span>{
+                Poll::Ready(())
+            }
+        })
+        .<span class="kw">await
+    </span>}
+
+    <span class="kw">fn </span>take(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;T&gt; {
+        <span class="self">self</span>.value
+            .lock()
+            .expect(<span class="string">&quot;BUG: panicked while holding a lock&quot;</span>)
+            .take()
     }
 }
 
@@ -116,29 +237,36 @@
     <span class="kw">type </span>Item = <span class="prelude-ty">Result</span>&lt;T, Error&gt;;
 
     <span class="kw">fn </span>poll_next(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt;&gt; {
-        <span class="kw">let </span>future = <span class="kw-2">&amp;mut </span><span class="self">self</span>.future;
-        <span class="macro">pin_mut!</span>(future);
+        <span class="kw">if </span><span class="self">self</span>.future.is_terminated() {
+            <span class="kw">return </span>Poll::Ready(<span class="prelude-val">None</span>);
+        }
 
-        <span class="comment">// the future is fused so its safe to call forever
-        // the future advances our &quot;stream&quot;
-        // the future should be polled in tandem with the stream receiver
-        </span><span class="kw">let _ </span>= future.poll(cx);
-
-        <span class="kw">let </span>receiver = <span class="kw-2">&amp;mut </span><span class="self">self</span>.receiver;
-        <span class="macro">pin_mut!</span>(receiver);
-
-        <span class="comment">// then we check to see if we have anything to return
-        </span>receiver.poll_next(cx)
+        <span class="kw">match </span><span class="self">self</span>.future.poll_unpin(cx) {
+            Poll::Ready(<span class="prelude-val">Ok</span>(())) =&gt; {
+                <span class="comment">// Future returned without yielding another value,
+                // or else it would have returned `Pending` instead.
+                </span>Poll::Ready(<span class="prelude-val">None</span>)
+            }
+            Poll::Ready(<span class="prelude-val">Err</span>(e)) =&gt; Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(e))),
+            Poll::Pending =&gt; <span class="self">self
+                </span>.yielder
+                .take()
+                .map_or(Poll::Pending, |val| Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(val)))),
+        }
     }
 }
 
 <span class="attr">#[macro_export]
 </span><span class="macro">macro_rules! </span>try_stream {
     ($(<span class="macro-nonterminal">$block</span>:tt)<span class="kw-2">*</span>) =&gt; {
-        <span class="kw">crate</span>::ext::async_stream::TryAsyncStream::new(<span class="kw">move </span>|<span class="kw-2">mut </span>sender| <span class="kw">async move </span>{
+        <span class="kw">crate</span>::ext::async_stream::TryAsyncStream::new(<span class="kw">move </span>|yielder| <span class="kw">async move </span>{
+            <span class="comment">// Anti-footgun: effectively pins `yielder` to this future to prevent any accidental
+            // move to another task, which could deadlock.
+            </span><span class="kw">let </span><span class="kw-2">ref </span>yielder = yielder;
+
             <span class="macro">macro_rules! </span>r#yield {
                 (<span class="macro-nonterminal">$v</span>:expr) =&gt; {{
-                    <span class="kw">let _ </span>= futures_util::sink::SinkExt::send(<span class="kw-2">&amp;mut </span>sender, <span class="prelude-val">Ok</span>(<span class="macro-nonterminal">$v</span>)).<span class="kw">await</span>;
+                    yielder.r#yield(<span class="macro-nonterminal">$v</span>).<span class="kw">await</span>;
                 }}
             }
 

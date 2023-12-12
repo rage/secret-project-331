@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":["select"],"mod":["chain","combinator","debug","error","prelude","primitive","recovery","recursive","span","stream","text"],"struct":["BoxedParser"],"trait":["Parser"]};

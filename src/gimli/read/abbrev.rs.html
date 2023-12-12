@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gimli-0.28.0/src/read/abbrev.rs`."><title>abbrev.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-fa3bb1812debf86c.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="gimli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.74.0 (79e9716c9 2023-11-13)" data-channel="1.74.0" data-search-js="search-8be46b629f5f14a8.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-c5bd66d33317d69f.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../gimli/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gimli-0.28.1/src/read/abbrev.rs`."><title>abbrev.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-fa3bb1812debf86c.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="gimli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.74.1 (a28077b28 2023-12-04)" data-channel="1.74.1" data-search-js="search-8be46b629f5f14a8.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-c5bd66d33317d69f.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../gimli/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1087,6 +1087,19 @@
 <a href="#1087" id="1087">1087</a>
 <a href="#1088" id="1088">1088</a>
 <a href="#1089" id="1089">1089</a>
+<a href="#1090" id="1090">1090</a>
+<a href="#1091" id="1091">1091</a>
+<a href="#1092" id="1092">1092</a>
+<a href="#1093" id="1093">1093</a>
+<a href="#1094" id="1094">1094</a>
+<a href="#1095" id="1095">1095</a>
+<a href="#1096" id="1096">1096</a>
+<a href="#1097" id="1097">1097</a>
+<a href="#1098" id="1098">1098</a>
+<a href="#1099" id="1099">1099</a>
+<a href="#1100" id="1100">1100</a>
+<a href="#1101" id="1101">1101</a>
+<a href="#1102" id="1102">1102</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Functions for parsing DWARF debugging abbreviations.
 
 </span><span class="kw">use </span>alloc::collections::btree_map;
@@ -1100,8 +1113,9 @@
 <span class="kw">use </span><span class="kw">crate</span>::common::{DebugAbbrevOffset, Encoding, SectionId};
 <span class="kw">use </span><span class="kw">crate</span>::constants;
 <span class="kw">use </span><span class="kw">crate</span>::endianity::Endianity;
-<span class="kw">use </span><span class="kw">crate</span>::read::lazy::LazyArc;
-<span class="kw">use </span><span class="kw">crate</span>::read::{EndianSlice, Error, Reader, ReaderOffset, <span class="prelude-ty">Result</span>, Section, UnitHeader};
+<span class="kw">use </span><span class="kw">crate</span>::read::{
+    DebugInfoUnitHeadersIter, EndianSlice, Error, Reader, ReaderOffset, <span class="prelude-ty">Result</span>, Section, UnitHeader,
+};
 
 <span class="doccomment">/// The `DebugAbbrev` struct represents the abbreviations describing
 /// `DebuggingInformationEntry`s&#39; attribute names and forms found in the
@@ -1191,14 +1205,24 @@
     }
 }
 
+<span class="doccomment">/// The strategy to use for caching abbreviations.
+</span><span class="attr">#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[non_exhaustive]
+</span><span class="kw">pub enum </span>AbbreviationsCacheStrategy {
+    <span class="doccomment">/// Cache abbreviations that are used more than once.
+    ///
+    /// This is useful if the units in the `.debug_info` section will be parsed only once.
+    </span>Duplicates,
+    <span class="doccomment">/// Cache all abbreviations.
+    ///
+    /// This is useful if the units in the `.debug_info` section will be parsed more than once.
+    </span>All,
+}
+
 <span class="doccomment">/// A cache of previously parsed `Abbreviations`.
-///
-/// Currently this only caches the abbreviations for offset 0,
-/// since this is a common case in which abbreviations are reused.
-/// This strategy may change in future if there is sufficient need.
 </span><span class="attr">#[derive(Debug, Default)]
 </span><span class="kw">pub struct </span>AbbreviationsCache {
-    abbreviations: LazyArc&lt;Abbreviations&gt;,
+    abbreviations: btree_map::BTreeMap&lt;u64, <span class="prelude-ty">Result</span>&lt;Arc&lt;Abbreviations&gt;&gt;&gt;,
 }
 
 <span class="kw">impl </span>AbbreviationsCache {
@@ -1207,19 +1231,81 @@
         <span class="self">Self</span>::default()
     }
 
+    <span class="doccomment">/// Parse abbreviations and store them in the cache.
+    ///
+    /// This will iterate over the given units to determine the abbreviations
+    /// offsets. Any existing cache entries are discarded.
+    ///
+    /// Errors during parsing abbreviations are also stored in the cache.
+    /// Errors during iterating over the units are ignored.
+    </span><span class="kw">pub fn </span>populate&lt;R: Reader&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        strategy: AbbreviationsCacheStrategy,
+        debug_abbrev: <span class="kw-2">&amp;</span>DebugAbbrev&lt;R&gt;,
+        <span class="kw-2">mut </span>units: DebugInfoUnitHeadersIter&lt;R&gt;,
+    ) {
+        <span class="kw">let </span><span class="kw-2">mut </span>offsets = Vec::new();
+        <span class="kw">match </span>strategy {
+            AbbreviationsCacheStrategy::Duplicates =&gt; {
+                <span class="kw">while let </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(unit)) = units.next() {
+                    offsets.push(unit.debug_abbrev_offset());
+                }
+                offsets.sort_unstable_by_key(|offset| offset.<span class="number">0</span>);
+                <span class="kw">let </span><span class="kw-2">mut </span>prev_offset = R::Offset::from_u8(<span class="number">0</span>);
+                <span class="kw">let </span><span class="kw-2">mut </span>count = <span class="number">0</span>;
+                offsets.retain(|offset| {
+                    <span class="kw">if </span>count == <span class="number">0 </span>|| prev_offset != offset.<span class="number">0 </span>{
+                        prev_offset = offset.<span class="number">0</span>;
+                        count = <span class="number">1</span>;
+                    } <span class="kw">else </span>{
+                        count += <span class="number">1</span>;
+                    }
+                    count == <span class="number">2
+                </span>});
+            }
+            AbbreviationsCacheStrategy::All =&gt; {
+                <span class="kw">while let </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(unit)) = units.next() {
+                    offsets.push(unit.debug_abbrev_offset());
+                }
+                offsets.sort_unstable_by_key(|offset| offset.<span class="number">0</span>);
+                offsets.dedup();
+            }
+        }
+        <span class="self">self</span>.abbreviations = offsets
+            .into_iter()
+            .map(|offset| {
+                (
+                    offset.<span class="number">0</span>.into_u64(),
+                    debug_abbrev.abbreviations(offset).map(Arc::new),
+                )
+            })
+            .collect();
+    }
+
+    <span class="doccomment">/// Set an entry in the abbreviations cache.
+    ///
+    /// This is only required if you want to manually populate the cache.
+    </span><span class="kw">pub fn </span>set&lt;R: Reader&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        offset: DebugAbbrevOffset&lt;R::Offset&gt;,
+        abbreviations: Arc&lt;Abbreviations&gt;,
+    ) {
+        <span class="self">self</span>.abbreviations
+            .insert(offset.<span class="number">0</span>.into_u64(), <span class="prelude-val">Ok</span>(abbreviations));
+    }
+
     <span class="doccomment">/// Parse the abbreviations at the given offset.
     ///
-    /// This uses or updates the cache as required.
+    /// This uses the cache if possible, but does not update it.
     </span><span class="kw">pub fn </span>get&lt;R: Reader&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         debug_abbrev: <span class="kw-2">&amp;</span>DebugAbbrev&lt;R&gt;,
         offset: DebugAbbrevOffset&lt;R::Offset&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Arc&lt;Abbreviations&gt;&gt; {
-        <span class="kw">if </span>offset.<span class="number">0 </span>!= R::Offset::from_u8(<span class="number">0</span>) {
-            <span class="kw">return </span>debug_abbrev.abbreviations(offset).map(Arc::new);
+        <span class="kw">match </span><span class="self">self</span>.abbreviations.get(<span class="kw-2">&amp;</span>offset.<span class="number">0</span>.into_u64()) {
+            <span class="prelude-val">Some</span>(entry) =&gt; entry.clone(),
+            <span class="prelude-val">None </span>=&gt; debug_abbrev.abbreviations(offset).map(Arc::new),
         }
-        <span class="self">self</span>.abbreviations
-            .get(|| debug_abbrev.abbreviations(offset))
     }
 }
 
@@ -2114,66 +2200,6 @@
             ))
             .unwrap();
         <span class="macro">assert!</span>(abbrevs.get(<span class="number">0</span>).is_none());
-    }
-
-    <span class="attr">#[test]
-    </span><span class="kw">fn </span>abbreviations_cache() {
-        <span class="attr">#[rustfmt::skip]
-        </span><span class="kw">let </span>buf = Section::new()
-            .abbrev(<span class="number">1</span>, constants::DW_TAG_subprogram, constants::DW_CHILDREN_no)
-                .abbrev_attr(constants::DW_AT_name, constants::DW_FORM_string)
-                .abbrev_attr_null()
-            .abbrev_null()
-            .abbrev(<span class="number">1</span>, constants::DW_TAG_compile_unit, constants::DW_CHILDREN_yes)
-                .abbrev_attr(constants::DW_AT_producer, constants::DW_FORM_strp)
-                .abbrev_attr(constants::DW_AT_language, constants::DW_FORM_data2)
-                .abbrev_attr_null()
-            .abbrev_null()
-            .get_contents()
-            .unwrap();
-
-        <span class="kw">let </span>abbrev1 = Abbreviation::new(
-            <span class="number">1</span>,
-            constants::DW_TAG_subprogram,
-            constants::DW_CHILDREN_no,
-            <span class="macro">vec!</span>[AttributeSpecification::new(
-                constants::DW_AT_name,
-                constants::DW_FORM_string,
-                <span class="prelude-val">None</span>,
-            )]
-            .into(),
-        );
-
-        <span class="kw">let </span>abbrev2 = Abbreviation::new(
-            <span class="number">1</span>,
-            constants::DW_TAG_compile_unit,
-            constants::DW_CHILDREN_yes,
-            <span class="macro">vec!</span>[
-                AttributeSpecification::new(
-                    constants::DW_AT_producer,
-                    constants::DW_FORM_strp,
-                    <span class="prelude-val">None</span>,
-                ),
-                AttributeSpecification::new(
-                    constants::DW_AT_language,
-                    constants::DW_FORM_data2,
-                    <span class="prelude-val">None</span>,
-                ),
-            ]
-            .into(),
-        );
-
-        <span class="kw">let </span>debug_abbrev = DebugAbbrev::new(<span class="kw-2">&amp;</span>buf, LittleEndian);
-        <span class="kw">let </span>cache = AbbreviationsCache::new();
-        <span class="kw">let </span>abbrevs1 = cache.get(<span class="kw-2">&amp;</span>debug_abbrev, DebugAbbrevOffset(<span class="number">0</span>)).unwrap();
-        <span class="macro">assert_eq!</span>(abbrevs1.get(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>abbrev1));
-        <span class="kw">let </span>abbrevs2 = cache.get(<span class="kw-2">&amp;</span>debug_abbrev, DebugAbbrevOffset(<span class="number">8</span>)).unwrap();
-        <span class="macro">assert_eq!</span>(abbrevs2.get(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>abbrev2));
-        <span class="kw">let </span>abbrevs3 = cache.get(<span class="kw-2">&amp;</span>debug_abbrev, DebugAbbrevOffset(<span class="number">0</span>)).unwrap();
-        <span class="macro">assert_eq!</span>(abbrevs3.get(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>abbrev1));
-
-        <span class="macro">assert!</span>(!Arc::ptr_eq(<span class="kw-2">&amp;</span>abbrevs1, <span class="kw-2">&amp;</span>abbrevs2));
-        <span class="macro">assert!</span>(Arc::ptr_eq(<span class="kw-2">&amp;</span>abbrevs1, <span class="kw-2">&amp;</span>abbrevs3));
     }
 }
 </code></pre></div></section></main></body></html>

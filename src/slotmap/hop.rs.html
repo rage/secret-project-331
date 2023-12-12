@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/slotmap-1.0.6/src/hop.rs`."><title>hop.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-fa3bb1812debf86c.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="slotmap" data-themes="" data-resource-suffix="" data-rustdoc-version="1.74.0 (79e9716c9 2023-11-13)" data-channel="1.74.0" data-search-js="search-8be46b629f5f14a8.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-c5bd66d33317d69f.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../slotmap/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/slotmap-1.0.7/src/hop.rs`."><title>hop.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-fa3bb1812debf86c.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="slotmap" data-themes="" data-resource-suffix="" data-rustdoc-version="1.74.1 (a28077b28 2023-12-04)" data-channel="1.74.1" data-search-js="search-8be46b629f5f14a8.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-c5bd66d33317d69f.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../slotmap/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1580,6 +1580,108 @@
 <a href="#1580" id="1580">1580</a>
 <a href="#1581" id="1581">1581</a>
 <a href="#1582" id="1582">1582</a>
+<a href="#1583" id="1583">1583</a>
+<a href="#1584" id="1584">1584</a>
+<a href="#1585" id="1585">1585</a>
+<a href="#1586" id="1586">1586</a>
+<a href="#1587" id="1587">1587</a>
+<a href="#1588" id="1588">1588</a>
+<a href="#1589" id="1589">1589</a>
+<a href="#1590" id="1590">1590</a>
+<a href="#1591" id="1591">1591</a>
+<a href="#1592" id="1592">1592</a>
+<a href="#1593" id="1593">1593</a>
+<a href="#1594" id="1594">1594</a>
+<a href="#1595" id="1595">1595</a>
+<a href="#1596" id="1596">1596</a>
+<a href="#1597" id="1597">1597</a>
+<a href="#1598" id="1598">1598</a>
+<a href="#1599" id="1599">1599</a>
+<a href="#1600" id="1600">1600</a>
+<a href="#1601" id="1601">1601</a>
+<a href="#1602" id="1602">1602</a>
+<a href="#1603" id="1603">1603</a>
+<a href="#1604" id="1604">1604</a>
+<a href="#1605" id="1605">1605</a>
+<a href="#1606" id="1606">1606</a>
+<a href="#1607" id="1607">1607</a>
+<a href="#1608" id="1608">1608</a>
+<a href="#1609" id="1609">1609</a>
+<a href="#1610" id="1610">1610</a>
+<a href="#1611" id="1611">1611</a>
+<a href="#1612" id="1612">1612</a>
+<a href="#1613" id="1613">1613</a>
+<a href="#1614" id="1614">1614</a>
+<a href="#1615" id="1615">1615</a>
+<a href="#1616" id="1616">1616</a>
+<a href="#1617" id="1617">1617</a>
+<a href="#1618" id="1618">1618</a>
+<a href="#1619" id="1619">1619</a>
+<a href="#1620" id="1620">1620</a>
+<a href="#1621" id="1621">1621</a>
+<a href="#1622" id="1622">1622</a>
+<a href="#1623" id="1623">1623</a>
+<a href="#1624" id="1624">1624</a>
+<a href="#1625" id="1625">1625</a>
+<a href="#1626" id="1626">1626</a>
+<a href="#1627" id="1627">1627</a>
+<a href="#1628" id="1628">1628</a>
+<a href="#1629" id="1629">1629</a>
+<a href="#1630" id="1630">1630</a>
+<a href="#1631" id="1631">1631</a>
+<a href="#1632" id="1632">1632</a>
+<a href="#1633" id="1633">1633</a>
+<a href="#1634" id="1634">1634</a>
+<a href="#1635" id="1635">1635</a>
+<a href="#1636" id="1636">1636</a>
+<a href="#1637" id="1637">1637</a>
+<a href="#1638" id="1638">1638</a>
+<a href="#1639" id="1639">1639</a>
+<a href="#1640" id="1640">1640</a>
+<a href="#1641" id="1641">1641</a>
+<a href="#1642" id="1642">1642</a>
+<a href="#1643" id="1643">1643</a>
+<a href="#1644" id="1644">1644</a>
+<a href="#1645" id="1645">1645</a>
+<a href="#1646" id="1646">1646</a>
+<a href="#1647" id="1647">1647</a>
+<a href="#1648" id="1648">1648</a>
+<a href="#1649" id="1649">1649</a>
+<a href="#1650" id="1650">1650</a>
+<a href="#1651" id="1651">1651</a>
+<a href="#1652" id="1652">1652</a>
+<a href="#1653" id="1653">1653</a>
+<a href="#1654" id="1654">1654</a>
+<a href="#1655" id="1655">1655</a>
+<a href="#1656" id="1656">1656</a>
+<a href="#1657" id="1657">1657</a>
+<a href="#1658" id="1658">1658</a>
+<a href="#1659" id="1659">1659</a>
+<a href="#1660" id="1660">1660</a>
+<a href="#1661" id="1661">1661</a>
+<a href="#1662" id="1662">1662</a>
+<a href="#1663" id="1663">1663</a>
+<a href="#1664" id="1664">1664</a>
+<a href="#1665" id="1665">1665</a>
+<a href="#1666" id="1666">1666</a>
+<a href="#1667" id="1667">1667</a>
+<a href="#1668" id="1668">1668</a>
+<a href="#1669" id="1669">1669</a>
+<a href="#1670" id="1670">1670</a>
+<a href="#1671" id="1671">1671</a>
+<a href="#1672" id="1672">1672</a>
+<a href="#1673" id="1673">1673</a>
+<a href="#1674" id="1674">1674</a>
+<a href="#1675" id="1675">1675</a>
+<a href="#1676" id="1676">1676</a>
+<a href="#1677" id="1677">1677</a>
+<a href="#1678" id="1678">1678</a>
+<a href="#1679" id="1679">1679</a>
+<a href="#1680" id="1680">1680</a>
+<a href="#1681" id="1681">1681</a>
+<a href="#1682" id="1682">1682</a>
+<a href="#1683" id="1683">1683</a>
+<a href="#1684" id="1684">1684</a>
 </pre></div><pre class="rust"><code><span class="comment">// Needed because assigning to non-Copy union is unsafe in stable but not in nightly.
 </span><span class="attr">#![allow(unused_unsafe)]
 
@@ -1607,6 +1709,7 @@
 </span><span class="kw">use </span>core::mem::MaybeUninit;
 <span class="kw">use </span>core::ops::{Index, IndexMut};
 
+<span class="kw">use </span><span class="kw">crate</span>::util::{Never, UnwrapUnchecked};
 <span class="kw">use crate</span>::{DefaultKey, Key, KeyData};
 
 <span class="comment">// Metadata to maintain the freelist.
@@ -1636,7 +1739,13 @@
     Vacant(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>FreeListEntry),
 }
 
+<span class="kw">enum </span>SlotContentMut&lt;<span class="lifetime">&#39;a</span>, T: <span class="lifetime">&#39;a</span>&gt; {
+    OccupiedMut(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>T),
+    VacantMut(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>FreeListEntry),
+}
+
 <span class="kw">use </span><span class="self">self</span>::SlotContent::{Occupied, Vacant};
+<span class="kw">use </span><span class="self">self</span>::SlotContentMut::{OccupiedMut, VacantMut};
 
 <span class="kw">impl</span>&lt;T&gt; Slot&lt;T&gt; {
     <span class="comment">// Is this slot occupied?
@@ -1651,6 +1760,16 @@
                 Occupied(<span class="kw-2">&amp;*</span><span class="self">self</span>.u.value)
             } <span class="kw">else </span>{
                 Vacant(<span class="kw-2">&amp;</span><span class="self">self</span>.u.free)
+            }
+        }
+    }
+
+    <span class="kw">pub fn </span>get_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; SlotContentMut&lt;T&gt; {
+        <span class="kw">unsafe </span>{
+            <span class="kw">if </span><span class="self">self</span>.occupied() {
+                OccupiedMut(<span class="kw-2">&amp;mut *</span><span class="self">self</span>.u.value)
+            } <span class="kw">else </span>{
+                VacantMut(<span class="kw-2">&amp;mut </span><span class="self">self</span>.u.free)
             }
         }
     }
@@ -1679,6 +1798,20 @@
             version: <span class="self">self</span>.version,
         }
     }
+
+    <span class="kw">fn </span>clone_from(<span class="kw-2">&amp;mut </span><span class="self">self</span>, source: <span class="kw-2">&amp;</span><span class="self">Self</span>) {
+        <span class="kw">match </span>(<span class="self">self</span>.get_mut(), source.get()) {
+            (OccupiedMut(self_val), Occupied(source_val)) =&gt; self_val.clone_from(source_val),
+            (VacantMut(self_free), Vacant(<span class="kw-2">&amp;</span>source_free)) =&gt; <span class="kw-2">*</span>self_free = source_free,
+            (<span class="kw">_</span>, Occupied(value)) =&gt; {
+                <span class="self">self</span>.u = SlotUnion {
+                    value: ManuallyDrop::new(value.clone()),
+                }
+            },
+            (<span class="kw">_</span>, Vacant(<span class="kw-2">&amp;</span>free)) =&gt; <span class="self">self</span>.u = SlotUnion { free },
+        }
+        <span class="self">self</span>.version = source.version;
+    }
 }
 
 <span class="kw">impl</span>&lt;T: fmt::Debug&gt; fmt::Debug <span class="kw">for </span>Slot&lt;T&gt; {
@@ -1695,7 +1828,7 @@
 <span class="doccomment">/// Hop slot map, storage with stable unique keys.
 ///
 /// See [crate documentation](crate) for more details.
-</span><span class="attr">#[derive(Debug, Clone)]
+</span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>HopSlotMap&lt;K: Key, V&gt; {
     slots: Vec&lt;Slot&lt;V&gt;&gt;,
     num_elems: u32,
@@ -1912,8 +2045,9 @@
     /// let key = sm.insert(42);
     /// assert_eq!(sm[key], 42);
     /// ```
+    </span><span class="attr">#[inline(always)]
     </span><span class="kw">pub fn </span>insert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: V) -&gt; K {
-        <span class="self">self</span>.insert_with_key(|<span class="kw">_</span>| value)
+        <span class="kw">unsafe </span>{ <span class="self">self</span>.try_insert_with_key::&lt;<span class="kw">_</span>, Never&gt;(<span class="kw">move </span>|<span class="kw">_</span>| <span class="prelude-val">Ok</span>(value)).unwrap_unchecked_() }
     }
 
     <span class="comment">// Helper function to make using the freelist painless.
@@ -1940,9 +2074,38 @@
     /// let key = sm.insert_with_key(|k| (k, 20));
     /// assert_eq!(sm[key], (key, 20));
     /// ```
+    </span><span class="attr">#[inline(always)]
     </span><span class="kw">pub fn </span>insert_with_key&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, f: F) -&gt; K
     <span class="kw">where
         </span>F: FnOnce(K) -&gt; V,
+    {
+        <span class="kw">unsafe </span>{ <span class="self">self</span>.try_insert_with_key::&lt;<span class="kw">_</span>, Never&gt;(<span class="kw">move </span>|k| <span class="prelude-val">Ok</span>(f(k))).unwrap_unchecked_() }
+    }
+
+    <span class="doccomment">/// Inserts a value given by `f` into the slot map. The key where the
+    /// value will be stored is passed into `f`. This is useful to store values
+    /// that contain their own key.
+    ///
+    /// If `f` returns `Err`, this method returns the error. The slotmap is untouched.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the number of elements in the slot map equals
+    /// 2&lt;sup&gt;32&lt;/sup&gt; - 2.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use slotmap::*;
+    /// let mut sm = HopSlotMap::new();
+    /// let key = sm.try_insert_with_key::&lt;_, ()&gt;(|k| Ok((k, 20))).unwrap();
+    /// assert_eq!(sm[key], (key, 20));
+    ///
+    /// sm.try_insert_with_key::&lt;_, ()&gt;(|k| Err(())).unwrap_err();
+    /// ```
+    </span><span class="kw">pub fn </span>try_insert_with_key&lt;F, E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, f: F) -&gt; <span class="prelude-ty">Result</span>&lt;K, E&gt;
+    <span class="kw">where
+        </span>F: FnOnce(K) -&gt; <span class="prelude-ty">Result</span>&lt;V, E&gt;,
     {
         <span class="comment">// In case f panics, we don&#39;t make any changes until we have the value.
         </span><span class="kw">let </span>new_num_elems = <span class="self">self</span>.num_elems + <span class="number">1</span>;
@@ -1968,18 +2131,18 @@
 
                 <span class="self">self</span>.slots.push(Slot {
                     u: SlotUnion {
-                        value: ManuallyDrop::new(f(key)),
+                        value: ManuallyDrop::new(f(key)<span class="question-mark">?</span>),
                     },
                     version,
                 });
                 <span class="self">self</span>.num_elems = new_num_elems;
-                <span class="kw">return </span>key;
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(key);
             }
 
-            <span class="comment">// Compute value first in case f panics.
+            <span class="comment">// Compute value first in case f panics or returns an error.
             </span><span class="kw">let </span>occupied_version = <span class="self">self</span>.slots[slot_idx].version | <span class="number">1</span>;
             <span class="kw">let </span>key = KeyData::new(slot_idx <span class="kw">as </span>u32, occupied_version).into();
-            <span class="kw">let </span>value = f(key);
+            <span class="kw">let </span>value = f(key)<span class="question-mark">?</span>;
 
             <span class="comment">// Update freelist.
             </span><span class="kw">if </span>front == back {
@@ -1999,7 +2162,7 @@
             slot.version = occupied_version;
             slot.u.value = ManuallyDrop::new(value);
             <span class="self">self</span>.num_elems = new_num_elems;
-            key
+            <span class="prelude-val">Ok</span>(key)
         }
     }
 
@@ -2032,7 +2195,7 @@
                     next: <span class="number">0</span>,
                     prev: old_tail,
                 };
-            }
+            },
 
             (<span class="bool-val">false</span>, <span class="bool-val">true</span>) =&gt; {
                 <span class="comment">// Prepend to vacant block on right.
@@ -2043,14 +2206,14 @@
                 <span class="self">self</span>.freelist(front_data.prev).next = i;
                 <span class="self">self</span>.freelist(front_data.next).prev = i;
                 <span class="kw-2">*</span><span class="self">self</span>.freelist(i) = front_data;
-            }
+            },
 
             (<span class="bool-val">true</span>, <span class="bool-val">false</span>) =&gt; {
                 <span class="comment">// Append to vacant block on left.
                 </span><span class="kw">let </span>front = <span class="self">self</span>.freelist(i - <span class="number">1</span>).other_end;
                 <span class="self">self</span>.freelist(i).other_end = front;
                 <span class="self">self</span>.freelist(front).other_end = i;
-            }
+            },
 
             (<span class="bool-val">true</span>, <span class="bool-val">true</span>) =&gt; {
                 <span class="comment">// We must merge left and right.
@@ -2064,7 +2227,7 @@
                 <span class="kw">let </span>back = right.other_end;
                 <span class="self">self</span>.freelist(front).other_end = back;
                 <span class="self">self</span>.freelist(back).other_end = front;
-            }
+            },
         }
 
         <span class="self">self</span>.num_elems -= <span class="number">1</span>;
@@ -2279,11 +2442,7 @@
     /// ```
     </span><span class="kw">pub unsafe fn </span>get_unchecked_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K) -&gt; <span class="kw-2">&amp;mut </span>V {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.contains_key(key));
-        <span class="kw-2">&amp;mut </span><span class="self">self
-            </span>.slots
-            .get_unchecked_mut(key.data().idx <span class="kw">as </span>usize)
-            .u
-            .value
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>.slots.get_unchecked_mut(key.data().idx <span class="kw">as </span>usize).u.value
     }
 
     <span class="doccomment">/// Returns mutable references to the values corresponding to the given
@@ -2506,6 +2665,23 @@
     }
 }
 
+<span class="kw">impl</span>&lt;K: Key, V&gt; Clone <span class="kw">for </span>HopSlotMap&lt;K, V&gt;
+<span class="kw">where
+    </span>V: Clone,
+{
+    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            slots: <span class="self">self</span>.slots.clone(),
+            ..<span class="kw-2">*</span><span class="self">self
+        </span>}
+    }
+
+    <span class="kw">fn </span>clone_from(<span class="kw-2">&amp;mut </span><span class="self">self</span>, source: <span class="kw-2">&amp;</span><span class="self">Self</span>) {
+        <span class="self">self</span>.slots.clone_from(<span class="kw-2">&amp;</span>source.slots);
+        <span class="self">self</span>.num_elems = source.num_elems;
+    }
+}
+
 <span class="kw">impl</span>&lt;K: Key, V&gt; Default <span class="kw">for </span>HopSlotMap&lt;K, V&gt; {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::with_key()
@@ -2557,12 +2733,23 @@
 <span class="doccomment">/// An iterator over the key-value pairs in a [`HopSlotMap`].
 ///
 /// This iterator is created by [`HopSlotMap::iter`].
-</span><span class="attr">#[derive(Debug, Clone)]
+</span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>Iter&lt;<span class="lifetime">&#39;a</span>, K: Key + <span class="lifetime">&#39;a</span>, V: <span class="lifetime">&#39;a</span>&gt; {
     cur: usize,
     num_left: usize,
     slots: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[Slot&lt;V&gt;],
     _k: PhantomData&lt;<span class="kw">fn</span>(K) -&gt; K&gt;,
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K: <span class="lifetime">&#39;a </span>+ Key, V: <span class="lifetime">&#39;a</span>&gt; Clone <span class="kw">for </span>Iter&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
+    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        Iter {
+            cur: <span class="self">self</span>.cur,
+            num_left: <span class="self">self</span>.num_left,
+            slots: <span class="self">self</span>.slots,
+            _k: <span class="self">self</span>._k.clone(),
+        }
+    }
 }
 
 <span class="doccomment">/// A mutable iterator over the key-value pairs in a [`HopSlotMap`].
@@ -2579,17 +2766,33 @@
 <span class="doccomment">/// An iterator over the keys in a [`HopSlotMap`].
 ///
 /// This iterator is created by [`HopSlotMap::keys`].
-</span><span class="attr">#[derive(Debug, Clone)]
+</span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>Keys&lt;<span class="lifetime">&#39;a</span>, K: Key + <span class="lifetime">&#39;a</span>, V: <span class="lifetime">&#39;a</span>&gt; {
     inner: Iter&lt;<span class="lifetime">&#39;a</span>, K, V&gt;,
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K: <span class="lifetime">&#39;a </span>+ Key, V: <span class="lifetime">&#39;a</span>&gt; Clone <span class="kw">for </span>Keys&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
+    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        Keys {
+            inner: <span class="self">self</span>.inner.clone(),
+        }
+    }
 }
 
 <span class="doccomment">/// An iterator over the values in a [`HopSlotMap`].
 ///
 /// This iterator is created by [`HopSlotMap::values`].
-</span><span class="attr">#[derive(Debug, Clone)]
+</span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>Values&lt;<span class="lifetime">&#39;a</span>, K: Key + <span class="lifetime">&#39;a</span>, V: <span class="lifetime">&#39;a</span>&gt; {
     inner: Iter&lt;<span class="lifetime">&#39;a</span>, K, V&gt;,
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K: <span class="lifetime">&#39;a </span>+ Key, V: <span class="lifetime">&#39;a</span>&gt; Clone <span class="kw">for </span>Values&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
+    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        Values {
+            inner: <span class="self">self</span>.inner.clone(),
+        }
+    }
 }
 
 <span class="doccomment">/// A mutable iterator over the values in a [`HopSlotMap`].
@@ -2618,9 +2821,7 @@
             <span class="prelude-val">None </span>=&gt; <span class="number">0</span>,
         };
 
-        <span class="kw">let </span>key = KeyData::new(idx <span class="kw">as </span>u32, <span class="kw">unsafe </span>{
-            <span class="self">self</span>.sm.slots.get_unchecked(idx).version
-        });
+        <span class="kw">let </span>key = KeyData::new(idx <span class="kw">as </span>u32, <span class="kw">unsafe </span>{ <span class="self">self</span>.sm.slots.get_unchecked(idx).version });
         <span class="prelude-val">Some</span>((key.into(), <span class="kw">unsafe </span>{ <span class="self">self</span>.sm.remove_from_slot(idx) }))
     }
 
@@ -2652,7 +2853,7 @@
                     <span class="kw">return </span><span class="prelude-val">None</span>;
                 }
                 idx
-            }
+            },
         };
 
         <span class="self">self</span>.cur = idx + <span class="number">1</span>;
@@ -2712,7 +2913,7 @@
                     <span class="kw">return </span><span class="prelude-val">None</span>;
                 }
                 idx
-            }
+            },
         };
 
         <span class="self">self</span>.cur = idx + <span class="number">1</span>;
@@ -2821,8 +3022,9 @@
 <span class="comment">// Serialization with serde.
 </span><span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
 </span><span class="kw">mod </span>serialize {
-    <span class="kw">use super</span>::<span class="kw-2">*</span>;
     <span class="kw">use </span>serde::{de, Deserialize, Deserializer, Serialize, Serializer};
+
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
     <span class="attr">#[derive(Serialize, Deserialize)]
     </span><span class="kw">struct </span>SerdeSlot&lt;T&gt; {
@@ -2951,9 +3153,11 @@
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
-    <span class="kw">use super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use </span>quickcheck::quickcheck;
     <span class="kw">use </span>std::collections::{HashMap, HashSet};
+
+    <span class="kw">use </span>quickcheck::quickcheck;
+
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
     <span class="attr">#[derive(Clone)]
     </span><span class="kw">struct </span>CountDrop&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>std::cell::RefCell&lt;usize&gt;);

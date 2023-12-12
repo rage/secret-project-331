@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
 import { BlockInstance } from "@wordpress/blocks"
-import { get } from "lodash"
 import dynamic from "next/dynamic"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 import dynamic from "next/dynamic"
-import React, { useEffect, useState } from "react"
+import React, { useState } from "react"
 
 import { fetchExamsInstructions, updateExamsInstructions } from "../../../services/backend/exams"
 import { ExamInstructions, ExamInstructionsUpdate } from "../../../shared-module/bindings"

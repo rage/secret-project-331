@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 import dynamic from "next/dynamic"
-import React, { useEffect, useState } from "react"
+import React, { useState } from "react"
 
 import CourseContext from "../../../contexts/CourseContext"
 import { fetchCourseInstance } from "../../../services/backend/course-instances"
@@ -8,7 +8,7 @@ import {
   fetchEmailTemplateWithId,
   updateExistingEmailTemplate,
 } from "../../../services/backend/email-templates"
-import { CourseInstance, EmailTemplate, EmailTemplateUpdate } from "../../../shared-module/bindings"
+import { EmailTemplate, EmailTemplateUpdate } from "../../../shared-module/bindings"
 import ErrorBanner from "../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../shared-module/components/Spinner"
 import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"

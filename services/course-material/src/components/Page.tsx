@@ -160,22 +160,24 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
             }}
           />
         )}
-        {getResearchConsentForm.isSuccess && (showAndEditForm || shouldAnswerResearchForm) && (
-          <SelectResearchConsentForm
-            editForm={showAndEditForm}
-            shouldAnswerResearchForm={shouldAnswerResearchForm}
-            usersInitialAnswers={getUserAnswers.data}
-            researchForm={getResearchConsentForm.data}
-            onClose={() => {
-              setshowAndEditForm(false)
-              setShouldAnswerResearchForm(false)
-              setHasAnsweredForm(true)
-              if (showAndEditForm) {
-                router.back()
-              }
-            }}
-          />
-        )}
+        {getResearchConsentForm.isSuccess &&
+          getResearchConsentForm.data !== null &&
+          (showAndEditForm || shouldAnswerResearchForm) && (
+            <SelectResearchConsentForm
+              editForm={showAndEditForm}
+              shouldAnswerResearchForm={shouldAnswerResearchForm}
+              usersInitialAnswers={getUserAnswers.data}
+              researchForm={getResearchConsentForm.data}
+              onClose={() => {
+                setshowAndEditForm(false)
+                setShouldAnswerResearchForm(false)
+                setHasAnsweredForm(true)
+                if (showAndEditForm) {
+                  router.back()
+                }
+              }}
+            />
+          )}
         {getPageAudioFiles.isSuccess && tracks.length !== 0 && (
           <AudioNotification>
             <p>{t("audio-notification-description")}</p>

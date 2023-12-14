@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO exercises (\n    id,\n    course_id,\n    name,\n    deadline,\n    page_id,\n    score_maximum,\n    order_number,\n    chapter_id,\n    copied_from,\n    exercise_language_group_id,\n    max_tries_per_slide,\n    limit_number_of_tries,\n    needs_peer_review,\n    use_course_default_peer_review_config\n  )\nSELECT uuid_generate_v5($1, id::text),\n  $1,\n  name,\n  deadline,\n  uuid_generate_v5($1, page_id::text),\n  score_maximum,\n  order_number,\n  uuid_generate_v5($1, chapter_id::text),\n  id,\n  exercise_language_group_id,\n  max_tries_per_slide,\n  limit_number_of_tries,\n  needs_peer_review,\n  use_course_default_peer_review_config\nFROM exercises\nWHERE course_id = $2\n  AND deleted_at IS NULL\nRETURNING id,\n  copied_from;\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "copied_from",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "Uuid"]
+    },
+    "nullable": [false, true]
+  },
+  "hash": "c44fe486649e0ad6b4829ec7a5db6e6624bd368f7815c9a28c14b8437e16a249"
+}

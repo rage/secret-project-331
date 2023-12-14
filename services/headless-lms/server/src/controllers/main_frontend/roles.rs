@@ -54,12 +54,12 @@ pub async fn set(
         let token = skip_authorize();
         return token.authorized_ok(HttpResponse::Ok().finish());
     }
-    return Err(ControllerError::new(
+    Err(ControllerError::new(
         ControllerErrorType::NotFound,
         "The user either does not exist or has not logged in to this website previously."
             .to_string(),
         None,
-    ));
+    ))
 }
 
 /**

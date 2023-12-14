@@ -117,7 +117,8 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
             {t("research-consent-responsible")}
             <a
               className={css`
-                color: ${baseTheme.colors.blue[700]}!important;
+                color: ${baseTheme.colors.blue[700]} !important;
+                text-decoration: underline !important;
               `}
               href="mooc@cs.helsinki.fi"
               // eslint-disable-next-line i18next/no-literal-string

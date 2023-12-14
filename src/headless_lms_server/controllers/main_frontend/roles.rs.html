@@ -242,12 +242,12 @@
         <span class="kw">let </span>token = skip_authorize();
         <span class="kw">return </span>token.authorized_ok(HttpResponse::Ok().finish());
     }
-    <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
+    <span class="prelude-val">Err</span>(ControllerError::new(
         ControllerErrorType::NotFound,
         <span class="string">&quot;The user either does not exist or has not logged in to this website previously.&quot;
             </span>.to_string(),
         <span class="prelude-val">None</span>,
-    ));
+    ))
 }
 
 <span class="doccomment">/**

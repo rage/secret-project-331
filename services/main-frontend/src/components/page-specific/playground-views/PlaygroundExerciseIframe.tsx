@@ -15,7 +15,7 @@ import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 
 interface PlaygroundExerciseIframeProps {
   url: string
-  publicSpecQuery: UseQueryResult<unknown>
+  publicSpecQuery: UseQueryResult<unknown, unknown>
   userAnswer: unknown
   setCurrentStateReceivedFromIframe: React.Dispatch<
     React.SetStateAction<CurrentStateMessage | null>
@@ -40,7 +40,7 @@ const PlaygroundExerciseIframe: React.FC<
   userAnswer,
 }) => {
   const { t } = useTranslation()
-  if (publicSpecQuery.isLoading || publicSpecQuery.isError) {
+  if (publicSpecQuery.isPending || publicSpecQuery.isError) {
     return <div>{t("error-no-public-spec")}</div>
   }
   // Makes sure the iframe renders again when the data changes

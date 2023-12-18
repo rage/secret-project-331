@@ -26,7 +26,7 @@ test.describe("Uploading media as admin", async () => {
     },
   )
 
-  test("test", async ({ page, headless }, testInfo) => {
+  test("Uploading images in the image block works", async ({ page, headless }, testInfo) => {
     await page.locator("text=University of Helsinki, Department of Computer Science").click()
 
     await page.locator("[aria-label=\"Manage course 'Introduction to everything'\"] svg").click()
@@ -51,13 +51,11 @@ test.describe("Uploading media as admin", async () => {
     ])
     await fileChooser.setFiles("src/fixtures/media/welcome_exercise_decorations.png")
 
-    // This is needed so we get another Gutenberg popup "disabled".
-    await page.click('img[alt="Add alt"]')
     await page.locator("text=Replace").click()
 
     const [newPage] = await Promise.all([
       page.waitForEvent("popup"),
-      page.locator("a[href$='.png']").click(),
+      page.locator("a[href$='.png']").nth(1).click(),
     ])
 
     await expectScreenshotsToMatchSnapshots({

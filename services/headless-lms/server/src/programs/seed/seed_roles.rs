@@ -4,9 +4,9 @@ use sqlx::{Pool, Postgres};
 use super::{seed_organizations::uh_cs::SeedOrganizationUhCsResult, seed_users::SeedUsersResult};
 
 pub async fn seed_roles(
-    db_pool: &Pool<Postgres>,
-    seed_users_result: &SeedUsersResult,
-    uh_cs_organization_result: &SeedOrganizationUhCsResult,
+    db_pool: Pool<Postgres>,
+    seed_users_result: SeedUsersResult,
+    uh_cs_organization_result: SeedOrganizationUhCsResult,
 ) -> anyhow::Result<()> {
     // roles
     info!("inserting roles");

@@ -25,7 +25,7 @@ const CourseProgressBlock: React.FC<React.PropsWithChildren<BlockRendererProps<u
   })
   const loginStateContext = useContext(LoginStateContext)
 
-  if (pageContext.state !== "ready" || loginStateContext.isLoading) {
+  if (pageContext.state !== "ready" || loginStateContext.isPending) {
     return <Spinner variant={"small"} />
   }
   if (!loginStateContext.signedIn) {
@@ -40,7 +40,7 @@ const CourseProgressBlock: React.FC<React.PropsWithChildren<BlockRendererProps<u
       {getUserCourseProgress.isError && (
         <ErrorBanner variant={"readOnly"} error={getUserCourseProgress.error} />
       )}
-      {getUserCourseProgress.isLoading && <Spinner variant={"medium"} />}
+      {getUserCourseProgress.isPending && <Spinner variant={"medium"} />}
       {getUserCourseProgress.isSuccess && (
         <CourseProgress userCourseInstanceProgress={getUserCourseProgress.data} />
       )}

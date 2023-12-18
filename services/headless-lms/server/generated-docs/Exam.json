@@ -25,5 +25,6 @@
   "starts_at": "2021-12-31T22:00:00Z",
   "ends_at": "2021-12-31T22:00:00Z",
   "time_minutes": 120,
-  "minimum_points_treshold": 24
+  "minimum_points_treshold": 24,
+  "language": "en-US"
 }

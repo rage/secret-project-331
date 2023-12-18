@@ -8,7 +8,7 @@ test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
-test("Test course export", async ({ page }) => {
+test("course export", async ({ page }) => {
   await test.step("Upload an image to be backed up", async () => {
     await page.goto("http://project-331.local/")
     await page

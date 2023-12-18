@@ -40,7 +40,7 @@ const CourseSubmissionsByDay: React.FC<React.PropsWithChildren<CourseSubmissions
     return <ErrorBanner variant={"readOnly"} error={getCourseDailySubmissionCounts.error} />
   }
 
-  if (getCourseDailySubmissionCounts.isLoading) {
+  if (getCourseDailySubmissionCounts.isPending) {
     return <Spinner variant={"medium"} />
   }
 

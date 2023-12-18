@@ -20,6 +20,7 @@ async function createLoginStates(page: Page, context: BrowserContext) {
     { email: "admin@example.com", password: "admin" },
     { email: "teacher@example.com", password: "teacher" },
     { email: "language.teacher@example.com", password: "language.teacher" },
+    { email: "material.viewer@example.com", password: "material.viewer" },
     { email: "user@example.com", password: "user" },
     { email: "student1@example.com", password: "student.1" },
     { email: "student2@example.com", password: "student.2" },

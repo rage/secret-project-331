@@ -27,7 +27,7 @@ const CourseLanguageVersionsList: React.FC<
       {getCourseLanguageVersions.isError && (
         <ErrorBanner variant={"readOnly"} error={getCourseLanguageVersions.error} />
       )}
-      {getCourseLanguageVersions.isLoading && <Spinner variant={"medium"} />}
+      {getCourseLanguageVersions.isPending && <Spinner variant={"medium"} />}
       {getCourseLanguageVersions.isSuccess && (
         <ul>
           {getCourseLanguageVersions.data.map((course) => (

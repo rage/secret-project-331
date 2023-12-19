@@ -61,6 +61,7 @@ export interface ModelSolutionQuizItemMultiplechoice {
   body: string | null
   successMessage: string | null
   failureMessage: string | null
+  messageOnModelSolution: string | null
   sharedOptionFeedbackMessage: string | null
   optionDisplayDirection: DisplayDirection
   multipleChoiceMultipleOptionsGradingPolicy: multipleChoiceMultipleOptionsGradingPolicy
@@ -76,6 +77,7 @@ export interface ModelSolutionQuizItemEssay {
   body: string | null
   successMessage: string | null
   failureMessage: string | null
+  messageOnModelSolution: string | null
 }
 
 export interface ModelSolutionQuizItemScale {
@@ -90,6 +92,7 @@ export interface ModelSolutionQuizItemScale {
   body: string | null
   successMessage: string | null
   failureMessage: string | null
+  messageOnModelSolution: string | null
 }
 
 export interface ModelSolutionQuizItemCheckbox {
@@ -100,6 +103,7 @@ export interface ModelSolutionQuizItemCheckbox {
   body: string | null
   successMessage: string | null
   failureMessage: string | null
+  messageOnModelSolution: string | null
 }
 
 export interface ModelSolutionQuizItemClosedEndedQuestion {
@@ -111,6 +115,7 @@ export interface ModelSolutionQuizItemClosedEndedQuestion {
   body: string | null
   successMessage: string | null
   failureMessage: string | null
+  messageOnModelSolution: string | null
 }
 
 export interface ModelSolutionQuizItemMatrix {
@@ -120,6 +125,7 @@ export interface ModelSolutionQuizItemMatrix {
   optionCells: string[][] | null
   successMessage: string | null
   failureMessage: string | null
+  messageOnModelSolution: string | null
 }
 
 export interface ModelSolutionQuizItemTimelineItem {
@@ -138,6 +144,7 @@ export interface ModelSolutionQuizItemTimeline {
   order: number
   successMessage: string | null
   failureMessage: string | null
+  messageOnModelSolution: string | null
   timelineItems: ModelSolutionQuizItemTimelineItem[] | null
 }
 
@@ -151,6 +158,7 @@ export interface ModelSolutionQuizItemChooseN {
   body: string | null
   successMessage: string | null
   failureMessage: string | null
+  messageOnModelSolution: string | null
 }
 
 export interface ModelSolutionQuizItemMultiplechoiceDropdown {
@@ -162,4 +170,5 @@ export interface ModelSolutionQuizItemMultiplechoiceDropdown {
   body: string | null
   successMessage: string | null
   failureMessage: string | null
+  messageOnModelSolution: string | null
 }

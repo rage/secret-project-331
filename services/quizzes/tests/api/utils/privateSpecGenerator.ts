@@ -21,6 +21,7 @@ export const FAILURE_MESSAGE_CANARY_FOR_TESTS =
   "You got it wrong! But this might also spoil something"
 export const VALIDITY_REGEX_CANARY_FOR_TESTS = "^This one spoils the correct answer$"
 export const OPTION_CELLS_CANARY_FOR_TESTS = "234223523"
+export const MESSAGE_ON_MODEL_SOLUTION_CANARY_FOR_TESTS = "This message is the model solution."
 
 export function generateEmptyPrivateSpecQuiz(): PrivateSpecQuiz {
   return {
@@ -47,6 +48,7 @@ export function generatePrivateSpecWithOneClosedEndedQuestionQuizItem(): Private
     body: null,
     successMessage: SUCCESS_MESSAGE_CANARY_FOR_TESTS,
     failureMessage: FAILURE_MESSAGE_CANARY_FOR_TESTS,
+    messageOnModelSolution: MESSAGE_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
   }
   return { ...emptyQuiz, items: [closedEndedQuestionQuizItem] }
 }
@@ -85,6 +87,7 @@ export function generatePrivateSpecWithOneMultipleChoiceQuizItem(): PrivateSpecQ
     body: null,
     successMessage: SUCCESS_MESSAGE_CANARY_FOR_TESTS,
     failureMessage: FAILURE_MESSAGE_CANARY_FOR_TESTS,
+    messageOnModelSolution: MESSAGE_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
     sharedOptionFeedbackMessage: SHARED_OPTION_FEEDBACK_MESSAGE_CANARY_FOR_TESTS,
     optionDisplayDirection: "vertical",
     multipleChoiceMultipleOptionsGradingPolicy: "default",
@@ -104,6 +107,7 @@ export function generatePrivateSpecWithOneEssayQuizItem(): PrivateSpecQuiz {
     body: null,
     successMessage: SUCCESS_MESSAGE_CANARY_FOR_TESTS,
     failureMessage: FAILURE_MESSAGE_CANARY_FOR_TESTS,
+    messageOnModelSolution: MESSAGE_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
     minWords: 20,
     maxWords: 100,
   }
@@ -125,6 +129,7 @@ export function generatePrivateSpecWithOneScaleQuizItem(): PrivateSpecQuiz {
     body: null,
     successMessage: SUCCESS_MESSAGE_CANARY_FOR_TESTS,
     failureMessage: FAILURE_MESSAGE_CANARY_FOR_TESTS,
+    messageOnModelSolution: MESSAGE_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
   }
 
   return { ...emptyQuiz, items: [closedEndedQuestionQuizItem] }
@@ -140,6 +145,7 @@ export function generatePrivateSpecWithOneCheckboxQuizItem(): PrivateSpecQuiz {
     body: null,
     successMessage: SUCCESS_MESSAGE_CANARY_FOR_TESTS,
     failureMessage: FAILURE_MESSAGE_CANARY_FOR_TESTS,
+    messageOnModelSolution: MESSAGE_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
   }
 
   return { ...emptyQuiz, items: [closedEndedQuestionQuizItem] }
@@ -153,6 +159,7 @@ export function generatePrivateSpecWithOneMatrixQuizItem(): PrivateSpecQuiz {
     order: 0,
     successMessage: SUCCESS_MESSAGE_CANARY_FOR_TESTS,
     failureMessage: FAILURE_MESSAGE_CANARY_FOR_TESTS,
+    messageOnModelSolution: MESSAGE_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
     optionCells: [
       ["1", "2"],
       ["3", OPTION_CELLS_CANARY_FOR_TESTS],
@@ -170,6 +177,7 @@ export function generatePrivateSpecWithOneTimelineQuizItem(): PrivateSpecQuiz {
     order: 0,
     successMessage: SUCCESS_MESSAGE_CANARY_FOR_TESTS,
     failureMessage: FAILURE_MESSAGE_CANARY_FOR_TESTS,
+    messageOnModelSolution: MESSAGE_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
     timelineItems: [
       {
         id: "1",
@@ -191,6 +199,7 @@ export function generatePrivateSpecWithOneChooseNQuizItem(): PrivateSpecQuiz {
     order: 0,
     successMessage: SUCCESS_MESSAGE_CANARY_FOR_TESTS,
     failureMessage: FAILURE_MESSAGE_CANARY_FOR_TESTS,
+    messageOnModelSolution: MESSAGE_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
     n: 10,
     options: [
       {
@@ -229,6 +238,7 @@ export function generatePrivateSpecWithOneMultipleChoiceDropdownQuizItem(): Priv
     order: 0,
     successMessage: SUCCESS_MESSAGE_CANARY_FOR_TESTS,
     failureMessage: FAILURE_MESSAGE_CANARY_FOR_TESTS,
+    messageOnModelSolution: MESSAGE_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
     options: [
       {
         id: "id-1",

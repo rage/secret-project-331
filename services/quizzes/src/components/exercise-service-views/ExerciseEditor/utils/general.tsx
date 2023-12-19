@@ -77,6 +77,7 @@ const createEmptyQuizItem = (type: QuizItemType) => {
         body: null,
         n: 2,
         options: [],
+        messageOnModelSolution: null,
       } as PrivateSpecQuizItemChooseN
     case "closed-ended-question":
       return {
@@ -127,6 +128,7 @@ const createEmptyQuizItem = (type: QuizItemType) => {
         title: null,
         fogOfWar: false,
         options: [],
+        messageOnModelSolution: null,
       } as PrivateSpecQuizItemMultiplechoice
     case "multiple-choice-dropdown":
       return {
@@ -137,13 +139,13 @@ const createEmptyQuizItem = (type: QuizItemType) => {
         direction: "row",
         failureMessage: null,
         multipleChoiceMultipleOptionsGradingPolicy: "default",
-
         order: 0,
         sharedOptionFeedbackMessage: null,
         shuffleOptions: false,
         successMessage: null,
         title: null,
         options: [],
+        messageOnModelSolution: null,
       } as PrivateSpecQuizItemMultiplechoiceDropdown
     case "scale":
       return {
@@ -168,6 +170,7 @@ const createEmptyQuizItem = (type: QuizItemType) => {
         order: 0,
         successMessage: null,
         timelineItems: [],
+        messageOnModelSolution: null,
       } as PrivateSpecQuizItemTimeline
   }
 }

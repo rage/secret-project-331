@@ -35,6 +35,7 @@ import {
   generatePrivateSpecWithOneScaleQuizItem,
   generatePrivateSpecWithOneTimelineQuizItem,
   MESSAGE_AFTER_SUBMISSION_CANARY_FOR_TESTS,
+  MESSAGE_ON_MODEL_SOLUTION_CANARY_FOR_TESTS,
   OPTION_CELLS_CANARY_FOR_TESTS,
   SHARED_OPTION_FEEDBACK_MESSAGE_CANARY_FOR_TESTS,
   SUCCESS_MESSAGE_CANARY_FOR_TESTS,
@@ -76,6 +77,7 @@ function expectNoCanariesInOutput(object: unknown) {
   expect(objectAsString).not.toContain(FAILURE_MESSAGE_CANARY_FOR_TESTS)
   expect(objectAsString).not.toContain(VALIDITY_REGEX_CANARY_FOR_TESTS)
   expect(objectAsString).not.toContain(OPTION_CELLS_CANARY_FOR_TESTS)
+  expect(objectAsString).not.toContain(MESSAGE_ON_MODEL_SOLUTION_CANARY_FOR_TESTS)
 }
 
 describe("Public spec generation", () => {
@@ -96,6 +98,7 @@ describe("Public spec generation", () => {
       expectPropertiesHaveBeenRemoved<PrivateSpecQuizItemMultiplechoice>(quizItem, [
         "successMessage",
         "failureMessage",
+        "messageOnModelSolution",
         "sharedOptionFeedbackMessage",
       ])
       for (const option of (quizItem as PublicSpecQuizItemMultiplechoice).options) {
@@ -126,6 +129,7 @@ describe("Public spec generation", () => {
       expectPropertiesHaveBeenRemoved<PrivateSpecQuizItemEssay>(quizItem, [
         "successMessage",
         "failureMessage",
+        "messageOnModelSolution",
       ])
     }
     expectNoCanariesInOutput(publicSpec)
@@ -148,6 +152,7 @@ describe("Public spec generation", () => {
       expectPropertiesHaveBeenRemoved<PrivateSpecQuizItemScale>(quizItem, [
         "successMessage",
         "failureMessage",
+        "messageOnModelSolution",
       ])
     }
     expectNoCanariesInOutput(publicSpec)
@@ -170,6 +175,7 @@ describe("Public spec generation", () => {
       expectPropertiesHaveBeenRemoved<PrivateSpecQuizItemCheckbox>(quizItem, [
         "successMessage",
         "failureMessage",
+        "messageOnModelSolution",
       ])
     }
     expectNoCanariesInOutput(publicSpec)
@@ -192,6 +198,7 @@ describe("Public spec generation", () => {
       expectPropertiesHaveBeenRemoved<PrivateSpecQuizItemClosedEndedQuestion>(quizItem, [
         "successMessage",
         "failureMessage",
+        "messageOnModelSolution",
         "validityRegex",
       ])
     }
@@ -215,6 +222,7 @@ describe("Public spec generation", () => {
       expectPropertiesHaveBeenRemoved<PrivateSpecQuizItemMatrix>(quizItem, [
         "successMessage",
         "failureMessage",
+        "messageOnModelSolution",
         "optionCells",
       ])
     }
@@ -238,6 +246,7 @@ describe("Public spec generation", () => {
       expectPropertiesHaveBeenRemoved<PrivateSpecQuizItemTimeline>(quizItem, [
         "successMessage",
         "failureMessage",
+        "messageOnModelSolution",
       ])
       for (const timelineItems of (quizItem as PublicSpecQuizItemTimeline).timelineItems) {
         expectPropertiesHaveBeenRemoved<PrivateSpecQuizItemTimelineItem>(timelineItems, [
@@ -266,6 +275,7 @@ describe("Public spec generation", () => {
       expectPropertiesHaveBeenRemoved<PrivateSpecQuizItemChooseN>(quizItem, [
         "successMessage",
         "failureMessage",
+        "messageOnModelSolution",
       ])
       for (const option of (quizItem as PublicSpecQuizItemChooseN).options) {
         expectPropertiesHaveBeenRemoved<QuizItemOption>(option, [
@@ -295,6 +305,7 @@ describe("Public spec generation", () => {
       expectPropertiesHaveBeenRemoved<PrivateSpecQuizItemMultiplechoiceDropdown>(quizItem, [
         "successMessage",
         "failureMessage",
+        "messageOnModelSolution",
       ])
       for (const option of (quizItem as PublicSpecQuizItemMultiplechoiceDropdown).options) {
         expectPropertiesHaveBeenRemoved<QuizItemOption>(option, [

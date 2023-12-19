@@ -414,6 +414,18 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
               }}
               label={t("failure-message")}
             />
+            <ParsedTextField
+              value={selected.messageOnModelSolution ?? ""}
+              onChange={(newValue) => {
+                updateState((draft) => {
+                  if (!draft) {
+                    return
+                  }
+                  draft.messageOnModelSolution = newValue
+                })
+              }}
+              label={t("label-message-on-model-solution")}
+            />
           </AdvancedOptionsContainer>
         </details>
       </Accordion>

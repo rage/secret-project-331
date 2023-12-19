@@ -101,8 +101,7 @@ const ChooseN: React.FunctionComponent<
               justify-content: center;
               line-height: 1;
               list-style: none;
-              padding-left: 14px;
-              padding-right: 14px;
+              padding: 14px;
               text-align: left;
               text-decoration: none;
               transition:

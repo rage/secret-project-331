@@ -432,7 +432,7 @@ const ExerciseBlock: React.FC<
           </div>
           <div
             className={css`
-              padding: 1rem;
+              padding: 0 1rem;
             `}
           >
             {exerciseDeadline &&

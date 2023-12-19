@@ -8,7 +8,7 @@ import { Block } from "../../../../services/backend"
 import { CourseMaterialExerciseTask } from "../../../../shared-module/bindings"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
 import { IframeState } from "../../../../shared-module/exercise-service-protocol-types"
-import { baseTheme } from "../../../../shared-module/styles"
+import { baseTheme, headingFont } from "../../../../shared-module/styles"
 
 import ExerciseTaskIframe from "./ExerciseTaskIframe"
 
@@ -48,13 +48,32 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
   return (
     <div>
       {currentExerciseTaskAssignment && (
-        <ContentRenderer
-          data={currentExerciseTaskAssignment}
-          editing={false}
-          selectedBlockId={null}
-          setEdits={(map) => map}
-          isExam={isExam}
-        />
+        <div
+          className={css`
+            font-family: ${headingFont};
+            color: #4c5868;
+            p {
+              margin-top: 0 !important;
+              opacity: 0.9;
+              font-size: 16px;
+              font-weight: 500;
+            }
+
+            span {
+              font-size: 16px;
+              font-weight: 600;
+            }
+          `}
+        >
+          <span>Instruction:</span>
+          <ContentRenderer
+            data={currentExerciseTaskAssignment}
+            editing={false}
+            selectedBlockId={null}
+            setEdits={(map) => map}
+            isExam={isExam}
+          />
+        </div>
       )}
       {cannotAnswerButNoSubmission && <div>{t("no-submission-received-for-this-exercise")}</div>}
       {!cannotAnswerButNoSubmission &&

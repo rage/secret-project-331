@@ -131,6 +131,7 @@ const Essay: React.FunctionComponent<
               background: #f4f5f7 !important;
               border-radius: 4px;
               border: 3px solid #dfe1e6 !important;
+              outline: none;
             }
           `}
           value={text}
@@ -148,10 +149,6 @@ const Essay: React.FunctionComponent<
               margin: 0.5rem 0;
               text-transform: uppercase;
               background: ${isValid === null ? "#f1f1f3" : isValid ? " #66B8B2" : "#746FB0"};
-              box-shadow:
-                rgba(45, 35, 66, 0) 0 2px 4px,
-                rgba(45, 35, 66, 0) 0 7px 13px -3px,
-                ${isValid === null ? "#c4c4c6" : isValid ? "#50938E" : "#5D5890"} 0 -3px 0 inset;
 
               p {
                 background: ${isValid === null ? "#c4c4c6" : isValid ? "#50938E" : "#5D5890"};
@@ -175,10 +172,6 @@ const Essay: React.FunctionComponent<
               text-transform: uppercase;
               background: #f1f1f3;
               color: #57606f;
-              box-shadow:
-                rgba(45, 35, 66, 0) 0 2px 4px,
-                rgba(45, 35, 66, 0) 0 7px 13px -3px,
-                #c4c4c6 0 -3px 0 inset;
 
               p {
                 background: #c4c4c6;
@@ -202,10 +195,6 @@ const Essay: React.FunctionComponent<
               text-transform: uppercase;
               background: #f1f1f3;
               color: #57606f;
-              box-shadow:
-                rgba(45, 35, 66, 0) 0 2px 4px,
-                rgba(45, 35, 66, 0) 0 7px 13px -3px,
-                #c4c4c6 0 -3px 0 inset;
 
               p {
                 background: #c4c4c6;

@@ -29,6 +29,7 @@ const MultipleChoiceClickableFeedback: React.FC<
       <h2
         className={css`
           display: flex;
+          color: #4c5868;
         `}
       >
         {public_quiz_item.title || public_quiz_item.body}
@@ -46,9 +47,9 @@ const MultipleChoiceClickableFeedback: React.FC<
           const backgroundColor = correct
             ? quizTheme.gradingCorrectItemBackground
             : quizTheme.gradingWrongItemBackground
-          const foregroundColor = correct
-            ? quizTheme.gradingCorrectItemColor
-            : quizTheme.gradingWrongItemColor
+          // const foregroundColor = correct
+          //   ? quizTheme.gradingCorrectItemColor
+          //   : quizTheme.gradingWrongItemColor
 
           return (
             <button
@@ -56,12 +57,20 @@ const MultipleChoiceClickableFeedback: React.FC<
               value={o.id}
               disabled
               className={css`
+                align-items: center;
+                flex: 1;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                padding: 0.4rem 0.8rem;
+                border-radius: 6px;
+                font-size: 18px;
+                color: #4c5868;
+
                 display: flex;
                 margin: 0.5rem;
                 flex-grow: 1;
-                color: ${foregroundColor};
                 background-color: ${backgroundColor};
-                border: ${optionSelected ? `2px solid black` : "none"};
+                border: ${optionSelected ? `2px solid #d8d8d8` : "none"};
               `}
             >
               {o.title || o.body}

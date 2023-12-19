@@ -1,4 +1,5 @@
 import { css, cx } from "@emotion/css"
+import { InfoCircle } from "@vectopus/atlas-icons-react"
 import _ from "lodash"
 import React from "react"
 import { useTranslation } from "react-i18next"
@@ -33,8 +34,7 @@ export const optionButton = css`
   justify-content: center;
   line-height: 1;
   list-style: none;
-  padding-left: 14px;
-  padding-right: 14px;
+  padding: 14px;
   text-align: left;
   text-decoration: none;
   transition:
@@ -162,6 +162,10 @@ const MultipleChoice: React.FunctionComponent<
 
           ${respondToOrLarger.sm} {
             flex-direction: ${direction};
+            ${direction === ROW &&
+            `
+              column-gap: 0.625rem;
+            `}
           }
         `}
       >
@@ -189,11 +193,19 @@ const MultipleChoice: React.FunctionComponent<
         <div
           className={css`
             font-size: 13px;
-            color: ${baseTheme.colors.gray[500]};
-            margin: 0.3rem auto;
-            width: fit-content;
+            color: #564f23;
+            margin: 0.6rem 0;
+            width: 100%;
+            background: #f6f2da;
+            font-size: 18px;
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            border-radius: 4px;
+            column-gap: 0.6rem;
           `}
         >
+          <InfoCircle size={20} weight="bold" color="7A3F75" />
           {t("select-all-correct-options")}
         </div>
       )}

@@ -25,16 +25,14 @@ const EssayFeedback: React.FC<
           margin: 0.5;
           background: white;
           flex-direction: column;
-          padding: 1rem;
-          border-left: 8px solid ${baseTheme.colors.green[300]};
         `}
       >
         <pre
           className={css`
             display: flex;
-            font-family:
-              josefin sans,
-              sans-serif;
+            font-family: Raleway, sans-serif;
+            color: #8a909b;
+            font-weight: 500;
             white-space: pre-wrap;
           `}
         >
@@ -45,20 +43,13 @@ const EssayFeedback: React.FC<
         className={css`
           display: flex;
           white-space: pre-wrap;
-          font-family:
-            josefin sans,
-            sans-serif;
+          font-family: Raleway, sans-serif;
+          font-weight: 500;
+          color: #4c5868;
           margin: 1rem 0;
         `}
       >
-        <span
-          className={css`
-            text-transform: uppercase;
-            color: ${baseTheme.colors.gray[500]};
-          `}
-        >
-          {t("word-count")}:{" "}
-        </span>
+        <span>{t("word-count")}: </span>
         <span>{wordCount(text)}</span>
       </div>
     </div>

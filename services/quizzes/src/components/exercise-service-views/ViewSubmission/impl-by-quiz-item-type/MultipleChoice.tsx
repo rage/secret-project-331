@@ -25,24 +25,28 @@ const gradingOption = css`
   justify-content: space-between;
   margin: 0.3rem;
   padding: 0 1rem;
+  border-radius: 6px;
+  font-size: 18px;
+  color: #4c5868;
+  border: 2px solid #d8d8d8;
 `
 
 // eslint-disable-next-line i18next/no-literal-string
 const gradingOptionWrongAndSelected = css`
-  background: ${quizTheme.gradingWrongItemBackground};
-  color: ${quizTheme.gradingWrongItemColor};
+  background: #fbeef0;
+  border: 2px solid #f5d0d3;
 `
 
 // eslint-disable-next-line i18next/no-literal-string
 const gradingOptionSelected = css`
-  background: ${quizTheme.gradingSelectedItemBackground};
-  color: ${quizTheme.gradingSelectedItemColor};
+  background: #f4f4f4;
+  border: 2px solid #d8d8d8;
 `
 
 // eslint-disable-next-line i18next/no-literal-string
 const gradingOptionCorrectAndSelected = css`
   background: ${quizTheme.gradingCorrectItemBackground};
-  color: ${quizTheme.gradingCorrectItemColor};
+  border: 2px solid #69af8a;
 `
 
 const MultipleChoiceSubmission: React.FC<
@@ -79,9 +83,11 @@ const MultipleChoiceSubmission: React.FC<
     >
       <div
         className={css`
-          font-size: ${quizTheme.quizTitleFontSize};
-          font-weight: bold;
+          font-weight: 500;
+          color: #4c5868;
           font-family: "Raleway", sans-serif;
+          font-size: 20px;
+          margin-bottom: 1rem;
         `}
       >
         <ParsedText inline parseLatex parseMarkdown text={public_quiz_item.title} />
@@ -102,6 +108,10 @@ const MultipleChoiceSubmission: React.FC<
 
           ${respondToOrLarger.sm} {
             flex-direction: ${direction};
+            ${public_quiz_item.optionDisplayDirection === "horizontal" &&
+            `
+                flex-wrap: wrap;
+              `}
           }
         `}
       >
@@ -148,7 +158,7 @@ const MultipleChoiceSubmission: React.FC<
                 >
                   <div
                     className={css`
-                      padding: 1rem 0;
+                      padding: 0.8rem 0;
                       max-width: 50ch;
                     `}
                   >
@@ -162,10 +172,42 @@ const MultipleChoiceSubmission: React.FC<
                           public_quiz_item.optionDisplayDirection,
                           "row",
                         )};
+                        ${public_quiz_item.optionDisplayDirection === "horizontal" &&
+                        `
+                            padding-left: 0.635rem;
+                          `}
                       `}
                     >
-                      <div>{correctAnswer == true && t("correct-option")}</div>
-                      <div>{correctAnswer == false && t("incorrect-option")}</div>
+                      {correctAnswer == true && (
+                        <div
+                          className={css`
+                            background: #69af8a;
+                            font-size: 0.625rem;
+                            text-transform: uppercase;
+                            font-weight: bold;
+                            padding: 0.3125rem 0.375rem 0.25rem 0.375rem;
+                            border-radius: 0.125rem;
+                            color: #fff;
+                          `}
+                        >
+                          {t("correct-option")}
+                        </div>
+                      )}
+                      {correctAnswer == false && (
+                        <div
+                          className={css`
+                            background: #eedbdd;
+                            font-size: 0.625rem;
+                            text-transform: uppercase;
+                            font-weight: bold;
+                            padding: 0.3125rem 0.375rem 0.25rem 0.375rem;
+                            border-radius: 0.125rem;
+                            color: #d85762;
+                          `}
+                        >
+                          {t("incorrect-option")}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -196,8 +238,9 @@ const RowSubmissionFeedback: React.FC<React.PropsWithChildren<RowSubmissionFeedb
       className={css`
         margin: 0 0.5rem 1rem;
         display: flex;
+        color: #4c5868;
         border-left: ${correct
-          ? `6px solid ${quizTheme.gradingCorrectItemBackground}`
+          ? `6px solid ${quizTheme.gradingCorrectItemBorderColor}`
           : `6px solid ${quizTheme.gradingWrongItemBackground}`};
         box-sizing: border-box;
         background: ${quizTheme.feedbackBackground};

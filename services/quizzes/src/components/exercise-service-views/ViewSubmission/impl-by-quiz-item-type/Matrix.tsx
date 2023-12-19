@@ -14,22 +14,64 @@ import { QuizItemSubmissionComponentProps } from "."
 const MatrixTableContainer = styled.table`
   margin: auto;
   margin-top: 1rem;
-  background-color: gray;
   border-collapse: collapse;
+
   td {
-    border: 2px solid #e1e1e199;
+    border-top: none;
   }
-  &tr:first-child td {
-    border-top: 4px;
+
+  tr:last-child td {
+    border-bottom: none;
   }
-  &tr td:first-child {
-    border-left: 4px;
+
+  tr td:last-child {
+    border-right: none;
   }
-  &tr:last-child td {
-    border-bottom: 4px;
+
+  tr td:first-child {
+    border-left: none;
   }
-  &tr td:last-child {
-    border-right: 4px;
+
+  tbody {
+    border-left: 2px solid #718dbf;
+    border-right: 2px solid #718dbf;
+    position: relative;
+  }
+
+  .top-left:before {
+    position: absolute;
+    content: "";
+    width: 15px;
+    border-top: 2px solid #718dbf;
+    top: 0%;
+    left: -0.8%;
+  }
+
+  .top-right:before {
+    position: absolute;
+    content: "";
+    width: 15px;
+    border-top: 2px solid #718dbf;
+    top: 0%;
+    right: -0.6%;
+  }
+
+  .bottom-left:before {
+    position: absolute;
+    content: "";
+    width: 15px;
+    border-bottom: 2px solid #718dbf;
+    bottom: 0%;
+    left: -0.8%;
+  }
+
+  .bottom-right {
+    position: absolute;
+    content: "";
+    width: 15px;
+    border-bottom: 2px solid #718dbf;
+    bottom: 0%;
+    right: -0.6%;
   }
 `
 
@@ -74,7 +116,30 @@ const MatrixSubmission: React.FC<
       correct: correct,
     }
   }
-  const tempArray = [0, 1, 2, 3, 4, 5]
+  const rowsCountArray: number[] = []
+  const columnsCountArray: number[] = []
+
+  const containsNonEmptyString = (arr: string[]): boolean =>
+    arr.some((item) => typeof item === "string" && item.trim() !== "")
+
+  let countRows = 0
+  let countColumns = 0
+
+  studentAnswers?.forEach((answer, index) => {
+    if (containsNonEmptyString(answer)) {
+      rowsCountArray.push(countRows)
+      countRows += 1
+
+      index == 0 &&
+        answer?.forEach((item) => {
+          if (item !== "") {
+            columnsCountArray.push(countColumns)
+            countColumns += 1
+          }
+        })
+    }
+  })
+
   if (isIncorrect) {
     return (
       <div
@@ -88,14 +153,19 @@ const MatrixSubmission: React.FC<
         <div>
           <MatrixTable
             isStudentsAnswer={true}
-            tempArray={tempArray}
+            rowsCountArray={rowsCountArray}
+            columnsCountArray={columnsCountArray}
             findOptionText={findOptionText}
           ></MatrixTable>
           {correctAnswers && <FontAwesomeIcon icon={faTimesCircle} color="red" size="lg" />}
         </div>
         {correctAnswers && (
           <div>
-            <MatrixTable tempArray={tempArray} findOptionText={findOptionText}></MatrixTable>
+            <MatrixTable
+              rowsCountArray={rowsCountArray}
+              columnsCountArray={columnsCountArray}
+              findOptionText={findOptionText}
+            ></MatrixTable>
             <FontAwesomeIcon icon={faCheckCircle} color="green" size="lg" />
           </div>
         )}
@@ -106,7 +176,8 @@ const MatrixSubmission: React.FC<
       <MatrixTable
         // eslint-disable-next-line i18next/no-literal-string
         aria-label="single"
-        tempArray={tempArray}
+        rowsCountArray={rowsCountArray}
+        columnsCountArray={columnsCountArray}
         findOptionText={findOptionText}
       ></MatrixTable>
     )
@@ -114,26 +185,33 @@ const MatrixSubmission: React.FC<
 }
 
 interface MatrixTableProps {
-  tempArray: number[]
+  rowsCountArray: number[]
+  columnsCountArray: number[]
   findOptionText: (column: number, row: number, isStudentsAnswer: boolean) => isCellCorrectObject
   isStudentsAnswer?: boolean
 }
 
 const MatrixTable: React.FC<React.PropsWithChildren<MatrixTableProps>> = ({
-  tempArray,
+  rowsCountArray,
+  columnsCountArray,
   findOptionText,
   isStudentsAnswer = false,
 }) => {
   return (
     <MatrixTableContainer>
       <tbody>
+        <div className="top-left"></div>
+        <div className="top-right"></div>
+        <div className="bottom-left"></div>
+        <div className="bottom-right"></div>
         <>
-          {tempArray.map((row) => {
+          {rowsCountArray.map((row) => {
             return (
               <tr key={`row${row}`}>
-                {tempArray.map((column) => {
+                {columnsCountArray.map((column) => {
                   const cell = findOptionText(column, row, isStudentsAnswer)
                   if (cell !== null) {
+                    console.log("cell", cell, "row", row, "column", column)
                     return (
                       <td
                         key={`cell ${row} ${column}`}
@@ -159,14 +237,15 @@ const MatrixTable: React.FC<React.PropsWithChildren<MatrixTableProps>> = ({
                             resize: none;
                             ${cell.text.length === 0 &&
                             `
-                              background-color: #ECECEC;
+                              background-color: #f5f6f7;
                             `}
                             ${cell.text !== "" &&
                             `
-                                background-color: #DBDBDB;
+                                background-color: #f9f9f9;
+                                color: #4C5868;
                                 `}
                                 ${cell.correct === false &&
-                            `background-color: ${baseTheme.colors.red[200]};
+                            `background-color: #bfbec6;
                                 `}
                           `}
                         >

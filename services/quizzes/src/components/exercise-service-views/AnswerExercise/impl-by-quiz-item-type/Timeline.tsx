@@ -40,10 +40,9 @@ const container = css`
     top: calc(50% - 15px);
     text-align: center;
     font-size: 16px;
-    font-weight: 500;
+    font-weight: 600;
     color: #4c5868;
     font-family: ${headingFont};
-    text-transform: uppercase;
     letter-spacing: 1;
     z-index: 1;
   }
@@ -78,7 +77,7 @@ const left = css`
 
   .content {
     @media (max-width: 767.98px) {
-      padding: 30px 0px 30px 0px;
+      padding: 30px 0px 30px 10px;
     }
   }
 `
@@ -100,7 +99,7 @@ const right = css`
   .content {
     padding: 30px 30px 30px 30px;
     @media (max-width: 767.98px) {
-      padding: 30px 0px 30px 0px;
+      padding: 30px 0px 30px 10px;
     }
   }
 

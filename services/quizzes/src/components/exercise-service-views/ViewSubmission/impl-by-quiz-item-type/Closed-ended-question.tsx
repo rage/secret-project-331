@@ -57,6 +57,12 @@ const ClosedEndedQuestionFeedback: React.FC<
           disabled
           label={t("answer")}
           value={user_quiz_item_answer.textData ?? ""}
+          className={css`
+            input {
+              border-radius: 4px;
+              border: 3px solid #dfe1e6 !important;
+            }
+          `}
         />
       </div>
       <div

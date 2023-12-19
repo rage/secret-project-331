@@ -72,6 +72,7 @@ const MatrixCell: React.FunctionComponent<React.PropsWithChildren<MatrixCellProp
         padding: 0;
         font-size: 2.8vw;
         font-size: 22px;
+        font-weight: 600;
         font-family:
           Josefin Sans,
           sans-serif;
@@ -125,6 +126,7 @@ const BorderDiv: React.FC<React.PropsWithChildren<BorderDivProps>> = ({
             border-top: 2px solid #718dbf;
             left: -1px;
             top: -2px;
+            width: 10px;
             right: 50%;
             z-index: 1;
           `}
@@ -137,7 +139,8 @@ const BorderDiv: React.FC<React.PropsWithChildren<BorderDivProps>> = ({
             border-top: 2px solid #718dbf;
             right: -1px;
             top: -2px;
-            left: 50%;
+            left: 80%;
+            width: 10px;
             z-index: 1;
           `}
         ></div>
@@ -173,6 +176,7 @@ const BorderDiv: React.FC<React.PropsWithChildren<BorderDivProps>> = ({
             border-bottom: 2px solid #718dbf;
             left: -1px;
             right: 50%;
+            width: 10px;
             bottom: -2px;
             z-index: 1;
           `}
@@ -184,7 +188,8 @@ const BorderDiv: React.FC<React.PropsWithChildren<BorderDivProps>> = ({
             position: absolute;
             border-bottom: 2px solid #718dbf;
             right: -1px;
-            left: 50%;
+            left: 80%;
+            width: 10px;
             bottom: -2px;
             z-index: 1;
           `}

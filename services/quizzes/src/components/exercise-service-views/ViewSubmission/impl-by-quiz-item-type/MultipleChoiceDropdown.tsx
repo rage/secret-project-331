@@ -11,6 +11,18 @@ import { quizTheme } from "../../../../styles/QuizStyles"
 
 import { QuizItemSubmissionComponentProps } from "."
 
+const SelectIcon = () => {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" role="presentation">
+      <path
+        d="M8.292 10.293a1.009 1.009 0 000 1.419l2.939 2.965c.218.215.5.322.779.322s.556-.107.769-.322l2.93-2.955a1.01 1.01 0 000-1.419.987.987 0 00-1.406 0l-2.298 2.317-2.307-2.327a.99.99 0 00-1.406 0z"
+        fill="#57606f"
+        fillRule="evenodd"
+      ></path>
+    </svg>
+  )
+}
+
 const MultipleChoiceDropdownFeedback: React.FC<
   React.PropsWithChildren<
     QuizItemSubmissionComponentProps<
@@ -40,10 +52,7 @@ const MultipleChoiceDropdownFeedback: React.FC<
     <div>
       <div
         className={css`
-          display: flex;
-          flex: 1;
-          flex-direction: column;
-          justify-content: space-between;
+          display: grid;
           align-items: center;
           ${respondToOrLarger.sm} {
             flex-direction: row;
@@ -53,7 +62,7 @@ const MultipleChoiceDropdownFeedback: React.FC<
         <div
           className={css`
             flex-direction: column;
-            width: 70%;
+            width: 100%;
           `}
         >
           <div
@@ -66,9 +75,11 @@ const MultipleChoiceDropdownFeedback: React.FC<
               <>
                 <h2
                   className={css`
-                    font-family: "Raleway", sans-serif;
-                    font-weight: bold;
                     font-size: ${quizTheme.quizTitleFontSize} !important;
+                    font-weight: 500;
+                    color: #4c5868;
+                    font-family: "Raleway", sans-serif;
+                    margin-bottom: 1rem;
                   `}
                 >
                   {public_quiz_item.title}
@@ -101,7 +112,15 @@ const MultipleChoiceDropdownFeedback: React.FC<
             display: flex;
             width: 30%;
             align-items: center;
-            margin: 0.5rem 0;
+            position: relative;
+
+            .select-arrow {
+              position: absolute;
+              top: 55%;
+              transform: translateY(-50%);
+              right: 10px;
+              pointer-events: none;
+            }
           `}
         >
           <select
@@ -110,28 +129,28 @@ const MultipleChoiceDropdownFeedback: React.FC<
             className={css`
               display: grid;
               width: 100%;
-              border: 1px solid #e0e0e0;
-              border-radius: 3px;
-              padding: 10px 12px;
+              border-radius: 4px;
+              border: none;
+              padding: 8px 10px;
               font-size: 18px;
-              cursor: not-allowed;
+              cursor: pointer;
+              border: 3px solid
+                ${correct
+                  ? quizTheme.gradingCorrectItemBorderColor
+                  : quizTheme.gradingWrongItemBorderColor};
+              background: none;
+              min-height: 40px;
+              grid-template-areas: "select";
+              align-items: center;
+              color: #7e8894;
+              appearance: none;
+
               background: ${correct
                 ? quizTheme.gradingCorrectItemBackground
                 : quizTheme.gradingWrongItemBackground};
-              color: white;
-              grid-template-areas: "select";
-              align-items: center;
-              margin-left: 0.5rem;
             `}
           >
-            <option
-              disabled
-              selected={selectedOption.id === null}
-              value=""
-              className={css`
-                display: flex;
-              `}
-            >
+            <option disabled selected={selectedOption.id === null} value="">
               {t("answer")}
             </option>
             {public_quiz_item.options.map((o) => (
@@ -147,29 +166,20 @@ const MultipleChoiceDropdownFeedback: React.FC<
               </option>
             ))}
           </select>
+          <div className="select-arrow">
+            <SelectIcon />
+          </div>
         </div>
       </div>
       {correctOption && (
         <div
           className={css`
-            display: flex;
+            margin: 0.5rem;
+            margin-bottom: -1rem;
+            color: #57606f;
           `}
         >
-          <div
-            className={css`
-              width: 70%;
-            `}
-          >
-            &nbsp;
-          </div>
-          <div
-            className={css`
-              margin: 0.5rem;
-              margin-bottom: -1rem;
-            `}
-          >
-            {t("correct-option")}: {correctOption?.title || correctOption?.body}
-          </div>
+          {t("correct-option")}: {correctOption?.title || correctOption?.body}
         </div>
       )}
     </div>

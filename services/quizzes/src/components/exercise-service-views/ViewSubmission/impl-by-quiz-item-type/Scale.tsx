@@ -39,13 +39,12 @@ const Scale: React.FC<
           id={radioLabelId}
           className={css`
             flex: 5;
-            margin: 0.5rem;
-            text-align: center;
-            font-family: ${primaryFont};
-            font-size: 18px;
-            ${respondToOrLarger.md} {
-              text-align: left;
-            }
+            margin: 0.5rem 0;
+            color: #4c5868;
+            font-family: "Raleway", sans-serif;
+            font-size: 20px;
+            margin-bottom: 1rem;
+            font-weight: 500;
           `}
         >
           <MarkdownText text={public_quiz_item.title} />
@@ -67,12 +66,47 @@ const Scale: React.FC<
             <div
               key={value}
               className={css`
-                flex: 1 3rem;
-                margin: 0.5rem;
+                display: flex;
+                position: relative;
+                flex-direction: row;
+                flex: 1;
+
+                label {
+                  cursor: pointer;
+                  font-weight: 500;
+                  line-height: 1.2;
+                  span {
+                    color: #4c5868;
+                    font-size: 18px;
+                    :after {
+                      display: inline-block;
+                      position: absolute;
+                      top: 1px;
+                      content: "";
+                      background-color: #fff;
+                      width: 1.2em;
+                      height: 1.2em;
+                      border-radius: 50%;
+                      margin-left: 0.375em;
+                      transition: 0.25s ease;
+                      box-shadow: inset 0 0 0 0.15em #dfe1e6;
+                    }
+                  }
+
+                  input {
+                    position: absolute;
+                    left: -9999px;
+                    &:checked + span {
+                      &:after {
+                        box-shadow: inset 0 0 0 0.33em #b4bac3;
+                        border: 3px solid #dfe1e6;
+                      }
+                    }
+                  }
+                }
               `}
             >
               <label>
-                {value}
                 <input
                   name={radioIdentifier}
                   aria-label={value}
@@ -82,6 +116,7 @@ const Scale: React.FC<
                   checked={user_quiz_item_answer?.intData.toString() === value}
                   disabled
                 />
+                <span>{value}</span>
               </label>
             </div>
           )

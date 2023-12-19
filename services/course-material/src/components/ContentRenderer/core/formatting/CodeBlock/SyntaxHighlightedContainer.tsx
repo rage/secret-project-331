@@ -1,7 +1,7 @@
 import "highlight.js/styles/atom-one-dark.css"
 import { css } from "@emotion/css"
 import hljs from "highlight.js"
-import { useEffect, useRef } from "react"
+import { useEffect, useMemo, useRef } from "react"
 
 import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
 
@@ -17,6 +17,13 @@ const SyntaxHighlightedContainer: React.FC<SyntaxHighlightedContainerProps> = ({
     }
     hljs.highlightElement(ref.current)
   }, [ref])
+
+  // The content coming from gutenberg contains <br> tags which do not work when we higlight the code with hljs
+  // So we'll replace the br tags with newlines
+  const replacedContent = useMemo(() => {
+    return content?.replace(/<br\s*\\?>/g, "\n") ?? ""
+  }, [content])
+
   return (
     <code
       className={css`
@@ -24,7 +31,7 @@ const SyntaxHighlightedContainer: React.FC<SyntaxHighlightedContainerProps> = ({
         border-radius: 4px;
       `}
       ref={ref}
-      dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(content ?? "") }}
+      dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(replacedContent) }}
     />
   )
 }

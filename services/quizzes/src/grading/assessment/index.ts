@@ -29,7 +29,14 @@ const assessAnswers = (quizAnswer: UserAnswer, quiz: PrivateSpecQuiz): QuizItemA
   return quizAnswer.itemAnswers.map((itemAnswer) => {
     const quizItem = quiz.items.find((quizItem) => quizItem.id === itemAnswer.quizItemId)
     if (!quizItem) {
-      throw new Error("Item was not defined: " + JSON.stringify(quizAnswer))
+      const allAvailableIds = quiz.items.map((item) => item.id)
+      const allAnsweredIds = quizAnswer.itemAnswers.map((item) => item.quizItemId)
+      throw new Error(
+        "Answer included an answer to an item that was not in the quiz. Answered item ids: " +
+          allAnsweredIds.join(", ") +
+          ". Available ids: " +
+          allAvailableIds.join(", "),
+      )
     }
     switch (itemAnswer.type) {
       case "multiple-choice":

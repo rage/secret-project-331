@@ -62,6 +62,8 @@ export interface PrivateSpecQuizItemMultiplechoice {
   body: string | null
   successMessage: string | null
   failureMessage: string | null
+  /** Message to show either when the user has gotten full points or has ran out of tries. */
+  messageOnModelSolution: string | null
   sharedOptionFeedbackMessage: string | null
   optionDisplayDirection: DisplayDirection
   multipleChoiceMultipleOptionsGradingPolicy: multipleChoiceMultipleOptionsGradingPolicy
@@ -77,6 +79,8 @@ export interface PrivateSpecQuizItemEssay {
   body: string | null
   successMessage: string | null
   failureMessage: string | null
+  /** Message to show either when the user has gotten full points or has ran out of tries. */
+  messageOnModelSolution: string | null
 }
 
 export interface PrivateSpecQuizItemScale {
@@ -91,6 +95,8 @@ export interface PrivateSpecQuizItemScale {
   body: string | null
   successMessage: string | null
   failureMessage: string | null
+  /** Message to show either when the user has gotten full points or has ran out of tries. */
+  messageOnModelSolution: string | null
 }
 
 export interface PrivateSpecQuizItemCheckbox {
@@ -101,6 +107,8 @@ export interface PrivateSpecQuizItemCheckbox {
   body: string | null
   successMessage: string | null
   failureMessage: string | null
+  /** Message to show either when the user has gotten full points or has ran out of tries. */
+  messageOnModelSolution: string | null
 }
 
 export interface PrivateSpecQuizItemClosedEndedQuestion {
@@ -113,6 +121,8 @@ export interface PrivateSpecQuizItemClosedEndedQuestion {
   body: string | null
   successMessage: string | null
   failureMessage: string | null
+  /** Message to show either when the user has gotten full points or has ran out of tries. */
+  messageOnModelSolution: string | null
 }
 
 export interface PrivateSpecQuizItemMatrix {
@@ -122,6 +132,8 @@ export interface PrivateSpecQuizItemMatrix {
   optionCells: string[][] | null
   successMessage: string | null
   failureMessage: string | null
+  /** Message to show either when the user has gotten full points or has ran out of tries. */
+  messageOnModelSolution: string | null
 }
 
 export interface PrivateSpecQuizItemTimelineItem {
@@ -141,6 +153,8 @@ export interface PrivateSpecQuizItemTimeline {
   successMessage: string | null
   failureMessage: string | null
   timelineItems: PrivateSpecQuizItemTimelineItem[] | null
+  /** Message to show either when the user has gotten full points or has ran out of tries. */
+  messageOnModelSolution: string | null
 }
 
 export interface PrivateSpecQuizItemChooseN {
@@ -153,6 +167,8 @@ export interface PrivateSpecQuizItemChooseN {
   body: string | null
   successMessage: string | null
   failureMessage: string | null
+  /** Message to show either when the user has gotten full points or has ran out of tries. */
+  messageOnModelSolution: string | null
 }
 
 export interface PrivateSpecQuizItemMultiplechoiceDropdown {
@@ -164,4 +180,6 @@ export interface PrivateSpecQuizItemMultiplechoiceDropdown {
   body: string | null
   successMessage: string | null
   failureMessage: string | null
+  /** Message to show either when the user has gotten full points or has ran out of tries. */
+  messageOnModelSolution: string | null
 }

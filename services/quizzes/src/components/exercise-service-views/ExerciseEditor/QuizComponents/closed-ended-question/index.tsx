@@ -14,6 +14,7 @@ import TextField from "../../../../../shared-module/components/InputFields/TextF
 import { primaryFont } from "../../../../../shared-module/styles"
 import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"
+import ParsedTextField from "../common/ParsedTextField"
 
 interface ClosedEndedQuestionEditorProps {
   quizItemId: string
@@ -329,6 +330,18 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
           <RegexTestTableContainer>
             <RegexTestTable quizItem={selected} testStrings={testStrings} />
           </RegexTestTableContainer>
+          <ParsedTextField
+            value={selected.messageOnModelSolution ?? ""}
+            onChange={(newValue) => {
+              updateState((draft) => {
+                if (!draft) {
+                  return
+                }
+                draft.messageOnModelSolution = newValue
+              })
+            }}
+            label={t("label-message-on-model-solution")}
+          />
         </details>
       </Accordion>
     </EditorCard>

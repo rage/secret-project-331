@@ -28,5 +28,9 @@ describe("Model solution spec generation", () => {
     // Make sure we don't accidentally leak the validity regex
     // @ts-expect-error: Checking that a property that should not exist does not exist
     expect(closedEndedQuestionQuizItemModelSolution.validityRegex).toBeUndefined()
+    // Should contain the message on model solution
+    expect(closedEndedQuestionQuizItemModelSolution.messageOnModelSolution).toEqual(
+      privateSpec.items[0].messageOnModelSolution,
+    )
   })
 })

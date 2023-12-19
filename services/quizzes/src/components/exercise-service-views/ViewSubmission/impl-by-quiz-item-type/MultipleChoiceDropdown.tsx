@@ -3,8 +3,12 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { UserItemAnswerMultiplechoiceDropdown } from "../../../../../types/quizTypes/answer"
+import { ItemAnswerFeedback } from "../../../../../types/quizTypes/grading"
 import { ModelSolutionQuizItemMultiplechoiceDropdown } from "../../../../../types/quizTypes/modelSolutionSpec"
-import { PublicSpecQuizItemMultiplechoiceDropdown } from "../../../../../types/quizTypes/publicSpec"
+import {
+  PublicQuizItemOption,
+  PublicSpecQuizItemMultiplechoiceDropdown,
+} from "../../../../../types/quizTypes/publicSpec"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import { quizTheme } from "../../../../styles/QuizStyles"
@@ -35,6 +39,7 @@ const MultipleChoiceDropdownFeedback: React.FC<
     (o) => o.id === (user_quiz_item_answer.selectedOptionIds as string[])[0],
   )[0]
   const correctOption = modelSolution?.options.find((o) => o.correct)
+  const quiz_options = public_quiz_item.options
 
   return (
     <div>
@@ -150,30 +155,92 @@ const MultipleChoiceDropdownFeedback: React.FC<
         </div>
       </div>
       {correctOption && (
-        <div
-          className={css`
-            display: flex;
-          `}
-        >
+        <div>
           <div
             className={css`
-              width: 70%;
+              display: flex;
             `}
           >
-            &nbsp;
-          </div>
-          <div
-            className={css`
-              margin: 0.5rem;
-              margin-bottom: -1rem;
-            `}
-          >
-            {t("correct-option")}: {correctOption?.title || correctOption?.body}
+            <div
+              className={css`
+                width: 70%;
+              `}
+            >
+              &nbsp;
+            </div>
+            <div
+              className={css`
+                margin-left: 0.5rem;
+                margin-bottom: 1rem;
+              `}
+            >
+              {t("correct-option")}: {correctOption?.title || correctOption?.body}
+            </div>
           </div>
         </div>
       )}
+      <SubmissionFeedbackMessage
+        quiz_options={quiz_options}
+        user_quiz_item_answer={user_quiz_item_answer}
+        modelSolution={modelSolution}
+        quiz_item_answer_feedback={quiz_item_answer_feedback ?? null}
+      />
     </div>
   )
+}
+
+interface SubmissionFeedbackMessageProps {
+  quiz_options: PublicQuizItemOption[]
+  user_quiz_item_answer: UserItemAnswerMultiplechoiceDropdown
+  modelSolution: ModelSolutionQuizItemMultiplechoiceDropdown
+  quiz_item_answer_feedback: ItemAnswerFeedback | null
+}
+
+const SubmissionFeedbackMessage: React.FC<
+  React.PropsWithChildren<SubmissionFeedbackMessageProps>
+> = ({ quiz_options, user_quiz_item_answer, modelSolution, quiz_item_answer_feedback }) => {
+  return quiz_options.map((option) => {
+    const answerSelectedThisOption =
+      user_quiz_item_answer.selectedOptionIds?.includes(option.id) ?? false
+    const modelSolutionForThisOption =
+      modelSolution?.options.find((x) => x.id === option.id) ?? null
+    // If correctAnswer is null we don't know whether this option was correct or not
+    let correctAnswer = modelSolutionForThisOption?.correct ?? null
+    const feedbackForThisOption = quiz_item_answer_feedback?.quiz_item_option_feedbacks?.find(
+      (feedback) => feedback.option_id === option.id,
+    )
+    if (feedbackForThisOption && feedbackForThisOption.this_option_was_correct !== null) {
+      // if we have received feedback for this option, use that
+      // However, if the model solution thinks this option is correct and the feedback says it's not, we'll trust the model solution
+      if (!correctAnswer) {
+        correctAnswer = feedbackForThisOption.this_option_was_correct
+      }
+    }
+    let feedBackForOption: string | null = null
+    if (answerSelectedThisOption) {
+      feedBackForOption = feedbackForThisOption?.option_feedback ?? null
+      if (modelSolutionForThisOption?.additionalCorrectnessExplanationOnModelSolution) {
+        feedBackForOption =
+          modelSolutionForThisOption.additionalCorrectnessExplanationOnModelSolution
+      }
+    }
+    return feedBackForOption ? (
+      <div
+        className={css`
+          margin: 0 0.5rem 1rem;
+          display: flex;
+          border-left: ${correctAnswer
+            ? `6px solid ${quizTheme.gradingCorrectItemBackground}`
+            : `6px solid ${quizTheme.gradingWrongItemBackground}`};
+          box-sizing: border-box;
+          background: ${quizTheme.feedbackBackground};
+          padding: 0.5rem 0px 0.5rem 0.5rem;
+        `}
+      >
+        <p>{feedBackForOption}</p>
+      </div>
+    ) : null
+  })
 }
 
 export default withErrorBoundary(MultipleChoiceDropdownFeedback)

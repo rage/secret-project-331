@@ -218,7 +218,9 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
                   return (
                     <div key={course_material_exercise_task.id}>
                       {assignments.map((assignment: ExerciseAssignment) => (
-                        <h4 key={assignment.clientId}>{assignment.attributes.content}</h4>
+                        <h4 aria-label="assignment" key={assignment.clientId}>
+                          {assignment.attributes.content}
+                        </h4>
                       ))}
                       <ExerciseTaskIframe
                         exerciseServiceSlug={course_material_exercise_task.exercise_service_slug}

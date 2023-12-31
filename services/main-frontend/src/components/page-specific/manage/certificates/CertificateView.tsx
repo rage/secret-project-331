@@ -2,19 +2,24 @@ import { css } from "@emotion/css"
 import Link from "next/link"
 import { useTranslation } from "react-i18next"
 
-import { CourseModuleCertificateConfiguration } from "../../../../shared-module/bindings"
+import { CertificateConfigurationAndRequirements } from "../../../../shared-module/bindings"
 import Button from "../../../../shared-module/components/Button"
 import MaskOverThisInSystemTests from "../../../../shared-module/components/system-tests/MaskOverThisInSystemTests"
 import { baseTheme } from "../../../../shared-module/styles"
 
 interface Props {
-  configuration: CourseModuleCertificateConfiguration
+  configurationAndRequirements: CertificateConfigurationAndRequirements
   onClickEdit: () => void
   onClickDelete: () => void
 }
 
-const CertificateView: React.FC<Props> = ({ configuration, onClickEdit, onClickDelete }) => {
+const CertificateView: React.FC<Props> = ({
+  configurationAndRequirements,
+  onClickEdit,
+  onClickDelete,
+}) => {
   const { t } = useTranslation()
+  const configuration = configurationAndRequirements.certificate_configuration
   return (
     <div
       className={css`
@@ -124,7 +129,7 @@ const CertificateView: React.FC<Props> = ({ configuration, onClickEdit, onClickD
           `}
         />
         <Link
-          href={`/certificates/validate/test?test_course_instance_id=${configuration.course_instance_id}&test_course_module_id=${configuration.course_module_id}&debug=true`}
+          href={`/certificates/validate/test?test_certificate_configuration_id=${configurationAndRequirements.certificate_configuration.id}&debug=true`}
         >
           <Button variant="tertiary" size="medium">
             {t("button-text-preview")}

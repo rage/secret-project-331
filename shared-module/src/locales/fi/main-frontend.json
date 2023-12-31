@@ -198,6 +198,7 @@
   "font-size": "Fonttikoko",
   "forgot-password": "Unohditko salasanasi?",
   "generate": "Generate",
+  "generate-a-certificate": "Luo sertifikaatti",
   "generate-a-certificate-for-completing-course": "Luo sertifikaatti kurssin {{course}} suorituksesta",
   "generate-a-certificate-for-completing-the-module-of-the-course": "Luo sertifikaatti moduulin {{module}} suorituksesta kurssilla {{course}}",
   "generating-new-certificates-disabled": "Uusien sertifikaattien luonti sallittu",

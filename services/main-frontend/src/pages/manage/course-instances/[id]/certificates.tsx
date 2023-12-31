@@ -12,12 +12,12 @@ import {
   updateCertificateConfiguration,
 } from "../../../../services/backend/certificates"
 import {
-  fetchCertificateConfigurations,
   fetchCourseInstance,
+  fetchDefaultCertificateConfigurations,
 } from "../../../../services/backend/course-instances"
 import { setCertificationGeneration } from "../../../../services/backend/course-modules"
 import { fetchCourseStructure } from "../../../../services/backend/courses"
-import { CourseModuleCertificateConfigurationUpdate } from "../../../../shared-module/bindings"
+import { CertificateConfigurationUpdate } from "../../../../shared-module/bindings"
 import Button from "../../../../shared-module/components/Button"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
@@ -63,17 +63,17 @@ const CertificationsPage: React.FC<Props> = ({ query }) => {
     },
     enabled: !!courseId,
   })
-  const getCertificateConfigurations = useQuery({
-    queryKey: ["certificate-configurations-for-instance", courseInstanceId],
+  const defaultCertificateConfigurationsQuery = useQuery({
+    queryKey: ["default-certificate-configurations-for-instance", courseInstanceId],
     queryFn: () => {
-      return fetchCertificateConfigurations(courseInstanceId)
+      return fetchDefaultCertificateConfigurations(courseInstanceId)
     },
   })
   const updateConfigurationMutation = useToastMutation(
     ({ courseModuleId, courseInstanceId, fields }: UpdateMutationArgs) => {
       const backgroundSvg = fields.backgroundSvg.item(0)
       const overlaySvg = fields.overlaySvg.item(0)
-      const update: CourseModuleCertificateConfigurationUpdate = {
+      const update: CertificateConfigurationUpdate = {
         course_module_id: courseModuleId,
         course_instance_id: courseInstanceId,
         certificate_owner_name_y_pos: fields.ownerNamePosY,
@@ -103,7 +103,7 @@ const CertificationsPage: React.FC<Props> = ({ query }) => {
     {
       onSuccess: () => {
         setEditingConfiguration(null)
-        getCertificateConfigurations.refetch()
+        defaultCertificateConfigurationsQuery.refetch()
       },
     },
   )
@@ -120,7 +120,7 @@ const CertificationsPage: React.FC<Props> = ({ query }) => {
     {
       onSuccess: () => {
         setEditingConfiguration(null)
-        getCertificateConfigurations.refetch()
+        defaultCertificateConfigurationsQuery.refetch()
         getCourse.refetch()
       },
     },
@@ -142,11 +142,11 @@ const CertificationsPage: React.FC<Props> = ({ query }) => {
       <h1>
         {t("certificates")}: {courseInstanceId}
       </h1>
-      {getCertificateConfigurations.isError && (
-        <ErrorBanner variant={"readOnly"} error={getCertificateConfigurations.error} />
+      {defaultCertificateConfigurationsQuery.isError && (
+        <ErrorBanner variant={"readOnly"} error={defaultCertificateConfigurationsQuery.error} />
       )}
-      {getCertificateConfigurations.isPending && <Spinner variant="medium" />}
-      {getCourse.isSuccess && getCertificateConfigurations.isSuccess && (
+      {defaultCertificateConfigurationsQuery.isPending && <Spinner variant="medium" />}
+      {getCourse.isSuccess && defaultCertificateConfigurationsQuery.isSuccess && (
         <>
           <ul
             className={css`
@@ -159,8 +159,11 @@ const CertificationsPage: React.FC<Props> = ({ query }) => {
                 return {
                   module: m,
                   configuration:
-                    getCertificateConfigurations.data.find((c) => c.course_module_id === m.id) ||
-                    null,
+                    defaultCertificateConfigurationsQuery.data.find(
+                      (c) =>
+                        c.requirements.course_module_ids.length === 1 &&
+                        c.requirements.course_module_ids[0] === m.id,
+                    ) || null,
                 }
               })
               .map(({ module, configuration }) => (
@@ -180,7 +183,7 @@ const CertificationsPage: React.FC<Props> = ({ query }) => {
                   {module.id === editingConfiguration && (
                     <CertificateForm
                       generatingCertificatesEnabled={module.certification_enabled}
-                      configuration={configuration}
+                      configurationAndRequirements={configuration}
                       onClickSave={(fields) => {
                         updateConfigurationMutation.mutate({
                           courseModuleId: module.id,
@@ -233,7 +236,7 @@ const CertificationsPage: React.FC<Props> = ({ query }) => {
                           </Button>
                         )}
                         <CertificateView
-                          configuration={configuration}
+                          configurationAndRequirements={configuration}
                           onClickEdit={() => {
                             setEditingConfiguration(module.id)
                           }}
@@ -241,7 +244,7 @@ const CertificationsPage: React.FC<Props> = ({ query }) => {
                             if (window.confirm(t("confirm-certification-configuration-deletion"))) {
                               deleteConfigurationMutation.mutate({
                                 moduleId: module.id,
-                                configurationId: configuration.id,
+                                configurationId: configuration.certificate_configuration.id,
                               })
                             }
                           }}

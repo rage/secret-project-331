@@ -368,7 +368,6 @@ fn models() {
         },
         course_instance_enrollments::CourseInstanceEnrollment,
         course_instances::{ChapterScore, CourseInstance, Points},
-        course_module_completion_certificates::CourseModuleCompletionCertificate,
         course_module_completions::{StudyRegistryCompletion, StudyRegistryGrade},
         course_modules::{
             AutomaticCompletionRequirements, CompletionPolicy, CourseModule, NewCourseModule,
@@ -391,6 +390,7 @@ fn models() {
             ActivityProgress, CourseMaterialExercise, Exercise, ExerciseStatus, GradingProgress,
         },
         feedback::{Feedback, FeedbackBlock, FeedbackCount},
+        generated_certificates::GeneratedCertificate,
         glossary::Term,
         library::{
             grading::{
@@ -696,14 +696,14 @@ fn models() {
 
     doc!(
         Option,
-        CourseModuleCompletionCertificate {
+        GeneratedCertificate {
             id,
             created_at,
             updated_at,
             deleted_at,
             user_id,
-            course_module_id,
-            course_instance_id,
+            certificate_configuration_id: Uuid::parse_str("f3a571a8-8111-482c-91bc-9fd9f65e3a56")
+                .unwrap(),
             name_on_certificate: "Example User".to_string(),
             verification_id: "a1b2c3d4".to_string(),
         }
@@ -1318,6 +1318,9 @@ fn models() {
                 prerequisite_modules_completed: false,
                 enable_registering_completion_to_uh_open_university: true,
                 certification_enabled: false,
+                certificate_configuration_id: Some(
+                    Uuid::parse_str("cf48b8ad-0fb5-47a4-a4bc-dcc57d66a439").unwrap()
+                )
             },
             UserModuleCompletionStatus {
                 completed: true,
@@ -1330,6 +1333,9 @@ fn models() {
                 prerequisite_modules_completed: false,
                 enable_registering_completion_to_uh_open_university: false,
                 certification_enabled: false,
+                certificate_configuration_id: Some(
+                    Uuid::parse_str("2e831797-328d-4fda-b37a-1e24faaefa06").unwrap()
+                )
             }
         ]
     );

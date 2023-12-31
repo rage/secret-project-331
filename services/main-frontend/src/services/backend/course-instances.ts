@@ -1,10 +1,10 @@
 import { isBoolean } from "lodash"
 
 import {
+  CertificateConfigurationAndRequirements,
   CourseInstance,
   CourseInstanceCompletionSummary,
   CourseInstanceForm,
-  CourseModuleCertificateConfiguration,
   CourseModuleCompletion,
   EmailTemplate,
   EmailTemplateNew,
@@ -15,9 +15,9 @@ import {
   UserCourseInstanceProgress,
 } from "../../shared-module/bindings"
 import {
+  isCertificateConfigurationAndRequirements,
   isCourseInstance,
   isCourseInstanceCompletionSummary,
-  isCourseModuleCertificateConfiguration,
   isCourseModuleCompletion,
   isEmailTemplate,
   isExerciseStatusSummaryForUser,
@@ -163,11 +163,11 @@ export const deleteCourseInstance = async (courseInstanceId: string): Promise<vo
   await mainFrontendClient.post(`/course-instances/${courseInstanceId}/delete`)
 }
 
-export const fetchCertificateConfigurations = async (
+export const fetchDefaultCertificateConfigurations = async (
   courseInstanceId: string,
-): Promise<Array<CourseModuleCertificateConfiguration>> => {
+): Promise<Array<CertificateConfigurationAndRequirements>> => {
   const res = await mainFrontendClient.get(
-    `/course-instances/${courseInstanceId}/certificate-configurations`,
+    `/course-instances/${courseInstanceId}/default-certificate-configurations`,
   )
-  return validateResponse(res, isArray(isCourseModuleCertificateConfiguration))
+  return validateResponse(res, isArray(isCertificateConfigurationAndRequirements))
 }

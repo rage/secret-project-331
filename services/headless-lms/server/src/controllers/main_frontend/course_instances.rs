@@ -2,8 +2,8 @@
 
 use chrono::Utc;
 use models::{
+    certificate_configurations::CertificateConfigurationAndRequirements,
     course_instances::{self, CourseInstance, CourseInstanceForm, Points},
-    course_module_certificate_configurations::CourseModuleCertificateConfiguration,
     course_module_completions::CourseModuleCompletion,
     courses,
     email_templates::{EmailTemplate, EmailTemplateNew},
@@ -333,14 +333,14 @@ pub async fn completions_export(
     .await
 }
 /**
-GET /course-instances/:id/certificate-configurations - gets the certificate configurations of the given course instance
+GET /course-instances/:id/default-certificate-configurations - gets default certificate configurations of the given course instance. A default certificate configuration requires only one course module to be completed.
 */
 #[instrument(skip(pool))]
 pub async fn certificate_configurations(
     course_instance_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<web::Json<Vec<CourseModuleCertificateConfiguration>>> {
+) -> ControllerResult<web::Json<Vec<CertificateConfigurationAndRequirements>>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
@@ -350,7 +350,12 @@ pub async fn certificate_configurations(
     )
     .await?;
 
-    let certificate_configurations = models::course_module_certificate_configurations::get_course_module_certificate_configurations_by_course_instance(&mut conn, *course_instance_id).await?;
+    let certificate_configurations =
+        models::certificate_configurations::get_default_certificate_configurations_and_requirements_by_course_instance(
+            &mut conn,
+            *course_instance_id,
+        )
+        .await?;
     token.authorized_ok(web::Json(certificate_configurations))
 }
 
@@ -500,7 +505,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::post().to(post_reprocess_module_completions),
         )
         .route(
-            "/{course_instance_id}/certificate-configurations",
+            "/{course_instance_id}/default-certificate-configurations",
             web::get().to(certificate_configurations),
         );
 }

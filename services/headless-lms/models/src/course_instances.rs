@@ -726,12 +726,16 @@ AND deleted_at IS NULL
     .await?;
     sqlx::query!(
         "
-UPDATE course_module_completion_certificates
+UPDATE generated_certificates
 SET deleted_at = now()
 WHERE user_id = $1
-AND course_instance_id = $2
-AND deleted_at IS NULL
-",
+  AND certificate_configuration_id IN (
+    SELECT certificate_configuration_id
+    FROM certificate_configuration_to_requirements
+    WHERE course_instance_id = $2
+      AND deleted_at IS NULL
+  )
+  AND deleted_at IS NULL ",
         user_id,
         course_instance_id
     )

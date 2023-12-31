@@ -1,19 +1,14 @@
-import {
-  CourseModuleCertificateConfigurationUpdate,
-  CourseModuleCompletionCertificate,
-} from "../../shared-module/bindings"
-import { isCourseModuleCompletionCertificate } from "../../shared-module/bindings.guard"
+import { CertificateConfigurationUpdate, GeneratedCertificate } from "../../shared-module/bindings"
+import { isGeneratedCertificate } from "../../shared-module/bindings.guard"
 import { isArray, validateResponse } from "../../shared-module/utils/fetching"
 import { mainFrontendClient } from "../mainFrontendClient"
 
 export const generateCertificate = async (
-  courseModuleId: string,
-  courseInstanceId: string,
+  certificateConfigurationId: string,
   nameOnCertificate: string,
 ): Promise<void> => {
   const data = {
-    course_module_id: courseModuleId,
-    course_instance_id: courseInstanceId,
+    certificate_configuration_id: certificateConfigurationId,
     name_on_certificate: nameOnCertificate,
   }
   await mainFrontendClient.post(`/certificates/generate`, data, {
@@ -22,22 +17,21 @@ export const generateCertificate = async (
 }
 
 export const fetchCertificate = async (
-  courseModuleId: string,
-  courseInstanceId: string,
-): Promise<CourseModuleCompletionCertificate | null> => {
+  certificateConfigurationId: string,
+): Promise<GeneratedCertificate | null> => {
   const res = await mainFrontendClient.get(
-    `/certificates/course-module/${courseModuleId}/course-instance/${courseInstanceId}`,
+    `/certificates/get-by-configuration-id/${certificateConfigurationId}`,
   )
-  return validateResponse(res, isCourseModuleCompletionCertificate)
+  return validateResponse(res, isGeneratedCertificate)
 }
 
 export const fetchCertificatesForCourseInstance = async (
   courseInstanceId: string,
-): Promise<Array<CourseModuleCompletionCertificate>> => {
+): Promise<Array<GeneratedCertificate>> => {
   const res = await mainFrontendClient.get(
-    `/course-instances/${courseInstanceId}/certificate-configurations`,
+    `/course-instances/${courseInstanceId}/default-certificate-configurations`,
   )
-  return validateResponse(res, isArray(isCourseModuleCompletionCertificate))
+  return validateResponse(res, isArray(isGeneratedCertificate))
 }
 
 export const fetchCertificateImage = async (
@@ -47,13 +41,17 @@ export const fetchCertificateImage = async (
   testCourseInstanceId: string | undefined,
 ): Promise<Blob> => {
   let params:
-    | { debug?: boolean; test_course_module_id?: string; test_course_instance_id?: string }
+    | {
+        debug?: boolean
+        test_certificate_configuration_id?: string
+        test_course_instance_id?: string
+      }
     | undefined = {}
   if (debug) {
     params.debug = true
   }
   if (testCourseModuleId) {
-    params.test_course_module_id = testCourseModuleId
+    params.test_certificate_configuration_id = testCourseModuleId
   }
   if (testCourseInstanceId) {
     params.test_course_instance_id = testCourseInstanceId
@@ -69,7 +67,7 @@ export const fetchCertificateImage = async (
 }
 
 export const updateCertificateConfiguration = async (
-  configurationUpdate: CourseModuleCertificateConfigurationUpdate,
+  configurationUpdate: CertificateConfigurationUpdate,
   backgroundSvgFile: File | null,
   overlaySvgFile: File | null,
 ): Promise<void> => {

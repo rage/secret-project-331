@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO course_module_completion_certificates (\n    user_id,\n    course_module_id,\n    course_instance_id,\n    name_on_certificate,\n    verification_id\n  )\nVALUES ($1, $2, $3, $4, $5)\nRETURNING *\n",
+  "query": "\nSELECT *\nFROM generated_certificates\nWHERE user_id = $1\n  AND certificate_configuration_id = $2\n  AND deleted_at IS NULL\n",
   "describe": {
     "columns": [
       {
@@ -30,29 +30,24 @@
       },
       {
         "ordinal": 5,
-        "name": "course_module_id",
-        "type_info": "Uuid"
-      },
-      {
-        "ordinal": 6,
-        "name": "course_instance_id",
-        "type_info": "Uuid"
-      },
-      {
-        "ordinal": 7,
         "name": "name_on_certificate",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 8,
+        "ordinal": 6,
         "name": "verification_id",
         "type_info": "Varchar"
+      },
+      {
+        "ordinal": 7,
+        "name": "certificate_configuration_id",
+        "type_info": "Uuid"
       }
     ],
     "parameters": {
-      "Left": ["Uuid", "Uuid", "Uuid", "Varchar", "Varchar"]
+      "Left": ["Uuid", "Uuid"]
     },
-    "nullable": [false, false, false, true, false, false, false, false, false]
+    "nullable": [false, false, false, true, false, false, false, false]
   },
-  "hash": "f1de8bd452a0560758629de5218b899e353deaab7d0304565783a5655faedfb9"
+  "hash": "043f1e07521dda74f9a5413d3445d6d06d18d148fbd17c3d2e9cc982ee194bb3"
 }

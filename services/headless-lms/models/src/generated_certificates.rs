@@ -3,37 +3,33 @@ use headless_lms_utils as utils;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct CourseModuleCompletionCertificate {
+pub struct GeneratedCertificate {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub user_id: Uuid,
-    pub course_module_id: Uuid,
-    pub course_instance_id: Uuid,
     pub name_on_certificate: String,
     pub verification_id: String,
+    pub certificate_configuration_id: Uuid,
 }
 
 pub async fn get_certificate_for_user(
     conn: &mut PgConnection,
     user_id: Uuid,
-    course_module_id: Uuid,
-    course_instance_id: Uuid,
-) -> ModelResult<CourseModuleCompletionCertificate> {
+    certificate_configuration_id: Uuid,
+) -> ModelResult<GeneratedCertificate> {
     let res = sqlx::query_as!(
-        CourseModuleCompletionCertificate,
+        GeneratedCertificate,
         "
 SELECT *
-FROM course_module_completion_certificates
+FROM generated_certificates
 WHERE user_id = $1
-  AND course_module_id = $2
-  AND course_instance_id = $3
+  AND certificate_configuration_id = $2
   AND deleted_at IS NULL
 ",
         user_id,
-        course_module_id,
-        course_instance_id
+        certificate_configuration_id
     )
     .fetch_one(conn)
     .await?;
@@ -43,38 +39,34 @@ WHERE user_id = $1
 pub async fn generate_and_insert(
     conn: &mut PgConnection,
     user_id: Uuid,
-    course_module_id: Uuid,
-    course_instance_id: Uuid,
     name_on_certificate: &str,
-) -> ModelResult<CourseModuleCompletionCertificate> {
+    certificate_configuration_id: Uuid,
+) -> ModelResult<GeneratedCertificate> {
+    let requirements = crate::certificate_configuration_to_requirements::get_all_requirements_for_certificate_configuration(conn, certificate_configuration_id).await?;
     // Verify that the user has completed the module in the course instance
-    if !crate::course_module_completions::user_has_completed_course_module_on_instance(
-        conn,
-        user_id,
-        course_module_id,
-        course_instance_id,
-    )
-    .await?
+    if !requirements
+        .has_user_completed_all_requirements(conn, user_id)
+        .await?
     {
         return Err(ModelError::new(
             ModelErrorType::PreconditionFailed,
-            "User has not completed the module in the given course instance".to_string(),
+            "User has not completed all the requirements to be eligible for this certificate."
+                .to_string(),
             None,
         ));
     }
+
     // Verify that a certificate doesn't already exist
     if sqlx::query!(
         "
 SELECT id
-FROM course_module_completion_certificates
+FROM generated_certificates
 WHERE user_id = $1
-    AND course_module_id = $2
-    AND course_instance_id = $3
+    AND certificate_configuration_id = $2
     AND deleted_at IS NULL
 ",
         user_id,
-        course_module_id,
-        course_instance_id,
+        certificate_configuration_id,
     )
     .fetch_optional(&mut *conn)
     .await?
@@ -90,21 +82,19 @@ WHERE user_id = $1
 
     let verification_id = generate_verification_id();
     let res = sqlx::query_as!(
-        CourseModuleCompletionCertificate,
+        GeneratedCertificate,
         "
-INSERT INTO course_module_completion_certificates (
+INSERT INTO generated_certificates (
     user_id,
-    course_module_id,
-    course_instance_id,
+    certificate_configuration_id,
     name_on_certificate,
     verification_id
   )
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4)
 RETURNING *
 ",
         user_id,
-        course_module_id,
-        course_instance_id,
+        certificate_configuration_id,
         name_on_certificate,
         verification_id
     )
@@ -116,12 +106,12 @@ RETURNING *
 pub async fn get_certificate_by_verification_id(
     conn: &mut PgConnection,
     certificate_verification_id: &str,
-) -> ModelResult<CourseModuleCompletionCertificate> {
+) -> ModelResult<GeneratedCertificate> {
     let res = sqlx::query_as!(
-        CourseModuleCompletionCertificate,
+        GeneratedCertificate,
         "
 SELECT *
-FROM course_module_completion_certificates
+FROM generated_certificates
 WHERE verification_id = $1
   AND deleted_at IS NULL
 ",

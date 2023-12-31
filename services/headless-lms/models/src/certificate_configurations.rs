@@ -1,6 +1,11 @@
 use std::fmt;
 
-use crate::prelude::*;
+use crate::{
+    certificate_configuration_to_requirements::{
+        get_all_requirements_for_certificate_configuration, CertificateAllRequirements,
+    },
+    prelude::*,
+};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -49,13 +54,18 @@ impl fmt::Display for CertificateTextAnchor {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct CourseModuleCertificateConfiguration {
+pub struct CertificateConfigurationAndRequirements {
+    pub certificate_configuration: CertificateConfiguration,
+    pub requirements: CertificateAllRequirements,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct CertificateConfiguration {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
-    pub course_module_id: Uuid,
-    pub course_instance_id: Option<Uuid>,
     pub certificate_owner_name_y_pos: String,
     pub certificate_owner_name_x_pos: String,
     pub certificate_owner_name_font_size: String,
@@ -79,80 +89,130 @@ pub struct CourseModuleCertificateConfiguration {
     pub overlay_svg_file_upload_id: Option<Uuid>,
 }
 
-pub async fn get_course_id_of(
+pub async fn get_required_course_instance_ids(
     conn: &mut PgConnection,
     certificate_configuration_id: Uuid,
-) -> ModelResult<Uuid> {
+) -> ModelResult<Vec<Uuid>> {
     let res = sqlx::query!(
         r#"
-SELECT c.id
-FROM course_module_certificate_configurations AS cmcc
-JOIN course_modules AS cm ON cmcc.course_module_id = cm.id
-JOIN courses AS c ON cm.course_id = c.id
-WHERE cmcc.id = $1
-AND cmcc.deleted_at IS NULL
+SELECT course_instance_id
+FROM certificate_configuration_to_requirements
+WHERE certificate_configuration_id = $1
+  AND deleted_at IS NULL
     "#,
         certificate_configuration_id,
     )
-    .fetch_one(&mut *conn)
+    .fetch_all(&mut *conn)
     .await?;
-    Ok(res.id)
+    Ok(res.iter().filter_map(|r| r.course_instance_id).collect())
 }
 
-pub async fn get_by_course_module_and_course_instance(
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<CertificateConfiguration> {
+    let res = sqlx::query_as!(
+        CertificateConfiguration,
+        r#"
+SELECT cc.id,
+  cc.created_at,
+  cc.updated_at,
+  cc.deleted_at,
+  cc.certificate_owner_name_y_pos,
+  cc.certificate_owner_name_x_pos,
+  cc.certificate_owner_name_font_size,
+  cc.certificate_owner_name_text_color,
+  cc.certificate_owner_name_text_anchor as "certificate_owner_name_text_anchor: _",
+  cc.certificate_validate_url_y_pos,
+  cc.certificate_validate_url_x_pos,
+  cc.certificate_validate_url_font_size,
+  cc.certificate_validate_url_text_color,
+  cc.certificate_validate_url_text_anchor as "certificate_validate_url_text_anchor: _",
+  cc.certificate_date_y_pos,
+  cc.certificate_date_x_pos,
+  cc.certificate_date_font_size,
+  cc.certificate_date_text_color,
+  cc.certificate_date_text_anchor as "certificate_date_text_anchor: _",
+  cc.certificate_locale,
+  cc.paper_size as "paper_size: _",
+  cc.background_svg_path,
+  cc.background_svg_file_upload_id,
+  cc.overlay_svg_path,
+  cc.overlay_svg_file_upload_id
+FROM certificate_configurations cc
+WHERE id = $1
+  AND cc.deleted_at IS NULL
+        "#,
+        id,
+    )
+    .fetch_one(&mut *conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_default_configuration_by_course_module_and_course_instance(
     conn: &mut PgConnection,
     course_module_id: Uuid,
     course_instance_id: Option<Uuid>,
-) -> ModelResult<CourseModuleCertificateConfiguration> {
-    let res = sqlx::query_as!(
-        CourseModuleCertificateConfiguration,
+) -> ModelResult<CertificateConfiguration> {
+    let all_certificate_configurations = sqlx::query_as!(
+        CertificateConfiguration,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  course_module_id,
-  course_instance_id,
-  certificate_owner_name_y_pos,
-  certificate_owner_name_x_pos,
-  certificate_owner_name_font_size,
-  certificate_owner_name_text_color,
-  certificate_owner_name_text_anchor as "certificate_owner_name_text_anchor: _",
-  certificate_validate_url_y_pos,
-  certificate_validate_url_x_pos,
-  certificate_validate_url_font_size,
-  certificate_validate_url_text_color,
-  certificate_validate_url_text_anchor as "certificate_validate_url_text_anchor: _",
-  certificate_date_y_pos,
-  certificate_date_x_pos,
-  certificate_date_font_size,
-  certificate_date_text_color,
-  certificate_date_text_anchor as "certificate_date_text_anchor: _",
-  certificate_locale,
-  paper_size as "paper_size: _",
-  background_svg_path,
-  background_svg_file_upload_id,
-  overlay_svg_path,
-  overlay_svg_file_upload_id
-FROM course_module_certificate_configurations
-WHERE course_module_id = $1
-  AND deleted_at IS NULL
+SELECT cc.id,
+  cc.created_at,
+  cc.updated_at,
+  cc.deleted_at,
+  cc.certificate_owner_name_y_pos,
+  cc.certificate_owner_name_x_pos,
+  cc.certificate_owner_name_font_size,
+  cc.certificate_owner_name_text_color,
+  cc.certificate_owner_name_text_anchor as "certificate_owner_name_text_anchor: _",
+  cc.certificate_validate_url_y_pos,
+  cc.certificate_validate_url_x_pos,
+  cc.certificate_validate_url_font_size,
+  cc.certificate_validate_url_text_color,
+  cc.certificate_validate_url_text_anchor as "certificate_validate_url_text_anchor: _",
+  cc.certificate_date_y_pos,
+  cc.certificate_date_x_pos,
+  cc.certificate_date_font_size,
+  cc.certificate_date_text_color,
+  cc.certificate_date_text_anchor as "certificate_date_text_anchor: _",
+  cc.certificate_locale,
+  cc.paper_size as "paper_size: _",
+  cc.background_svg_path,
+  cc.background_svg_file_upload_id,
+  cc.overlay_svg_path,
+  cc.overlay_svg_file_upload_id
+FROM certificate_configurations cc
+JOIN certificate_configuration_to_requirements cctr ON cc.id = cctr.certificate_configuration_id
+WHERE cctr.course_module_id = $1
+  AND cc.deleted_at IS NULL
+  AND cctr.deleted_at IS NULL
         "#,
         course_module_id,
     )
     .fetch_all(&mut *conn)
     .await?;
-    // Try to return a course instance specific configuration
-    if let Some(config) = res
-        .iter()
-        .find(|c| c.course_instance_id == course_instance_id)
-    {
-        return Ok(config.clone());
+    if let Some(course_instance_id) = course_instance_id {
+        // Try to return a course instance specific configuration
+        // The number of certificate configurations should be relatively small, so it should be fine to loop here
+        for certificate_configuration in &all_certificate_configurations {
+            let requirements = get_all_requirements_for_certificate_configuration(
+                conn,
+                certificate_configuration.id,
+            )
+            .await?;
+
+            if requirements.is_default_certificate_configuration()
+                && requirements.course_instance_ids.first() == Some(&course_instance_id)
+            {
+                return Ok(certificate_configuration.clone());
+            }
+        }
     }
+
     // Try to return any configuration that applies for the whole course module regardless of the course instance
-    if let Some(config) = res.iter().find(|c| c.course_instance_id.is_none()) {
-        return Ok(config.clone());
-    }
+    // TODO: Is this needed?
+    // if let Some(config) = res.iter().find(|c| c.course_instance_id.is_none()) {
+    //     return Ok(config.clone());
+    // }
     Err(ModelError::new(
         ModelErrorType::RecordNotFound,
         "No certificate configuration found for the course module or the course instance"
@@ -161,56 +221,69 @@ WHERE course_module_id = $1
     ))
 }
 
-pub async fn get_course_module_certificate_configurations_by_course_instance(
+/** A default certificate configuration requires only one course module. */
+pub async fn get_default_certificate_configurations_and_requirements_by_course_instance(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
-) -> ModelResult<Vec<CourseModuleCertificateConfiguration>> {
-    let res = sqlx::query_as!(
-        CourseModuleCertificateConfiguration,
+) -> ModelResult<Vec<CertificateConfigurationAndRequirements>> {
+    let mut res = Vec::new();
+    let all_certificate_configurations = sqlx::query_as!(
+        CertificateConfiguration,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  course_module_id,
-  course_instance_id,
-  certificate_owner_name_y_pos,
-  certificate_owner_name_x_pos,
-  certificate_owner_name_font_size,
-  certificate_owner_name_text_color,
-  certificate_owner_name_text_anchor as "certificate_owner_name_text_anchor: _",
-  certificate_validate_url_y_pos,
-  certificate_validate_url_x_pos,
-  certificate_validate_url_font_size,
-  certificate_validate_url_text_color,
-  certificate_validate_url_text_anchor as "certificate_validate_url_text_anchor: _",
-  certificate_date_y_pos,
-  certificate_date_x_pos,
-  certificate_date_font_size,
-  certificate_date_text_color,
-  certificate_date_text_anchor as "certificate_date_text_anchor: _",
-  certificate_locale,
-  paper_size as "paper_size: _",
-  background_svg_path,
-  background_svg_file_upload_id,
-  overlay_svg_path,
-  overlay_svg_file_upload_id
-FROM course_module_certificate_configurations
-WHERE course_instance_id = $1
-  AND deleted_at IS NULL
+SELECT cc.id,
+  cc.created_at,
+  cc.updated_at,
+  cc.deleted_at,
+  cc.certificate_owner_name_y_pos,
+  cc.certificate_owner_name_x_pos,
+  cc.certificate_owner_name_font_size,
+  cc.certificate_owner_name_text_color,
+  cc.certificate_owner_name_text_anchor as "certificate_owner_name_text_anchor: _",
+  cc.certificate_validate_url_y_pos,
+  cc.certificate_validate_url_x_pos,
+  cc.certificate_validate_url_font_size,
+  cc.certificate_validate_url_text_color,
+  cc.certificate_validate_url_text_anchor as "certificate_validate_url_text_anchor: _",
+  cc.certificate_date_y_pos,
+  cc.certificate_date_x_pos,
+  cc.certificate_date_font_size,
+  cc.certificate_date_text_color,
+  cc.certificate_date_text_anchor as "certificate_date_text_anchor: _",
+  cc.certificate_locale,
+  cc.paper_size as "paper_size: _",
+  cc.background_svg_path,
+  cc.background_svg_file_upload_id,
+  cc.overlay_svg_path,
+  cc.overlay_svg_file_upload_id
+FROM certificate_configurations cc
+JOIN certificate_configuration_to_requirements cctr ON cc.id = cctr.certificate_configuration_id
+WHERE cctr.course_instance_id = $1
+  AND cc.deleted_at IS NULL
+  AND cctr.deleted_at IS NULL
         "#,
         course_instance_id,
     )
     .fetch_all(&mut *conn)
     .await?;
+    // The number of certificate configurations should be relatively small, so it should be fine to loop here
+    for certificate_configuration in &all_certificate_configurations {
+        let requirements =
+            get_all_requirements_for_certificate_configuration(conn, certificate_configuration.id)
+                .await?;
+        if requirements.is_default_certificate_configuration() {
+            res.push(CertificateConfigurationAndRequirements {
+                certificate_configuration: certificate_configuration.clone(),
+                requirements,
+            });
+        }
+    }
     Ok(res)
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct DatabaseCourseModuleCertificateConfiguration {
-    pub course_module_id: Uuid,
-    pub course_instance_id: Option<Uuid>,
+pub struct DatabaseCertificateConfiguration {
+    pub id: Uuid,
     pub certificate_owner_name_y_pos: Option<String>,
     pub certificate_owner_name_x_pos: Option<String>,
     pub certificate_owner_name_font_size: Option<String>,
@@ -234,13 +307,12 @@ pub struct DatabaseCourseModuleCertificateConfiguration {
     pub overlay_svg_file_upload_id: Option<Uuid>,
 }
 
-impl DatabaseCourseModuleCertificateConfiguration {
-    /// Uses the same default values as the `CREATE TABLE` statement for `course_module_certificate_configurations`.
+impl DatabaseCertificateConfiguration {
+    /// Uses the same default values as the `CREATE TABLE` statement for `certificate_configurations`.
     /// A little inconvenient, if there's a better way to turn a None into the default value for the row this can be refactored out.
-    fn build(&self) -> DatabaseCourseModuleCertificateConfigurationInner<'_> {
-        DatabaseCourseModuleCertificateConfigurationInner {
-            course_module_id: self.course_module_id,
-            course_instance_id: self.course_instance_id,
+    fn build(&self) -> DatabaseCertificateConfigurationInner<'_> {
+        DatabaseCertificateConfigurationInner {
+            id: self.id,
             certificate_owner_name_y_pos: self
                 .certificate_owner_name_y_pos
                 .as_deref()
@@ -303,9 +375,8 @@ impl DatabaseCourseModuleCertificateConfiguration {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
-struct DatabaseCourseModuleCertificateConfigurationInner<'a> {
-    pub course_module_id: Uuid,
-    pub course_instance_id: Option<Uuid>,
+struct DatabaseCertificateConfigurationInner<'a> {
+    pub id: Uuid,
     pub certificate_owner_name_y_pos: &'a str,
     pub certificate_owner_name_x_pos: &'a str,
     pub certificate_owner_name_font_size: &'a str,
@@ -331,15 +402,13 @@ struct DatabaseCourseModuleCertificateConfigurationInner<'a> {
 
 pub async fn insert(
     conn: &mut PgConnection,
-    conf: &DatabaseCourseModuleCertificateConfiguration,
-) -> ModelResult<CourseModuleCertificateConfiguration> {
+    conf: &DatabaseCertificateConfiguration,
+) -> ModelResult<CertificateConfiguration> {
     let conf = conf.build();
     let configuration = sqlx::query_as!(
-        CourseModuleCertificateConfiguration,
+        CertificateConfiguration,
         r#"
-INSERT INTO public.course_module_certificate_configurations (
-    course_module_id,
-    course_instance_id,
+INSERT INTO public.certificate_configurations (
     certificate_owner_name_y_pos,
     certificate_owner_name_x_pos,
     certificate_owner_name_font_size,
@@ -383,16 +452,12 @@ VALUES (
     $18,
     $19,
     $20,
-    $21,
-    $22,
-    $23
+    $21
   )
 RETURNING id,
   created_at,
   updated_at,
   deleted_at,
-  course_module_id,
-  course_instance_id,
   certificate_owner_name_y_pos,
   certificate_owner_name_x_pos,
   certificate_owner_name_font_size,
@@ -415,8 +480,6 @@ RETURNING id,
   overlay_svg_path,
   overlay_svg_file_upload_id
 "#,
-        conf.course_module_id,
-        conf.course_instance_id,
         conf.certificate_owner_name_y_pos,
         conf.certificate_owner_name_x_pos,
         conf.certificate_owner_name_font_size,
@@ -447,39 +510,35 @@ RETURNING id,
 pub async fn update(
     conn: &mut PgConnection,
     id: Uuid,
-    conf: &DatabaseCourseModuleCertificateConfiguration,
+    conf: &DatabaseCertificateConfiguration,
 ) -> ModelResult<()> {
     let conf = conf.build();
     sqlx::query!(
         r#"
-UPDATE public.course_module_certificate_configurations
-SET course_module_id = $1,
-  course_instance_id = $2,
-  certificate_owner_name_y_pos = $3,
-  certificate_owner_name_x_pos = $4,
-  certificate_owner_name_font_size = $5,
-  certificate_owner_name_text_color = $6,
-  certificate_owner_name_text_anchor = $7,
-  certificate_validate_url_y_pos = $8,
-  certificate_validate_url_x_pos = $9,
-  certificate_validate_url_font_size = $10,
-  certificate_validate_url_text_color = $11,
-  certificate_validate_url_text_anchor = $12,
-  certificate_date_y_pos = $13,
-  certificate_date_x_pos = $14,
-  certificate_date_font_size = $15,
-  certificate_date_text_color = $16,
-  certificate_date_text_anchor = $17,
-  certificate_locale = $18,
-  paper_size = $19,
-  background_svg_path = $20,
-  background_svg_file_upload_id = $21,
-  overlay_svg_path = $22,
-  overlay_svg_file_upload_id = $23
-WHERE id = $24
+UPDATE public.certificate_configurations
+SET certificate_owner_name_y_pos = $1,
+  certificate_owner_name_x_pos = $2,
+  certificate_owner_name_font_size = $3,
+  certificate_owner_name_text_color = $4,
+  certificate_owner_name_text_anchor = $5,
+  certificate_validate_url_y_pos = $6,
+  certificate_validate_url_x_pos = $7,
+  certificate_validate_url_font_size = $8,
+  certificate_validate_url_text_color = $9,
+  certificate_validate_url_text_anchor = $10,
+  certificate_date_y_pos = $11,
+  certificate_date_x_pos = $12,
+  certificate_date_font_size = $13,
+  certificate_date_text_color = $14,
+  certificate_date_text_anchor = $15,
+  certificate_locale = $16,
+  paper_size = $17,
+  background_svg_path = $18,
+  background_svg_file_upload_id = $19,
+  overlay_svg_path = $20,
+  overlay_svg_file_upload_id = $21
+WHERE id = $22
 "#,
-        conf.course_module_id,
-        conf.course_instance_id,
         conf.certificate_owner_name_y_pos,
         conf.certificate_owner_name_x_pos,
         conf.certificate_owner_name_font_size,
@@ -511,7 +570,7 @@ WHERE id = $24
 pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
     sqlx::query!(
         "
-UPDATE course_module_certificate_configurations
+UPDATE certificate_configurations
 SET deleted_at = now()
 WHERE id = $1
 ",

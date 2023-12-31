@@ -5,6 +5,8 @@ Each submodule corresponds to a database table.
 */
 // we always use --document-private-items, so this warning is moot
 #![allow(rustdoc::private_intra_doc_links)]
+pub mod certificate_configuration_to_requirements;
+pub mod certificate_configurations;
 pub mod certificate_fonts;
 pub mod chapters;
 pub mod course_background_question_answers;
@@ -13,8 +15,6 @@ pub mod course_exams;
 pub mod course_instance_enrollments;
 pub mod course_instances;
 pub mod course_language_groups;
-pub mod course_module_certificate_configurations;
-pub mod course_module_completion_certificates;
 pub mod course_module_completion_registered_to_study_registries;
 pub mod course_module_completions;
 pub mod course_modules;
@@ -36,6 +36,7 @@ pub mod exercise_tasks;
 pub mod exercises;
 pub mod feedback;
 pub mod file_uploads;
+pub mod generated_certificates;
 pub mod glossary;
 pub mod library;
 pub mod material_references;

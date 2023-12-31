@@ -9,7 +9,8 @@
     "grade": 4,
     "passed": true,
     "enable_registering_completion_to_uh_open_university": true,
-    "certification_enabled": false
+    "certification_enabled": false,
+    "certificate_configuration_id": "cf48b8ad-0fb5-47a4-a4bc-dcc57d66a439"
   },
   {
     "completed": true,
@@ -21,6 +22,7 @@
     "grade": 4,
     "passed": true,
     "enable_registering_completion_to_uh_open_university": false,
-    "certification_enabled": false
+    "certification_enabled": false,
+    "certificate_configuration_id": "2e831797-328d-4fda-b37a-1e24faaefa06"
   }
 ]

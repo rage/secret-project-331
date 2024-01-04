@@ -4,7 +4,9 @@ import React, { useContext, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { getExerciseBlockBeginningScrollingId } from ".."
+import ContentRenderer from "../../.."
 import {
+  Block,
   fetchPeerReviewDataByExerciseId,
   postPeerReviewSubmission,
 } from "../../../../../services/backend"
@@ -25,15 +27,6 @@ import ExerciseTaskIframe from "../ExerciseTaskIframe"
 import PeerReviewQuestion from "./PeerReviewQuestion"
 
 import { getPeerReviewBeginningScrollingId, PeerReviewViewProps } from "."
-
-interface ExerciseAssignment {
-  attributes: ExerciseAssignmentAttributes
-  clientId: string
-}
-
-interface ExerciseAssignmentAttributes {
-  content: string
-}
 
 const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>> = ({
   exerciseNumber,
@@ -212,16 +205,17 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
               {peerReviewData.answer_to_review.course_material_exercise_tasks
                 .sort((a, b) => a.order_number - b.order_number)
                 .map((course_material_exercise_task) => {
-                  const assignments = course_material_exercise_task.assignment as [
-                    ExerciseAssignment,
-                  ]
                   return (
                     <div key={course_material_exercise_task.id}>
-                      {assignments.map((assignment: ExerciseAssignment) => (
-                        <h4 aria-label="assignment" key={assignment.clientId}>
-                          {assignment.attributes.content}
-                        </h4>
-                      ))}
+                      <ContentRenderer
+                        data={
+                          (course_material_exercise_task.assignment as Array<Block<unknown>>) ?? []
+                        }
+                        editing={false}
+                        selectedBlockId={null}
+                        setEdits={(map) => map}
+                        isExam={false}
+                      />
                       <ExerciseTaskIframe
                         exerciseServiceSlug={course_material_exercise_task.exercise_service_slug}
                         key={course_material_exercise_task.id}

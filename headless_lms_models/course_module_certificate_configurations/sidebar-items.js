@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["CertificateTextAnchor","PaperSize"],"fn":["delete","get_by_course_module_and_course_instance","get_course_id_of","get_course_module_certificate_configurations_by_course_instance","insert","update"],"struct":["CourseModuleCertificateConfiguration","DatabaseCourseModuleCertificateConfiguration","DatabaseCourseModuleCertificateConfigurationInner"]};

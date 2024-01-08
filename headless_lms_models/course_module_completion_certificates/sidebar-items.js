@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["generate_and_insert","generate_verification_id","get_certificate_by_verification_id","get_certificate_for_user"],"struct":["CourseModuleCompletionCertificate"]};

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/programs/seed/seed_courses.rs`."><title>seed_courses.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-fa3bb1812debf86c.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="headless_lms_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.74.1 (a28077b28 2023-12-04)" data-channel="1.74.1" data-search-js="search-8be46b629f5f14a8.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-c5bd66d33317d69f.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/programs/seed/seed_courses.rs`."><title>seed_courses.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="headless_lms_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -4675,6 +4675,12 @@
 <a href="#4675" id="4675">4675</a>
 <a href="#4676" id="4676">4676</a>
 <a href="#4677" id="4677">4677</a>
+<a href="#4678" id="4678">4678</a>
+<a href="#4679" id="4679">4679</a>
+<a href="#4680" id="4680">4680</a>
+<a href="#4681" id="4681">4681</a>
+<a href="#4682" id="4682">4682</a>
+<a href="#4683" id="4683">4683</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span><span class="kw">crate</span>::domain::models_requests::{<span class="self">self</span>, JwtKey};
@@ -4685,16 +4691,15 @@
 <span class="kw">use </span>anyhow::Result;
 <span class="kw">use </span>chrono::{TimeZone, Utc};
 
-<span class="kw">use </span>headless_lms_models::course_module_certificate_configurations::DatabaseCourseModuleCertificateConfiguration;
+<span class="kw">use </span>headless_lms_models::certificate_configurations::DatabaseCertificateConfiguration;
 <span class="kw">use </span>headless_lms_models::pages::PageUpdateArgs;
-<span class="kw">use </span>headless_lms_models::CourseOrExamId;
+<span class="kw">use </span>headless_lms_models::{certificate_configuration_to_requirements, CourseOrExamId};
 <span class="kw">use </span>headless_lms_models::{
-    chapters,
+    certificate_configurations, chapters,
     chapters::NewChapter,
     course_instance_enrollments,
     course_instance_enrollments::NewCourseInstanceEnrollment,
     course_instances::{<span class="self">self</span>, NewCourseInstance},
-    course_module_certificate_configurations,
     course_modules::{<span class="self">self</span>, NewCourseModule},
     courses::NewCourse,
     exercise_repositories, feedback,
@@ -6610,9 +6615,8 @@
         <span class="prelude-val">None</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>configuration = DatabaseCourseModuleCertificateConfiguration {
-        course_module_id: default_module.id,
-        course_instance_id: <span class="prelude-val">Some</span>(default_instance.id),
+    <span class="kw">let </span>configuration = DatabaseCertificateConfiguration {
+        id: Uuid::new_v5(<span class="kw-2">&amp;</span>course_id, <span class="string">b&quot;886d3e22-5007-4371-94d7-e0ad93a2391c&quot;</span>),
         certificate_owner_name_y_pos: <span class="prelude-val">None</span>,
         certificate_owner_name_x_pos: <span class="prelude-val">None</span>,
         certificate_owner_name_font_size: <span class="prelude-val">None</span>,
@@ -6635,7 +6639,15 @@
         overlay_svg_path: <span class="prelude-val">None</span>,
         overlay_svg_file_upload_id: <span class="prelude-val">None</span>,
     };
-    course_module_certificate_configurations::insert(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">&amp;</span>configuration).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>database_configuration =
+        certificate_configurations::insert(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">&amp;</span>configuration).<span class="kw">await</span><span class="question-mark">?</span>;
+    certificate_configuration_to_requirements::insert(
+        <span class="kw-2">&amp;mut </span>conn,
+        database_configuration.id,
+        <span class="prelude-val">Some</span>(default_module.id),
+        <span class="prelude-val">Some</span>(default_instance.id),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="prelude-val">Ok</span>(course.id)
 }

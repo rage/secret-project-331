@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/controllers/main_frontend/certificates.rs`."><title>certificates.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-fa3bb1812debf86c.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="headless_lms_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.74.1 (a28077b28 2023-12-04)" data-channel="1.74.1" data-search-js="search-8be46b629f5f14a8.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-c5bd66d33317d69f.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/controllers/main_frontend/certificates.rs`."><title>certificates.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="headless_lms_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -503,21 +503,27 @@
 <a href="#503" id="503">503</a>
 <a href="#504" id="504">504</a>
 <a href="#505" id="505">505</a>
+<a href="#506" id="506">506</a>
+<a href="#507" id="507">507</a>
+<a href="#508" id="508">508</a>
+<a href="#509" id="509">509</a>
+<a href="#510" id="510">510</a>
+<a href="#511" id="511">511</a>
 </pre></div><pre class="rust"><code><span class="kw">use crate</span>::{controllers::helpers::file_uploading, prelude::<span class="kw-2">*</span>};
 <span class="kw">use </span>actix_multipart::form::{tempfile::TempFile, MultipartForm};
 <span class="kw">use </span>chrono::Utc;
 <span class="kw">use </span>headless_lms_certificates <span class="kw">as </span>certificates;
 <span class="kw">use </span>headless_lms_utils::{file_store::file_utils, icu4x::Icu4xBlob};
 <span class="kw">use </span>models::{
-    course_module_certificate_configurations::{
-        CertificateTextAnchor, DatabaseCourseModuleCertificateConfiguration, PaperSize,
+    certificate_configurations::{
+        CertificateTextAnchor, DatabaseCertificateConfiguration, PaperSize,
     },
-    course_module_completion_certificates::CourseModuleCompletionCertificate,
+    generated_certificates::GeneratedCertificate,
 };
 
 <span class="attr">#[derive(Debug, Deserialize)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
-</span><span class="kw">pub struct </span>CourseModuleCertificateConfigurationUpdate {
+</span><span class="kw">pub struct </span>CertificateConfigurationUpdate {
     <span class="kw">pub </span>course_module_id: Uuid,
     <span class="kw">pub </span>course_instance_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
     <span class="kw">pub </span>certificate_owner_name_y_pos: <span class="prelude-ty">Option</span>&lt;String&gt;,
@@ -544,7 +550,7 @@
 
 <span class="attr">#[derive(Debug, MultipartForm)]
 </span><span class="kw">pub struct </span>CertificateConfigurationUpdateForm {
-    metadata: actix_multipart::form::json::Json&lt;CourseModuleCertificateConfigurationUpdate&gt;,
+    metadata: actix_multipart::form::json::Json&lt;CertificateConfigurationUpdate&gt;,
     <span class="attr">#[multipart(rename = <span class="string">&quot;file&quot;</span>)]
     </span>files: Vec&lt;TempFile&gt;,
 }
@@ -628,6 +634,7 @@ Updates the certificate configuration for a given module.
     file_store: <span class="kw-2">&amp;</span><span class="kw">dyn </span>FileStore,
     user: AuthUser,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;Uuid&gt;, ControllerError&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>files_to_delete = <span class="macro">vec!</span>[];
 
     <span class="kw">let </span>metadata = payload.metadata.into_inner();
@@ -652,7 +659,7 @@ Updates the certificate configuration for a given module.
                 <span class="macro">info!</span>(<span class="string">&quot;Saving new background svg file&quot;</span>);
                 <span class="comment">// upload new background svg
                 </span><span class="kw">let </span>(id, path) = file_uploading::upload_certificate_svg(
-                    conn,
+                    <span class="kw-2">&amp;mut </span>tx,
                     background_svg_file_name,
                     content,
                     file_store,
@@ -668,7 +675,7 @@ Updates the certificate configuration for a given module.
                 <span class="macro">info!</span>(<span class="string">&quot;Saving new overlay svg file&quot;</span>);
                 <span class="comment">// upload new overlay svg
                 </span><span class="kw">let </span>(id, path) = file_uploading::upload_certificate_svg(
-                    conn,
+                    <span class="kw-2">&amp;mut </span>tx,
                     overlay_svg_file_name,
                     content,
                     file_store,
@@ -691,8 +698,8 @@ Updates the certificate configuration for a given module.
     }
 
     <span class="kw">let </span>existing_configuration =
-        models::course_module_certificate_configurations::get_by_course_module_and_course_instance(
-            conn,
+        models::certificate_configurations::get_default_configuration_by_course_module_and_course_instance(
+            <span class="kw-2">&amp;mut </span>tx,
             metadata.course_module_id,
             metadata.course_instance_id,
         )
@@ -756,9 +763,11 @@ Updates the certificate configuration for a given module.
         </span>}
     };
     <span class="kw">let </span>(overlay_svg_file_id, overlay_svg_file_path) = overlay_data.unzip();
-    <span class="kw">let </span>conf = DatabaseCourseModuleCertificateConfiguration {
-        course_module_id: metadata.course_module_id,
-        course_instance_id: metadata.course_instance_id,
+    <span class="kw">let </span>conf = DatabaseCertificateConfiguration {
+        id: existing_configuration
+            .as_ref()
+            .map(|c| c.id)
+            .unwrap_or(Uuid::new_v4()),
         certificate_owner_name_y_pos: metadata.certificate_owner_name_y_pos,
         certificate_owner_name_x_pos: metadata.certificate_owner_name_x_pos,
         certificate_owner_name_font_size: metadata.certificate_owner_name_font_size,
@@ -783,60 +792,55 @@ Updates the certificate configuration for a given module.
     };
     <span class="kw">if let </span><span class="prelude-val">Some</span>(existing_configuration) = existing_configuration {
         <span class="comment">// update existing config
-        </span>models::course_module_certificate_configurations::update(
-            conn,
-            existing_configuration.id,
-            <span class="kw-2">&amp;</span>conf,
+        </span>models::certificate_configurations::update(<span class="kw-2">&amp;mut </span>tx, existing_configuration.id, <span class="kw-2">&amp;</span>conf)
+            .<span class="kw">await</span><span class="question-mark">?</span>;
+    } <span class="kw">else </span>{
+        <span class="kw">let </span>inserted_configuration =
+            models::certificate_configurations::insert(<span class="kw-2">&amp;mut </span>tx, <span class="kw-2">&amp;</span>conf).<span class="kw">await</span><span class="question-mark">?</span>;
+        models::certificate_configuration_to_requirements::insert(
+            <span class="kw-2">&amp;mut </span>tx,
+            inserted_configuration.id,
+            <span class="prelude-val">Some</span>(metadata.course_module_id),
+            metadata.course_instance_id,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
-    } <span class="kw">else </span>{
-        models::course_module_certificate_configurations::insert(conn, <span class="kw-2">&amp;</span>conf).<span class="kw">await</span><span class="question-mark">?</span>;
     }
+    tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(files_to_delete)
 }
 
 <span class="attr">#[derive(Debug, Deserialize)]
 </span><span class="kw">pub struct </span>CertificateGenerationRequest {
-    <span class="kw">pub </span>course_module_id: Uuid,
-    <span class="kw">pub </span>course_instance_id: Uuid,
+    <span class="kw">pub </span>certificate_configuration_id: Uuid,
     <span class="kw">pub </span>name_on_certificate: String,
 }
 
 <span class="doccomment">/**
-POST `/api/v0/main-frontend/course-modules/generate-certificate`
+POST `/api/v0/main-frontend/certificates/generate`
 
-Generates a certificate for completing a course module.
+Generates a certificate for a given certificate configuration id.
 */
 </span><span class="attr">#[generated_doc]
 #[instrument(skip(pool))]
-</span><span class="kw">pub async fn </span>generate_course_module_completion_certificate(
+</span><span class="kw">pub async fn </span>generate_generated_certificate(
     request: web::Json&lt;CertificateGenerationRequest&gt;,
     pool: web::Data&lt;PgPool&gt;,
     user: AuthUser,
 ) -&gt; ControllerResult&lt;web::Json&lt;bool&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>module = models::course_modules::get_by_id(<span class="kw-2">&amp;mut </span>conn, request.course_module_id).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">if </span>!module.certification_enabled {
+    <span class="kw">let </span>requirements = models::certificate_configuration_to_requirements::get_all_requirements_for_certificate_configuration(
+        <span class="kw-2">&amp;mut </span>conn,
+        request.certificate_configuration_id,
+    ).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">if </span>!requirements
+        .has_user_completed_all_requirements(<span class="kw-2">&amp;mut </span>conn, user.id)
+        .<span class="kw">await</span><span class="question-mark">?
+    </span>{
         <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
             ControllerErrorType::BadRequest,
-            <span class="string">&quot;Cannot generate certificate for completion; generating certifications for this module is disabled&quot;
-                </span>.to_string(),
-            <span class="prelude-val">None</span>,
-        ));
-    }
-    <span class="kw">let </span>completion =
-        models::course_module_completions::get_latest_by_course_module_instance_and_user_ids(
-            <span class="kw-2">&amp;mut </span>conn,
-            request.course_module_id,
-            request.course_instance_id,
-            user.id,
-        )
-        .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">if </span>!completion.passed {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
-            ControllerErrorType::BadRequest,
-            <span class="string">&quot;Cannot generate certificate for completion; user has not completed the module&quot;
+            <span class="string">&quot;Cannot generate certificate; user has not completed all the requirements to be eligible for this certificate.&quot;
                 </span>.to_string(),
             <span class="prelude-val">None</span>,
         ));
@@ -844,12 +848,11 @@ Generates a certificate for completing a course module.
     <span class="comment">// Skip authorization: each user should be able to generate their own certificate for any module
     </span><span class="kw">let </span>token = skip_authorize();
     <span class="comment">// generate_and_insert verifies that the user can generate the certificate
-    </span>models::course_module_completion_certificates::generate_and_insert(
+    </span>models::generated_certificates::generate_and_insert(
         <span class="kw-2">&amp;mut </span>conn,
         user.id,
-        request.course_module_id,
-        request.course_instance_id,
         <span class="kw-2">&amp;</span>request.name_on_certificate,
+        request.certificate_configuration_id,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -857,28 +860,25 @@ Generates a certificate for completing a course module.
 }
 
 <span class="doccomment">/**
-GET `/api/v0/main-frontend/certificates/course-module/{course_module_id}/course-instance/{course_instance_id}`
+GET `/api/v0/main-frontend/certificates/get-by-configuration-id/{certificate_configuration_id}`
 
 Fetches the user&#39;s certificate for the given course module and course instance.
 */
 </span><span class="attr">#[generated_doc]
 #[instrument(skip(pool))]
-</span><span class="kw">pub async fn </span>get_course_module_completion_certificate(
-    params: web::Path&lt;(Uuid, Uuid)&gt;,
+</span><span class="kw">pub async fn </span>get_generated_certificate(
+    certificate_configuration_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
     user: AuthUser,
-) -&gt; ControllerResult&lt;web::Json&lt;<span class="prelude-ty">Option</span>&lt;CourseModuleCompletionCertificate&gt;&gt;&gt; {
+) -&gt; ControllerResult&lt;web::Json&lt;<span class="prelude-ty">Option</span>&lt;GeneratedCertificate&gt;&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>course_module_id = params.<span class="number">0</span>;
-    <span class="kw">let </span>course_instance_id = params.<span class="number">1</span>;
     <span class="comment">// Each user should be able to view their own certificate
     </span><span class="kw">let </span>token = skip_authorize();
-    <span class="kw">let </span>certificate = models::course_module_completion_certificates::get_certificate_for_user(
+    <span class="kw">let </span>certificate = models::generated_certificates::get_certificate_for_user(
         <span class="kw-2">&amp;mut </span>conn,
         user.id,
-        course_module_id,
-        course_instance_id,
+        certificate_configuration_id.into_inner(),
     )
     .<span class="kw">await
     </span>.optional()<span class="question-mark">?</span>;
@@ -891,11 +891,10 @@ Fetches the user&#39;s certificate for the given course module and course instan
     <span class="attr">#[serde(default)]
     </span>debug: bool,
     <span class="attr">#[serde(default)]
-    </span><span class="doccomment">/// If true, the certificate will be generated using the course module id instead of the certificate verification id.
+    </span><span class="doccomment">/// If true, the certificate will be rendered using the course certificate configuration id instead of the certificate verification id.
     /// In this case the certificate is just a test certificate that is not stored in the database.
     /// This is intended for testing the certificate rendering works correctly.
-    </span>test_course_module_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
-    test_course_instance_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    </span>test_certificate_configuration_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
 }
 
 <span class="doccomment">/**
@@ -918,28 +917,26 @@ Response: the certificate as a png.
     <span class="comment">// everyone needs to be able to view the certificate in order to verify its validity
     </span><span class="kw">let </span>token = skip_authorize();
 
-    <span class="kw">let </span>certificate = <span class="kw">if let </span>(<span class="prelude-val">Some</span>(test_course_module_id), <span class="prelude-val">Some</span>(test_course_instance_id)) =
-        (query.test_course_module_id, query.test_course_instance_id)
-    {
-        <span class="comment">// For testing the certificate
-        </span>CourseModuleCompletionCertificate {
-            id: Uuid::new_v4(),
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
-            deleted_at: <span class="prelude-val">None</span>,
-            user_id: Uuid::new_v4(),
-            course_module_id: test_course_module_id,
-            course_instance_id: test_course_instance_id,
-            name_on_certificate: <span class="string">&quot;Example user&quot;</span>.to_string(),
-            verification_id: <span class="string">&quot;test&quot;</span>.to_string(),
-        }
-    } <span class="kw">else </span>{
-        models::course_module_completion_certificates::get_certificate_by_verification_id(
-            <span class="kw-2">&amp;mut </span>conn,
-            <span class="kw-2">&amp;</span>certificate_verification_id,
-        )
-        .<span class="kw">await</span><span class="question-mark">?
-    </span>};
+    <span class="kw">let </span>certificate =
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(test_certificate_configuration_id) = query.test_certificate_configuration_id {
+            <span class="comment">// For testing the certificate
+            </span>GeneratedCertificate {
+                id: Uuid::new_v4(),
+                created_at: Utc::now(),
+                updated_at: Utc::now(),
+                deleted_at: <span class="prelude-val">None</span>,
+                user_id: Uuid::new_v4(),
+                certificate_configuration_id: test_certificate_configuration_id,
+                name_on_certificate: <span class="string">&quot;Example user&quot;</span>.to_string(),
+                verification_id: <span class="string">&quot;test&quot;</span>.to_string(),
+            }
+        } <span class="kw">else </span>{
+            models::generated_certificates::get_certificate_by_verification_id(
+                <span class="kw-2">&amp;mut </span>conn,
+                <span class="kw-2">&amp;</span>certificate_verification_id,
+            )
+            .<span class="kw">await</span><span class="question-mark">?
+        </span>};
 
     <span class="kw">let </span>data = certificates::generate_certificate(
         <span class="kw-2">&amp;mut </span>conn,
@@ -972,14 +969,32 @@ Deletes the given configuration.
     user: AuthUser,
 ) -&gt; ControllerResult&lt;web::Json&lt;bool&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>course_id = models::course_module_certificate_configurations::get_course_id_of(
-        <span class="kw-2">&amp;mut </span>conn,
-        <span class="kw-2">*</span>configuration_id,
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Teach, <span class="prelude-val">Some</span>(user.id), Res::Course(course_id)).<span class="kw">await</span><span class="question-mark">?</span>;
-    models::course_module_certificate_configurations::delete(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>configuration_id).<span class="kw">await</span><span class="question-mark">?</span>;
-    token.authorized_ok(web::Json(<span class="bool-val">true</span>))
+    <span class="kw">let </span>related_course_instance_ids =
+        models::certificate_configurations::get_required_course_instance_ids(
+            <span class="kw-2">&amp;mut </span>conn,
+            <span class="kw-2">*</span>configuration_id,
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>token = <span class="prelude-val">None</span>;
+    <span class="kw">if </span>related_course_instance_ids.is_empty() {
+        token =
+            <span class="prelude-val">Some</span>(authorize(<span class="kw-2">&amp;mut </span>conn, Act::Teach, <span class="prelude-val">Some</span>(user.id), Res::GlobalPermissions).<span class="kw">await</span><span class="question-mark">?</span>);
+    }
+    <span class="kw">for </span>course_instance_id <span class="kw">in </span>related_course_instance_ids {
+        token = <span class="prelude-val">Some</span>(
+            authorize(
+                <span class="kw-2">&amp;mut </span>conn,
+                Act::Teach,
+                <span class="prelude-val">Some</span>(user.id),
+                Res::CourseInstance(course_instance_id),
+            )
+            .<span class="kw">await</span><span class="question-mark">?</span>,
+        );
+    }
+    models::certificate_configurations::delete(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>configuration_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    token
+        .expect(<span class="string">&quot;Never None at this point&quot;</span>)
+        .authorized_ok(web::Json(<span class="bool-val">true</span>))
 }
 
 <span class="doccomment">/**
@@ -991,13 +1006,10 @@ We add the routes by calling the route method instead of using the route annotat
 */
 </span><span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>ServiceConfig) {
     cfg.route(<span class="string">&quot;&quot;</span>, web::post().to(update_certificate_configuration))
+        .route(<span class="string">&quot;/generate&quot;</span>, web::post().to(generate_generated_certificate))
         .route(
-            <span class="string">&quot;/generate&quot;</span>,
-            web::post().to(generate_course_module_completion_certificate),
-        )
-        .route(
-            <span class="string">&quot;/course-module/{course_module_id}/course-instance/{course_instance_id}&quot;</span>,
-            web::get().to(get_course_module_completion_certificate),
+            <span class="string">&quot;/get-by-configuration-id/{certificate_configuration_id}&quot;</span>,
+            web::get().to(get_generated_certificate),
         )
         .route(
             <span class="string">&quot;/{certificate_verification_id}&quot;</span>,

@@ -207,15 +207,18 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
                 .map((course_material_exercise_task) => {
                   return (
                     <div key={course_material_exercise_task.id}>
-                      <ContentRenderer
-                        data={
-                          (course_material_exercise_task.assignment as Array<Block<unknown>>) ?? []
-                        }
-                        editing={false}
-                        selectedBlockId={null}
-                        setEdits={(map) => map}
-                        isExam={false}
-                      />
+                      <div aria-label="assignment">
+                        <ContentRenderer
+                          data={
+                            (course_material_exercise_task.assignment as Array<Block<unknown>>) ??
+                            []
+                          }
+                          editing={false}
+                          selectedBlockId={null}
+                          setEdits={(map) => map}
+                          isExam={false}
+                        />
+                      </div>
                       <ExerciseTaskIframe
                         exerciseServiceSlug={course_material_exercise_task.exercise_service_slug}
                         key={course_material_exercise_task.id}

@@ -35,6 +35,7 @@ const migrateModelSolutionSpecQuizItem = (
         minWords: quizItem.minWords,
         order: quizItem.order,
         title: quizItem.title,
+        messageOnModelSolution: null,
       } satisfies ModelSolutionQuizItemEssay
     case "multiple-choice":
       return {
@@ -52,6 +53,7 @@ const migrateModelSolutionSpecQuizItem = (
         sharedOptionFeedbackMessage: quizItem.sharedOptionFeedbackMessage,
         options: quizItem.options,
         shuffleOptions: quizItem.shuffleOptions,
+        messageOnModelSolution: null,
       } satisfies ModelSolutionQuizItemMultiplechoice
     case "scale":
       return {
@@ -66,6 +68,7 @@ const migrateModelSolutionSpecQuizItem = (
         minLabel: quizItem.minLabel ? quizItem.minLabel : "?",
         maxValue: quizItem.maxValue,
         minValue: quizItem.minValue,
+        messageOnModelSolution: null,
       } satisfies ModelSolutionQuizItemScale
     case "checkbox":
       return {
@@ -76,6 +79,7 @@ const migrateModelSolutionSpecQuizItem = (
         failureMessage: quizItem.failureMessage,
         successMessage: quizItem.successMessage,
         title: quizItem.title,
+        messageOnModelSolution: null,
       } satisfies ModelSolutionQuizItemCheckbox
     case "open":
       return {
@@ -87,6 +91,7 @@ const migrateModelSolutionSpecQuizItem = (
         formatRegex: quizItem.formatRegex,
         successMessage: quizItem.successMessage,
         failureMessage: quizItem.failureMessage,
+        messageOnModelSolution: null,
       } satisfies ModelSolutionQuizItemClosedEndedQuestion
     case "matrix":
       return {
@@ -96,6 +101,7 @@ const migrateModelSolutionSpecQuizItem = (
         failureMessage: quizItem.failureMessage,
         optionCells: quizItem.optionCells,
         successMessage: quizItem.successMessage,
+        messageOnModelSolution: null,
       } satisfies ModelSolutionQuizItemMatrix
     case "timeline":
       return {
@@ -105,6 +111,7 @@ const migrateModelSolutionSpecQuizItem = (
         failureMessage: quizItem.failureMessage,
         successMessage: quizItem.successMessage,
         timelineItems: quizItem.timelineItems,
+        messageOnModelSolution: null,
       } satisfies ModelSolutionQuizItemTimeline
     case "clickable-multiple-choice":
       return {
@@ -117,6 +124,7 @@ const migrateModelSolutionSpecQuizItem = (
         successMessage: quizItem.successMessage,
         options: quizItem.options,
         n: CHOOSE_N_DEFAULT_VALUE,
+        messageOnModelSolution: null,
       } satisfies ModelSolutionQuizItemChooseN
     case "multiple-choice-dropdown":
       return {
@@ -128,6 +136,7 @@ const migrateModelSolutionSpecQuizItem = (
         failureMessage: quizItem.failureMessage,
         successMessage: quizItem.successMessage,
         options: quizItem.options,
+        messageOnModelSolution: null,
       } satisfies ModelSolutionQuizItemMultiplechoiceDropdown
   }
 }

@@ -4,15 +4,15 @@ use chrono::Utc;
 use headless_lms_certificates as certificates;
 use headless_lms_utils::{file_store::file_utils, icu4x::Icu4xBlob};
 use models::{
-    course_module_certificate_configurations::{
-        CertificateTextAnchor, DatabaseCourseModuleCertificateConfiguration, PaperSize,
+    certificate_configurations::{
+        CertificateTextAnchor, DatabaseCertificateConfiguration, PaperSize,
     },
-    course_module_completion_certificates::CourseModuleCompletionCertificate,
+    generated_certificates::GeneratedCertificate,
 };
 
 #[derive(Debug, Deserialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct CourseModuleCertificateConfigurationUpdate {
+pub struct CertificateConfigurationUpdate {
     pub course_module_id: Uuid,
     pub course_instance_id: Option<Uuid>,
     pub certificate_owner_name_y_pos: Option<String>,
@@ -39,7 +39,7 @@ pub struct CourseModuleCertificateConfigurationUpdate {
 
 #[derive(Debug, MultipartForm)]
 pub struct CertificateConfigurationUpdateForm {
-    metadata: actix_multipart::form::json::Json<CourseModuleCertificateConfigurationUpdate>,
+    metadata: actix_multipart::form::json::Json<CertificateConfigurationUpdate>,
     #[multipart(rename = "file")]
     files: Vec<TempFile>,
 }
@@ -123,6 +123,7 @@ async fn update_certificate_configuration_inner(
     file_store: &dyn FileStore,
     user: AuthUser,
 ) -> Result<Vec<Uuid>, ControllerError> {
+    let mut tx = conn.begin().await?;
     let mut files_to_delete = vec![];
 
     let metadata = payload.metadata.into_inner();
@@ -147,7 +148,7 @@ async fn update_certificate_configuration_inner(
                 info!("Saving new background svg file");
                 // upload new background svg
                 let (id, path) = file_uploading::upload_certificate_svg(
-                    conn,
+                    &mut tx,
                     background_svg_file_name,
                     content,
                     file_store,
@@ -163,7 +164,7 @@ async fn update_certificate_configuration_inner(
                 info!("Saving new overlay svg file");
                 // upload new overlay svg
                 let (id, path) = file_uploading::upload_certificate_svg(
-                    conn,
+                    &mut tx,
                     overlay_svg_file_name,
                     content,
                     file_store,
@@ -186,8 +187,8 @@ async fn update_certificate_configuration_inner(
     }
 
     let existing_configuration =
-        models::course_module_certificate_configurations::get_by_course_module_and_course_instance(
-            conn,
+        models::certificate_configurations::get_default_configuration_by_course_module_and_course_instance(
+            &mut tx,
             metadata.course_module_id,
             metadata.course_instance_id,
         )
@@ -251,9 +252,11 @@ async fn update_certificate_configuration_inner(
         }
     };
     let (overlay_svg_file_id, overlay_svg_file_path) = overlay_data.unzip();
-    let conf = DatabaseCourseModuleCertificateConfiguration {
-        course_module_id: metadata.course_module_id,
-        course_instance_id: metadata.course_instance_id,
+    let conf = DatabaseCertificateConfiguration {
+        id: existing_configuration
+            .as_ref()
+            .map(|c| c.id)
+            .unwrap_or(Uuid::new_v4()),
         certificate_owner_name_y_pos: metadata.certificate_owner_name_y_pos,
         certificate_owner_name_x_pos: metadata.certificate_owner_name_x_pos,
         certificate_owner_name_font_size: metadata.certificate_owner_name_font_size,
@@ -278,60 +281,55 @@ async fn update_certificate_configuration_inner(
     };
     if let Some(existing_configuration) = existing_configuration {
         // update existing config
-        models::course_module_certificate_configurations::update(
-            conn,
-            existing_configuration.id,
-            &conf,
+        models::certificate_configurations::update(&mut tx, existing_configuration.id, &conf)
+            .await?;
+    } else {
+        let inserted_configuration =
+            models::certificate_configurations::insert(&mut tx, &conf).await?;
+        models::certificate_configuration_to_requirements::insert(
+            &mut tx,
+            inserted_configuration.id,
+            Some(metadata.course_module_id),
+            metadata.course_instance_id,
         )
         .await?;
-    } else {
-        models::course_module_certificate_configurations::insert(conn, &conf).await?;
     }
+    tx.commit().await?;
     Ok(files_to_delete)
 }
 
 #[derive(Debug, Deserialize)]
 pub struct CertificateGenerationRequest {
-    pub course_module_id: Uuid,
-    pub course_instance_id: Uuid,
+    pub certificate_configuration_id: Uuid,
     pub name_on_certificate: String,
 }
 
 /**
-POST `/api/v0/main-frontend/course-modules/generate-certificate`
+POST `/api/v0/main-frontend/certificates/generate`
 
-Generates a certificate for completing a course module.
+Generates a certificate for a given certificate configuration id.
 */
 #[generated_doc]
 #[instrument(skip(pool))]
-pub async fn generate_course_module_completion_certificate(
+pub async fn generate_generated_certificate(
     request: web::Json<CertificateGenerationRequest>,
     pool: web::Data<PgPool>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
 
-    let module = models::course_modules::get_by_id(&mut conn, request.course_module_id).await?;
-    if !module.certification_enabled {
+    let requirements = models::certificate_configuration_to_requirements::get_all_requirements_for_certificate_configuration(
+        &mut conn,
+        request.certificate_configuration_id,
+    ).await?;
+
+    if !requirements
+        .has_user_completed_all_requirements(&mut conn, user.id)
+        .await?
+    {
         return Err(ControllerError::new(
             ControllerErrorType::BadRequest,
-            "Cannot generate certificate for completion; generating certifications for this module is disabled"
-                .to_string(),
-            None,
-        ));
-    }
-    let completion =
-        models::course_module_completions::get_latest_by_course_module_instance_and_user_ids(
-            &mut conn,
-            request.course_module_id,
-            request.course_instance_id,
-            user.id,
-        )
-        .await?;
-    if !completion.passed {
-        return Err(ControllerError::new(
-            ControllerErrorType::BadRequest,
-            "Cannot generate certificate for completion; user has not completed the module"
+            "Cannot generate certificate; user has not completed all the requirements to be eligible for this certificate."
                 .to_string(),
             None,
         ));
@@ -339,12 +337,11 @@ pub async fn generate_course_module_completion_certificate(
     // Skip authorization: each user should be able to generate their own certificate for any module
     let token = skip_authorize();
     // generate_and_insert verifies that the user can generate the certificate
-    models::course_module_completion_certificates::generate_and_insert(
+    models::generated_certificates::generate_and_insert(
         &mut conn,
         user.id,
-        request.course_module_id,
-        request.course_instance_id,
         &request.name_on_certificate,
+        request.certificate_configuration_id,
     )
     .await?;
 
@@ -352,28 +349,25 @@ pub async fn generate_course_module_completion_certificate(
 }
 
 /**
-GET `/api/v0/main-frontend/certificates/course-module/{course_module_id}/course-instance/{course_instance_id}`
+GET `/api/v0/main-frontend/certificates/get-by-configuration-id/{certificate_configuration_id}`
 
 Fetches the user's certificate for the given course module and course instance.
 */
 #[generated_doc]
 #[instrument(skip(pool))]
-pub async fn get_course_module_completion_certificate(
-    params: web::Path<(Uuid, Uuid)>,
+pub async fn get_generated_certificate(
+    certificate_configuration_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<web::Json<Option<CourseModuleCompletionCertificate>>> {
+) -> ControllerResult<web::Json<Option<GeneratedCertificate>>> {
     let mut conn = pool.acquire().await?;
 
-    let course_module_id = params.0;
-    let course_instance_id = params.1;
     // Each user should be able to view their own certificate
     let token = skip_authorize();
-    let certificate = models::course_module_completion_certificates::get_certificate_for_user(
+    let certificate = models::generated_certificates::get_certificate_for_user(
         &mut conn,
         user.id,
-        course_module_id,
-        course_instance_id,
+        certificate_configuration_id.into_inner(),
     )
     .await
     .optional()?;
@@ -386,11 +380,10 @@ pub struct CertificateQuery {
     #[serde(default)]
     debug: bool,
     #[serde(default)]
-    /// If true, the certificate will be generated using the course module id instead of the certificate verification id.
+    /// If true, the certificate will be rendered using the course certificate configuration id instead of the certificate verification id.
     /// In this case the certificate is just a test certificate that is not stored in the database.
     /// This is intended for testing the certificate rendering works correctly.
-    test_course_module_id: Option<Uuid>,
-    test_course_instance_id: Option<Uuid>,
+    test_certificate_configuration_id: Option<Uuid>,
 }
 
 /**
@@ -413,28 +406,26 @@ pub async fn get_cerficate_by_verification_id(
     // everyone needs to be able to view the certificate in order to verify its validity
     let token = skip_authorize();
 
-    let certificate = if let (Some(test_course_module_id), Some(test_course_instance_id)) =
-        (query.test_course_module_id, query.test_course_instance_id)
-    {
-        // For testing the certificate
-        CourseModuleCompletionCertificate {
-            id: Uuid::new_v4(),
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
-            deleted_at: None,
-            user_id: Uuid::new_v4(),
-            course_module_id: test_course_module_id,
-            course_instance_id: test_course_instance_id,
-            name_on_certificate: "Example user".to_string(),
-            verification_id: "test".to_string(),
-        }
-    } else {
-        models::course_module_completion_certificates::get_certificate_by_verification_id(
-            &mut conn,
-            &certificate_verification_id,
-        )
-        .await?
-    };
+    let certificate =
+        if let Some(test_certificate_configuration_id) = query.test_certificate_configuration_id {
+            // For testing the certificate
+            GeneratedCertificate {
+                id: Uuid::new_v4(),
+                created_at: Utc::now(),
+                updated_at: Utc::now(),
+                deleted_at: None,
+                user_id: Uuid::new_v4(),
+                certificate_configuration_id: test_certificate_configuration_id,
+                name_on_certificate: "Example user".to_string(),
+                verification_id: "test".to_string(),
+            }
+        } else {
+            models::generated_certificates::get_certificate_by_verification_id(
+                &mut conn,
+                &certificate_verification_id,
+            )
+            .await?
+        };
 
     let data = certificates::generate_certificate(
         &mut conn,
@@ -467,14 +458,32 @@ pub async fn delete_certificate_configuration(
     user: AuthUser,
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
-    let course_id = models::course_module_certificate_configurations::get_course_id_of(
-        &mut conn,
-        *configuration_id,
-    )
-    .await?;
-    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
-    models::course_module_certificate_configurations::delete(&mut conn, *configuration_id).await?;
-    token.authorized_ok(web::Json(true))
+    let related_course_instance_ids =
+        models::certificate_configurations::get_required_course_instance_ids(
+            &mut conn,
+            *configuration_id,
+        )
+        .await?;
+    let mut token = None;
+    if related_course_instance_ids.is_empty() {
+        token =
+            Some(authorize(&mut conn, Act::Teach, Some(user.id), Res::GlobalPermissions).await?);
+    }
+    for course_instance_id in related_course_instance_ids {
+        token = Some(
+            authorize(
+                &mut conn,
+                Act::Teach,
+                Some(user.id),
+                Res::CourseInstance(course_instance_id),
+            )
+            .await?,
+        );
+    }
+    models::certificate_configurations::delete(&mut conn, *configuration_id).await?;
+    token
+        .expect("Never None at this point")
+        .authorized_ok(web::Json(true))
 }
 
 /**
@@ -486,13 +495,10 @@ We add the routes by calling the route method instead of using the route annotat
 */
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("", web::post().to(update_certificate_configuration))
+        .route("/generate", web::post().to(generate_generated_certificate))
         .route(
-            "/generate",
-            web::post().to(generate_course_module_completion_certificate),
-        )
-        .route(
-            "/course-module/{course_module_id}/course-instance/{course_instance_id}",
-            web::get().to(get_course_module_completion_certificate),
+            "/get-by-configuration-id/{certificate_configuration_id}",
+            web::get().to(get_generated_certificate),
         )
         .route(
             "/{certificate_verification_id}",

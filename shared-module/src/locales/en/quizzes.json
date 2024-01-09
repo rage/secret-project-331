@@ -53,6 +53,7 @@
   "invalid-regular-expression": "Invalid regular expression",
   "label-correct": "Correct",
   "label-correct-event": "Correct event",
+  "label-message-on-model-solution": "Message on model solution",
   "label-null": "Not set",
   "label-preview": "Preview",
   "label-source": "Source",

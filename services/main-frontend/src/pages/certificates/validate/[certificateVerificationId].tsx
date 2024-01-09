@@ -19,7 +19,7 @@ const ModuleCertificateVerification: React.FC<React.PropsWithChildren<Props>> = 
   const { t } = useTranslation()
   const certificateVerificationId = query.certificateVerificationId
   const debug = query.debug
-  const testCourseModuleId = query.test_course_module_id
+  const testCourseModuleId = query.test_certificate_configuration_id
   const testCourseInstanceId = query.test_course_instance_id
 
   const certificate = useQuery({

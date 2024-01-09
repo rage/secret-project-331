@@ -244,25 +244,22 @@ export interface Points {
   user_chapter_points: Record<string, PointMap>
 }
 
-export interface CourseModuleCompletionCertificate {
+export interface GeneratedCertificate {
   id: string
   created_at: Date
   updated_at: Date
   deleted_at: Date | null
   user_id: string
-  course_module_id: string
-  course_instance_id: string
   name_on_certificate: string
   verification_id: string
+  certificate_configuration_id: string
 }
 
-export interface CourseModuleCertificateConfiguration {
+export interface CertificateConfiguration {
   id: string
   created_at: Date
   updated_at: Date
   deleted_at: Date | null
-  course_module_id: string
-  course_instance_id: string | null
   certificate_owner_name_y_pos: string
   certificate_owner_name_x_pos: string
   certificate_owner_name_font_size: string
@@ -444,6 +441,17 @@ export interface CourseBreadcrumbInfo {
   course_slug: string
   organization_slug: string
   organization_name: string
+}
+
+export interface CertificateConfigurationAndRequirements {
+  certificate_configuration: CertificateConfiguration
+  requirements: CertificateAllRequirements
+}
+
+export interface CertificateAllRequirements {
+  certificate_configuration_id: string
+  course_module_ids: Array<string>
+  course_instance_ids: Array<string>
 }
 
 export interface EmailTemplate {
@@ -971,6 +979,7 @@ export interface UserModuleCompletionStatus {
   passed: boolean | null
   enable_registering_completion_to_uh_open_university: boolean
   certification_enabled: boolean
+  certificate_configuration_id: string | null
 }
 
 export interface UserWithModuleCompletions {
@@ -1791,7 +1800,7 @@ export interface CourseMaterialPeerReviewDataWithToken {
   token: string | null
 }
 
-export interface CourseModuleCertificateConfigurationUpdate {
+export interface CertificateConfigurationUpdate {
   course_module_id: string
   course_instance_id: string | null
   certificate_owner_name_y_pos: string | null

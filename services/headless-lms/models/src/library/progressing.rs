@@ -690,6 +690,7 @@ pub struct UserModuleCompletionStatus {
     pub passed: Option<bool>,
     pub enable_registering_completion_to_uh_open_university: bool,
     pub certification_enabled: bool,
+    pub certificate_configuration_id: Option<Uuid>,
 }
 
 /// Gets course modules with user's completion status for the given instance.
@@ -711,23 +712,43 @@ pub async fn get_user_module_completion_statuses_for_course_instance(
         .into_iter()
         .map(|x| (x.course_module_id, x))
         .collect();
+
+    let all_default_certificate_configurations = crate::certificate_configurations::get_default_certificate_configurations_and_requirements_by_course_instance(conn, course_instance_id).await?;
+
     let course_module_completion_statuses = course_modules
         .into_iter()
         .map(|module| {
+            let mut certificate_configuration_id = None;
+
             let completion = course_module_completions.get(&module.id);
+            let passed = completion.map(|x| x.passed);
+            if module.certification_enabled && passed == Some(true) {
+                // If passed, show the user the default certificate configuration id so that they can generate their certificate.
+                let default_certificate_configuration = all_default_certificate_configurations
+                    .iter()
+                    .find(|x| x.requirements.course_module_ids.contains(&module.id));
+                if let Some(default_certificate_configuration) = default_certificate_configuration {
+                    certificate_configuration_id = Some(
+                        default_certificate_configuration
+                            .certificate_configuration
+                            .id,
+                    );
+                }
+            }
             UserModuleCompletionStatus {
                 completed: completion.is_some(),
                 default: module.is_default_module(),
                 module_id: module.id,
                 name: module.name.unwrap_or_else(|| course.name.clone()),
                 order_number: module.order_number,
-                passed: completion.map(|x| x.passed),
+                passed,
                 grade: completion.and_then(|x| x.grade),
                 prerequisite_modules_completed: completion
                     .map_or(false, |x| x.prerequisite_modules_completed),
                 enable_registering_completion_to_uh_open_university: module
                     .enable_registering_completion_to_uh_open_university,
                 certification_enabled: module.certification_enabled,
+                certificate_configuration_id,
             }
         })
         .collect();

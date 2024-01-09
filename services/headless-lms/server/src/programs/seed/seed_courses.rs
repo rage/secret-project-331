@@ -26,8 +26,8 @@ use headless_lms_models::{
     page_history::HistoryChangeReason,
     pages::CmsPageUpdate,
     pages::{self, NewCoursePage},
-    peer_review_configs::PeerReviewAcceptingStrategy::{
-        AutomaticallyAcceptOrManualReviewByAverage, AutomaticallyAcceptOrRejectByAverage,
+    peer_review_configs::PeerReviewProcessingStrategy::{
+        AutomaticallyGradeByAverage, AutomaticallyGradeOrManualReviewByAverage,
         ManualReviewEverything,
     },
     proposed_block_edits::NewProposedBlockEdit,
@@ -3414,7 +3414,7 @@ pub async fn seed_course_without_submissions(
         &mut conn,
         course_id,
         exercise_2_id,
-        AutomaticallyAcceptOrManualReviewByAverage,
+        AutomaticallyGradeOrManualReviewByAverage,
         2.5,
     )
     .await?;
@@ -3423,7 +3423,7 @@ pub async fn seed_course_without_submissions(
         &mut conn,
         course_id,
         exercise_3_id,
-        AutomaticallyAcceptOrRejectByAverage,
+        AutomaticallyGradeByAverage,
         2.0,
     )
     .await?;
@@ -4532,7 +4532,7 @@ pub async fn seed_peer_review_course_without_submissions(
         exercise_2_slide_1_task_1_spec_1_id,
         exercise_2_slide_1_task_1_spec_2_id,
         exercise_2_slide_1_task_1_spec_3_id,
-        Some("AutomaticallyAcceptOrManualReviewByAverage".to_string()),
+        Some("AutomaticallyGradeOrManualReviewByAverage".to_string()),
         CommonExerciseData {
             exercise_id: exercise_2_id,
             exercise_slide_id: exercise_2_slide_1_id,
@@ -4564,7 +4564,7 @@ pub async fn seed_peer_review_course_without_submissions(
         &mut conn,
         course_id,
         exercise_2_id,
-        AutomaticallyAcceptOrManualReviewByAverage,
+        AutomaticallyGradeOrManualReviewByAverage,
         2.5,
     )
     .await?;
@@ -4587,7 +4587,7 @@ pub async fn seed_peer_review_course_without_submissions(
         exercise_3_slide_1_task_1_spec_1_id,
         exercise_3_slide_1_task_1_spec_2_id,
         exercise_3_slide_1_task_1_spec_3_id,
-        Some("AutomaticallyAcceptOrRejectByAverage".to_string()),
+        Some("AutomaticallyGradeByAverage".to_string()),
         CommonExerciseData {
             exercise_id: exercise_3_id,
             exercise_slide_id: exercise_3_slide_1_id,
@@ -4619,7 +4619,7 @@ pub async fn seed_peer_review_course_without_submissions(
         &mut conn,
         course_id,
         exercise_3_id,
-        AutomaticallyAcceptOrRejectByAverage,
+        AutomaticallyGradeByAverage,
         2.0,
     )
     .await?;

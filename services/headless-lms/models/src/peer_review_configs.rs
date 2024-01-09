@@ -25,7 +25,7 @@ pub struct PeerReviewConfig {
     pub peer_reviews_to_give: i32,
     pub peer_reviews_to_receive: i32,
     pub accepting_threshold: f32,
-    pub accepting_strategy: PeerReviewAcceptingStrategy,
+    pub accepting_strategy: PeerReviewProcessingStrategy,
     pub manual_review_cutoff_in_days: i32,
 }
 
@@ -49,7 +49,7 @@ pub struct CmsPeerReviewConfig {
     pub peer_reviews_to_give: i32,
     pub peer_reviews_to_receive: i32,
     pub accepting_threshold: f32,
-    pub accepting_strategy: PeerReviewAcceptingStrategy,
+    pub accepting_strategy: PeerReviewProcessingStrategy,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -67,14 +67,14 @@ Some strategies compare the overall received peer review likert answer (1-5) ave
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 #[sqlx(
-    type_name = "peer_review_accepting_strategy",
+    type_name = "peer_review_processing_strategy",
     rename_all = "snake_case"
 )]
-pub enum PeerReviewAcceptingStrategy {
+pub enum PeerReviewProcessingStrategy {
     /// If the average of the peer review likert answers is greater than the threshold, the peer review is accepted, otherwise it is rejected.
-    AutomaticallyAcceptOrRejectByAverage,
+    AutomaticallyGradeByAverage,
     /// If the average of the peer review likert answers is greater than the threshold, the peer review is accepted, otherwise it is sent to be manually reviewed by the teacher.
-    AutomaticallyAcceptOrManualReviewByAverage,
+    AutomaticallyGradeOrManualReviewByAverage,
     /// All answers will be sent to be manually reviewed by the teacher once they have received and given enough peer reviews.
     ManualReviewEverything,
 }

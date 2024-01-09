@@ -3355,7 +3355,7 @@ mod test {
             id:pr_id,
             exercise_id: Some(exercise_id),
             course_id: course,
-            accepting_strategy: crate::peer_review_configs::PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage,
+            accepting_strategy: crate::peer_review_configs::PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage,
             accepting_threshold:0.5,
             peer_reviews_to_give:2,
             peer_reviews_to_receive:1
@@ -3395,7 +3395,7 @@ mod test {
             id:pr_id,
             exercise_id: Some(exercise_id),
             course_id: course,
-            accepting_strategy: crate::peer_review_configs::PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage,
+            accepting_strategy: crate::peer_review_configs::PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage,
             accepting_threshold:0.5,
             peer_reviews_to_give:2,
             peer_reviews_to_receive:1

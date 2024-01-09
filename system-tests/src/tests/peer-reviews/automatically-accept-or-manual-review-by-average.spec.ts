@@ -6,7 +6,7 @@ import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
 import { fillPeerReview, TIMEOUT } from "./peer_review_utils"
 
-test.describe("test AutomaticallyAcceptOrManualReviewByAverage behavior", () => {
+test.describe("test AutomaticallyGradeOrManualReviewByAverage behavior", () => {
   test.use({
     storageState: "src/states/admin@example.com.json",
   })
@@ -26,7 +26,7 @@ test.describe("test AutomaticallyAcceptOrManualReviewByAverage behavior", () => 
     await context2.close()
     await context3.close()
   })
-  test("AutomaticallyAcceptOrManualReviewByAverage", async ({ headless }, testInfo) => {
+  test("AutomaticallyGradeOrManualReviewByAverage", async ({ headless }, testInfo) => {
     test.slow()
     const student1Page = await context1.newPage()
     const student2Page = await context2.newPage()
@@ -82,7 +82,7 @@ test.describe("test AutomaticallyAcceptOrManualReviewByAverage behavior", () => 
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       waitForTheseToBeVisibleAndStable: [
-        student1Page.locator('text="AutomaticallyAcceptOrManualReviewByAverage"'),
+        student1Page.locator('text="AutomaticallyGradeOrManualReviewByAverage"'),
       ],
       screenshotOptions: { fullPage: true },
     })
@@ -101,7 +101,7 @@ test.describe("test AutomaticallyAcceptOrManualReviewByAverage behavior", () => 
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       waitForTheseToBeVisibleAndStable: [
-        student1Page.locator('text="AutomaticallyAcceptOrManualReviewByAverage"'),
+        student1Page.locator('text="AutomaticallyGradeOrManualReviewByAverage"'),
       ],
       screenshotOptions: { fullPage: true },
     })
@@ -116,7 +116,7 @@ test.describe("test AutomaticallyAcceptOrManualReviewByAverage behavior", () => 
     await teacherPage.getByRole("link", { name: "Manage course 'Peer review Course'" }).click()
     await teacherPage.getByRole("tab", { name: "Exercises" }).click()
     await teacherPage
-      .getByText("AutomaticallyAcceptOrManualReviewByAverage 1View answers requiring attention")
+      .getByText("AutomaticallyGradeOrManualReviewByAverage 1View answers requiring attention")
       .click()
 
     // Make sure the iframe above is loaded so that it does not cause scrolling
@@ -144,7 +144,7 @@ test.describe("test AutomaticallyAcceptOrManualReviewByAverage behavior", () => 
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       waitForTheseToBeVisibleAndStable: [
-        student1Page.locator('text="AutomaticallyAcceptOrManualReviewByAverage"'),
+        student1Page.locator('text="AutomaticallyGradeOrManualReviewByAverage"'),
       ],
       screenshotOptions: { fullPage: true },
     })
@@ -163,7 +163,7 @@ test.describe("test AutomaticallyAcceptOrManualReviewByAverage behavior", () => 
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       waitForTheseToBeVisibleAndStable: [
-        student2Page.locator('text="AutomaticallyAcceptOrManualReviewByAverage"'),
+        student2Page.locator('text="AutomaticallyGradeOrManualReviewByAverage"'),
       ],
       screenshotOptions: { fullPage: true },
     })

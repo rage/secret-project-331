@@ -560,7 +560,7 @@ pub async fn create_best_peer_review(
     conn: &mut PgConnection,
     course_id: Uuid,
     exercise_id: Uuid,
-    accepting_strategy: peer_review_configs::PeerReviewAcceptingStrategy,
+    accepting_strategy: peer_review_configs::PeerReviewProcessingStrategy,
     accepting_threshold: f32,
 ) -> Result<()> {
     // let prc_id =

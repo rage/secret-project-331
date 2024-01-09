@@ -5,7 +5,7 @@ import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
 import { fillPeerReview, TIMEOUT } from "./peer_review_utils"
 
-test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
+test.describe("test AutomaticallyGradeByAverage behavior", () => {
   test.use({
     storageState: "src/states/admin@example.com.json",
   })
@@ -26,7 +26,7 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
     await context3.close()
   })
 
-  test("AutomaticallyAcceptOrRejectByAverage > Accepts", async ({ headless }, testInfo) => {
+  test("AutomaticallyGradeByAverage > Accepts", async ({ headless }, testInfo) => {
     test.slow()
     const student1Page = await context1.newPage()
     const student2Page = await context2.newPage()
@@ -60,7 +60,7 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
       screenshotTarget: student1Page,
       clearNotifications: true,
       waitForTheseToBeVisibleAndStable: [
-        student1Page.locator('text="AutomaticallyAcceptOrRejectByAverage"'),
+        student1Page.locator('text="AutomaticallyGradeByAverage"'),
       ],
       scrollToYCoordinate: 0,
       screenshotOptions: { fullPage: true },
@@ -95,7 +95,7 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       waitForTheseToBeVisibleAndStable: [
-        student2Page.locator('text="AutomaticallyAcceptOrRejectByAverage"'),
+        student2Page.locator('text="AutomaticallyGradeByAverage"'),
       ],
       screenshotOptions: { fullPage: true },
     })
@@ -120,7 +120,7 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       waitForTheseToBeVisibleAndStable: [
-        student1Page.locator('text="AutomaticallyAcceptOrRejectByAverage"'),
+        student1Page.locator('text="AutomaticallyGradeByAverage"'),
       ],
       screenshotOptions: { fullPage: true },
     })
@@ -139,7 +139,7 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       waitForTheseToBeVisibleAndStable: [
-        student2Page.locator('text="AutomaticallyAcceptOrRejectByAverage"'),
+        student2Page.locator('text="AutomaticallyGradeByAverage"'),
       ],
       screenshotOptions: { fullPage: true },
     })
@@ -158,7 +158,7 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       waitForTheseToBeVisibleAndStable: [
-        student1Page.locator('text="AutomaticallyAcceptOrRejectByAverage"'),
+        student1Page.locator('text="AutomaticallyGradeByAverage"'),
       ],
       screenshotOptions: { fullPage: true },
     })
@@ -177,7 +177,7 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       waitForTheseToBeVisibleAndStable: [
-        student2Page.locator('text="AutomaticallyAcceptOrRejectByAverage"'),
+        student2Page.locator('text="AutomaticallyGradeByAverage"'),
       ],
       screenshotOptions: { fullPage: true },
     })

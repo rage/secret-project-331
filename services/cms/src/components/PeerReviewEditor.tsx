@@ -12,7 +12,7 @@ import { getCoursesDefaultCmsPeerReviewConfiguration } from "../services/backend
 import {
   CmsPeerReviewConfig,
   CmsPeerReviewQuestion,
-  PeerReviewAcceptingStrategy,
+  PeerReviewProcessingStrategy,
   PeerReviewQuestion,
   PeerReviewQuestionType,
 } from "../shared-module/bindings"
@@ -156,17 +156,17 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
     { label: t("likert-scale"), value: "Scale" },
   ]
 
-  const peerReviewAcceptingStrategyOptions: {
+  const PeerReviewProcessingStrategyOptions: {
     label: string
-    value: PeerReviewAcceptingStrategy
+    value: PeerReviewProcessingStrategy
   }[] = [
     {
       label: "Automatically accept or reject by average",
-      value: "AutomaticallyAcceptOrRejectByAverage",
+      value: "AutomaticallyGradeByAverage",
     },
     {
       label: "Automatically accept or manual review by average",
-      value: "AutomaticallyAcceptOrManualReviewByAverage",
+      value: "AutomaticallyGradeOrManualReviewByAverage",
     },
     {
       label: "Manual review everything",
@@ -235,7 +235,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
       id: v4(),
       course_id: courseId,
       exercise_id: exerciseId ?? null,
-      accepting_strategy: "AutomaticallyAcceptOrManualReviewByAverage",
+      accepting_strategy: "AutomaticallyGradeOrManualReviewByAverage",
       accepting_threshold: 2.1,
       peer_reviews_to_give: 3,
       peer_reviews_to_receive: 2,
@@ -390,7 +390,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                   onChangeByValue={(value) => {
                     handlePeerReviewValueChange(value, "accepting_strategy")
                   }}
-                  options={peerReviewAcceptingStrategyOptions}
+                  options={PeerReviewProcessingStrategyOptions}
                   defaultValue={parsedPeerReviewConfig.accepting_strategy}
                 />
                 <TextField
@@ -488,7 +488,7 @@ function defaultPeerReviewConfig(
     id: v4(),
     exercise_id: exerciseId ? exerciseId : null,
     course_id: courseId,
-    accepting_strategy: "AutomaticallyAcceptOrManualReviewByAverage",
+    accepting_strategy: "AutomaticallyGradeOrManualReviewByAverage",
     accepting_threshold: 2.1,
     peer_reviews_to_give: 3,
     peer_reviews_to_receive: 2,

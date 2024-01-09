@@ -162,9 +162,9 @@ import {
   PageWithExercises,
   Pagination,
   PaperSize,
-  PeerReviewAcceptingStrategy,
   PeerReviewAnswer,
   PeerReviewConfig,
+  PeerReviewProcessingStrategy,
   PeerReviewQuestion,
   PeerReviewQuestionAndAnswer,
   PeerReviewQuestionSubmission,
@@ -2235,7 +2235,7 @@ export function isCmsPeerReviewConfig(obj: unknown): obj is CmsPeerReviewConfig 
     typeof typedObj["peer_reviews_to_give"] === "number" &&
     typeof typedObj["peer_reviews_to_receive"] === "number" &&
     typeof typedObj["accepting_threshold"] === "number" &&
-    (isPeerReviewAcceptingStrategy(typedObj["accepting_strategy"]) as boolean)
+    (isPeerReviewProcessingStrategy(typedObj["accepting_strategy"]) as boolean)
   )
 }
 
@@ -2263,11 +2263,11 @@ export function isCourseMaterialPeerReviewConfig(
   )
 }
 
-export function isPeerReviewAcceptingStrategy(obj: unknown): obj is PeerReviewAcceptingStrategy {
-  const typedObj = obj as PeerReviewAcceptingStrategy
+export function isPeerReviewProcessingStrategy(obj: unknown): obj is PeerReviewProcessingStrategy {
+  const typedObj = obj as PeerReviewProcessingStrategy
   return (
-    typedObj === "AutomaticallyAcceptOrRejectByAverage" ||
-    typedObj === "AutomaticallyAcceptOrManualReviewByAverage" ||
+    typedObj === "AutomaticallyGradeByAverage" ||
+    typedObj === "AutomaticallyGradeOrManualReviewByAverage" ||
     typedObj === "ManualReviewEverything"
   )
 }
@@ -2285,7 +2285,7 @@ export function isPeerReviewConfig(obj: unknown): obj is PeerReviewConfig {
     typeof typedObj["peer_reviews_to_give"] === "number" &&
     typeof typedObj["peer_reviews_to_receive"] === "number" &&
     typeof typedObj["accepting_threshold"] === "number" &&
-    (isPeerReviewAcceptingStrategy(typedObj["accepting_strategy"]) as boolean) &&
+    (isPeerReviewProcessingStrategy(typedObj["accepting_strategy"]) as boolean) &&
     typeof typedObj["manual_review_cutoff_in_days"] === "number"
   )
 }

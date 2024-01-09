@@ -33,11 +33,11 @@
         "name": "accepting_strategy!: _",
         "type_info": {
           "Custom": {
-            "name": "peer_review_accepting_strategy",
+            "name": "peer_review_processing_strategy",
             "kind": {
               "Enum": [
-                "automatically_accept_or_reject_by_average",
-                "automatically_accept_or_manual_review_by_average",
+                "automatically_grade_by_average",
+                "automatically_grade_or_manual_review_by_average",
                 "manual_review_everything"
               ]
             }

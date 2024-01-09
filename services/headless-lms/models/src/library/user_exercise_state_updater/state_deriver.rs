@@ -3,7 +3,7 @@ use headless_lms_utils::numbers::f32_to_two_decimals;
 use crate::{
     exercises::{ActivityProgress, GradingProgress},
     library::user_exercise_state_updater::validation::validate_input,
-    peer_review_configs::PeerReviewAcceptingStrategy,
+    peer_review_configs::PeerReviewProcessingStrategy,
     peer_review_question_submissions::PeerReviewQuestionSubmission,
     prelude::*,
     user_exercise_states::{ReviewingStage, UserExerciseStateUpdate},
@@ -224,46 +224,46 @@ fn get_peer_review_opinion(
 
         // Users have given and received enough peer reviews, time to consider how we're doing the grading
         match info.peer_review_config.accepting_strategy {
-            PeerReviewAcceptingStrategy::AutomaticallyAcceptOrRejectByAverage => {
+            PeerReviewProcessingStrategy::AutomaticallyGradeByAverage => {
                 let avg = calculate_average_received_peer_review_score(
                     &info
                         .latest_exercise_slide_submission_received_peer_review_question_submissions,
                 );
                 if avg < info.peer_review_config.accepting_threshold {
-                    info!(avg = ?avg, threshold = ?info.peer_review_config.accepting_threshold, peer_review_accepting_strategy = ?info.peer_review_config.accepting_strategy, "Automatically giving zero points because average is below the threshold");
+                    info!(avg = ?avg, threshold = ?info.peer_review_config.accepting_threshold, peer_review_processing_strategy = ?info.peer_review_config.accepting_strategy, "Automatically giving zero points because average is below the threshold");
                     Some(PeerReviewOpinion {
                         score_given: Some(0.0),
                         reviewing_stage: ReviewingStage::ReviewedAndLocked,
                     })
                 } else {
-                    info!(avg = ?avg, threshold = ?info.peer_review_config.accepting_threshold, peer_review_accepting_strategy = ?info.peer_review_config.accepting_strategy, "Automatically giving the points since the average is above the threshold");
+                    info!(avg = ?avg, threshold = ?info.peer_review_config.accepting_threshold, peer_review_processing_strategy = ?info.peer_review_config.accepting_strategy, "Automatically giving the points since the average is above the threshold");
                     Some(PeerReviewOpinion {
                         score_given: Some(score_maximum as f32),
                         reviewing_stage: ReviewingStage::ReviewedAndLocked,
                     })
                 }
             }
-            PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage => {
+            PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage => {
                 let avg = calculate_average_received_peer_review_score(
                     &info
                         .latest_exercise_slide_submission_received_peer_review_question_submissions,
                 );
                 if avg < info.peer_review_config.accepting_threshold {
-                    info!(avg = ?avg, threshold = ?info.peer_review_config.accepting_threshold, peer_review_accepting_strategy = ?info.peer_review_config.accepting_strategy, "Not giving points because average is below the threshold. The answer should be moved to manual review.");
+                    info!(avg = ?avg, threshold = ?info.peer_review_config.accepting_threshold, peer_review_processing_strategy = ?info.peer_review_config.accepting_strategy, "Not giving points because average is below the threshold. The answer should be moved to manual review.");
                     Some(PeerReviewOpinion {
                         score_given: None,
                         reviewing_stage: ReviewingStage::WaitingForManualGrading,
                     })
                 } else {
-                    info!(avg = ?avg, threshold = ?info.peer_review_config.accepting_threshold, peer_review_accepting_strategy = ?info.peer_review_config.accepting_strategy, "Automatically giving the points since the average is above the threshold");
+                    info!(avg = ?avg, threshold = ?info.peer_review_config.accepting_threshold, peer_review_processing_strategy = ?info.peer_review_config.accepting_strategy, "Automatically giving the points since the average is above the threshold");
                     Some(PeerReviewOpinion {
                         score_given: Some(score_maximum as f32),
                         reviewing_stage: ReviewingStage::ReviewedAndLocked,
                     })
                 }
             }
-            PeerReviewAcceptingStrategy::ManualReviewEverything => {
-                info!(peer_review_accepting_strategy = ?info.peer_review_config.accepting_strategy, "Not giving points because the teacher reviews all answers manually");
+            PeerReviewProcessingStrategy::ManualReviewEverything => {
+                info!(peer_review_processing_strategy = ?info.peer_review_config.accepting_strategy, "Not giving points because the teacher reviews all answers manually");
                 Some(PeerReviewOpinion {
                     score_given: None,
                     reviewing_stage: ReviewingStage::WaitingForManualGrading,
@@ -363,7 +363,7 @@ mod tests {
                     peer_review_information: Some(
                         UserExerciseStateUpdateRequiredDataPeerReviewInformation {
                             given_peer_review_submissions: Vec::new(), latest_exercise_slide_submission_received_peer_review_question_submissions: Vec::new(), peer_review_queue_entry: None,
-                            peer_review_config: create_peer_review_config(PeerReviewAcceptingStrategy::AutomaticallyAcceptOrRejectByAverage)
+                            peer_review_config: create_peer_review_config(PeerReviewProcessingStrategy::AutomaticallyGradeByAverage)
                         },
                     ),
                     latest_teacher_grading_decision: None,
@@ -404,7 +404,7 @@ mod tests {
                                 given_peer_review_submissions: vec![create_peer_review_submission(), create_peer_review_submission(), create_peer_review_submission()],
                                 latest_exercise_slide_submission_received_peer_review_question_submissions: vec![create_peer_review_question_submission(4.0), create_peer_review_question_submission(3.0), create_peer_review_question_submission(4.0)],
                                 peer_review_queue_entry: Some(create_peer_review_queue_entry()),
-                                peer_review_config: create_peer_review_config(PeerReviewAcceptingStrategy::AutomaticallyAcceptOrRejectByAverage)
+                                peer_review_config: create_peer_review_config(PeerReviewProcessingStrategy::AutomaticallyGradeByAverage)
                             },
                         ),
                         latest_teacher_grading_decision: None,
@@ -444,7 +444,7 @@ mod tests {
                                 // Average below 2.1
                                 latest_exercise_slide_submission_received_peer_review_question_submissions: vec![create_peer_review_question_submission(3.0), create_peer_review_question_submission(1.0), create_peer_review_question_submission(1.0)],
                                 peer_review_queue_entry: Some(create_peer_review_queue_entry()),
-                                peer_review_config: create_peer_review_config(PeerReviewAcceptingStrategy::AutomaticallyAcceptOrRejectByAverage)
+                                peer_review_config: create_peer_review_config(PeerReviewProcessingStrategy::AutomaticallyGradeByAverage)
                             },
                         ),
                         latest_teacher_grading_decision: None,
@@ -488,7 +488,7 @@ mod tests {
                                 given_peer_review_submissions: vec![create_peer_review_submission(), create_peer_review_submission(), create_peer_review_submission()],
                                 latest_exercise_slide_submission_received_peer_review_question_submissions: vec![create_peer_review_question_submission(4.0), create_peer_review_question_submission(3.0), create_peer_review_question_submission(4.0)],
                                 peer_review_queue_entry: Some(create_peer_review_queue_entry()),
-                                peer_review_config: create_peer_review_config(PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage)
+                                peer_review_config: create_peer_review_config(PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage)
                             },
                         ),
                         latest_teacher_grading_decision: None,
@@ -529,7 +529,7 @@ mod tests {
                                 // Average below 2.1
                                 latest_exercise_slide_submission_received_peer_review_question_submissions: vec![create_peer_review_question_submission(3.0), create_peer_review_question_submission(1.0), create_peer_review_question_submission(1.0)],
                                 peer_review_queue_entry: Some(create_peer_review_queue_entry()),
-                                peer_review_config: create_peer_review_config(PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage)
+                                peer_review_config: create_peer_review_config(PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage)
                             },
                         ),
                         latest_teacher_grading_decision: None,
@@ -573,7 +573,7 @@ mod tests {
                                 given_peer_review_submissions: vec![create_peer_review_submission(), create_peer_review_submission(), create_peer_review_submission()],
                                 latest_exercise_slide_submission_received_peer_review_question_submissions: vec![create_peer_review_question_submission(4.0), create_peer_review_question_submission(3.0), create_peer_review_question_submission(4.0)],
                                 peer_review_queue_entry: Some(create_peer_review_queue_entry()),
-                                peer_review_config: create_peer_review_config(PeerReviewAcceptingStrategy::ManualReviewEverything)
+                                peer_review_config: create_peer_review_config(PeerReviewProcessingStrategy::ManualReviewEverything)
                             },
                         ),
                         latest_teacher_grading_decision: None,
@@ -614,7 +614,7 @@ mod tests {
                                 // Average below 2.1
                                 latest_exercise_slide_submission_received_peer_review_question_submissions: vec![create_peer_review_question_submission(3.0), create_peer_review_question_submission(1.0), create_peer_review_question_submission(1.0)],
                                 peer_review_queue_entry: Some(create_peer_review_queue_entry()),
-                                peer_review_config: create_peer_review_config(PeerReviewAcceptingStrategy::ManualReviewEverything)
+                                peer_review_config: create_peer_review_config(PeerReviewProcessingStrategy::ManualReviewEverything)
                             },
                         ),
                         latest_teacher_grading_decision: None,
@@ -676,7 +676,7 @@ mod tests {
         }
 
         fn create_peer_review_config(
-            accepting_strategy: PeerReviewAcceptingStrategy,
+            accepting_strategy: PeerReviewProcessingStrategy,
         ) -> PeerReviewConfig {
             let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
             PeerReviewConfig {

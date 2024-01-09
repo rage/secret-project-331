@@ -417,8 +417,8 @@ fn models() {
             PageWithExercises,
         },
         peer_review_configs::{
-            CmsPeerReviewConfig, CmsPeerReviewConfiguration, PeerReviewAcceptingStrategy,
-            PeerReviewConfig,
+            CmsPeerReviewConfig, CmsPeerReviewConfiguration, PeerReviewConfig,
+            PeerReviewProcessingStrategy,
         },
         peer_review_question_submissions::PeerReviewWithQuestionsAndAnswers,
         peer_review_questions::{
@@ -564,7 +564,7 @@ fn models() {
     });
     example!(CmsPeerReviewConfig {
         id,
-        accepting_strategy: PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage,
+        accepting_strategy: PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage,
         accepting_threshold: 0.5,
         course_id,
         exercise_id: None,
@@ -764,7 +764,7 @@ fn models() {
         peer_reviews_to_give: 3,
         peer_reviews_to_receive: 2,
         accepting_threshold: 3.0,
-        accepting_strategy: PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage,
+        accepting_strategy: PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage,
         manual_review_cutoff_in_days: 21,
     });
     doc!(

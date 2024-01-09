@@ -48,8 +48,6 @@ const MultipleChoiceDropdownFeedback: React.FC<
   )[0]
   const correctOption = modelSolution?.options.find((o) => o.correct)
 
-  console.log("correct", correct, quiz_item_answer_feedback)
-
   return (
     <div>
       <div

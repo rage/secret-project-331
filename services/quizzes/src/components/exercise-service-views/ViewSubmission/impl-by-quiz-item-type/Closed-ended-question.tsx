@@ -12,28 +12,27 @@ import CloseEndedQuestionWrapper from "../../../Shared/CloseEndedQuestionWrapper
 
 import { QuizItemSubmissionComponentProps } from "."
 
-// eslint-disable-next-line i18next/no-literal-string
-const correctAnswer = css`
+const FEEDBACK_STYLES = `
   display: flex;
   align-items: center;
   margin-top: 1rem;
   margin-bottom: 1rem;
   padding: 1rem;
-  background-color: ${quizTheme.successItemBackgroundColor};
-  color: ${quizTheme.successItemForegroundColor};
   border-radius: 5px;
 `
 
 // eslint-disable-next-line i18next/no-literal-string
+const correctAnswer = css`
+  ${FEEDBACK_STYLES}
+  background-color: ${quizTheme.successItemBackgroundColor};
+  color: ${quizTheme.successItemForegroundColor};
+`
+
+// eslint-disable-next-line i18next/no-literal-string
 const incorrectAnswer = css`
-  display: flex;
-  align-items: center;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-  padding: 1rem;
+  ${FEEDBACK_STYLES}
   background-color: ${quizTheme.errorItemBackgroundColor};
   color: ${quizTheme.errorItemForegroundColor};
-  border-radius: 5px;
 `
 
 const ClosedEndedQuestionFeedback: React.FC<
@@ -59,8 +58,8 @@ const ClosedEndedQuestionFeedback: React.FC<
           value={user_quiz_item_answer.textData ?? ""}
           className={css`
             input {
-              border-radius: 4px;
-              border: 3px solid #dfe1e6 !important;
+              border-radius: 0.25rem;
+              border: 0.188rem solid #dfe1e6 !important;
             }
           `}
         />

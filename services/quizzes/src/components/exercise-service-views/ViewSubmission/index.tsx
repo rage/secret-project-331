@@ -170,15 +170,15 @@ const SubmissionFeedback: React.FC<{ itemFeedback: ItemAnswerFeedback }> = ({ it
       className={css`
         background: ${backgroundColor};
         box-sizing: border-box;
-        border-radius: 4px;
+        border-radius: 0.25rem;
         color: ${textColor};
         margin: 1.5rem 0rem 1.5rem 0rem;
         margin-bottom: 0;
-        padding: 14px 14px;
+        padding: 0.875rem;
         max-width: 100%;
         display: flex;
-        font-size: 18px;
-        line-height: 18px;
+        font-size: 1.125rem;
+        line-height: 1.125rem;
         column-gap: 0.8rem;
       `}
     >

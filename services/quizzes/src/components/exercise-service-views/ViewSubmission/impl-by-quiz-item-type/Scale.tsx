@@ -3,7 +3,6 @@ import React, { useId } from "react"
 
 import { UserItemAnswerScale } from "../../../../../types/quizTypes/answer"
 import { PublicSpecQuizItemScale } from "../../../../../types/quizTypes/publicSpec"
-import { primaryFont } from "../../../../shared-module/styles"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import MarkdownText from "../../../MarkdownText"
@@ -24,9 +23,9 @@ const Scale: React.FC<
       aria-labelledby={radioLabelId}
       className={css`
         display: flex;
-        padding: 10px;
+        padding: 0.625rem;
         flex-direction: column;
-        margin-bottom: 10px;
+        margin-bottom: 0.625rem;
         background: white;
         ${respondToOrLarger.md} {
           flex-direction: row;
@@ -42,7 +41,7 @@ const Scale: React.FC<
             margin: 0.5rem 0;
             color: #4c5868;
             font-family: "Raleway", sans-serif;
-            font-size: 20px;
+            font-size: 1.25rem;
             margin-bottom: 1rem;
             font-weight: 500;
           `}
@@ -52,12 +51,12 @@ const Scale: React.FC<
       )}
       <div
         className={css`
-          flex: 7;
           display: flex;
-          flex-direction: row;
           flex-wrap: wrap;
+          gap: 1rem;
           justify-content: space-between;
-          align-items: center;
+          list-style: none;
+          padding: 0;
         `}
       >
         {Array.from({ length: maxValue - minValue + 1 }, (_, i) => {
@@ -68,8 +67,8 @@ const Scale: React.FC<
               className={css`
                 display: flex;
                 position: relative;
-                flex-direction: row;
-                flex: 1;
+                text-align: center;
+                width: 5rem;
 
                 label {
                   cursor: pointer;
@@ -77,7 +76,7 @@ const Scale: React.FC<
                   line-height: 1.2;
                   span {
                     color: #4c5868;
-                    font-size: 18px;
+                    font-size: 1.125rem;
                     :after {
                       display: inline-block;
                       position: absolute;
@@ -99,7 +98,7 @@ const Scale: React.FC<
                     &:checked + span {
                       &:after {
                         box-shadow: inset 0 0 0 0.33em #b4bac3;
-                        border: 3px solid #dfe1e6;
+                        border: 0.188rem solid #dfe1e6;
                       }
                     }
                   }

@@ -32,16 +32,16 @@ const MatrixTableContainer = styled.table`
   }
 
   tbody {
-    border-left: 2px solid #718dbf;
-    border-right: 2px solid #718dbf;
+    border-left: 0.125rem solid #718dbf;
+    border-right: 0.125rem solid #718dbf;
     position: relative;
   }
 
   .top-left:before {
     position: absolute;
     content: "";
-    width: 15px;
-    border-top: 2px solid #718dbf;
+    width: 0.938rem;
+    border-top: 0.125rem solid #718dbf;
     top: 0%;
     left: -0.8%;
   }
@@ -49,8 +49,8 @@ const MatrixTableContainer = styled.table`
   .top-right:before {
     position: absolute;
     content: "";
-    width: 15px;
-    border-top: 2px solid #718dbf;
+    width: 0.938rem;
+    border-top: 0.125rem solid #718dbf;
     top: 0%;
     right: -0.6%;
   }
@@ -58,8 +58,8 @@ const MatrixTableContainer = styled.table`
   .bottom-left:before {
     position: absolute;
     content: "";
-    width: 15px;
-    border-bottom: 2px solid #718dbf;
+    width: 0.938rem;
+    border-bottom: 0.125rem solid #718dbf;
     bottom: 0%;
     left: -0.8%;
   }
@@ -67,8 +67,8 @@ const MatrixTableContainer = styled.table`
   .bottom-right {
     position: absolute;
     content: "";
-    width: 15px;
-    border-bottom: 2px solid #718dbf;
+    width: 0.938rem;
+    border-bottom: 0.125rem solid #718dbf;
     bottom: 0%;
     right: -0.6%;
   }
@@ -257,7 +257,7 @@ const MatrixTable: React.FC<React.PropsWithChildren<MatrixTableProps>> = ({
                         className={css`
                           padding: 0;
                           font-size: 2.8vw;
-                          font-size: 22px;
+                          font-size: 1.375rem;
                           font-family:
                             Josefin Sans,
                             sans-serif;
@@ -268,8 +268,8 @@ const MatrixTable: React.FC<React.PropsWithChildren<MatrixTableProps>> = ({
                             display: flex;
                             align-items: center;
                             justify-content: center;
-                            width: 50px;
-                            height: 50px;
+                            width: 3.125rem;
+                            height: 3.125rem;
                             border: 0;
                             outline: none;
                             text-align: center;
@@ -291,7 +291,7 @@ const MatrixTable: React.FC<React.PropsWithChildren<MatrixTableProps>> = ({
                           <p
                             className={css`
                               position: relative;
-                              bottom: -3px;
+                              bottom: -0.188rem;
                             `}
                           >
                             {cell.text}

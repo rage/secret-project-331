@@ -48,6 +48,8 @@ const MultipleChoiceDropdownFeedback: React.FC<
   )[0]
   const correctOption = modelSolution?.options.find((o) => o.correct)
 
+  console.log("correct", correct, quiz_item_answer_feedback)
+
   return (
     <div>
       <div
@@ -67,8 +69,7 @@ const MultipleChoiceDropdownFeedback: React.FC<
         >
           <div
             className={css`
-              margin: 0.5rem 0;
-              margin-bottom: 0;
+              margin: 0.5rem 0 0 0;
             `}
           >
             {public_quiz_item.title ? (
@@ -97,7 +98,7 @@ const MultipleChoiceDropdownFeedback: React.FC<
                 <>
                   <h3
                     className={css`
-                      font-size: clamp(18px, 2vw, 20px) !important;
+                      font-size: 1.25rem !important;
                     `}
                   >
                     {public_quiz_item.body}
@@ -118,7 +119,7 @@ const MultipleChoiceDropdownFeedback: React.FC<
               position: absolute;
               top: 55%;
               transform: translateY(-50%);
-              right: 10px;
+              right: 0.625rem;
               pointer-events: none;
             }
           `}
@@ -129,17 +130,17 @@ const MultipleChoiceDropdownFeedback: React.FC<
             className={css`
               display: grid;
               width: 100%;
-              border-radius: 4px;
+              border-radius: 0.25rem;
               border: none;
-              padding: 8px 10px;
+              padding: 0.5rem 0.625rem;
               font-size: 18px;
               cursor: pointer;
-              border: 3px solid
+              border: 0.188rem solid
                 ${correct
                   ? quizTheme.gradingCorrectItemBorderColor
                   : quizTheme.gradingWrongItemBorderColor};
               background: none;
-              min-height: 40px;
+              min-height: 2.5rem;
               grid-template-areas: "select";
               align-items: center;
               color: #7e8894;

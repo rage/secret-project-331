@@ -68,10 +68,12 @@ const Scale: React.FC<QuizItemComponentProps<PublicSpecQuizItemScale, UserItemAn
       )}
       <div
         className={css`
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(6.25rem, 1fr));
+          display: flex;
+          flex-wrap: wrap;
+          gap: 1rem;
           justify-content: space-between;
-          row-gap: 0.875rem;
+          list-style: none;
+          padding: 0;
         `}
       >
         {Array.from({ length: maxValue - minValue + 1 }, (_, i) => {
@@ -82,6 +84,8 @@ const Scale: React.FC<QuizItemComponentProps<PublicSpecQuizItemScale, UserItemAn
               className={css`
                 display: flex;
                 position: relative;
+                text-align: center;
+                width: 5rem;
 
                 label {
                   cursor: pointer;

@@ -25,28 +25,28 @@ const gradingOption = css`
   justify-content: space-between;
   margin: 0.3rem;
   padding: 0 1rem;
-  border-radius: 6px;
-  font-size: 18px;
+  border-radius: 0.375rem;
+  font-size: 1.125rem;
   color: #4c5868;
-  border: 2px solid #d8d8d8;
+  border: 0.125rem solid #d8d8d8;
 `
 
 // eslint-disable-next-line i18next/no-literal-string
 const gradingOptionWrongAndSelected = css`
   background: #fbeef0;
-  border: 2px solid #f5d0d3;
+  border: 0.125rem solid #f5d0d3;
 `
 
 // eslint-disable-next-line i18next/no-literal-string
 const gradingOptionSelected = css`
   background: #f4f4f4;
-  border: 2px solid #d8d8d8;
+  border: 0.125rem solid #d8d8d8;
 `
 
 // eslint-disable-next-line i18next/no-literal-string
 const gradingOptionCorrectAndSelected = css`
   background: ${quizTheme.gradingCorrectItemBackground};
-  border: 2px solid #69af8a;
+  border: 0.125rem solid #69af8a;
 `
 
 const MultipleChoiceSubmission: React.FC<
@@ -86,7 +86,7 @@ const MultipleChoiceSubmission: React.FC<
           font-weight: 500;
           color: #4c5868;
           font-family: "Raleway", sans-serif;
-          font-size: 20px;
+          font-size: 1.25rem;
           margin-bottom: 1rem;
         `}
       >
@@ -240,8 +240,8 @@ const RowSubmissionFeedback: React.FC<React.PropsWithChildren<RowSubmissionFeedb
         display: flex;
         color: #4c5868;
         border-left: ${correct
-          ? `6px solid ${quizTheme.gradingCorrectItemBorderColor}`
-          : `6px solid ${quizTheme.gradingWrongItemBackground}`};
+          ? `0.375rem solid ${quizTheme.gradingCorrectItemBorderColor}`
+          : `0.375rem solid ${quizTheme.gradingWrongItemBackground}`};
         box-sizing: border-box;
         background: ${quizTheme.feedbackBackground};
         padding: 0.5rem 0px 0.5rem 0.5rem;

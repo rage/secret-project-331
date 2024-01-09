@@ -4,13 +4,12 @@ import { useTranslation } from "react-i18next"
 
 import { UserItemAnswerMultiplechoiceDropdown } from "../../../../../types/quizTypes/answer"
 import { PublicSpecQuizItemMultiplechoiceDropdown } from "../../../../../types/quizTypes/publicSpec"
-import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import { quizTheme } from "../../../../styles/QuizStyles"
 
 import { QuizItemComponentProps } from "."
 
-const SelectIcon = () => {
+const SelectInputIcon = () => {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" role="presentation">
       <path
@@ -74,7 +73,6 @@ const MultipleChoiceDropdown: React.FunctionComponent<
                   font-weight: 500;
                   color: #4c5868;
                   font-family: "Raleway", sans-serif;
-                  font-size: 20px;
                   margin-bottom: 1rem;
                 `}
               >
@@ -93,7 +91,7 @@ const MultipleChoiceDropdown: React.FunctionComponent<
               <>
                 <h3
                   className={css`
-                    font-size: clamp(18px, 2vw, 20px) !important;
+                    font-size: 1.25rem !important;
                   `}
                 >
                   {quizItem.body}
@@ -126,17 +124,17 @@ const MultipleChoiceDropdown: React.FunctionComponent<
           className={css`
             display: grid;
             width: 100%;
-            border-radius: 4px;
+            border-radius: 0.25rem;
             border: none;
-            padding: 8px 10px;
-            font-size: 18px;
+            padding: 0.5rem 0.625rem;
+            font-size: 1.125rem;
             cursor: pointer;
-            border: 3px solid #dfe1e6;
+            border: 0.188rem solid #dfe1e6;
             background: none;
-            min-height: 40px;
+            min-height: 2.5rem;
             grid-template-areas: "select";
             align-items: center;
-            color: #7e8894;
+            color: #4c5868;
             appearance: none;
             background: transparent;
 
@@ -169,7 +167,7 @@ const MultipleChoiceDropdown: React.FunctionComponent<
           ))}
         </select>
         <div className="select-arrow">
-          <SelectIcon />
+          <SelectInputIcon />
         </div>
       </div>
     </div>

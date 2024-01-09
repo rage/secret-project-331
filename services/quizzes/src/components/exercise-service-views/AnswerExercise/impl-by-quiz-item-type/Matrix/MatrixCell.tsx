@@ -14,12 +14,12 @@ const cellInputStyle = ({ column, row, cellText, matrixSize, isActive }: CellInp
   `
     position: relative;
     font-size: 2.8vw;
-    font-size: 22px;
+    font-size: 1.375rem;
     color: #313947;
     font-family: Josefin Sans, sans-serif;
     display: block;
-    width: 50px;
-    height: 50px;
+    width: 3.125rem;
+    height: 3.125rem;
     border: 0;
     outline: none;
     text-align: center;
@@ -71,7 +71,7 @@ const MatrixCell: React.FunctionComponent<React.PropsWithChildren<MatrixCellProp
       className={css`
         padding: 0;
         font-size: 2.8vw;
-        font-size: 22px;
+        font-size: 1.375rem;
         font-weight: 600;
         font-family:
           Josefin Sans,
@@ -106,6 +106,12 @@ const MatrixCell: React.FunctionComponent<React.PropsWithChildren<MatrixCellProp
   )
 }
 
+const BORDER_STYLES = `
+  position: absolute;
+  z-index: 1;
+`
+const BORDER_CONSTANT = "2px solid #718dbf"
+
 interface BorderDivProps {
   column: number
   row: number
@@ -122,76 +128,70 @@ const BorderDiv: React.FC<React.PropsWithChildren<BorderDivProps>> = ({
       {column === 0 && row === 0 ? (
         <div
           className={css`
-            position: absolute;
-            border-top: 2px solid #718dbf;
+            ${BORDER_STYLES}
+            border-top: ${BORDER_CONSTANT};
             left: -1px;
             top: -2px;
             width: 10px;
             right: 50%;
-            z-index: 1;
           `}
         ></div>
       ) : null}
       {column === matrixSize[1] && row === 0 ? (
         <div
           className={css`
-            position: absolute;
-            border-top: 2px solid #718dbf;
+            ${BORDER_STYLES}
+            border-top: ${BORDER_CONSTANT};
             right: -1px;
             top: -2px;
             left: 80%;
             width: 10px;
-            z-index: 1;
           `}
         ></div>
       ) : null}
       {column === 0 && row <= matrixSize[0] ? (
         <div
           className={css`
-            position: absolute;
-            border-left: 2px solid #718dbf;
+            ${BORDER_STYLES}
+            border-left: ${BORDER_CONSTANT};
             top: -2px;
             bottom: -2px;
             left: -2px;
-            z-index: 1;
           `}
         ></div>
       ) : null}
       {column === matrixSize[1] && row <= matrixSize[0] ? (
         <div
           className={css`
-            position: absolute;
-            border-right: 2px solid #718dbf;
+            ${BORDER_STYLES}
+            border-right: ${BORDER_CONSTANT};
             top: -2px;
             bottom: -2px;
             right: -2px;
-            z-index: 1;
           `}
         ></div>
       ) : null}
       {column === 0 && row === matrixSize[0] ? (
         <div
           className={css`
-            position: absolute;
-            border-bottom: 2px solid #718dbf;
+            ${BORDER_STYLES}
+            border-bottom: ${BORDER_CONSTANT};
             left: -1px;
             right: 50%;
             width: 10px;
             bottom: -2px;
-            z-index: 1;
           `}
         ></div>
       ) : null}
       {column === matrixSize[1] && row === matrixSize[0] ? (
         <div
           className={css`
-            position: absolute;
-            border-bottom: 2px solid #718dbf;
+            ${BORDER_STYLES}
+            border-bottom: ${BORDER_CONSTANT};
             right: -1px;
             left: 80%;
             width: 10px;
             bottom: -2px;
-            z-index: 1;
           `}
         ></div>
       ) : null}

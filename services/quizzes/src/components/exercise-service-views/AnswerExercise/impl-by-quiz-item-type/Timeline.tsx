@@ -25,12 +25,12 @@ const TimelineWrapper = styled.section`
   flex: 1;
   position: relative;
   width: 100%;
-  max-width: 1140px;
+  max-width: 71.25rem;
   margin: 0 auto;
-  padding: 15px 0;
+  padding: 0.938rem 0;
 `
 const container = css`
-  padding: 15px 30px;
+  padding: 0.938rem 1.875rem;
   position: relative;
   width: 50%;
 
@@ -39,7 +39,7 @@ const container = css`
     display: inline-block;
     top: calc(50% - 15px);
     text-align: center;
-    font-size: 16px;
+    font-size: 1rem;
     font-weight: 600;
     color: #4c5868;
     font-family: ${headingFont};
@@ -48,13 +48,13 @@ const container = css`
   }
 
   .content {
-    padding: 30px 30px 30px 30px;
+    padding: 1.875rem;
     position: relative;
   }
 
   @media (max-width: 767.98px) {
     width: 100%;
-    padding-left: 120px;
+    padding-left: 7.5rem;
     padding-right: 0px;
   }
 `
@@ -62,22 +62,22 @@ const left = css`
   left: 0;
 
   .date {
-    right: -75px;
+    right: -4.688rem;
     @media (max-width: 767.98px) {
       right: auto;
-      left: 15px;
+      left: 0.938rem;
     }
   }
 
   &::after {
     @media (max-width: 767.98px) {
-      left: 65px;
+      left: 4.063rem;
     }
   }
 
   .content {
     @media (max-width: 767.98px) {
-      padding: 30px 0px 30px 10px;
+      padding: 1.875rem 0rem 1.875rem 0.625rem;
     }
   }
 `
@@ -89,30 +89,30 @@ const right = css`
   }
 
   .date {
-    left: -75px;
+    left: -4.688rem;
     @media (max-width: 767.98px) {
       right: auto;
-      left: 15px;
+      left: 0.938rem;
     }
   }
 
   .content {
-    padding: 30px 30px 30px 30px;
+    padding: 1.875rem;
     @media (max-width: 767.98px) {
-      padding: 30px 0px 30px 10px;
+      padding: 1.875rem 0px 1.875rem 0.625rem;
     }
   }
 
   &::after {
-    left: -15px;
+    left: -0.938rem;
     @media (max-width: 767.98px) {
-      left: 65px;
+      left: 4.063rem;
     }
   }
 `
 const StyledTime = styled.div`
   background-color: #f3f5f7;
-  border-radius: 2px;
+  border-radius: 0.125rem;
   border: none;
   margin: 0;
   width: 100%;
@@ -120,7 +120,7 @@ const StyledTime = styled.div`
 `
 const StyledButton = styled.button`
   background-color: #f3f5f7;
-  width: 80px;
+  width: 5rem;
   justify-self: end;
   height: auto;
   margin: 0;
@@ -162,19 +162,19 @@ const Timeline: React.FunctionComponent<
                 &::after {
                   content: "";
                   position: absolute;
-                  width: 48px;
-                  height: 40px;
+                  width: 3rem;
+                  height: 2.5rem;
                   top: calc(50% - 20px);
-                  right: -15px;
+                  right: -0.125rem;
                   background: ${selectedTimelineItem ? "#77C299" : "#EBEDEE"};
-                  border: ${selectedTimelineItem ? "none" : "2px solid #898E99"};
+                  border: ${selectedTimelineItem ? "none" : "0.125rem solid #898E99"};
                   border-style: ${selectedTimelineItem ? "none" : "dashed"};
                   ${selectedTimelineItem &&
                   `box-shadow:
                   rgba(45, 35, 66, 0) 0 2px 4px,
                   rgba(45, 35, 66, 0) 0 7px 13px -3px,
                   #69AF8A 0 -2px 0 inset;`};
-                  border-radius: 25px;
+                  border-radius: 1.563rem;
                   transition: all 200ms linear;
                   z-index: 1;
                 }
@@ -190,15 +190,15 @@ const Timeline: React.FunctionComponent<
                 &:not(:last-child)::before {
                   content: "";
                   position: absolute;
-                  top: 96px;
+                  top: 6rem;
                   bottom: 0;
                   left: 50%;
                   height: 60%;
-                  border: 3px solid #ebedee;
-                  border-radius: 99px;
-                  margin-left: 6px;
+                  border: 0.188rem solid #ebedee;
+                  border-radius: 6.188rem;
+                  margin-left: 0.375rem;
                   @media (max-width: 767.98px) {
-                    left: 80px;
+                    left: 5rem;
                   }
                 }
               `}`}
@@ -256,7 +256,7 @@ const Timeline: React.FunctionComponent<
                   <StyledTime id={timelineItem.itemId}>
                     <p
                       className={css`
-                        padding: 8px 2px 8px 8px;
+                        padding: 0.5rem 0.125rem 0.5rem 0.5rem;
                         width: 100%;
                         color: #4c5868;
                       `}

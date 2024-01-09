@@ -6,7 +6,6 @@ import { UserItemAnswerChooseN } from "../../../../../types/quizTypes/answer"
 import { PublicSpecQuizItemChooseN } from "../../../../../types/quizTypes/publicSpec"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
-import { quizTheme } from "../../../../styles/QuizStyles"
 
 import { QuizItemComponentProps } from "."
 
@@ -38,7 +37,7 @@ export const TWO_DIMENSIONAL_BUTTON_STYLES = `
   -webkit-user-select: none;
   touch-action: manipulation;
   white-space: nowrap;
-  will-change: box-shadow, transform;
+  will-change: box-shadow;
   font-size: 1.125rem;
   margin-bottom: 0.625rem;
   margin-right: 0.625rem;
@@ -51,6 +50,24 @@ export const TWO_DIMENSIONAL_BUTTON_STYLES = `
         rgba(45, 35, 66, 0) 0 7px 13px -3px,
         #718dbf 0 -2px 0 inset;
     }
+`
+
+export const QUIZ_TITLE_STYLE = `
+  font-weight: 500;
+  color: #4c5868;
+  font-family: "Raleway", sans-serif;
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+`
+
+export const TWO_DIMENSIONAL_BUTTON_SELECTED = `
+  background: #f1f4f9;
+  border-color: #718dbf;
+  box-shadow:
+    rgba(45, 35, 66, 0) 0 4px 8px,
+    rgba(45, 35, 66, 0) 0 7px 13px -3px,
+    #718dbf 0 -2px 0 inset;
+  color: #4c5868;
 `
 
 const ChooseN: React.FunctionComponent<
@@ -87,8 +104,8 @@ const ChooseN: React.FunctionComponent<
   }
 
   // Is it a dynamic color, because it was discarded in this PR
-  const selectedBackgroundColor = quizTheme.selectedItemBackground
-  const selectedForegroundColor = quizTheme.selectedItemColor
+  // const selectedBackgroundColor = quizTheme.selectedItemBackground
+  // const selectedForegroundColor = quizTheme.selectedItemColor
 
   return (
     <div
@@ -104,11 +121,7 @@ const ChooseN: React.FunctionComponent<
       <h2
         className={css`
           display: flex;
-          font-weight: 500;
-          color: #4c5868;
-          font-family: "Raleway", sans-serif;
-          font-size: 20px;
-          margin-bottom: 1rem;
+          ${QUIZ_TITLE_STYLE}
         `}
       >
         {quizItem.title || quizItem.body}
@@ -128,13 +141,7 @@ const ChooseN: React.FunctionComponent<
               ${TWO_DIMENSIONAL_BUTTON_STYLES}
               ${quizItemAnswerState?.selectedOptionIds?.includes(o.id) &&
               `
-              background: #f1f4f9;
-              border-color: #718dbf;
-              box-shadow:
-                rgba(45, 35, 66, 0) 0 4px 8px,
-                rgba(45, 35, 66, 0) 0 7px 13px -3px,
-                #718dbf 0 -2px 0 inset;
-              color: #4c5868;
+                ${TWO_DIMENSIONAL_BUTTON_SELECTED}
               `}
             `}
             disabled={

@@ -6,7 +6,6 @@ import { useTranslation } from "react-i18next"
 
 import { UserItemAnswerMultiplechoice } from "../../../../../types/quizTypes/answer"
 import { PublicSpecQuizItemMultiplechoice } from "../../../../../types/quizTypes/publicSpec"
-import { baseTheme } from "../../../../shared-module/styles"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import { quizTheme } from "../../../../styles/QuizStyles"
@@ -15,47 +14,16 @@ import { sanitizeFlexDirection } from "../../../../util/css-sanitization"
 import { orderArrayWithId } from "../../../../util/randomizer"
 import ParsedText from "../../../ParsedText"
 
+import {
+  QUIZ_TITLE_STYLE,
+  TWO_DIMENSIONAL_BUTTON_SELECTED,
+  TWO_DIMENSIONAL_BUTTON_STYLES,
+} from "./ChooseN"
+
 import { QuizItemComponentProps } from "."
 
 export const optionButton = css`
-  align-items: center;
-  appearance: none;
-  background-color: #fcfcfd;
-  border-radius: 10px;
-  border: 3px solid #d6d6e7;
-  box-shadow:
-    rgba(45, 35, 66, 0) 0 2px 4px,
-    rgba(45, 35, 66, 0) 0 7px 13px -3px,
-    #d6d6e7 0 -2px 0 inset;
-  color: #36395a;
-  cursor: pointer;
-  display: flex;
-  min-height: 48px;
-  justify-content: center;
-  line-height: 1;
-  list-style: none;
-  padding: 14px;
-  text-align: left;
-  text-decoration: none;
-  transition:
-    box-shadow 0.15s,
-    transform 0.15s;
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: manipulation;
-  white-space: nowrap;
-  will-change: box-shadow, transform;
-  font-size: 18px;
-  margin-bottom: 5px;
-
-  &:hover {
-    background: #f1f4f9;
-    border-color: #718dbf;
-    box-shadow:
-      rgba(45, 35, 66, 0) 0 4px 8px,
-      rgba(45, 35, 66, 0) 0 7px 13px -3px,
-      #718dbf 0 -2px 0 inset;
-  }
+  ${TWO_DIMENSIONAL_BUTTON_STYLES}
 `
 
 const optionButtonColumn = css`
@@ -66,15 +34,7 @@ const optionButtonColumn = css`
 
 // eslint-disable-next-line i18next/no-literal-string
 const optionButtonSelected = css`
-  /*   background: ${quizTheme.selectedItemBackground};
-  color: ${quizTheme.selectedItemColor}; */
-  background: #f1f4f9;
-  border-color: #718dbf;
-  box-shadow:
-    rgba(45, 35, 66, 0) 0 4px 8px,
-    rgba(45, 35, 66, 0) 0 7px 13px -3px,
-    #718dbf 0 -2px 0 inset;
-  color: #4c5868;
+  ${TWO_DIMENSIONAL_BUTTON_SELECTED}
 `
 
 export interface LeftBorderedDivProps {
@@ -136,12 +96,7 @@ const MultipleChoice: React.FunctionComponent<
     >
       <div
         className={css`
-          /* font-size: ${quizTheme.quizTitleFontSize}; */
-          font-weight: 500;
-          color: #4c5868;
-          font-family: "Raleway", sans-serif;
-          font-size: 20px;
-          margin-bottom: 1rem;
+          ${QUIZ_TITLE_STYLE}
         `}
       >
         <ParsedText parseLatex parseMarkdown inline text={quizItem.title} />
@@ -192,16 +147,16 @@ const MultipleChoice: React.FunctionComponent<
       {quizItem.allowSelectingMultipleOptions && (
         <div
           className={css`
-            font-size: 13px;
+            font-size: 0.813rem;
             color: #564f23;
             margin: 0.6rem 0;
             width: 100%;
             background: #f6f2da;
-            font-size: 18px;
-            padding: 12px 14px;
+            font-size: 1.125rem;
+            padding: 0.75rem 0.875rem;
             display: flex;
             align-items: center;
-            border-radius: 4px;
+            border-radius: 0.25rem;
             column-gap: 0.6rem;
           `}
         >

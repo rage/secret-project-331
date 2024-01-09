@@ -67,13 +67,13 @@ const ClosedEndedQuestion: React.FC<
               font-weight: 500;
               color: #4c5868;
               font-family: "Raleway", sans-serif;
-              font-size: 15px;
+              font-size: 0.938rem;
               margin-bottom: 1rem;
             }
             input {
               background: #f4f5f7 !important;
-              border-radius: 4px;
-              border: 3px solid #dfe1e6 !important;
+              border-radius: 0.25rem;
+              border: 0.188rem solid #dfe1e6 !important;
             }
           `}
           value={quizItemAnswerState?.textData ?? ""}

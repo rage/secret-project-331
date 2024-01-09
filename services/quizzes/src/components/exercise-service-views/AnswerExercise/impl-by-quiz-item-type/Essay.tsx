@@ -12,27 +12,27 @@ import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary
 import { QuizItemComponentProps } from "."
 
 export const container = css`
-  font-size: 9px;
+  font-size: 0.563rem;
   text-align: center;
   font-family: ${secondaryFont} !important;
   text-transform: uppercase;
-  border-radius: 10px;
-  height: 47px;
-  width: 90px;
+  border-radius: 0.625rem;
+  height: 2.938rem;
+  width: 5.625rem;
   display: flex;
   flex-direction: column;
 
   p {
-    padding: 6px 10px 0px 10px;
-    border-top-right-radius: 10px;
-    border-top-left-radius: 10px;
+    padding: 0.375rem 0.625rem 0px 0.625rem;
+    border-top-right-radius: 0.625rem;
+    border-top-left-radius: 0.625rem;
   }
 
   span {
     font-family: ${headingFont} !important;
     color: #fff;
     font-weight: 500;
-    font-size: 15px;
+    font-size: 0.938rem;
     margin: 0;
   }
 `
@@ -68,7 +68,7 @@ const Essay: React.FunctionComponent<
           className={css`
             display: flex;
             margin: 0.5rem 0;
-            font-size: 20px;
+            font-size: 1.25rem;
           `}
         >
           {quizItem.title}
@@ -79,7 +79,7 @@ const Essay: React.FunctionComponent<
           className={css`
             display: flex;
             margin: 0.5rem 0;
-            font-size: 20px;
+            font-size: 1.25rem;
           `}
         >
           {quizItem.body}
@@ -126,11 +126,11 @@ const Essay: React.FunctionComponent<
             width: 100%;
             textarea {
               width: 100%;
-              height: 200px;
+              height: 12.5rem;
               resize: vertical;
               background: #f4f5f7 !important;
-              border-radius: 4px;
-              border: 3px solid #dfe1e6 !important;
+              border-radius: 0.25rem;
+              border: 0.188rem solid #dfe1e6 !important;
               outline: none;
             }
           `}

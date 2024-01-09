@@ -14,7 +14,7 @@ const MatrixTableContainer = styled.table`
   background-color: #e2e4e6;
   border-collapse: collapse;
   td {
-    border: 2px solid #e1e1e199;
+    border: 0.125rem solid #e1e1e199;
   }
 
   td {

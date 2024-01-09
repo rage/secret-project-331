@@ -3,10 +3,11 @@ import React, { useId } from "react"
 
 import { UserItemAnswerScale } from "../../../../../types/quizTypes/answer"
 import { PublicSpecQuizItemScale } from "../../../../../types/quizTypes/publicSpec"
-import { primaryFont } from "../../../../shared-module/styles"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import MarkdownText from "../../../MarkdownText"
+
+import { QUIZ_TITLE_STYLE } from "./ChooseN"
 
 import { QuizItemComponentProps } from "."
 
@@ -42,9 +43,9 @@ const Scale: React.FC<QuizItemComponentProps<PublicSpecQuizItemScale, UserItemAn
         display: flex;
         flex: 1;
         min-width: 100%;
-        padding: 10px;
+        padding: 0.625rem;
         flex-direction: column;
-        margin-bottom: 10px;
+        margin-bottom: 0.625rem;
         background: white;
         ${respondToOrLarger.md} {
           flex-direction: row;
@@ -56,11 +57,7 @@ const Scale: React.FC<QuizItemComponentProps<PublicSpecQuizItemScale, UserItemAn
         <div
           id={radioLabelId}
           className={css`
-            font-weight: 500;
-            color: #4c5868;
-            font-family: "Raleway", sans-serif;
-            font-size: 20px;
-            margin-bottom: 1rem;
+            ${QUIZ_TITLE_STYLE}
             ${respondToOrLarger.md} {
               text-align: left;
             }
@@ -72,8 +69,9 @@ const Scale: React.FC<QuizItemComponentProps<PublicSpecQuizItemScale, UserItemAn
       <div
         className={css`
           display: grid;
-          grid-template-columns: repeat(5, 1fr);
+          grid-template-columns: repeat(auto-fill, minmax(6.25rem, 1fr));
           justify-content: space-between;
+          row-gap: 0.875rem;
         `}
       >
         {Array.from({ length: maxValue - minValue + 1 }, (_, i) => {
@@ -91,7 +89,7 @@ const Scale: React.FC<QuizItemComponentProps<PublicSpecQuizItemScale, UserItemAn
                   line-height: 1.2;
                   span {
                     color: #4c5868;
-                    font-size: 18px;
+                    font-size: 1.125rem;
                     :after {
                       display: inline-block;
                       position: absolute;
@@ -113,7 +111,7 @@ const Scale: React.FC<QuizItemComponentProps<PublicSpecQuizItemScale, UserItemAn
                     &:checked + span {
                       &:after {
                         box-shadow: inset 0 0 0 0.33em #627ba7;
-                        border: 3px solid #718dbf;
+                        border: 0.188rem solid #718dbf;
                       }
                     }
                   }

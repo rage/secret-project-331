@@ -385,6 +385,7 @@ const ExerciseBlock: React.FC<
                       font-family: ${headingFont} !important;
                       color: #57606f;
                       font-size: 15px;
+                      font-weight: 500;
                       margin: 0;
                     }
 

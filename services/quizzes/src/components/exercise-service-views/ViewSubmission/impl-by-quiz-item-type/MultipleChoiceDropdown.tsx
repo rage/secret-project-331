@@ -39,14 +39,14 @@ const MultipleChoiceDropdownFeedback: React.FC<
   const { t } = useTranslation()
 
   const modelSolution = quiz_item_model_solution as ModelSolutionQuizItemMultiplechoiceDropdown
-  const correct = quiz_item_answer_feedback
-    ? quiz_item_answer_feedback?.score === 1 ??
-      quiz_item_answer_feedback.correctnessCoefficient == 1
-    : false
+  const correct =
+    quiz_item_answer_feedback?.score === 1 || quiz_item_answer_feedback?.correctnessCoefficient == 1
   const selectedOption = public_quiz_item.options.filter(
     (o) => o.id === (user_quiz_item_answer.selectedOptionIds as string[])[0],
   )[0]
   const correctOption = modelSolution?.options.find((o) => o.correct)
+
+  console.log({ correct })
 
   return (
     <div>

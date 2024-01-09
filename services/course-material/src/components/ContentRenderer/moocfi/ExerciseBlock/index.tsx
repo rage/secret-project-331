@@ -354,9 +354,9 @@ const ExerciseBlock: React.FC<
                     text-transform: uppercase;
                     border-radius: 10px;
                     background: #f0f0f0;
-                    height: 47px;
-                    min-width: 70px;
-                    padding: 6px 16px 0px 16px;
+                    height: 60px;
+                    min-width: 80px;
+                    padding: 8px 16px 6px 16px;
                     width: auto;
                     color: #949aa3;
                     display: flex;
@@ -370,10 +370,14 @@ const ExerciseBlock: React.FC<
                     .points {
                       line-height: 100%;
                       color: #57606f;
+                      z-index: 999;
                     }
 
-                    .points-heading {
-                      color: #949aa3;
+                    .heading {
+                      color: #57606f;
+                      font-size: 12px;
+                      display: inline-block;
+                      margin-bottom: 2px;
                     }
 
                     sup,
@@ -402,12 +406,11 @@ const ExerciseBlock: React.FC<
                     <div
                       className={css`
                         display: block;
-                        color: #949aa3;
                       `}
                     >
-                      <p>{t("tries")}</p>
+                      <p className="heading">{t("tries")}</p>
                       <div className="tries">
-                        <PlusHeart size={14} weight="bold" color="7A3F75" />
+                        <PlusHeart size={16} weight="bold" color="#246F46" />
                         <p>{triesRemaining}</p>
                       </div>
                     </div>
@@ -418,9 +421,9 @@ const ExerciseBlock: React.FC<
                     </>
                   ) : (
                     <div>
-                      <span className="points-heading">{t("points-label")}:</span>
+                      <span className="heading">{t("points-label")}</span>
                       <div className="points">
-                        <CheckCircle size={14} weight="bold" />
+                        <CheckCircle size={16} weight="bold" color="#246F46" />
                         <sup>{points ?? 0}</sup>&frasl;
                         <sub>{getCourseMaterialExercise.data.exercise.score_maximum}</sub>
                       </div>

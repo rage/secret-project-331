@@ -19,6 +19,14 @@ interface TimelineContentProps {
   quizItemId: string
 }
 
+const BASE_BUTTON_STYLES = `
+  width: 50px;
+  height: 49px;
+  border: none;
+  outline: none;
+  position: relative;
+`
+
 const Wrapper = styled.div`
   font-size: 16px;
   margin: 0 auto;
@@ -42,14 +50,10 @@ const StyledForm = styled.form`
   gap: 10px;
   margin-top: 12px;
   height: 75px;
-
-  @media (max-width: 767.98px) {
-    grid-template-columns: 1fr;
-    gap: 0px;
-  }
 `
 
 const StyledBtn = styled.button`
+  ${BASE_BUTTON_STYLES}
   width: 50px;
   height: 49px;
   background: #dae3eb;
@@ -76,14 +80,18 @@ const StyledBtn = styled.button`
   }
 
   @media (max-width: 767.98px) {
-    width: 100%;
+    height: 48px;
   }
 `
 const DeleteBtn = styled.button`
+  ${BASE_BUTTON_STYLES}
   width: 50px;
   height: 49px;
   background: #e2c2bc;
   outline: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   justify-self: end;
   border: none;
   position: relative;
@@ -94,7 +102,7 @@ const DeleteBtn = styled.button`
   }
 
   @media (max-width: 767.98px) {
-    width: 100%;
+    height: 47px;
   }
 `
 
@@ -112,7 +120,7 @@ const List = styled.div`
   height: 75px;
 
   @media (max-width: 767.98px) {
-    grid-template-columns: 100%;
+    grid-template-columns: 0.1fr 2.2fr 0.1fr;
     gap: 5px;
   }
 `

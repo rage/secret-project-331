@@ -6,7 +6,6 @@ import React from "react"
 
 import { UserItemAnswerMatrix } from "../../../../../types/quizTypes/answer"
 import { PublicSpecQuizItemMatrix } from "../../../../../types/quizTypes/publicSpec"
-import { baseTheme } from "../../../../shared-module/styles"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 import { QuizItemSubmissionComponentProps } from "."
@@ -100,6 +99,12 @@ const MatrixSubmission: React.FC<
     isStudentsAnswer: boolean,
   ): isCellCorrectObject => {
     if (!correctAnswers) {
+      if (!isStudentsAnswer && modelSolution) {
+        return {
+          text: modelSolution.optionCells[row][column],
+          correct: null,
+        }
+      }
       return {
         text: studentAnswers[row][column],
         correct: null,
@@ -119,11 +124,17 @@ const MatrixSubmission: React.FC<
   const rowsCountArray: number[] = []
   const columnsCountArray: number[] = []
 
+  const msRowsCountArray: number[] = []
+  const msColumnsCountArray: number[] = []
+
   const containsNonEmptyString = (arr: string[]): boolean =>
     arr.some((item) => typeof item === "string" && item.trim() !== "")
 
   let countRows = 0
   let countColumns = 0
+
+  let msCountRows = 0
+  let msCountColumns = 0
 
   studentAnswers?.forEach((answer, index) => {
     if (containsNonEmptyString(answer)) {
@@ -135,6 +146,23 @@ const MatrixSubmission: React.FC<
           if (item !== "") {
             columnsCountArray.push(countColumns)
             countColumns += 1
+          }
+        })
+    }
+  })
+
+  const modelSolutionMatrix = modelSolution?.optionCells
+
+  modelSolutionMatrix?.forEach((answer, index) => {
+    if (containsNonEmptyString(answer)) {
+      msRowsCountArray.push(msCountRows)
+      msCountRows += 1
+
+      index == 0 &&
+        answer?.forEach((item) => {
+          if (item !== "") {
+            msColumnsCountArray.push(msCountColumns)
+            msCountColumns += 1
           }
         })
     }
@@ -157,16 +185,27 @@ const MatrixSubmission: React.FC<
             columnsCountArray={columnsCountArray}
             findOptionText={findOptionText}
           ></MatrixTable>
-          {correctAnswers && <FontAwesomeIcon icon={faTimesCircle} color="red" size="lg" />}
+          {correctAnswers && <FontAwesomeIcon icon={faTimesCircle} color="#D75861" size="lg" />}
         </div>
-        {correctAnswers && (
+        {modelSolutionMatrix && (
           <div>
             <MatrixTable
-              rowsCountArray={rowsCountArray}
-              columnsCountArray={columnsCountArray}
+              rowsCountArray={msRowsCountArray}
+              columnsCountArray={msColumnsCountArray}
               findOptionText={findOptionText}
             ></MatrixTable>
-            <FontAwesomeIcon icon={faCheckCircle} color="green" size="lg" />
+            <div
+              className={css`
+                display: flex;
+                justify-content: center;
+
+                svg {
+                  margin-top: 0.563;
+                }
+              `}
+            >
+              <FontAwesomeIcon icon={faCheckCircle} color="#69AF8A" size="lg" />
+            </div>
           </div>
         )}
       </div>

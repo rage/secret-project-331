@@ -65,7 +65,7 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
             }
           `}
         >
-          <span>Instruction:</span>
+          <span>{t("instructions")}</span>
           <ContentRenderer
             data={currentExerciseTaskAssignment}
             editing={false}

@@ -207,7 +207,7 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
                 .map((course_material_exercise_task) => {
                   return (
                     <div key={course_material_exercise_task.id}>
-                      <div aria-label="assignment">
+                      <div data-testid="assignment">
                         <ContentRenderer
                           data={
                             (course_material_exercise_task.assignment as Array<Block<unknown>>) ??

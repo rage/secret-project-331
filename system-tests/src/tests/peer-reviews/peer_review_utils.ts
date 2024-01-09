@@ -11,8 +11,8 @@ import { EXERCISE_SERVICE_CONTENT_ID } from "../../shared-module/utils/constants
 export const fillPeerReview = async (page: Page, options: string[]) => {
   await page.getByRole("button", { name: "Start peer review" }).click()
 
-  // Check that the assignment in showing in the peer review page.
-  await expect(page.getByLabel("assignment")).toContainText("Answer this question.")
+  // Check that the assignment is showing in the peer review page.
+  await expect(page.getByTestId("assignment")).toContainText("Answer this question.")
 
   await page.getByPlaceholder("Write a review").fill("It was hard to understand")
   await page

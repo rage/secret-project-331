@@ -411,7 +411,7 @@ const ExerciseBlock: React.FC<
                     >
                       <p className="heading">{t("tries")}</p>
                       <div className="tries">
-                        <PlusHeart size={16} weight="bold" color="#246F46" />
+                        <PlusHeart size={16} weight="bold" color="#394F77" />
                         <p>{triesRemaining}</p>
                       </div>
                     </div>
@@ -424,7 +424,7 @@ const ExerciseBlock: React.FC<
                     <div>
                       <span className="heading">{t("points-label")}</span>
                       <div className="points">
-                        <CheckCircle size={16} weight="bold" color="#246F46" />
+                        <CheckCircle size={16} weight="bold" color="#394F77" />
                         <sup>{points ?? 0}</sup>&frasl;
                         <sub>{getCourseMaterialExercise.data.exercise.score_maximum}</sub>
                       </div>

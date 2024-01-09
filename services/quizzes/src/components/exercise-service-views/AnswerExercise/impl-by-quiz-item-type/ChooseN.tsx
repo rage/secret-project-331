@@ -15,8 +15,8 @@ export const TWO_DIMENSIONAL_BUTTON_STYLES = `
   flex-grow: 1;
   appearance: none;
   background-color: #fcfcfd;
-  border-radius: 10px;
-  border: 3px solid #d6d6e7;
+  border-radius: 0.625rem;
+  border: 0.188rem solid #d6d6e7;
   box-shadow:
     rgba(45, 35, 66, 0) 0 2px 4px,
     rgba(45, 35, 66, 0) 0 7px 13px -3px,
@@ -24,11 +24,11 @@ export const TWO_DIMENSIONAL_BUTTON_STYLES = `
   color: #36395a;
   cursor: pointer;
   display: flex;
-  min-height: 48px;
+  min-height: 3rem;
   justify-content: center;
   line-height: 1;
   list-style: none;
-  padding: 14px;
+  padding: 0.875rem;
   text-align: left;
   text-decoration: none;
   transition:
@@ -39,9 +39,9 @@ export const TWO_DIMENSIONAL_BUTTON_STYLES = `
   touch-action: manipulation;
   white-space: nowrap;
   will-change: box-shadow, transform;
-  font-size: 18px;
-  margin-bottom: 10px;
-  margin-right: 10px;
+  font-size: 1.125rem;
+  margin-bottom: 0.625rem;
+  margin-right: 0.625rem;
 
     &:hover {
       background: #f1f4f9;

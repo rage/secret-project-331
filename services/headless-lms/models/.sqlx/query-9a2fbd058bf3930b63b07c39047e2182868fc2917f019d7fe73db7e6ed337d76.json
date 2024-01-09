@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  peer_review_config_id,\n  order_number,\n  question_type AS \"question_type: _\",\n  question,\n  answer_required\nFROM peer_review_questions\nwhere peer_review_config_id = $1\n  AND deleted_at IS NULL;\n    ",
+  "query": "\nSELECT id,\n  peer_review_config_id,\n  order_number,\n  question,\n  question_type AS \"question_type: _\",\n  answer_required,\n  weight\nfrom peer_review_questions\nWHERE id IN (\n    SELECT UNNEST($1::uuid [])\n  )\n  AND deleted_at IS NULL;\n    ",
   "describe": {
     "columns": [
       {
@@ -20,6 +20,11 @@
       },
       {
         "ordinal": 3,
+        "name": "question",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
         "name": "question_type: _",
         "type_info": {
           "Custom": {
@@ -31,20 +36,20 @@
         }
       },
       {
-        "ordinal": 4,
-        "name": "question",
-        "type_info": "Varchar"
-      },
-      {
         "ordinal": 5,
         "name": "answer_required",
         "type_info": "Bool"
+      },
+      {
+        "ordinal": 6,
+        "name": "weight",
+        "type_info": "Float4"
       }
     ],
     "parameters": {
-      "Left": ["Uuid"]
+      "Left": ["UuidArray"]
     },
-    "nullable": [false, false, false, false, false, false]
+    "nullable": [false, false, false, false, false, false, false]
   },
-  "hash": "9e0a5d551ad41a6e755261ec8fabc267c3b5c57de4c3e6fe9968e6b3cdb4db38"
+  "hash": "9a2fbd058bf3930b63b07c39047e2182868fc2917f019d7fe73db7e6ed337d76"
 }

@@ -2235,7 +2235,8 @@ export function isCmsPeerReviewConfig(obj: unknown): obj is CmsPeerReviewConfig 
     typeof typedObj["peer_reviews_to_give"] === "number" &&
     typeof typedObj["peer_reviews_to_receive"] === "number" &&
     typeof typedObj["accepting_threshold"] === "number" &&
-    (isPeerReviewProcessingStrategy(typedObj["accepting_strategy"]) as boolean)
+    (isPeerReviewProcessingStrategy(typedObj["processing_strategy"]) as boolean) &&
+    typeof typedObj["points_are_all_or_nothing"] === "boolean"
   )
 }
 
@@ -2285,8 +2286,9 @@ export function isPeerReviewConfig(obj: unknown): obj is PeerReviewConfig {
     typeof typedObj["peer_reviews_to_give"] === "number" &&
     typeof typedObj["peer_reviews_to_receive"] === "number" &&
     typeof typedObj["accepting_threshold"] === "number" &&
-    (isPeerReviewProcessingStrategy(typedObj["accepting_strategy"]) as boolean) &&
-    typeof typedObj["manual_review_cutoff_in_days"] === "number"
+    (isPeerReviewProcessingStrategy(typedObj["processing_strategy"]) as boolean) &&
+    typeof typedObj["manual_review_cutoff_in_days"] === "number" &&
+    typeof typedObj["points_are_all_or_nothing"] === "boolean"
   )
 }
 

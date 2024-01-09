@@ -564,12 +564,14 @@ fn models() {
     });
     example!(CmsPeerReviewConfig {
         id,
-        accepting_strategy: PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage,
+        processing_strategy:
+            PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage,
         accepting_threshold: 0.5,
         course_id,
         exercise_id: None,
         peer_reviews_to_give: 2,
         peer_reviews_to_receive: 1,
+        points_are_all_or_nothing: true
     });
     example!(CmsPeerReviewQuestion {
         id,
@@ -764,8 +766,10 @@ fn models() {
         peer_reviews_to_give: 3,
         peer_reviews_to_receive: 2,
         accepting_threshold: 3.0,
-        accepting_strategy: PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage,
+        processing_strategy:
+            PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage,
         manual_review_cutoff_in_days: 21,
+        points_are_all_or_nothing: true,
     });
     doc!(
         T,

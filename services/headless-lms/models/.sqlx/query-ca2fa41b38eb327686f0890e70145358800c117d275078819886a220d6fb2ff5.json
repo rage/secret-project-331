@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n    created_at,\n    updated_at,\n    deleted_at,\n    peer_review_config_id,\n    order_number,\n    question,\n    question_type AS \"question_type: _\",\n    answer_required\nFROM peer_review_questions\nWHERE peer_review_config_id = $1\n  AND deleted_at IS NULL;\n        ",
+  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  peer_review_config_id,\n  order_number,\n  question,\n  question_type AS \"question_type: _\",\n  answer_required,\n  weight\nFROM peer_review_questions\nWHERE id = $1\n  AND deleted_at IS NULL;\n        ",
   "describe": {
     "columns": [
       {
@@ -54,12 +54,17 @@
         "ordinal": 8,
         "name": "answer_required",
         "type_info": "Bool"
+      },
+      {
+        "ordinal": 9,
+        "name": "weight",
+        "type_info": "Float4"
       }
     ],
     "parameters": {
       "Left": ["Uuid"]
     },
-    "nullable": [false, false, false, true, false, false, false, false, false]
+    "nullable": [false, false, false, true, false, false, false, false, false, false]
   },
-  "hash": "c272fb1065d0356f4d273d08da96d6e0854c608fb1a2f8fb63a1c5a595f6ab78"
+  "hash": "ca2fa41b38eb327686f0890e70145358800c117d275078819886a220d6fb2ff5"
 }

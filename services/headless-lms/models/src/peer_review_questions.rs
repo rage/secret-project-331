@@ -12,7 +12,7 @@ pub enum PeerReviewQuestionType {
     Scale,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CmsPeerReviewQuestion {
     pub id: Uuid,
@@ -21,6 +21,7 @@ pub struct CmsPeerReviewQuestion {
     pub question: String,
     pub question_type: PeerReviewQuestionType,
     pub answer_required: bool,
+    pub weight: f32,
 }
 
 impl From<PeerReviewQuestion> for CmsPeerReviewQuestion {
@@ -32,11 +33,12 @@ impl From<PeerReviewQuestion> for CmsPeerReviewQuestion {
             question: prq.question,
             question_type: prq.question_type,
             answer_required: prq.answer_required,
+            weight: prq.weight,
         }
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PeerReviewQuestion {
     pub id: Uuid,
@@ -48,6 +50,7 @@ pub struct PeerReviewQuestion {
     pub question: String,
     pub question_type: PeerReviewQuestionType,
     pub answer_required: bool,
+    pub weight: f32,
 }
 
 pub async fn insert(
@@ -90,7 +93,8 @@ SELECT id,
   order_number,
   question,
   question_type AS "question_type: _",
-  answer_required
+  answer_required,
+  weight
 FROM peer_review_questions
 WHERE id = $1
   AND deleted_at IS NULL;
@@ -117,7 +121,8 @@ SELECT id,
   order_number,
   question,
   question_type AS "question_type: _",
-  answer_required
+  answer_required,
+  weight
 FROM peer_review_questions
 WHERE id IN (
     SELECT UNNEST($1::uuid [])
@@ -146,7 +151,8 @@ SELECT id,
     order_number,
     question,
     question_type AS "question_type: _",
-    answer_required
+    answer_required,
+    weight
 FROM peer_review_questions
 WHERE peer_review_config_id = $1
   AND deleted_at IS NULL;
@@ -173,7 +179,8 @@ SELECT id,
     order_number,
     question,
     question_type AS "question_type: _",
-    answer_required
+    answer_required,
+    weight
 FROM peer_review_questions
 WHERE peer_review_config_id = $1
     AND deleted_at IS NULL;
@@ -209,7 +216,8 @@ SELECT prq.id as id,
   prq.order_number as order_number,
   prq.question as question,
   prq.question_type AS "question_type: _",
-  prq.answer_required as answer_required
+  prq.answer_required as answer_required,
+  prq.weight
 from pages p
   join exercises e on p.id = e.page_id
   join peer_review_configs pr on e.id = pr.exercise_id
@@ -262,7 +270,8 @@ SELECT id,
   order_number,
   question_type AS "question_type: _",
   question,
-  answer_required
+  answer_required,
+  weight
 FROM peer_review_questions
 where peer_review_config_id = $1
   AND deleted_at IS NULL;
@@ -318,7 +327,8 @@ SELECT id,
   order_number,
   question,
   question_type AS "question_type: _",
-  answer_required
+  answer_required,
+  weight
 from peer_review_questions
 WHERE id IN (
     SELECT UNNEST($1::uuid [])

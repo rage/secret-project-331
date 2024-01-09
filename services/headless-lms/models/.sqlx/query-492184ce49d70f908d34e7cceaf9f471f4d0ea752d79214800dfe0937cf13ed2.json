@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id AS \"id!\",\n  answer_required AS \"answer_required!\",\n  order_number AS \"order_number!\",\n  peer_review_config_id AS \"peer_review_config_id!\",\n  question AS \"question!\",\n  question_type AS \"question_type!: _\"\nFROM peer_review_questions\nWHERE id IN (\n    SELECT UNNEST($1::uuid [])\n  )\n  AND deleted_at is null;\n        ",
+  "query": "\nSELECT id AS \"id!\",\n  answer_required AS \"answer_required!\",\n  order_number AS \"order_number!\",\n  peer_review_config_id AS \"peer_review_config_id!\",\n  question AS \"question!\",\n  question_type AS \"question_type!: _\",\n  weight AS \"weight!\"\nFROM peer_review_questions\nWHERE id IN (\n    SELECT UNNEST($1::uuid [])\n  )\n  AND deleted_at is null;\n        ",
   "describe": {
     "columns": [
       {
@@ -39,12 +39,17 @@
             }
           }
         }
+      },
+      {
+        "ordinal": 6,
+        "name": "weight!",
+        "type_info": "Float4"
       }
     ],
     "parameters": {
       "Left": ["UuidArray"]
     },
-    "nullable": [false, false, false, false, false, false]
+    "nullable": [false, false, false, false, false, false, false]
   },
-  "hash": "80712b4361ac05ee1fe5ac3650cc206e90e1675c1e7c1b1ab39f730aa77987b9"
+  "hash": "492184ce49d70f908d34e7cceaf9f471f4d0ea752d79214800dfe0937cf13ed2"
 }

@@ -81,8 +81,9 @@
     "peer_reviews_to_give": 3,
     "peer_reviews_to_receive": 2,
     "accepting_threshold": 3.0,
-    "accepting_strategy": "AutomaticallyGradeOrManualReviewByAverage",
-    "manual_review_cutoff_in_days": 21
+    "processing_strategy": "AutomaticallyGradeOrManualReviewByAverage",
+    "manual_review_cutoff_in_days": 21,
+    "points_are_all_or_nothing": true
   },
   "peer_review_questions": [
     {

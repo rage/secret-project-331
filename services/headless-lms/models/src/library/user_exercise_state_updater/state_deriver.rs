@@ -223,20 +223,20 @@ fn get_peer_review_opinion(
         }
 
         // Users have given and received enough peer reviews, time to consider how we're doing the grading
-        match info.peer_review_config.accepting_strategy {
+        match info.peer_review_config.processing_strategy {
             PeerReviewProcessingStrategy::AutomaticallyGradeByAverage => {
                 let avg = calculate_average_received_peer_review_score(
                     &info
                         .latest_exercise_slide_submission_received_peer_review_question_submissions,
                 );
                 if avg < info.peer_review_config.accepting_threshold {
-                    info!(avg = ?avg, threshold = ?info.peer_review_config.accepting_threshold, peer_review_processing_strategy = ?info.peer_review_config.accepting_strategy, "Automatically giving zero points because average is below the threshold");
+                    info!(avg = ?avg, threshold = ?info.peer_review_config.accepting_threshold, peer_review_processing_strategy = ?info.peer_review_config.processing_strategy, "Automatically giving zero points because average is below the threshold");
                     Some(PeerReviewOpinion {
                         score_given: Some(0.0),
                         reviewing_stage: ReviewingStage::ReviewedAndLocked,
                     })
                 } else {
-                    info!(avg = ?avg, threshold = ?info.peer_review_config.accepting_threshold, peer_review_processing_strategy = ?info.peer_review_config.accepting_strategy, "Automatically giving the points since the average is above the threshold");
+                    info!(avg = ?avg, threshold = ?info.peer_review_config.accepting_threshold, peer_review_processing_strategy = ?info.peer_review_config.processing_strategy, "Automatically giving the points since the average is above the threshold");
                     Some(PeerReviewOpinion {
                         score_given: Some(score_maximum as f32),
                         reviewing_stage: ReviewingStage::ReviewedAndLocked,
@@ -249,13 +249,13 @@ fn get_peer_review_opinion(
                         .latest_exercise_slide_submission_received_peer_review_question_submissions,
                 );
                 if avg < info.peer_review_config.accepting_threshold {
-                    info!(avg = ?avg, threshold = ?info.peer_review_config.accepting_threshold, peer_review_processing_strategy = ?info.peer_review_config.accepting_strategy, "Not giving points because average is below the threshold. The answer should be moved to manual review.");
+                    info!(avg = ?avg, threshold = ?info.peer_review_config.accepting_threshold, peer_review_processing_strategy = ?info.peer_review_config.processing_strategy, "Not giving points because average is below the threshold. The answer should be moved to manual review.");
                     Some(PeerReviewOpinion {
                         score_given: None,
                         reviewing_stage: ReviewingStage::WaitingForManualGrading,
                     })
                 } else {
-                    info!(avg = ?avg, threshold = ?info.peer_review_config.accepting_threshold, peer_review_processing_strategy = ?info.peer_review_config.accepting_strategy, "Automatically giving the points since the average is above the threshold");
+                    info!(avg = ?avg, threshold = ?info.peer_review_config.accepting_threshold, peer_review_processing_strategy = ?info.peer_review_config.processing_strategy, "Automatically giving the points since the average is above the threshold");
                     Some(PeerReviewOpinion {
                         score_given: Some(score_maximum as f32),
                         reviewing_stage: ReviewingStage::ReviewedAndLocked,
@@ -263,7 +263,7 @@ fn get_peer_review_opinion(
                 }
             }
             PeerReviewProcessingStrategy::ManualReviewEverything => {
-                info!(peer_review_processing_strategy = ?info.peer_review_config.accepting_strategy, "Not giving points because the teacher reviews all answers manually");
+                info!(peer_review_processing_strategy = ?info.peer_review_config.processing_strategy, "Not giving points because the teacher reviews all answers manually");
                 Some(PeerReviewOpinion {
                     score_given: None,
                     reviewing_stage: ReviewingStage::WaitingForManualGrading,
@@ -676,7 +676,7 @@ mod tests {
         }
 
         fn create_peer_review_config(
-            accepting_strategy: PeerReviewProcessingStrategy,
+            processing_strategy: PeerReviewProcessingStrategy,
         ) -> PeerReviewConfig {
             let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
             PeerReviewConfig {
@@ -689,8 +689,9 @@ mod tests {
                 peer_reviews_to_give: 3,
                 peer_reviews_to_receive: 2,
                 accepting_threshold: 2.1,
-                accepting_strategy,
+                processing_strategy,
                 manual_review_cutoff_in_days: 21,
+                points_are_all_or_nothing: true,
             }
         }
 

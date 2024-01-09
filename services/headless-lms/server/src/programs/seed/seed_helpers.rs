@@ -560,8 +560,9 @@ pub async fn create_best_peer_review(
     conn: &mut PgConnection,
     course_id: Uuid,
     exercise_id: Uuid,
-    accepting_strategy: peer_review_configs::PeerReviewProcessingStrategy,
+    processing_strategy: peer_review_configs::PeerReviewProcessingStrategy,
     accepting_threshold: f32,
+    points_are_all_or_nothing: bool,
 ) -> Result<()> {
     // let prc_id =
     //     peer_review_configs::insert(conn, PKeyPolicy::Generate, course_id, Some(exercise_id))
@@ -576,7 +577,8 @@ pub async fn create_best_peer_review(
             peer_reviews_to_give: 1,
             peer_reviews_to_receive: 0,
             accepting_threshold,
-            accepting_strategy,
+            processing_strategy,
+            points_are_all_or_nothing,
         },
     )
     .await?;

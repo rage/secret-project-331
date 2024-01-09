@@ -1604,7 +1604,7 @@ pub async fn upsert_peer_review_configs(
         exercise_id,
         peer_reviews_to_give,
         peer_reviews_to_receive,
-        accepting_strategy,
+        processing_strategy,
         accepting_threshold,
         deleted_at
       ) ",
@@ -1636,7 +1636,7 @@ pub async fn upsert_peer_review_configs(
                 .push_bind(safe_for_db_exercise_id)
                 .push_bind(pr.peer_reviews_to_give)
                 .push_bind(pr.peer_reviews_to_receive)
-                .push_bind(pr.accepting_strategy)
+                .push_bind(pr.processing_strategy)
                 .push_bind(pr.accepting_threshold)
                 .push("NULL");
         });
@@ -1656,7 +1656,7 @@ SET course_id = excluded.course_id,
   exercise_id = excluded.exercise_id,
   peer_reviews_to_give = excluded.peer_reviews_to_give,
   peer_reviews_to_receive = excluded.peer_reviews_to_receive,
-  accepting_strategy = excluded.accepting_strategy,
+  processing_strategy = excluded.processing_strategy,
   accepting_threshold = excluded.accepting_threshold,
   deleted_at = NULL
 RETURNING id;
@@ -1679,8 +1679,9 @@ SELECT id as "id!",
   exercise_id,
   peer_reviews_to_give as "peer_reviews_to_give!",
   peer_reviews_to_receive as "peer_reviews_to_receive!",
-  accepting_strategy AS "accepting_strategy!: _",
-  accepting_threshold "accepting_threshold!"
+  processing_strategy AS "processing_strategy!: _",
+  accepting_threshold "accepting_threshold!",
+  points_are_all_or_nothing "points_are_all_or_nothing!"
 FROM peer_review_configs
 WHERE id IN (
     SELECT UNNEST($1::uuid [])
@@ -1806,7 +1807,8 @@ SELECT id AS "id!",
   order_number AS "order_number!",
   peer_review_config_id AS "peer_review_config_id!",
   question AS "question!",
-  question_type AS "question_type!: _"
+  question_type AS "question_type!: _",
+  weight AS "weight!"
 FROM peer_review_questions
 WHERE id IN (
     SELECT UNNEST($1::uuid [])
@@ -3355,10 +3357,11 @@ mod test {
             id:pr_id,
             exercise_id: Some(exercise_id),
             course_id: course,
-            accepting_strategy: crate::peer_review_configs::PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage,
-            accepting_threshold:0.5,
-            peer_reviews_to_give:2,
-            peer_reviews_to_receive:1
+            processing_strategy: crate::peer_review_configs::PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage,
+            accepting_threshold: 0.5,
+            peer_reviews_to_give: 2,
+            peer_reviews_to_receive: 1,
+            points_are_all_or_nothing: true,
         };
         let prq = CmsPeerReviewQuestion {
             id: prq_id,
@@ -3367,6 +3370,7 @@ mod test {
             order_number: 0,
             question: "juu".to_string(),
             question_type: crate::peer_review_questions::PeerReviewQuestionType::Essay,
+            weight: 0.0,
         };
         let mut remapped_exercises = HashMap::new();
         remapped_exercises.insert(exercise_id, exercise);
@@ -3395,10 +3399,11 @@ mod test {
             id:pr_id,
             exercise_id: Some(exercise_id),
             course_id: course,
-            accepting_strategy: crate::peer_review_configs::PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage,
-            accepting_threshold:0.5,
-            peer_reviews_to_give:2,
-            peer_reviews_to_receive:1
+            processing_strategy: crate::peer_review_configs::PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage,
+            accepting_threshold: 0.5,
+            peer_reviews_to_give: 2,
+            peer_reviews_to_receive: 1,
+            points_are_all_or_nothing: true,
         };
         let prq = CmsPeerReviewQuestion {
             id: prq_id,
@@ -3407,6 +3412,7 @@ mod test {
             order_number: 0,
             question: "juu".to_string(),
             question_type: crate::peer_review_questions::PeerReviewQuestionType::Essay,
+            weight: 0.0,
         };
         let mut remapped_exercises = HashMap::new();
         remapped_exercises.insert(exercise_id, exercise);

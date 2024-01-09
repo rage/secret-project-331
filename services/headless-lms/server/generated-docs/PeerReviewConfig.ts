@@ -8,6 +8,7 @@ type PeerReviewConfig = {
   peer_reviews_to_give: number
   peer_reviews_to_receive: number
   accepting_threshold: number
-  accepting_strategy: PeerReviewProcessingStrategy
+  processing_strategy: PeerReviewProcessingStrategy
   manual_review_cutoff_in_days: number
+  points_are_all_or_nothing: boolean
 }

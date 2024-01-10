@@ -3,6 +3,7 @@ use crate::{
     exercises::Exercise,
     peer_review_configs::{self, PeerReviewConfig},
     peer_review_question_submissions::PeerReviewQuestionSubmission,
+    peer_review_questions::{self, PeerReviewQuestion, PeerReviewQuestionType},
     peer_review_queue_entries::PeerReviewQueueEntry,
     peer_review_submissions::{self, PeerReviewSubmission},
     prelude::*,
@@ -142,6 +143,7 @@ async fn load_peer_review_information(
             latest_exercise_slide_submission_received_peer_review_question_submissions,
             peer_review_queue_entry,
             peer_review_config,
+            peer_review_questions,
         } = if let Some(already_loaded_peer_review_information) =
             already_loaded_peer_review_information
         {
@@ -156,6 +158,9 @@ async fn load_peer_review_information(
             loaded_user_exercise_state,
         )
         .await?;
+
+        let loaded_peer_review_config =
+            load_peer_review_config(conn, peer_review_config, loaded_exercise).await?;
 
         Ok(Some(
             UserExerciseStateUpdateRequiredDataPeerReviewInformation {
@@ -179,10 +184,11 @@ async fn load_peer_review_information(
                     loaded_user_exercise_state,
                 )
                 .await?,
-                peer_review_config: load_peer_review_config(
+                peer_review_config: loaded_peer_review_config.clone(),
+                peer_review_questions: load_peer_review_questions(
                     conn,
-                    peer_review_config,
-                    loaded_exercise,
+                    peer_review_questions,
+                    &loaded_peer_review_config,
                 )
                 .await?,
             },
@@ -217,6 +223,61 @@ async fn load_peer_review_config(
             })?,
         )
         .await?)
+    }
+}
+
+/** Loads peer review config and normalizes weights, if necessary */
+async fn load_peer_review_questions(
+    conn: &mut PgConnection,
+    already_loaded_peer_review_questions: Option<Vec<PeerReviewQuestion>>,
+    loaded_peer_review_config: &PeerReviewConfig,
+) -> ModelResult<Vec<PeerReviewQuestion>> {
+    if let Some(prq) = already_loaded_peer_review_questions {
+        info!("Using already loaded peer review questions");
+        Ok(prq)
+    } else {
+        info!("Loading peer review questions");
+        let mut questions = peer_review_questions::get_all_by_peer_review_config_id(
+            conn,
+            loaded_peer_review_config.id,
+        )
+        .await?;
+
+        if !loaded_peer_review_config.points_are_all_or_nothing {
+            info!("Normalizing peer review question weights to sum to 1");
+            questions.sort_by(|a, b| a.order_number.cmp(&b.order_number));
+            info!(
+                "Weights before normalization: {:?}",
+                questions.iter().map(|q| q.weight).collect::<Vec<_>>()
+            );
+            let (mut allowed_to_have_weight, mut not_allowed_to_have_weight) = questions
+                .into_iter()
+                .partition::<Vec<_>, _>(|q| q.question_type == PeerReviewQuestionType::Scale);
+            let number_of_questions = allowed_to_have_weight.len();
+            let sum_of_weights = allowed_to_have_weight.iter().map(|q| q.weight).sum::<f32>();
+            if sum_of_weights < 0.000001 {
+                info!("All weights are zero, setting all weights to 1/number_of_questions so that they sum to 1.");
+                for question in &mut allowed_to_have_weight {
+                    question.weight = 1.0 / number_of_questions as f32;
+                }
+            } else {
+                for question in &mut allowed_to_have_weight {
+                    question.weight /= sum_of_weights;
+                }
+            }
+            for question in &mut not_allowed_to_have_weight {
+                question.weight = 0.0;
+            }
+            let mut new_vec = not_allowed_to_have_weight;
+            new_vec.append(&mut allowed_to_have_weight);
+            new_vec.sort_by(|a, b| a.order_number.cmp(&b.order_number));
+            questions = new_vec;
+            info!(
+                "Weights after normalization: {:?}",
+                questions.iter().map(|q| q.weight).collect::<Vec<_>>()
+            );
+        }
+        Ok(questions)
     }
 }
 

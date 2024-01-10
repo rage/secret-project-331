@@ -116,6 +116,7 @@ pub async fn create_new_course(
                 question: "General comments".to_string(),
                 question_type: crate::peer_review_questions::PeerReviewQuestionType::Essay,
                 answer_required: false,
+                weight: 0.0,
             },
             CmsPeerReviewQuestion {
                 id: Uuid::new_v4(),
@@ -124,6 +125,7 @@ pub async fn create_new_course(
                 question: "The answer was correct".to_string(),
                 question_type: crate::peer_review_questions::PeerReviewQuestionType::Scale,
                 answer_required: true,
+                weight: 0.0,
             },
             CmsPeerReviewQuestion {
                 id: Uuid::new_v4(),
@@ -132,6 +134,7 @@ pub async fn create_new_course(
                 question: "The answer was easy to read".to_string(),
                 question_type: crate::peer_review_questions::PeerReviewQuestionType::Scale,
                 answer_required: true,
+                weight: 0.0,
             },
         ],
     )

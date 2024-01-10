@@ -8,4 +8,5 @@ type Vec<PeerReviewQuestion> = Array<{
   question: string
   question_type: PeerReviewQuestionType
   answer_required: boolean
+  weight: number
 }>

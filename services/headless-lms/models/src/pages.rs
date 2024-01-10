@@ -21,7 +21,7 @@ use crate::{
     exercises::Exercise,
     page_history::{self, HistoryChangeReason, PageHistoryContent},
     peer_review_configs::CmsPeerReviewConfig,
-    peer_review_questions::{normalize_peer_review_question_weights, CmsPeerReviewQuestion},
+    peer_review_questions::{normalize_cms_peer_review_questions, CmsPeerReviewQuestion},
     prelude::*,
     user_course_settings::{self, UserCourseSettings},
     CourseOrExamId, SpecFetcher,
@@ -1044,7 +1044,7 @@ pub async fn update_page(
 
     for exercise in cms_page_update.exercises.iter_mut() {
         if let Some(peer_review_questions) = exercise.peer_review_questions.as_mut() {
-            normalize_peer_review_question_weights(peer_review_questions);
+            normalize_cms_peer_review_questions(peer_review_questions);
         }
     }
 

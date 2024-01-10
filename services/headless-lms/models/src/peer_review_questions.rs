@@ -343,7 +343,13 @@ WHERE id IN (
 }
 
 /** Modifies the questions in memory so that the weights sum to either 0 or 1. */
-pub fn normalize_peer_review_question_weights(peer_review_questions: &mut [CmsPeerReviewQuestion]) {
+pub fn normalize_cms_peer_review_questions(peer_review_questions: &mut [CmsPeerReviewQuestion]) {
+    // All scales have to be answered, skipping them does not make sense.
+    for question in peer_review_questions.iter_mut() {
+        if question.question_type == PeerReviewQuestionType::Scale {
+            question.answer_required = true;
+        }
+    }
     peer_review_questions.sort_by(|a, b| a.order_number.cmp(&b.order_number));
     info!(
         "Peer review question weights before normalization: {:?}",
@@ -372,4 +378,48 @@ pub fn normalize_peer_review_question_weights(peer_review_questions: &mut [CmsPe
             .map(|x| x.weight)
             .collect::<Vec<_>>()
     );
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_normalize_cms_peer_review_questions() {
+        let mut questions = vec![
+            CmsPeerReviewQuestion {
+                id: Uuid::new_v4(),
+                peer_review_config_id: Uuid::new_v4(),
+                order_number: 1,
+                question: String::from("Question 1"),
+                question_type: PeerReviewQuestionType::Scale,
+                answer_required: true,
+                weight: 2.0,
+            },
+            CmsPeerReviewQuestion {
+                id: Uuid::new_v4(),
+                peer_review_config_id: Uuid::new_v4(),
+                order_number: 2,
+                question: String::from("Question 2"),
+                question_type: PeerReviewQuestionType::Scale,
+                answer_required: true,
+                weight: 3.0,
+            },
+            CmsPeerReviewQuestion {
+                id: Uuid::new_v4(),
+                peer_review_config_id: Uuid::new_v4(),
+                order_number: 3,
+                question: String::from("Question 3"),
+                question_type: PeerReviewQuestionType::Essay,
+                answer_required: true,
+                weight: 1.0,
+            },
+        ];
+
+        normalize_cms_peer_review_questions(&mut questions);
+
+        assert_eq!(questions[0].weight, 2.0 / 5.0);
+        assert_eq!(questions[1].weight, 3.0 / 5.0);
+        assert_eq!(questions[2].weight, 0.0);
+    }
 }

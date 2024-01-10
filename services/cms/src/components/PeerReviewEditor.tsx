@@ -155,7 +155,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
     { label: t("likert-scale"), value: "Scale" },
   ]
 
-  const PeerReviewProcessingStrategyOptions: {
+  const peerReviewProcessingStrategyOptions: {
     label: string
     value: PeerReviewProcessingStrategy
   }[] = [
@@ -405,7 +405,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                   onChangeByValue={(value) => {
                     handlePeerReviewValueChange(value, "processing_strategy")
                   }}
-                  options={PeerReviewProcessingStrategyOptions}
+                  options={peerReviewProcessingStrategyOptions}
                   defaultValue={parsedPeerReviewConfig.processing_strategy}
                 />
                 <CheckBox

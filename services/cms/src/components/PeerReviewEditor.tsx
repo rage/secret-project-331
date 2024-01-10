@@ -289,7 +289,8 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
           peer_review_config_id: peerReviewId,
           answer_required: true,
           order_number: parsedPeerReviewQuestionConfig.length,
-        },
+          weight: 0,
+        } satisfies CmsPeerReviewQuestion,
       ]),
       peer_review_config: JSON.stringify(parsedPeerReviewConfig),
     })

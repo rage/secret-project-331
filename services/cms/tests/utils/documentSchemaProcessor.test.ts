@@ -133,7 +133,7 @@ const exampleUnnormalizedDocumentExerciseAttributes: ExerciseAttributes = {
   peer_review_config:
     '[{"id":"f0ae5814-927d-4a38-a0c0-db66f08c2bee","course_id":"","exercise_id":"dd46fb67-d168-4554-b912-0018f812166d","processing_strategy":"AutomaticallyGradeOrManualReviewByAverage","accepting_threshold":"0.5","peer_reviews_to_give":"1","peer_reviews_to_receive":"1"}]',
   peer_review_questions_config:
-    '[{"id":"f3c8eadd-75ca-409f-b1c6-31db65701930","peer_review_config_id":"f0ae5814-927d-4a38-a0c0-db66f08c2bee","answer_required":"true","order_number":"0","question":"how about...","question_type":"Essay"}]',
+    '[{"id":"f3c8eadd-75ca-409f-b1c6-31db65701930","peer_review_config_id":"f0ae5814-927d-4a38-a0c0-db66f08c2bee","answer_required":"true","order_number":"0","question":"how about...","question_type":"Essay","weight":0}]',
   use_course_default_peer_review: false,
 }
 

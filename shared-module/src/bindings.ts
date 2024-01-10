@@ -1316,6 +1316,7 @@ export interface CmsPeerReviewQuestion {
   question: string
   question_type: PeerReviewQuestionType
   answer_required: boolean
+  weight: number
 }
 
 export interface PeerReviewQuestion {
@@ -1328,6 +1329,7 @@ export interface PeerReviewQuestion {
   question: string
   question_type: PeerReviewQuestionType
   answer_required: boolean
+  weight: number
 }
 
 export type PeerReviewQuestionType = "Essay" | "Scale"

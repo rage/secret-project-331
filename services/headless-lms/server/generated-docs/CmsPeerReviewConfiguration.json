@@ -16,7 +16,8 @@
       "order_number": 1,
       "question": "what?",
       "question_type": "Essay",
-      "answer_required": true
+      "answer_required": true,
+      "weight": 0.0
     }
   ]
 }

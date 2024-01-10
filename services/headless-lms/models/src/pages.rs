@@ -21,7 +21,7 @@ use crate::{
     exercises::Exercise,
     page_history::{self, HistoryChangeReason, PageHistoryContent},
     peer_review_configs::CmsPeerReviewConfig,
-    peer_review_questions::CmsPeerReviewQuestion,
+    peer_review_questions::{normalize_peer_review_question_weights, CmsPeerReviewQuestion},
     prelude::*,
     user_course_settings::{self, UserCourseSettings},
     CourseOrExamId, SpecFetcher,
@@ -1039,8 +1039,14 @@ pub async fn update_page(
     spec_fetcher: impl SpecFetcher,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<ContentManagementPage> {
-    let cms_page_update = page_update.cms_page_update;
+    let mut cms_page_update = page_update.cms_page_update;
     cms_page_update.validate_exercise_data()?;
+
+    for exercise in cms_page_update.exercises.iter_mut() {
+        if let Some(peer_review_questions) = exercise.peer_review_questions.as_mut() {
+            normalize_peer_review_question_weights(peer_review_questions);
+        }
+    }
 
     let parsed_content: Vec<GutenbergBlock> = serde_json::from_value(cms_page_update.content)?;
     if !page_update.is_exam_page

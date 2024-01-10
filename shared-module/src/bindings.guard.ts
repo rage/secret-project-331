@@ -2391,7 +2391,8 @@ export function isCmsPeerReviewQuestion(obj: unknown): obj is CmsPeerReviewQuest
     typeof typedObj["order_number"] === "number" &&
     typeof typedObj["question"] === "string" &&
     (isPeerReviewQuestionType(typedObj["question_type"]) as boolean) &&
-    typeof typedObj["answer_required"] === "boolean"
+    typeof typedObj["answer_required"] === "boolean" &&
+    typeof typedObj["weight"] === "number"
   )
 }
 
@@ -2407,7 +2408,8 @@ export function isPeerReviewQuestion(obj: unknown): obj is PeerReviewQuestion {
     typeof typedObj["order_number"] === "number" &&
     typeof typedObj["question"] === "string" &&
     (isPeerReviewQuestionType(typedObj["question_type"]) as boolean) &&
-    typeof typedObj["answer_required"] === "boolean"
+    typeof typedObj["answer_required"] === "boolean" &&
+    typeof typedObj["weight"] === "number"
   )
 }
 

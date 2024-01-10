@@ -593,6 +593,7 @@ pub async fn create_best_peer_review(
             question: "What are your thoughts on the answer".to_string(),
             question_type: peer_review_questions::PeerReviewQuestionType::Essay,
             answer_required: true,
+            weight: 0.0,
         },
     )
     .await?;
@@ -607,6 +608,7 @@ pub async fn create_best_peer_review(
             question: "Was the answer correct?".to_string(),
             question_type: peer_review_questions::PeerReviewQuestionType::Scale,
             answer_required: true,
+            weight: 0.0,
         },
     )
     .await?;
@@ -621,6 +623,7 @@ pub async fn create_best_peer_review(
             question: "Was the answer good?".to_string(),
             question_type: peer_review_questions::PeerReviewQuestionType::Scale,
             answer_required: true,
+            weight: 0.0,
         },
     )
     .await?;

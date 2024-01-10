@@ -96,7 +96,8 @@
         "order_number": 0,
         "question": "Was the answer well thought out?",
         "question_type": "Essay",
-        "answer_required": true
+        "answer_required": true,
+        "weight": 0.0
       }
     ],
     "num_peer_reviews_given": 2

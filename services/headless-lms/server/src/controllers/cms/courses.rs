@@ -5,6 +5,7 @@ use crate::prelude::*;
 use models::{
     pages::{Page, PageVisibility},
     peer_review_configs::{self, CmsPeerReviewConfiguration},
+    peer_review_questions::normalize_peer_review_question_weights,
 };
 
 use models::research_forms::{
@@ -103,10 +104,11 @@ async fn put_course_default_peer_review_configuration(
         Res::Course(*course_id),
     )
     .await?;
-
+    let mut config = payload.0;
+    normalize_peer_review_question_weights(&mut config.peer_review_questions);
     let cms_peer_review_configuration =
         peer_review_configs::upsert_course_default_cms_peer_review_and_questions(
-            &mut conn, &payload.0,
+            &mut conn, &config,
         )
         .await?;
     token.authorized_ok(web::Json(cms_peer_review_configuration))

@@ -209,8 +209,8 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
     event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement | HTMLSelectElement>,
     field: keyof CmsPeerReviewQuestion,
   ) => {
-    const peerReviewQuestions: CmsPeerReviewQuestion[] = parsedPeerReviewQuestionConfig.map(
-      (prq) => {
+    const peerReviewQuestions: CmsPeerReviewQuestion[] = parsedPeerReviewQuestionConfig
+      .map((prq) => {
         if (prq.id === id) {
           switch (field) {
             case "question":
@@ -220,14 +220,22 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
             case "answer_required":
               // @ts-expect-error: in this case the event is from a checkbox
               return { ...prq, answer_required: Boolean(event.target.checked) }
+            case "weight": {
+              let newWeight = Number(event.target.value)
+              if (newWeight < 0 || newWeight > 1) {
+                newWeight = 0
+              }
+              return { ...prq, weight: newWeight }
+            }
             default:
               return prq
           }
         } else {
           return prq
         }
-      },
-    )
+      })
+      .sort((o1, o2) => o1.order_number - o2.order_number)
+
     setExerciseAttributes({
       ...exerciseAttributes,
       peer_review_config: JSON.stringify(parsedPeerReviewConfig),
@@ -411,7 +419,6 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                   <div
                     className={css`
                       margin-bottom: 1rem;
-                      margin-top: -0.5rem;
                       padding: 1rem;
                       background-color: ${baseTheme.colors.red[100]};
                       color: ${baseTheme.colors.red[700]};
@@ -437,7 +444,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                 {parsedPeerReviewQuestionConfig &&
                   parsedPeerReviewQuestionConfig
                     .sort((o1, o2) => o1.order_number - o2.order_number)
-                    .map(({ id, question, question_type, answer_required }) => (
+                    .map(({ id, question, question_type, answer_required, weight }) => (
                       <List key={id} id={id}>
                         <StyledQuestion>
                           <StyledSelectField
@@ -450,6 +457,23 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                             id={`peer-review-question-${id}`}
                             onBlur={() => null}
                           />
+                          {question_type === "Scale" &&
+                            parsedPeerReviewConfig?.points_are_all_or_nothing === false && (
+                              <TextField
+                                label="Weight"
+                                type="number"
+                                min={0}
+                                max={1}
+                                step={0.01}
+                                value={weight}
+                                onChange={(e) => {
+                                  handlePeerReviewQuestionValueChange(id, e, "weight")
+                                }}
+                                className={css`
+                                  margin-bottom: 0;
+                                `}
+                              />
+                            )}
                         </StyledQuestion>
                         <StyledQuestionType>
                           <TextAreaField
@@ -465,6 +489,9 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                           <CheckBox
                             label={t("answer-required")}
                             checked={answer_required}
+                            className={css`
+                              margin-top: 0.5rem;
+                            `}
                             onChange={(e) =>
                               handlePeerReviewQuestionValueChange(id, e, "answer_required")
                             }

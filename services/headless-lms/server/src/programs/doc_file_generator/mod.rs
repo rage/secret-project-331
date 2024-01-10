@@ -579,7 +579,8 @@ fn models() {
         order_number: 1,
         peer_review_config_id,
         question: "what?".to_string(),
-        question_type: PeerReviewQuestionType::Essay
+        question_type: PeerReviewQuestionType::Essay,
+        weight: 0.0,
     });
     example!(CourseMaterialExerciseSlide { id, exercise_tasks });
     example!(ExerciseStatus {
@@ -784,6 +785,7 @@ fn models() {
             question: "Was the answer well thought out?".to_string(),
             question_type: PeerReviewQuestionType::Essay,
             answer_required: true,
+            weight: 0.0,
         }
     );
     doc!(Vec, PageWithExercises { page, exercises });

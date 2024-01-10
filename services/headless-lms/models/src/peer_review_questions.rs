@@ -341,3 +341,28 @@ WHERE id IN (
     .await?;
     Ok(res)
 }
+
+/** Modifies the questions in memory so that the weights sum to either 0 or 1. */
+pub fn normalize_peer_review_question_weights(peer_review_questions: &mut [CmsPeerReviewQuestion]) {
+    let total_weight: f32 = peer_review_questions.iter().map(|x| x.weight).sum();
+    if total_weight == 0.0 {
+        return;
+    }
+    info!(
+        "Peer review question weights before normalization: {:?}",
+        peer_review_questions
+            .iter()
+            .map(|x| x.weight)
+            .collect::<Vec<_>>()
+    );
+    for question in peer_review_questions.iter_mut() {
+        question.weight /= total_weight;
+    }
+    info!(
+        "Peer review question weights after normalization: {:?}",
+        peer_review_questions
+            .iter()
+            .map(|x| x.weight)
+            .collect::<Vec<_>>()
+    );
+}

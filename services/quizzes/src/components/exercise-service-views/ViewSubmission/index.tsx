@@ -125,17 +125,17 @@ const SubmissionFeedback: React.FC<{
   const { t } = useTranslation()
 
   let backgroundColor = "#fffaf1"
-  let borderColor = "#f3e5cb"
+  // let borderColor = "#f3e5cb"
   let textColor = "#C25100"
 
   const userScore = itemFeedback.correctnessCoefficient ?? itemFeedback.score
   if (userScore == 1) {
     backgroundColor = "#D5EADF"
-    borderColor = "#cbf3cd"
+    // borderColor = "#cbf3cd"
     textColor = "#246F46"
   } else if (userScore == 0) {
     backgroundColor = "#fff4f5"
-    borderColor = "#f3cbcf"
+    // borderColor = "#f3cbcf"
     textColor = "#d52a3c"
   }
 

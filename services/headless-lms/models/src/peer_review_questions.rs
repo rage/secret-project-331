@@ -344,10 +344,7 @@ WHERE id IN (
 
 /** Modifies the questions in memory so that the weights sum to either 0 or 1. */
 pub fn normalize_peer_review_question_weights(peer_review_questions: &mut [CmsPeerReviewQuestion]) {
-    let total_weight: f32 = peer_review_questions.iter().map(|x| x.weight).sum();
-    if total_weight == 0.0 {
-        return;
-    }
+    peer_review_questions.sort_by(|a, b| a.order_number.cmp(&b.order_number));
     info!(
         "Peer review question weights before normalization: {:?}",
         peer_review_questions
@@ -355,8 +352,18 @@ pub fn normalize_peer_review_question_weights(peer_review_questions: &mut [CmsPe
             .map(|x| x.weight)
             .collect::<Vec<_>>()
     );
-    for question in peer_review_questions.iter_mut() {
+    let (mut allowed_to_have_weight, mut not_allowed_to_have_weight) = peer_review_questions
+        .iter_mut()
+        .partition::<Vec<_>, _>(|q| q.question_type == PeerReviewQuestionType::Scale);
+    let total_weight: f32 = allowed_to_have_weight.iter().map(|x| x.weight).sum();
+    if total_weight == 0.0 {
+        return;
+    }
+    for question in allowed_to_have_weight.iter_mut() {
         question.weight /= total_weight;
+    }
+    for question in not_allowed_to_have_weight.iter_mut() {
+        question.weight = 0.0;
     }
     info!(
         "Peer review question weights after normalization: {:?}",

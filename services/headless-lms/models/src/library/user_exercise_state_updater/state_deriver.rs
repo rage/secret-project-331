@@ -750,6 +750,7 @@ mod tests {
                         create_peer_review_question_scale(q2_id, 0.25),
                         create_peer_review_question_scale(q3_id, 0.25),
                         create_peer_review_question_scale(q4_id, 0.25),
+                        // Extra one to check that ignoring questions works
                         create_peer_review_question_essay(e1_id, 0.25),
                     ],
                     &vec![

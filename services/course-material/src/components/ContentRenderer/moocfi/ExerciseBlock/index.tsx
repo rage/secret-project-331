@@ -633,7 +633,16 @@ const ExerciseBlock: React.FC<
               {postSubmissionMutation.isError && (
                 <ErrorBanner variant={"readOnly"} error={postSubmissionMutation.error} />
               )}
-              {!loginState.isLoading && !loginState.signedIn && (
+              {/* {limit_number_of_tries && maxTries !== null && triesRemaining !== null && (
+                <div
+                  className={css`
+                    color: ${baseTheme.colors.gray[500]};
+                  `}
+                >
+                  {t("tries-remaining-n", { n: triesRemaining })}
+                </div>
+              )} */}
+              {!loginState.isPending && !loginState.signedIn && (
                 <div>{t("please-log-in-to-answer-exercise")}</div>
               )}
             </div>

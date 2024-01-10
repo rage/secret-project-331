@@ -61,7 +61,7 @@ export interface UserItemAnswerMatrix {
   valid: boolean
   quizItemId: string
   matrix: string[][]
-  optionCells: string[][]
+  optionCells?: string[][]
 }
 /**
  * @see {@link PrivateSpecQuizItemTimelineItem}

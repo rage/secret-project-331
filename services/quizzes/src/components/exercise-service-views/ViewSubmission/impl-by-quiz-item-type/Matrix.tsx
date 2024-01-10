@@ -98,7 +98,7 @@ const MatrixSubmission: React.FC<
     isStudentsAnswer: boolean,
   ): isCellCorrectObject => {
     if (!correctAnswers) {
-      if (!isStudentsAnswer && modelSolution) {
+      if (!isStudentsAnswer && modelSolution?.optionCells) {
         return {
           text: modelSolution.optionCells[row][column],
           correct: null,

@@ -232,6 +232,8 @@
 <a href="#232" id="232">232</a>
 <a href="#233" id="233">233</a>
 <a href="#234" id="234">234</a>
+<a href="#235" id="235">235</a>
+<a href="#236" id="236">236</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/cms/organizations`.
 
 </span><span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
@@ -239,6 +241,7 @@
 <span class="kw">use </span>models::{
     pages::{Page, PageVisibility},
     peer_review_configs::{<span class="self">self</span>, CmsPeerReviewConfiguration},
+    peer_review_questions::normalize_cms_peer_review_questions,
 };
 
 <span class="kw">use </span>models::research_forms::{
@@ -337,10 +340,11 @@ BINARY_DATA
         Res::Course(<span class="kw-2">*</span>course_id),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-
+    <span class="kw">let </span><span class="kw-2">mut </span>config = payload.<span class="number">0</span>;
+    normalize_cms_peer_review_questions(<span class="kw-2">&amp;mut </span>config.peer_review_questions);
     <span class="kw">let </span>cms_peer_review_configuration =
         peer_review_configs::upsert_course_default_cms_peer_review_and_questions(
-            <span class="kw-2">&amp;mut </span>conn, <span class="kw-2">&amp;</span>payload.<span class="number">0</span>,
+            <span class="kw-2">&amp;mut </span>conn, <span class="kw-2">&amp;</span>config,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
     token.authorized_ok(web::Json(cms_peer_review_configuration))

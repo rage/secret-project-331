@@ -160,6 +160,9 @@
 <a href="#160" id="160">160</a>
 <a href="#161" id="161">161</a>
 <a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Always update the user_exercise_state table though this module
 //!
 
@@ -174,6 +177,7 @@
     exercises::Exercise,
     peer_review_configs::PeerReviewConfig,
     peer_review_question_submissions::PeerReviewQuestionSubmission,
+    peer_review_questions::PeerReviewQuestion,
     peer_review_queue_entries::PeerReviewQueueEntry,
     peer_review_submissions::PeerReviewSubmission,
     prelude::<span class="kw-2">*</span>,
@@ -203,6 +207,7 @@
         Vec&lt;PeerReviewQuestionSubmission&gt;,
     <span class="kw">pub </span>peer_review_queue_entry: <span class="prelude-ty">Option</span>&lt;PeerReviewQueueEntry&gt;,
     <span class="kw">pub </span>peer_review_config: PeerReviewConfig,
+    <span class="kw">pub </span>peer_review_questions: Vec&lt;PeerReviewQuestion&gt;,
 }
 
 <span class="doccomment">/**
@@ -231,6 +236,7 @@ Same as `UserExerciseStateUpdateRequiredDataPeerReviewInformation` but public an
     <span class="doccomment">/// The outer option is to indicate whether this cached value is provided or not, and the inner option is to tell whether the answer has been added to the the peer review queue or not
     </span><span class="kw">pub </span>peer_review_queue_entry: <span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Option</span>&lt;PeerReviewQueueEntry&gt;&gt;,
     <span class="kw">pub </span>peer_review_config: <span class="prelude-ty">Option</span>&lt;PeerReviewConfig&gt;,
+    <span class="kw">pub </span>peer_review_questions: <span class="prelude-ty">Option</span>&lt;Vec&lt;PeerReviewQuestion&gt;&gt;,
 }
 
 <span class="doccomment">/// Loads all required data and updates user_exercise_state. Also creates completions if needed.

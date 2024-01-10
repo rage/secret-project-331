@@ -632,6 +632,11 @@
 <a href="#632" id="632">632</a>
 <a href="#633" id="633">633</a>
 <a href="#634" id="634">634</a>
+<a href="#635" id="635">635</a>
+<a href="#636" id="636">636</a>
+<a href="#637" id="637">637</a>
+<a href="#638" id="638">638</a>
+<a href="#639" id="639">639</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>anyhow::Result;
 <span class="kw">use </span>chrono::{DateTime, Utc};
 <span class="kw">use </span>headless_lms_models::{
@@ -1194,8 +1199,9 @@
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     course_id: Uuid,
     exercise_id: Uuid,
-    accepting_strategy: peer_review_configs::PeerReviewAcceptingStrategy,
+    processing_strategy: peer_review_configs::PeerReviewProcessingStrategy,
     accepting_threshold: f32,
+    points_are_all_or_nothing: bool,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
     <span class="comment">// let prc_id =
     //     peer_review_configs::insert(conn, PKeyPolicy::Generate, course_id, Some(exercise_id))
@@ -1210,7 +1216,8 @@
             peer_reviews_to_give: <span class="number">1</span>,
             peer_reviews_to_receive: <span class="number">0</span>,
             accepting_threshold,
-            accepting_strategy,
+            processing_strategy,
+            points_are_all_or_nothing,
         },
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1225,6 +1232,7 @@
             question: <span class="string">&quot;What are your thoughts on the answer&quot;</span>.to_string(),
             question_type: peer_review_questions::PeerReviewQuestionType::Essay,
             answer_required: <span class="bool-val">true</span>,
+            weight: <span class="number">0.0</span>,
         },
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1239,6 +1247,7 @@
             question: <span class="string">&quot;Was the answer correct?&quot;</span>.to_string(),
             question_type: peer_review_questions::PeerReviewQuestionType::Scale,
             answer_required: <span class="bool-val">true</span>,
+            weight: <span class="number">0.0</span>,
         },
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1253,6 +1262,7 @@
             question: <span class="string">&quot;Was the answer good?&quot;</span>.to_string(),
             question_type: peer_review_questions::PeerReviewQuestionType::Scale,
             answer_required: <span class="bool-val">true</span>,
+            weight: <span class="number">0.0</span>,
         },
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;

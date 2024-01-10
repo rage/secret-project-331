@@ -108,7 +108,8 @@ Content-Type: application/json
       &quot;peer_reviews_to_give&quot;: 2,
       &quot;peer_reviews_to_receive&quot;: 1,
       &quot;accepting_threshold&quot;: 0.5,
-      &quot;accepting_strategy&quot;: &quot;AutomaticallyAcceptOrManualReviewByAverage&quot;
+      &quot;processing_strategy&quot;: &quot;AutomaticallyGradeOrManualReviewByAverage&quot;,
+      &quot;points_are_all_or_nothing&quot;: true
     }
   ],
   &quot;peer_review_questions&quot;: [
@@ -118,7 +119,8 @@ Content-Type: application/json
       &quot;order_number&quot;: 1,
       &quot;question&quot;: &quot;what?&quot;,
       &quot;question_type&quot;: &quot;Essay&quot;,
-      &quot;answer_required&quot;: true
+      &quot;answer_required&quot;: true,
+      &quot;weight&quot;: 0.0
     }
   ],
   &quot;organization_id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;

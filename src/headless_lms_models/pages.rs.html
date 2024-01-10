@@ -3444,6 +3444,18 @@
 <a href="#3444" id="3444">3444</a>
 <a href="#3445" id="3445">3445</a>
 <a href="#3446" id="3446">3446</a>
+<a href="#3447" id="3447">3447</a>
+<a href="#3448" id="3448">3448</a>
+<a href="#3449" id="3449">3449</a>
+<a href="#3450" id="3450">3450</a>
+<a href="#3451" id="3451">3451</a>
+<a href="#3452" id="3452">3452</a>
+<a href="#3453" id="3453">3453</a>
+<a href="#3454" id="3454">3454</a>
+<a href="#3455" id="3455">3455</a>
+<a href="#3456" id="3456">3456</a>
+<a href="#3457" id="3457">3457</a>
+<a href="#3458" id="3458">3458</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::{hash_map, HashMap};
 
 <span class="kw">use </span>futures::future::{BoxFuture, OptionFuture};
@@ -3467,7 +3479,7 @@
     exercises::Exercise,
     page_history::{<span class="self">self</span>, HistoryChangeReason, PageHistoryContent},
     peer_review_configs::CmsPeerReviewConfig,
-    peer_review_questions::CmsPeerReviewQuestion,
+    peer_review_questions::{normalize_cms_peer_review_questions, CmsPeerReviewQuestion},
     prelude::<span class="kw-2">*</span>,
     user_course_settings::{<span class="self">self</span>, UserCourseSettings},
     CourseOrExamId, SpecFetcher,
@@ -4485,8 +4497,14 @@ AND pages.deleted_at IS NULL
     spec_fetcher: <span class="kw">impl </span>SpecFetcher,
     fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;ContentManagementPage&gt; {
-    <span class="kw">let </span>cms_page_update = page_update.cms_page_update;
+    <span class="kw">let </span><span class="kw-2">mut </span>cms_page_update = page_update.cms_page_update;
     cms_page_update.validate_exercise_data()<span class="question-mark">?</span>;
+
+    <span class="kw">for </span>exercise <span class="kw">in </span>cms_page_update.exercises.iter_mut() {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(peer_review_questions) = exercise.peer_review_questions.as_mut() {
+            normalize_cms_peer_review_questions(peer_review_questions);
+        }
+    }
 
     <span class="kw">let </span>parsed_content: Vec&lt;GutenbergBlock&gt; = serde_json::from_value(cms_page_update.content)<span class="question-mark">?</span>;
     <span class="kw">if </span>!page_update.is_exam_page
@@ -5050,7 +5068,7 @@ RETURNING id,
         exercise_id,
         peer_reviews_to_give,
         peer_reviews_to_receive,
-        accepting_strategy,
+        processing_strategy,
         accepting_threshold,
         deleted_at
       ) &quot;</span>,
@@ -5082,7 +5100,7 @@ RETURNING id,
                 .push_bind(safe_for_db_exercise_id)
                 .push_bind(pr.peer_reviews_to_give)
                 .push_bind(pr.peer_reviews_to_receive)
-                .push_bind(pr.accepting_strategy)
+                .push_bind(pr.processing_strategy)
                 .push_bind(pr.accepting_threshold)
                 .push(<span class="string">&quot;NULL&quot;</span>);
         });
@@ -5102,7 +5120,7 @@ SET course_id = excluded.course_id,
   exercise_id = excluded.exercise_id,
   peer_reviews_to_give = excluded.peer_reviews_to_give,
   peer_reviews_to_receive = excluded.peer_reviews_to_receive,
-  accepting_strategy = excluded.accepting_strategy,
+  processing_strategy = excluded.processing_strategy,
   accepting_threshold = excluded.accepting_threshold,
   deleted_at = NULL
 RETURNING id;
@@ -5125,8 +5143,9 @@ SELECT id as &quot;id!&quot;,
   exercise_id,
   peer_reviews_to_give as &quot;peer_reviews_to_give!&quot;,
   peer_reviews_to_receive as &quot;peer_reviews_to_receive!&quot;,
-  accepting_strategy AS &quot;accepting_strategy!: _&quot;,
-  accepting_threshold &quot;accepting_threshold!&quot;
+  processing_strategy AS &quot;processing_strategy!: _&quot;,
+  accepting_threshold &quot;accepting_threshold!&quot;,
+  points_are_all_or_nothing &quot;points_are_all_or_nothing!&quot;
 FROM peer_review_configs
 WHERE id IN (
     SELECT UNNEST($1::uuid [])
@@ -5252,7 +5271,8 @@ SELECT id AS &quot;id!&quot;,
   order_number AS &quot;order_number!&quot;,
   peer_review_config_id AS &quot;peer_review_config_id!&quot;,
   question AS &quot;question!&quot;,
-  question_type AS &quot;question_type!: _&quot;
+  question_type AS &quot;question_type!: _&quot;,
+  weight AS &quot;weight!&quot;
 FROM peer_review_questions
 WHERE id IN (
     SELECT UNNEST($1::uuid [])
@@ -6801,11 +6821,12 @@ WHERE id = $1
             id:pr_id,
             exercise_id: <span class="prelude-val">Some</span>(exercise_id),
             course_id: course,
-            accepting_strategy: <span class="kw">crate</span>::peer_review_configs::PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage,
-            accepting_threshold:<span class="number">0.5</span>,
-            peer_reviews_to_give:<span class="number">2</span>,
-            peer_reviews_to_receive:<span class="number">1
-        </span>};
+            processing_strategy: <span class="kw">crate</span>::peer_review_configs::PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage,
+            accepting_threshold: <span class="number">0.5</span>,
+            peer_reviews_to_give: <span class="number">2</span>,
+            peer_reviews_to_receive: <span class="number">1</span>,
+            points_are_all_or_nothing: <span class="bool-val">true</span>,
+        };
         <span class="kw">let </span>prq = CmsPeerReviewQuestion {
             id: prq_id,
             peer_review_config_id: pr_id,
@@ -6813,6 +6834,7 @@ WHERE id = $1
             order_number: <span class="number">0</span>,
             question: <span class="string">&quot;juu&quot;</span>.to_string(),
             question_type: <span class="kw">crate</span>::peer_review_questions::PeerReviewQuestionType::Essay,
+            weight: <span class="number">0.0</span>,
         };
         <span class="kw">let </span><span class="kw-2">mut </span>remapped_exercises = HashMap::new();
         remapped_exercises.insert(exercise_id, exercise);
@@ -6841,11 +6863,12 @@ WHERE id = $1
             id:pr_id,
             exercise_id: <span class="prelude-val">Some</span>(exercise_id),
             course_id: course,
-            accepting_strategy: <span class="kw">crate</span>::peer_review_configs::PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage,
-            accepting_threshold:<span class="number">0.5</span>,
-            peer_reviews_to_give:<span class="number">2</span>,
-            peer_reviews_to_receive:<span class="number">1
-        </span>};
+            processing_strategy: <span class="kw">crate</span>::peer_review_configs::PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage,
+            accepting_threshold: <span class="number">0.5</span>,
+            peer_reviews_to_give: <span class="number">2</span>,
+            peer_reviews_to_receive: <span class="number">1</span>,
+            points_are_all_or_nothing: <span class="bool-val">true</span>,
+        };
         <span class="kw">let </span>prq = CmsPeerReviewQuestion {
             id: prq_id,
             peer_review_config_id: pr_id,
@@ -6853,6 +6876,7 @@ WHERE id = $1
             order_number: <span class="number">0</span>,
             question: <span class="string">&quot;juu&quot;</span>.to_string(),
             question_type: <span class="kw">crate</span>::peer_review_questions::PeerReviewQuestionType::Essay,
+            weight: <span class="number">0.0</span>,
         };
         <span class="kw">let </span><span class="kw-2">mut </span>remapped_exercises = HashMap::new();
         remapped_exercises.insert(exercise_id, exercise);

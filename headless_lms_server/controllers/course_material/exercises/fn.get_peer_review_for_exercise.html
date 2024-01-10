@@ -94,8 +94,9 @@
       &quot;peer_reviews_to_give&quot;: 3,
       &quot;peer_reviews_to_receive&quot;: 2,
       &quot;accepting_threshold&quot;: 3.0,
-      &quot;accepting_strategy&quot;: &quot;AutomaticallyAcceptOrManualReviewByAverage&quot;,
-      &quot;manual_review_cutoff_in_days&quot;: 21
+      &quot;processing_strategy&quot;: &quot;AutomaticallyGradeOrManualReviewByAverage&quot;,
+      &quot;manual_review_cutoff_in_days&quot;: 21,
+      &quot;points_are_all_or_nothing&quot;: true
     },
     &quot;peer_review_questions&quot;: [
       {
@@ -107,7 +108,8 @@
         &quot;order_number&quot;: 0,
         &quot;question&quot;: &quot;Was the answer well thought out?&quot;,
         &quot;question_type&quot;: &quot;Essay&quot;,
-        &quot;answer_required&quot;: true
+        &quot;answer_required&quot;: true,
+        &quot;weight&quot;: 0.0
       }
     ],
     &quot;num_peer_reviews_given&quot;: 2

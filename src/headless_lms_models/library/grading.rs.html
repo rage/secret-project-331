@@ -610,7 +610,7 @@
     exercise_task_submissions::{<span class="self">self</span>, ExerciseTaskSubmission},
     exercise_tasks::{<span class="self">self</span>, CourseMaterialExerciseTask, ExerciseTask},
     exercises::{<span class="self">self</span>, Exercise, ExerciseStatus, GradingProgress},
-    peer_review_configs::PeerReviewAcceptingStrategy,
+    peer_review_configs::PeerReviewProcessingStrategy,
     peer_review_question_submissions::{
         <span class="self">self</span>, PeerReviewQuestionSubmission, PeerReviewWithQuestionsAndAnswers,
     },
@@ -690,9 +690,9 @@
 </span><span class="kw">pub struct </span>ExerciseStateUpdateNeedToUpdatePeerReviewStatusWithThis {
     <span class="kw">pub </span>given_enough_peer_reviews: bool,
     <span class="kw">pub </span>received_enough_peer_reviews: bool,
-    <span class="kw">pub </span>peer_review_accepting_strategy: PeerReviewAcceptingStrategy,
+    <span class="kw">pub </span>peer_review_processing_strategy: PeerReviewProcessingStrategy,
     <span class="kw">pub </span>peer_review_accepting_threshold: f32,
-    <span class="doccomment">/// Used to for calculating averages when acting on PeerReviewAcceptingStrategy
+    <span class="doccomment">/// Used to for calculating averages when acting on PeerReviewProcessingStrategy
     </span><span class="kw">pub </span>received_peer_review_question_submissions: Vec&lt;PeerReviewQuestionSubmission&gt;,
 }
 

@@ -1800,6 +1800,12 @@
 <a href="#1800" id="1800">1800</a>
 <a href="#1801" id="1801">1801</a>
 <a href="#1802" id="1802">1802</a>
+<a href="#1803" id="1803">1803</a>
+<a href="#1804" id="1804">1804</a>
+<a href="#1805" id="1805">1805</a>
+<a href="#1806" id="1806">1806</a>
+<a href="#1807" id="1807">1807</a>
+<a href="#1808" id="1808">1808</a>
 </pre></div><pre class="rust"><code><span class="doccomment">/*! The doc file generator is used to write example JSON and TypeScript definitions for the docs of return values of API endpoints.
 
 This is done by writing .json and .ts files that can be discovered by the #[generated_doc] attribute macro that is used by API endpoints.
@@ -2219,8 +2225,8 @@ This method is mainly useful for external/std types. For example, we cannot writ
             PageWithExercises,
         },
         peer_review_configs::{
-            CmsPeerReviewConfig, CmsPeerReviewConfiguration, PeerReviewAcceptingStrategy,
-            PeerReviewConfig,
+            CmsPeerReviewConfig, CmsPeerReviewConfiguration, PeerReviewConfig,
+            PeerReviewProcessingStrategy,
         },
         peer_review_question_submissions::PeerReviewWithQuestionsAndAnswers,
         peer_review_questions::{
@@ -2366,20 +2372,23 @@ This method is mainly useful for external/std types. For example, we cannot writ
     });
     <span class="macro">example!</span>(CmsPeerReviewConfig {
         id,
-        accepting_strategy: PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage,
+        processing_strategy:
+            PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage,
         accepting_threshold: <span class="number">0.5</span>,
         course_id,
         exercise_id: <span class="prelude-val">None</span>,
         peer_reviews_to_give: <span class="number">2</span>,
         peer_reviews_to_receive: <span class="number">1</span>,
-    });
+        points_are_all_or_nothing: <span class="bool-val">true
+    </span>});
     <span class="macro">example!</span>(CmsPeerReviewQuestion {
         id,
         answer_required: <span class="bool-val">true</span>,
         order_number: <span class="number">1</span>,
         peer_review_config_id,
         question: <span class="string">&quot;what?&quot;</span>.to_string(),
-        question_type: PeerReviewQuestionType::Essay
+        question_type: PeerReviewQuestionType::Essay,
+        weight: <span class="number">0.0</span>,
     });
     <span class="macro">example!</span>(CourseMaterialExerciseSlide { id, exercise_tasks });
     <span class="macro">example!</span>(ExerciseStatus {
@@ -2566,8 +2575,10 @@ This method is mainly useful for external/std types. For example, we cannot writ
         peer_reviews_to_give: <span class="number">3</span>,
         peer_reviews_to_receive: <span class="number">2</span>,
         accepting_threshold: <span class="number">3.0</span>,
-        accepting_strategy: PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage,
+        processing_strategy:
+            PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage,
         manual_review_cutoff_in_days: <span class="number">21</span>,
+        points_are_all_or_nothing: <span class="bool-val">true</span>,
     });
     <span class="macro">doc!</span>(
         T,
@@ -2582,6 +2593,7 @@ This method is mainly useful for external/std types. For example, we cannot writ
             question: <span class="string">&quot;Was the answer well thought out?&quot;</span>.to_string(),
             question_type: PeerReviewQuestionType::Essay,
             answer_required: <span class="bool-val">true</span>,
+            weight: <span class="number">0.0</span>,
         }
     );
     <span class="macro">doc!</span>(Vec, PageWithExercises { page, exercises });

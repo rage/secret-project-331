@@ -4681,6 +4681,13 @@
 <a href="#4681" id="4681">4681</a>
 <a href="#4682" id="4682">4682</a>
 <a href="#4683" id="4683">4683</a>
+<a href="#4684" id="4684">4684</a>
+<a href="#4685" id="4685">4685</a>
+<a href="#4686" id="4686">4686</a>
+<a href="#4687" id="4687">4687</a>
+<a href="#4688" id="4688">4688</a>
+<a href="#4689" id="4689">4689</a>
+<a href="#4690" id="4690">4690</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span><span class="kw">crate</span>::domain::models_requests::{<span class="self">self</span>, JwtKey};
@@ -4709,8 +4716,8 @@
     page_history::HistoryChangeReason,
     pages::CmsPageUpdate,
     pages::{<span class="self">self</span>, NewCoursePage},
-    peer_review_configs::PeerReviewAcceptingStrategy::{
-        AutomaticallyAcceptOrManualReviewByAverage, AutomaticallyAcceptOrRejectByAverage,
+    peer_review_configs::PeerReviewProcessingStrategy::{
+        AutomaticallyGradeByAverage, AutomaticallyGradeOrManualReviewByAverage,
         ManualReviewEverything,
     },
     proposed_block_edits::NewProposedBlockEdit,
@@ -7993,6 +8000,7 @@
         exercise_1_id,
         ManualReviewEverything,
         <span class="number">3.0</span>,
+        <span class="bool-val">true</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -8097,8 +8105,9 @@
         <span class="kw-2">&amp;mut </span>conn,
         course_id,
         exercise_2_id,
-        AutomaticallyAcceptOrManualReviewByAverage,
+        AutomaticallyGradeOrManualReviewByAverage,
         <span class="number">2.5</span>,
+        <span class="bool-val">true</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -8106,8 +8115,9 @@
         <span class="kw-2">&amp;mut </span>conn,
         course_id,
         exercise_3_id,
-        AutomaticallyAcceptOrRejectByAverage,
+        AutomaticallyGradeByAverage,
         <span class="number">2.0</span>,
+        <span class="bool-val">true</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -9194,6 +9204,7 @@
         exercise_1_id,
         ManualReviewEverything,
         <span class="number">3.0</span>,
+        <span class="bool-val">true</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -9215,7 +9226,7 @@
         exercise_2_slide_1_task_1_spec_1_id,
         exercise_2_slide_1_task_1_spec_2_id,
         exercise_2_slide_1_task_1_spec_3_id,
-        <span class="prelude-val">Some</span>(<span class="string">&quot;AutomaticallyAcceptOrManualReviewByAverage&quot;</span>.to_string()),
+        <span class="prelude-val">Some</span>(<span class="string">&quot;AutomaticallyGradeOrManualReviewByAverage&quot;</span>.to_string()),
         CommonExerciseData {
             exercise_id: exercise_2_id,
             exercise_slide_id: exercise_2_slide_1_id,
@@ -9247,8 +9258,9 @@
         <span class="kw-2">&amp;mut </span>conn,
         course_id,
         exercise_2_id,
-        AutomaticallyAcceptOrManualReviewByAverage,
+        AutomaticallyGradeOrManualReviewByAverage,
         <span class="number">2.5</span>,
+        <span class="bool-val">true</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -9270,7 +9282,7 @@
         exercise_3_slide_1_task_1_spec_1_id,
         exercise_3_slide_1_task_1_spec_2_id,
         exercise_3_slide_1_task_1_spec_3_id,
-        <span class="prelude-val">Some</span>(<span class="string">&quot;AutomaticallyAcceptOrRejectByAverage&quot;</span>.to_string()),
+        <span class="prelude-val">Some</span>(<span class="string">&quot;AutomaticallyGradeByAverage&quot;</span>.to_string()),
         CommonExerciseData {
             exercise_id: exercise_3_id,
             exercise_slide_id: exercise_3_slide_1_id,
@@ -9302,8 +9314,9 @@
         <span class="kw-2">&amp;mut </span>conn,
         course_id,
         exercise_3_id,
-        AutomaticallyAcceptOrRejectByAverage,
+        AutomaticallyGradeByAverage,
         <span class="number">2.0</span>,
+        <span class="bool-val">true</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -9359,6 +9372,7 @@
         exercise_4_id,
         ManualReviewEverything,
         <span class="number">3.0</span>,
+        <span class="bool-val">true</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 

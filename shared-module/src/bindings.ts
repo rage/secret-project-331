@@ -1214,7 +1214,8 @@ export interface CmsPeerReviewConfig {
   peer_reviews_to_give: number
   peer_reviews_to_receive: number
   accepting_threshold: number
-  accepting_strategy: PeerReviewAcceptingStrategy
+  processing_strategy: PeerReviewProcessingStrategy
+  points_are_all_or_nothing: boolean
 }
 
 export interface CmsPeerReviewConfiguration {
@@ -1230,9 +1231,9 @@ export interface CourseMaterialPeerReviewConfig {
   peer_reviews_to_receive: number
 }
 
-export type PeerReviewAcceptingStrategy =
-  | "AutomaticallyAcceptOrRejectByAverage"
-  | "AutomaticallyAcceptOrManualReviewByAverage"
+export type PeerReviewProcessingStrategy =
+  | "AutomaticallyGradeByAverage"
+  | "AutomaticallyGradeOrManualReviewByAverage"
   | "ManualReviewEverything"
 
 export interface PeerReviewConfig {
@@ -1245,8 +1246,9 @@ export interface PeerReviewConfig {
   peer_reviews_to_give: number
   peer_reviews_to_receive: number
   accepting_threshold: number
-  accepting_strategy: PeerReviewAcceptingStrategy
+  processing_strategy: PeerReviewProcessingStrategy
   manual_review_cutoff_in_days: number
+  points_are_all_or_nothing: boolean
 }
 
 export interface PeerReviewSubmission {
@@ -1314,6 +1316,7 @@ export interface CmsPeerReviewQuestion {
   question: string
   question_type: PeerReviewQuestionType
   answer_required: boolean
+  weight: number
 }
 
 export interface PeerReviewQuestion {
@@ -1326,6 +1329,7 @@ export interface PeerReviewQuestion {
   question: string
   question_type: PeerReviewQuestionType
   answer_required: boolean
+  weight: number
 }
 
 export type PeerReviewQuestionType = "Essay" | "Scale"

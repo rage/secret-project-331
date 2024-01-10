@@ -715,7 +715,7 @@ INSERT INTO peer_review_configs (
     exercise_id,
     peer_reviews_to_give,
     peer_reviews_to_receive,
-    accepting_strategy,
+    processing_strategy,
     accepting_threshold
   )
 SELECT uuid_generate_v5($1, id::text),
@@ -723,7 +723,7 @@ SELECT uuid_generate_v5($1, id::text),
   uuid_generate_v5($1, exercise_id::text),
   peer_reviews_to_give,
   peer_reviews_to_receive,
-  accepting_strategy,
+  processing_strategy,
   accepting_threshold
 FROM peer_review_configs
 WHERE course_id = $2

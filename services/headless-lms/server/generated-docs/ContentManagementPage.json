@@ -76,7 +76,8 @@
       "peer_reviews_to_give": 2,
       "peer_reviews_to_receive": 1,
       "accepting_threshold": 0.5,
-      "accepting_strategy": "AutomaticallyAcceptOrManualReviewByAverage"
+      "processing_strategy": "AutomaticallyGradeOrManualReviewByAverage",
+      "points_are_all_or_nothing": true
     }
   ],
   "peer_review_questions": [
@@ -86,7 +87,8 @@
       "order_number": 1,
       "question": "what?",
       "question_type": "Essay",
-      "answer_required": true
+      "answer_required": true,
+      "weight": 0.0
     }
   ],
   "organization_id": "307fa56f-9853-4f5c-afb9-a6736c232f32"

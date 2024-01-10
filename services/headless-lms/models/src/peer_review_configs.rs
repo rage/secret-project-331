@@ -25,8 +25,9 @@ pub struct PeerReviewConfig {
     pub peer_reviews_to_give: i32,
     pub peer_reviews_to_receive: i32,
     pub accepting_threshold: f32,
-    pub accepting_strategy: PeerReviewAcceptingStrategy,
+    pub processing_strategy: PeerReviewProcessingStrategy,
     pub manual_review_cutoff_in_days: i32,
+    pub points_are_all_or_nothing: bool,
 }
 
 /// Like `PeerReviewConfig` but only the fields it's fine to show to all users.
@@ -49,7 +50,8 @@ pub struct CmsPeerReviewConfig {
     pub peer_reviews_to_give: i32,
     pub peer_reviews_to_receive: i32,
     pub accepting_threshold: f32,
-    pub accepting_strategy: PeerReviewAcceptingStrategy,
+    pub processing_strategy: PeerReviewProcessingStrategy,
+    pub points_are_all_or_nothing: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -67,14 +69,14 @@ Some strategies compare the overall received peer review likert answer (1-5) ave
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 #[sqlx(
-    type_name = "peer_review_accepting_strategy",
+    type_name = "peer_review_processing_strategy",
     rename_all = "snake_case"
 )]
-pub enum PeerReviewAcceptingStrategy {
+pub enum PeerReviewProcessingStrategy {
     /// If the average of the peer review likert answers is greater than the threshold, the peer review is accepted, otherwise it is rejected.
-    AutomaticallyAcceptOrRejectByAverage,
+    AutomaticallyGradeByAverage,
     /// If the average of the peer review likert answers is greater than the threshold, the peer review is accepted, otherwise it is sent to be manually reviewed by the teacher.
-    AutomaticallyAcceptOrManualReviewByAverage,
+    AutomaticallyGradeOrManualReviewByAverage,
     /// All answers will be sent to be manually reviewed by the teacher once they have received and given enough peer reviews.
     ManualReviewEverything,
 }
@@ -115,30 +117,35 @@ pub async fn upsert_with_id(
     peer_reviews_to_give,
     peer_reviews_to_receive,
     accepting_threshold,
-    accepting_strategy
+    processing_strategy,
+    points_are_all_or_nothing
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (id) DO
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT (id) DO
 UPDATE
 SET course_id = excluded.course_id,
   exercise_id = excluded.exercise_id,
   peer_reviews_to_give = excluded.peer_reviews_to_give,
   peer_reviews_to_receive = excluded.peer_reviews_to_receive,
   accepting_threshold = excluded.accepting_threshold,
-  accepting_strategy = excluded.accepting_strategy
+  processing_strategy = excluded.processing_strategy,
+  points_are_all_or_nothing = excluded.points_are_all_or_nothing
 RETURNING id,
   course_id,
   exercise_id,
   peer_reviews_to_give,
   peer_reviews_to_receive,
   accepting_threshold,
-  accepting_strategy AS "accepting_strategy:_";"#,
+  processing_strategy AS "processing_strategy:_",
+  points_are_all_or_nothing
+"#,
         pkey_policy.into_uuid(),
         cms_peer_review.course_id,
         cms_peer_review.exercise_id,
         cms_peer_review.peer_reviews_to_give,
         cms_peer_review.peer_reviews_to_receive,
         cms_peer_review.accepting_threshold,
-        cms_peer_review.accepting_strategy as _
+        cms_peer_review.processing_strategy as _,
+        cms_peer_review.points_are_all_or_nothing,
     )
     .fetch_one(conn)
     .await?;
@@ -158,8 +165,9 @@ SELECT id,
   peer_reviews_to_give,
   peer_reviews_to_receive,
   accepting_threshold,
-  accepting_strategy AS "accepting_strategy: _",
-  manual_review_cutoff_in_days
+  processing_strategy AS "processing_strategy: _",
+  manual_review_cutoff_in_days,
+  points_are_all_or_nothing
 FROM peer_review_configs
 WHERE id = $1
   AND deleted_at IS NULL
@@ -188,8 +196,9 @@ SELECT id,
     peer_reviews_to_give,
     peer_reviews_to_receive,
     accepting_threshold,
-    accepting_strategy AS "accepting_strategy: _",
-    manual_review_cutoff_in_days
+    processing_strategy AS "processing_strategy: _",
+    manual_review_cutoff_in_days,
+    points_are_all_or_nothing
 FROM peer_review_configs
 WHERE exercise_id = $1
   AND deleted_at IS NULL
@@ -230,8 +239,9 @@ SELECT id,
   peer_reviews_to_give,
   peer_reviews_to_receive,
   accepting_threshold,
-  accepting_strategy AS "accepting_strategy: _",
-  manual_review_cutoff_in_days
+  processing_strategy AS "processing_strategy: _",
+  manual_review_cutoff_in_days,
+  points_are_all_or_nothing
 FROM peer_review_configs
 WHERE course_id = $1
   AND exercise_id IS NULL
@@ -329,7 +339,8 @@ SELECT pr.id as id,
   pr.peer_reviews_to_give as peer_reviews_to_give,
   pr.peer_reviews_to_receive as peer_reviews_to_receive,
   pr.accepting_threshold as accepting_threshold,
-  pr.accepting_strategy AS "accepting_strategy: _"
+  pr.processing_strategy AS "processing_strategy: _",
+  points_are_all_or_nothing
 from pages p
   join exercises e on p.id = e.page_id
   join peer_review_configs pr on e.id = pr.exercise_id
@@ -381,7 +392,8 @@ SELECT id,
   peer_reviews_to_give,
   peer_reviews_to_receive,
   accepting_threshold,
-  accepting_strategy AS "accepting_strategy: _"
+  processing_strategy AS "processing_strategy: _",
+  points_are_all_or_nothing
 FROM peer_review_configs
 WHERE course_id = $1
   AND exercise_id IS NULL
@@ -407,7 +419,8 @@ SELECT id,
   peer_reviews_to_give,
   peer_reviews_to_receive,
   accepting_threshold,
-  accepting_strategy AS "accepting_strategy:_"
+  processing_strategy AS "processing_strategy:_",
+  points_are_all_or_nothing
 FROM peer_review_configs
 WHERE id = $1;
     "#,

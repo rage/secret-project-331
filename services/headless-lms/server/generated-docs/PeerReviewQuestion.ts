@@ -8,4 +8,5 @@ type PeerReviewQuestion = {
   question: string
   question_type: PeerReviewQuestionType
   answer_required: boolean
+  weight: number
 }

@@ -1,0 +1,10 @@
+ALTER TABLE peer_review_configs DROP COLUMN points_are_all_or_nothing;
+ALTER TABLE peer_review_questions DROP COLUMN weight;
+ALTER TYPE peer_review_processing_strategy
+RENAME TO peer_review_accepting_strategy;
+ALTER TYPE peer_review_accepting_strategy
+RENAME VALUE 'automatically_grade_by_average' TO 'automatically_accept_or_reject_by_average';
+ALTER TYPE peer_review_accepting_strategy
+RENAME VALUE 'automatically_grade_or_manual_review_by_average' TO 'automatically_accept_or_manual_review_by_average';
+ALTER TABLE peer_review_configs
+  RENAME COLUMN processing_strategy TO accepting_strategy;

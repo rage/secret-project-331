@@ -2,6 +2,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { CheckCircle, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
 import { UserItemAnswerMatrix } from "../../../../../types/quizTypes/answer"
 import { PublicSpecQuizItemMatrix } from "../../../../../types/quizTypes/publicSpec"
@@ -84,6 +85,7 @@ const MatrixSubmission: React.FC<
   const modelSolution = quiz_item_model_solution as UserItemAnswerMatrix | null
   const correctAnswers = modelSolution?.matrix
   const studentAnswers = user_quiz_item_answer.matrix
+  const { t } = useTranslation()
 
   if (!studentAnswers) {
     // eslint-disable-next-line i18next/no-literal-string
@@ -197,13 +199,20 @@ const MatrixSubmission: React.FC<
               className={css`
                 display: flex;
                 justify-content: center;
+                align-items: center;
+                margin-top: 0.563rem;
 
-                svg {
-                  margin-top: 0.563;
+                p {
+                  font-family: Raleway, sans-serif;
+                  color: #4c5868;
+                  font-weight: 500;
+                  font-size: 1rem;
+                  margin-left: 0.3rem;
                 }
               `}
             >
-              <CheckCircle color="#69AF8A" size={20} />
+              <CheckCircle color="#69AF8A" size={18} />
+              <p>{t("correct-option-tag")}</p>
             </div>
           </div>
         )}

@@ -71,7 +71,6 @@ const Scale: React.FC<QuizItemComponentProps<PublicSpecQuizItemScale, UserItemAn
           display: flex;
           flex-wrap: wrap;
           gap: 1rem;
-          justify-content: space-between;
           list-style: none;
           padding: 0;
         `}

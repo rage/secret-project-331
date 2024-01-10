@@ -17,6 +17,7 @@
   "column": "Column",
   "correct-answer": "Correct answer",
   "correct-option": "Correct",
+  "correct-option-tag": "Correct option",
   "create-quiz-item-duplicate": "Duplicate previous quiz item",
   "create-quiz-item-same-type": "Create new quiz item of same type",
   "delete": "Delete",

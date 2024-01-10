@@ -80,6 +80,7 @@ const exampleCMSPageUpdate: CmsPageUpdate = {
           order_number: 0,
           question: "how about...",
           question_type: "Essay",
+          weight: 0.3,
         },
       ],
       use_course_default_peer_review_config: false,

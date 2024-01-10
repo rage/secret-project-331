@@ -347,7 +347,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                   target="_blank"
                   rel="noreferrer"
                 >
-                  Course default peer review config
+                  {t("link-course-default-peer-review-config")}
                 </a>
               </div>
             )}
@@ -422,10 +422,9 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                       padding: 1rem;
                       background-color: ${baseTheme.colors.red[100]};
                       color: ${baseTheme.colors.red[700]};
-                      font-weight: bold;
                     `}
                   >
-                    Warning: foo
+                    {t("warning-points-are-all-or-nothing-disabled")}
                   </div>
                 )}
                 <TextField
@@ -486,16 +485,19 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                           />
                         </StyledQuestionType>
                         <StyledQuestion>
-                          <CheckBox
-                            label={t("answer-required")}
-                            checked={answer_required}
-                            className={css`
-                              margin-top: 0.5rem;
-                            `}
-                            onChange={(e) =>
-                              handlePeerReviewQuestionValueChange(id, e, "answer_required")
-                            }
-                          />
+                          {
+                            <CheckBox
+                              label={t("answer-required")}
+                              checked={answer_required}
+                              disabled={question_type === "Scale"}
+                              className={css`
+                                margin-top: 0.5rem;
+                              `}
+                              onChange={(e) =>
+                                handlePeerReviewQuestionValueChange(id, e, "answer_required")
+                              }
+                            />
+                          }
                         </StyledQuestion>
                         <DeleteBtn
                           aria-label={t("delete")}

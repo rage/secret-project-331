@@ -24,12 +24,12 @@ const StyledLink = styled.a`
 `
 
 export interface CongratulationsLinksProps {
-  courseInstanceId: string
+  certificateConfigurationId: string | null
   module: UserModuleCompletionStatus
 }
 
 const CongratulationsLinks: React.FC<React.PropsWithChildren<CongratulationsLinksProps>> = ({
-  courseInstanceId,
+  certificateConfigurationId,
   module,
 }) => {
   const { t } = useTranslation()
@@ -49,9 +49,9 @@ const CongratulationsLinks: React.FC<React.PropsWithChildren<CongratulationsLink
           </Button>
         </a>
       )}
-      {module.certification_enabled && (
+      {module.certification_enabled && certificateConfigurationId && (
         <a
-          href={`/module-certificate?module=${module.module_id}&instance=${courseInstanceId}`}
+          href={`/generate-certificate?module=${module.module_id}&ccid=${certificateConfigurationId}`}
           aria-label={`Generate certificate for completing ${module.name}`}
         >
           <Button variant="tertiary" size="large" disabled={!module.completed}>

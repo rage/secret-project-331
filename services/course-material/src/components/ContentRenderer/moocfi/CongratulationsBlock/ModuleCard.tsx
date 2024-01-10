@@ -80,12 +80,12 @@ const StyledFailedIcon = styled(FailedIcon)`
 `
 
 export interface ModuleCardProps {
-  courseInstanceId: string
+  certificateConfigurationId: string | null
   module: UserModuleCompletionStatus
 }
 
 const ModuleCard: React.FC<React.PropsWithChildren<ModuleCardProps>> = ({
-  courseInstanceId,
+  certificateConfigurationId,
   module,
 }) => {
   const { t } = useTranslation()
@@ -111,7 +111,10 @@ const ModuleCard: React.FC<React.PropsWithChildren<ModuleCardProps>> = ({
       >
         {module.name}
       </h2>
-      <CongratulationsLinks courseInstanceId={courseInstanceId} module={module} />
+      <CongratulationsLinks
+        certificateConfigurationId={certificateConfigurationId}
+        module={module}
+      />
     </Wrapper>
   )
 }

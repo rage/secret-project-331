@@ -11,7 +11,7 @@ test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
-test("test", async ({ page }) => {
+test("Creating a course an returning an exercise works", async ({ page }) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([

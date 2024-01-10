@@ -16,6 +16,10 @@ import {
   BlockProposal,
   BlockProposalAction,
   BlockProposalInfo,
+  CertificateAllRequirements,
+  CertificateConfiguration,
+  CertificateConfigurationAndRequirements,
+  CertificateConfigurationUpdate,
   CertificateTextAnchor,
   Chapter,
   ChapterScore,
@@ -58,10 +62,7 @@ import {
   CourseMaterialPeerReviewQuestionAnswer,
   CourseMaterialPeerReviewSubmission,
   CourseModule,
-  CourseModuleCertificateConfiguration,
-  CourseModuleCertificateConfigurationUpdate,
   CourseModuleCompletion,
-  CourseModuleCompletionCertificate,
   CourseModuleCompletionWithRegistrationInfo,
   CoursePageWithUserData,
   CourseStructure,
@@ -110,6 +111,7 @@ import {
   Feedback,
   FeedbackBlock,
   FeedbackCount,
+  GeneratedCertificate,
   GetEditProposalsQuery,
   GetFeedbackQuery,
   GradingProgress,
@@ -642,10 +644,8 @@ export function isPoints(obj: unknown): obj is Points {
   )
 }
 
-export function isCourseModuleCompletionCertificate(
-  obj: unknown,
-): obj is CourseModuleCompletionCertificate {
-  const typedObj = obj as CourseModuleCompletionCertificate
+export function isGeneratedCertificate(obj: unknown): obj is GeneratedCertificate {
+  const typedObj = obj as GeneratedCertificate
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["id"] === "string" &&
@@ -653,26 +653,20 @@ export function isCourseModuleCompletionCertificate(
     typedObj["updated_at"] instanceof Date &&
     (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
     typeof typedObj["user_id"] === "string" &&
-    typeof typedObj["course_module_id"] === "string" &&
-    typeof typedObj["course_instance_id"] === "string" &&
     typeof typedObj["name_on_certificate"] === "string" &&
-    typeof typedObj["verification_id"] === "string"
+    typeof typedObj["verification_id"] === "string" &&
+    typeof typedObj["certificate_configuration_id"] === "string"
   )
 }
 
-export function isCourseModuleCertificateConfiguration(
-  obj: unknown,
-): obj is CourseModuleCertificateConfiguration {
-  const typedObj = obj as CourseModuleCertificateConfiguration
+export function isCertificateConfiguration(obj: unknown): obj is CertificateConfiguration {
+  const typedObj = obj as CertificateConfiguration
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["id"] === "string" &&
     typedObj["created_at"] instanceof Date &&
     typedObj["updated_at"] instanceof Date &&
     (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
-    typeof typedObj["course_module_id"] === "string" &&
-    (typedObj["course_instance_id"] === null ||
-      typeof typedObj["course_instance_id"] === "string") &&
     typeof typedObj["certificate_owner_name_y_pos"] === "string" &&
     typeof typedObj["certificate_owner_name_x_pos"] === "string" &&
     typeof typedObj["certificate_owner_name_font_size"] === "string" &&
@@ -951,6 +945,29 @@ export function isCourseBreadcrumbInfo(obj: unknown): obj is CourseBreadcrumbInf
   )
 }
 
+export function isCertificateConfigurationAndRequirements(
+  obj: unknown,
+): obj is CertificateConfigurationAndRequirements {
+  const typedObj = obj as CertificateConfigurationAndRequirements
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (isCertificateConfiguration(typedObj["certificate_configuration"]) as boolean) &&
+    (isCertificateAllRequirements(typedObj["requirements"]) as boolean)
+  )
+}
+
+export function isCertificateAllRequirements(obj: unknown): obj is CertificateAllRequirements {
+  const typedObj = obj as CertificateAllRequirements
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["certificate_configuration_id"] === "string" &&
+    Array.isArray(typedObj["course_module_ids"]) &&
+    typedObj["course_module_ids"].every((e: any) => typeof e === "string") &&
+    Array.isArray(typedObj["course_instance_ids"]) &&
+    typedObj["course_instance_ids"].every((e: any) => typeof e === "string")
+  )
+}
+
 export function isEmailTemplate(obj: unknown): obj is EmailTemplate {
   const typedObj = obj as EmailTemplate
   return (
@@ -1011,7 +1028,8 @@ export function isExam(obj: unknown): obj is Exam {
     (typedObj["starts_at"] === null || typedObj["starts_at"] instanceof Date) &&
     (typedObj["ends_at"] === null || typedObj["ends_at"] instanceof Date) &&
     typeof typedObj["time_minutes"] === "number" &&
-    typeof typedObj["minimum_points_treshold"] === "number"
+    typeof typedObj["minimum_points_treshold"] === "number" &&
+    typeof typedObj["language"] === "string"
   )
 }
 
@@ -1850,7 +1868,9 @@ export function isUserModuleCompletionStatus(obj: unknown): obj is UserModuleCom
     (typedObj["grade"] === null || typeof typedObj["grade"] === "number") &&
     (typedObj["passed"] === null || typedObj["passed"] === false || typedObj["passed"] === true) &&
     typeof typedObj["enable_registering_completion_to_uh_open_university"] === "boolean" &&
-    typeof typedObj["certification_enabled"] === "boolean"
+    typeof typedObj["certification_enabled"] === "boolean" &&
+    (typedObj["certificate_configuration_id"] === null ||
+      typeof typedObj["certificate_configuration_id"] === "string")
   )
 }
 
@@ -2265,7 +2285,8 @@ export function isPeerReviewConfig(obj: unknown): obj is PeerReviewConfig {
     typeof typedObj["peer_reviews_to_give"] === "number" &&
     typeof typedObj["peer_reviews_to_receive"] === "number" &&
     typeof typedObj["accepting_threshold"] === "number" &&
-    (isPeerReviewAcceptingStrategy(typedObj["accepting_strategy"]) as boolean)
+    (isPeerReviewAcceptingStrategy(typedObj["accepting_strategy"]) as boolean) &&
+    typeof typedObj["manual_review_cutoff_in_days"] === "number"
   )
 }
 
@@ -3115,7 +3136,8 @@ export function isExamData(obj: unknown): obj is ExamData {
     typedObj["ends_at"] instanceof Date &&
     typeof typedObj["ended"] === "boolean" &&
     typeof typedObj["time_minutes"] === "number" &&
-    (isExamEnrollmentData(typedObj["enrollment_data"]) as boolean)
+    (isExamEnrollmentData(typedObj["enrollment_data"]) as boolean) &&
+    typeof typedObj["language"] === "string"
   )
 }
 
@@ -3148,10 +3170,10 @@ export function isCourseMaterialPeerReviewDataWithToken(
   )
 }
 
-export function isCourseModuleCertificateConfigurationUpdate(
+export function isCertificateConfigurationUpdate(
   obj: unknown,
-): obj is CourseModuleCertificateConfigurationUpdate {
-  const typedObj = obj as CourseModuleCertificateConfigurationUpdate
+): obj is CertificateConfigurationUpdate {
+  const typedObj = obj as CertificateConfigurationUpdate
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["course_module_id"] === "string" &&

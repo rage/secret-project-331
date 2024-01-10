@@ -8,6 +8,8 @@ use flate2::read::GzDecoder;
 use ipnet::IpNet;
 use walkdir::WalkDir;
 
+use crate::ApplicationConfiguration;
+
 pub struct IpToCountryMapper {
     lists: HashMap<String, Vec<ipnet::IpNet>>,
 }
@@ -18,7 +20,7 @@ impl IpToCountryMapper {
 
     Expensive and synchronous.
     */
-    pub fn new() -> anyhow::Result<Self> {
+    pub fn new(app_conf: &ApplicationConfiguration) -> anyhow::Result<Self> {
         let mut lists = HashMap::new();
         if let Ok(ip_to_country_mapping_directory) = env::var("IP_TO_COUNTRY_MAPPING_DIRECTORY") {
             info!("Loading country to ip mapping");
@@ -32,6 +34,7 @@ impl IpToCountryMapper {
                 .max_open(10)
                 .contents_first(false)
                 .sort_by_file_name();
+            let mut some_lists_skipped = true;
             for entry_result in walker {
                 let entry = entry_result?;
                 if !entry.file_type().is_file() {
@@ -43,6 +46,17 @@ impl IpToCountryMapper {
                 } else {
                     file_name.split("v6")
                 };
+
+                // Speed up loading only in bin/dev
+                if app_conf.test_mode
+                    && cfg!(debug_assertions)
+                    && lists.len() > 10
+                    && !file_name.to_lowercase().contains("fi")
+                {
+                    some_lists_skipped = true;
+                    continue;
+                }
+
                 if let Some(country_code) = parts.next() {
                     let list = lists
                         .entry(country_code.to_lowercase())
@@ -56,22 +70,22 @@ impl IpToCountryMapper {
                     for line in contents.trim().lines() {
                         if let Ok(ipnet) = line.parse::<IpNet>() {
                             list.push(ipnet);
-                            // Speed up loading only in bin/dev
+
                             if cfg!(debug_assertions) && (list.len() > 10) {
+                                some_lists_skipped = true;
                                 break;
                             }
                         }
                     }
                 }
-                // Speed up loading only in bin/dev
-                if cfg!(debug_assertions) && lists.len() > 10 {
-                    break;
-                }
             }
             info!(
                 elapsed_time = ?start.elapsed(),
-                "Loaded country to ip mapping"
+                "Loaded ip to country mappings"
             );
+            if some_lists_skipped {
+                warn!("Some ip to country lists were skipped to speed up loading. This should not happen in production.");
+            }
         } else {
             warn!(
                 "IP_TO_COUNTRY_MAPPING_DIRECTORY not specified, not loading ip to country mappings."
@@ -85,9 +99,11 @@ impl IpToCountryMapper {
     pub fn map_ip_to_country(&self, ip: &IpAddr) -> Option<&str> {
         for (country, list) in &self.lists {
             if list.iter().any(|ipnet| ipnet.contains(ip)) {
+                info!("Mapped ip {} to country {}.", ip, country);
                 return Some(country);
             }
         }
+        info!("Ip {} did not resolve to a country.", ip);
         None
     }
 }

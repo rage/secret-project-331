@@ -59,8 +59,8 @@ as well as `<SomeStruct as TS>::inline()` to generated-docs/SomeStruct.ts.
 
 Note that because it uses the example! macro, you can leave out values for fields the same way.
 
-The struct/enum literal can be prepended with T, Opt, or Vec, in order to generate docs for the given type (T), Option of the given type (Opt), or Vec of the given type (Vec).
-Note that they must be in the order T, Opt, Vec, though you can leave any (or all) of them out.
+The struct/enum literal can be prepended with T, Option, or Vec, in order to generate docs for the given type (T), Option of the given type (Opt), or Vec of the given type (Vec).
+Note that they must be in the order T, Option, Vec, though you can leave any (or all) of them out.
 
 For example,
 ```no_run
@@ -174,21 +174,21 @@ macro_rules! doc_path {
 // macro_export mainly for the docs that use it
 #[macro_export]
 macro_rules! doc {
-    (T, Opt, Vec, $($t:tt)*) => {
+    (T, Option, Vec, $($t:tt)*) => {
         ::doc_macro::example!($($t)*);
         doc!(@inner T, $($t)*);
-        doc!(@inner Opt, $($t)*);
+        doc!(@inner Option, $($t)*);
         doc!(@inner Vec, $($t)*);
     };
-    (Opt, Vec, $($t:tt)*) => {
+    (Option, Vec, $($t:tt)*) => {
         ::doc_macro::example!($($t)*);
-        doc!(@inner Opt, $($t)*);
+        doc!(@inner Option, $($t)*);
         doc!(@inner Vec, $($t)*);
     };
-    (T, Opt, $($t:tt)*) => {
+    (T, Option, $($t:tt)*) => {
         ::doc_macro::example!($($t)*);
         doc!(@inner T, $($t)*);
-        doc!(@inner Opt, $($t)*);
+        doc!(@inner Option, $($t)*);
     };
     (T, Vec, $($t:tt)*) => {
         ::doc_macro::example!($($t)*);
@@ -199,9 +199,9 @@ macro_rules! doc {
         ::doc_macro::example!($($t)*);
         doc!(@inner T, $($t)*);
     };
-    (Opt, $($t:tt)*) => {
+    (Option, $($t:tt)*) => {
         ::doc_macro::example!($($t)*);
-        doc!(@inner Opt, $($t)*);
+        doc!(@inner Option, $($t)*);
     };
     (Vec, $($t:tt)*) => {
         ::doc_macro::example!($($t)*);
@@ -211,7 +211,7 @@ macro_rules! doc {
     (@inner T, $i:ident :: $($t:tt)*) => {
         doc!($i, Example::example());
     };
-    (@inner Opt, $i:ident :: $($t:tt)*) => {
+    (@inner Option, $i:ident :: $($t:tt)*) => {
         doc!(Option<$i>, Example::example());
     };
     (@inner Vec, $i:ident :: $($t:tt)*) => {
@@ -221,7 +221,7 @@ macro_rules! doc {
     (@inner T, $i:ident $($t:tt)*) => {
         doc!($i, Example::example());
     };
-    (@inner Opt, $i:ident $($t:tt)*) => {
+    (@inner Option, $i:ident $($t:tt)*) => {
         doc!(Option<$i>, Example::example());
     };
     (@inner Vec, $i:ident $($t:tt)*) => {
@@ -329,7 +329,8 @@ fn controllers() {
         ends_at,
         ended: false,
         time_minutes: 120,
-        enrollment_data: ExamEnrollmentData::NotEnrolled { can_enroll: true }
+        enrollment_data: ExamEnrollmentData::NotEnrolled { can_enroll: true },
+        language: "en-US".to_string()
     });
     doc!(ExerciseSubmissions {
         data,
@@ -340,7 +341,7 @@ fn controllers() {
         modules,
     });
     doc!(
-        Opt,
+        Option,
         UserInfo {
             user_id: Uuid::parse_str("cebcb32b-aa7e-40ad-bc79-9d5c534a8a5a").unwrap(),
             first_name: Some("Example".to_string()),
@@ -367,7 +368,6 @@ fn models() {
         },
         course_instance_enrollments::CourseInstanceEnrollment,
         course_instances::{ChapterScore, CourseInstance, Points},
-        course_module_completion_certificates::CourseModuleCompletionCertificate,
         course_module_completions::{StudyRegistryCompletion, StudyRegistryGrade},
         course_modules::{
             AutomaticCompletionRequirements, CompletionPolicy, CourseModule, NewCourseModule,
@@ -390,6 +390,7 @@ fn models() {
             ActivityProgress, CourseMaterialExercise, Exercise, ExerciseStatus, GradingProgress,
         },
         feedback::{Feedback, FeedbackBlock, FeedbackCount},
+        generated_certificates::GeneratedCertificate,
         glossary::Term,
         library::{
             grading::{
@@ -694,15 +695,15 @@ fn models() {
     });
 
     doc!(
-        Opt,
-        CourseModuleCompletionCertificate {
+        Option,
+        GeneratedCertificate {
             id,
             created_at,
             updated_at,
             deleted_at,
             user_id,
-            course_module_id,
-            course_instance_id,
+            certificate_configuration_id: Uuid::parse_str("f3a571a8-8111-482c-91bc-9fd9f65e3a56")
+                .unwrap(),
             name_on_certificate: "Example User".to_string(),
             verification_id: "a1b2c3d4".to_string(),
         }
@@ -764,6 +765,7 @@ fn models() {
         peer_reviews_to_receive: 2,
         accepting_threshold: 3.0,
         accepting_strategy: PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage,
+        manual_review_cutoff_in_days: 21,
     });
     doc!(
         T,
@@ -858,7 +860,7 @@ fn models() {
     });
     doc!(
         T,
-        Opt,
+        Option,
         Vec,
         CourseInstance {
             id,
@@ -876,7 +878,7 @@ fn models() {
         }
     );
     doc!(
-        Opt,
+        Option,
         UserCourseSettings {
             user_id,
             course_language_group_id: Uuid::parse_str("4b316fae-07d6-4e64-9294-9960cfd1c0ca")
@@ -908,7 +910,7 @@ fn models() {
         ]
     );
     doc!(
-        Opt,
+        Option,
         ExamEnrollment {
             user_id,
             exam_id,
@@ -1059,6 +1061,7 @@ fn models() {
         ends_at,
         time_minutes: 120,
         minimum_points_treshold: 24,
+        language: "en-US".to_string()
     });
     doc!(
         T,
@@ -1113,7 +1116,7 @@ fn models() {
     );
     doc!(
         T,
-        Opt,
+        Option,
         Vec,
         Page {
             id,
@@ -1315,6 +1318,9 @@ fn models() {
                 prerequisite_modules_completed: false,
                 enable_registering_completion_to_uh_open_university: true,
                 certification_enabled: false,
+                certificate_configuration_id: Some(
+                    Uuid::parse_str("cf48b8ad-0fb5-47a4-a4bc-dcc57d66a439").unwrap()
+                )
             },
             UserModuleCompletionStatus {
                 completed: true,
@@ -1327,6 +1333,9 @@ fn models() {
                 prerequisite_modules_completed: false,
                 enable_registering_completion_to_uh_open_university: false,
                 certification_enabled: false,
+                certificate_configuration_id: Some(
+                    Uuid::parse_str("2e831797-328d-4fda-b37a-1e24faaefa06").unwrap()
+                )
             }
         ]
     );
@@ -1710,33 +1719,37 @@ fn models() {
         }
     );
 
-    doc!(ResearchForm {
-        id,
-        course_id,
-        content: serde_json::json!([
-          {
-            "name": "core/paragraph",
-            "isValid": true,
-            "clientId": "c68f55ae-65c4-4e9b-aded-0b52e36e344a",
-            "attributes": {
-              "content": "Please answer this"
-            },
-            "innerBlocks": []
-          },
-          {
-            "name": "moocfi/research-consent-checkbox",
-            "isValid": true,
-            "clientId": "415ecc4c-a5c6-410e-a43f-c14b8ee910ea",
-            "attributes": {
-                "content": "I agree to everything"
-            },
-            "innerBlocks": []
-          }
-        ]),
-        created_at,
-        updated_at,
-        deleted_at,
-    });
+    doc!(
+        T,
+        Option,
+        ResearchForm {
+            id,
+            course_id,
+            content: serde_json::json!([
+              {
+                "name": "core/paragraph",
+                "isValid": true,
+                "clientId": "c68f55ae-65c4-4e9b-aded-0b52e36e344a",
+                "attributes": {
+                  "content": "Please answer this"
+                },
+                "innerBlocks": []
+              },
+              {
+                "name": "moocfi/research-consent-checkbox",
+                "isValid": true,
+                "clientId": "415ecc4c-a5c6-410e-a43f-c14b8ee910ea",
+                "attributes": {
+                    "content": "I agree to everything"
+                },
+                "innerBlocks": []
+              }
+            ]),
+            created_at,
+            updated_at,
+            deleted_at,
+        }
+    );
 
     doc!(
         T,

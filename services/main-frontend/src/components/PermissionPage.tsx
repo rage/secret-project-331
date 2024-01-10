@@ -1,5 +1,4 @@
 import { css } from "@emotion/css"
-import { ExpandMore } from "@mui/icons-material"
 import { useQuery } from "@tanstack/react-query"
 import { CheckCircle, Pencil, XmarkCircle } from "@vectopus/atlas-icons-react"
 import { t as globalT, TFunction } from "i18next"
@@ -16,8 +15,8 @@ import ErrorBanner from "../shared-module/components/ErrorBanner"
 import SelectField from "../shared-module/components/InputFields/SelectField"
 import TextField from "../shared-module/components/InputFields/TextField"
 import useToastMutation from "../shared-module/hooks/useToastMutation"
+import CaretArrowDown from "../shared-module/img/caret-arrow-down.svg"
 import { respondToOrLarger } from "../shared-module/styles/respond"
-
 const SORT_KEY_NAME = "name"
 const SORT_KEY_EMAIL = "email"
 const SORT_KEY_ROLE = "role"
@@ -148,7 +147,7 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
   )
 
   let userList
-  if (roleQuery.isLoading) {
+  if (roleQuery.isPending) {
     userList = <div>{t("loading-text")}</div>
   }
   if (roleQuery.isError) {
@@ -202,7 +201,15 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
                     setSorting(SORT_KEY_NAME)
                   }}
                 >
-                  <ExpandMore />
+                  <CaretArrowDown
+                    className={css`
+                      margin-bottom: 8px;
+                      transform: scale(1.2);
+                      path {
+                        fill: #000;
+                      }
+                    `}
+                  />{" "}
                 </button>
               </th>
               <th>
@@ -226,7 +233,15 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
                     setSorting(SORT_KEY_EMAIL)
                   }}
                 >
-                  <ExpandMore />
+                  <CaretArrowDown
+                    className={css`
+                      margin-bottom: 8px;
+                      transform: scale(1.2);
+                      path {
+                        fill: #000;
+                      }
+                    `}
+                  />
                 </button>
               </th>
               <th>
@@ -250,7 +265,15 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
                     setSorting(SORT_KEY_ROLE)
                   }}
                 >
-                  <ExpandMore />
+                  <CaretArrowDown
+                    className={css`
+                      margin-bottom: 8px;
+                      transform: scale(1.2);
+                      path {
+                        fill: #000;
+                      }
+                    `}
+                  />
                 </button>
               </th>
               <th>{t("label-action")}</th>

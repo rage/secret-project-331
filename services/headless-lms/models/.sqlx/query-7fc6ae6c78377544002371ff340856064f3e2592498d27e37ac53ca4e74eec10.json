@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  course_id,\n  exercise_id,\n  peer_reviews_to_give,\n  peer_reviews_to_receive,\n  accepting_threshold,\n  accepting_strategy AS \"accepting_strategy: _\"\nFROM peer_review_configs\nWHERE id = $1\n  AND deleted_at IS NULL\n        ",
+  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  course_id,\n  exercise_id,\n  peer_reviews_to_give,\n  peer_reviews_to_receive,\n  accepting_threshold,\n  accepting_strategy AS \"accepting_strategy: _\",\n  manual_review_cutoff_in_days\nFROM peer_review_configs\nWHERE id = $1\n  AND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -63,12 +63,17 @@
             }
           }
         }
+      },
+      {
+        "ordinal": 10,
+        "name": "manual_review_cutoff_in_days",
+        "type_info": "Int4"
       }
     ],
     "parameters": {
       "Left": ["Uuid"]
     },
-    "nullable": [false, false, false, true, false, true, false, false, false, false]
+    "nullable": [false, false, false, true, false, true, false, false, false, false, false]
   },
-  "hash": "76d4f28b04383543bc7dbee4815ab0c0d63ded052387db1dfeeaae943e02ea77"
+  "hash": "7fc6ae6c78377544002371ff340856064f3e2592498d27e37ac53ca4e74eec10"
 }

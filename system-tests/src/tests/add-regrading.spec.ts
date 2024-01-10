@@ -4,7 +4,7 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test("test", async ({ page }) => {
+test("Regradings work", async ({ page }) => {
   await page.goto("http://project-331.local/manage/regradings")
   await page.locator("text=New regrading").click()
   await page.locator('textarea[name="exerciseTaskSubmissionIds"]').click()

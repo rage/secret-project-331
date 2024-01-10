@@ -380,7 +380,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
           <ServiceInfoUrlGridArea>
             <TextField label={t("service-info-url")} {...register("url")} />
             {serviceInfoQuery.isError && t("error-fetching-service-info")}
-            {!serviceInfoQuery.isLoading && (
+            {!serviceInfoQuery.isPending && (
               <div
                 className={css`
                   margin-top: -0.7rem;
@@ -509,7 +509,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
                 {t("grading-explanation")}
               </p>
 
-              {submitAnswerMutation.isSuccess && !submitAnswerMutation.isLoading ? (
+              {submitAnswerMutation.isSuccess && !submitAnswerMutation.isPending ? (
                 <StyledPre fullWidth={false}>
                   {JSON.stringify(submitAnswerMutation.data, undefined, 2)}
                 </StyledPre>
@@ -536,10 +536,10 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
               {publicSpecQuery.isError && (
                 <ErrorBanner variant={"readOnly"} error={publicSpecQuery.error} />
               )}
-              {publicSpecQuery.isLoading && publicSpecQuery.isFetching && (
+              {publicSpecQuery.isPending && publicSpecQuery.isFetching && (
                 <Spinner variant={"medium"} />
               )}
-              {publicSpecQuery.isLoading && !publicSpecQuery.isFetching && (
+              {publicSpecQuery.isPending && !publicSpecQuery.isFetching && (
                 <p>{t("error-cannot-load-with-the-given-inputs")}</p>
               )}
               {/* eslint-disable i18next/no-literal-string */}
@@ -561,10 +561,10 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
               {modelSolutionSpecQuery.isError && (
                 <ErrorBanner variant={"readOnly"} error={modelSolutionSpecQuery.error} />
               )}
-              {modelSolutionSpecQuery.isLoading && modelSolutionSpecQuery.isFetching && (
+              {modelSolutionSpecQuery.isPending && modelSolutionSpecQuery.isFetching && (
                 <Spinner variant={"medium"} />
               )}
-              {modelSolutionSpecQuery.isLoading && !modelSolutionSpecQuery.isFetching && (
+              {modelSolutionSpecQuery.isPending && !modelSolutionSpecQuery.isFetching && (
                 <p>{t("error-cannot-load-with-the-given-inputs")}</p>
               )}
               {/* eslint-disable i18next/no-literal-string */}
@@ -739,7 +739,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
                     variant={"primary"}
                     size={"medium"}
                     disabled={
-                      currentStateReceivedFromIframe === null || submitAnswerMutation.isLoading
+                      currentStateReceivedFromIframe === null || submitAnswerMutation.isPending
                     }
                     onClick={() => {
                       if (!currentStateReceivedFromIframe) {

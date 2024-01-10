@@ -1,18 +1,20 @@
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { faPlus } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { PlusCircle } from "@vectopus/atlas-icons-react"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { PrivateSpecQuizItemClosedEndedQuestion } from "../../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
 import Accordion from "../../../../../shared-module/components/Accordion"
+import Button from "../../../../../shared-module/components/Button"
 import RadioButton from "../../../../../shared-module/components/InputFields/RadioButton"
 import SelectField from "../../../../../shared-module/components/InputFields/SelectField"
 import TextField from "../../../../../shared-module/components/InputFields/TextField"
 import { primaryFont } from "../../../../../shared-module/styles"
 import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"
+import ParsedTextField from "../common/ParsedTextField"
 
 interface ClosedEndedQuestionEditorProps {
   quizItemId: string
@@ -107,21 +109,6 @@ const RegexTableFailedCell = styled.td`
   padding: 4px;
   text-align: center;
   text-transform: uppercase;
-`
-
-const CircleButton = styled(FontAwesomeIcon)`
-  background-color: #dae6e5;
-  height: 12px;
-  width: 12px;
-  padding: 4px;
-  display: inline;
-  border-radius: 50%;
-  cursor: pointer;
-  margin-left: 2px;
-
-  :hover {
-    background-color: #bcd1d0;
-  }
 `
 
 const AddNewRowContainer = styled.div`
@@ -312,13 +299,49 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
               />
             ))}
             <AddNewRowContainer>
-              <CircleButton icon={faPlus} onClick={() => addNewString()} />
+              <Button
+                area-aria-label="add example button"
+                className={css`
+                  cursor: pointer;
+                  padding-right: 2px !important;
+                  padding-left: 2px !important;
+                  margin-left: 2px !important;
+                  margin-top: 8px !important;
+                `}
+                size="small"
+                variant="icon"
+                onClick={() => addNewString()}
+              >
+                <PlusCircle
+                  className={css`
+                    background-color: #dae6e5;
+                    display: inline;
+                    border-radius: 50%;
+                    :hover {
+                      background-color: #bcd1d0;
+                    }
+                  `}
+                  size={18}
+                />
+              </Button>
               <p> {t("add-example-string")}</p>
             </AddNewRowContainer>
           </TestButtonContainer>
           <RegexTestTableContainer>
             <RegexTestTable quizItem={selected} testStrings={testStrings} />
           </RegexTestTableContainer>
+          <ParsedTextField
+            value={selected.messageOnModelSolution ?? ""}
+            onChange={(newValue) => {
+              updateState((draft) => {
+                if (!draft) {
+                  return
+                }
+                draft.messageOnModelSolution = newValue
+              })
+            }}
+            label={t("label-message-on-model-solution")}
+          />
         </details>
       </Accordion>
     </EditorCard>

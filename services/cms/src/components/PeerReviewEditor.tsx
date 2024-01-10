@@ -1,9 +1,8 @@
 /* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { faXmark } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useQuery } from "@tanstack/react-query"
+import { XmarkCircle } from "@vectopus/atlas-icons-react"
 import React, { useEffect, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
@@ -296,7 +295,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
     })
   }
 
-  if (defaultCmsPeerReviewConfig.isLoading) {
+  if (defaultCmsPeerReviewConfig.isPending) {
     return <Spinner variant="medium" />
   }
 
@@ -400,6 +399,10 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                   step="0.01"
                   min={0}
                   required
+                  disabled={
+                    parsedPeerReviewConfig.accepting_strategy.toString() ===
+                    "ManualReviewEverything"
+                  }
                   value={parsedPeerReviewConfig.accepting_threshold}
                   onChangeByValue={(value) => {
                     handlePeerReviewValueChange(value, "accepting_threshold")
@@ -445,8 +448,13 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                         <DeleteBtn
                           aria-label={t("delete")}
                           onClick={() => deletePeerReviewQuestion(id)}
+                          className={css`
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                          `}
                         >
-                          <FontAwesomeIcon icon={faXmark} />
+                          <XmarkCircle />
                         </DeleteBtn>
                       </List>
                     ))}

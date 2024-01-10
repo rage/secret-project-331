@@ -1,7 +1,6 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { faCheckCircle, faTimesCircle } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { CheckCircle, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React from "react"
 
 import { UserItemAnswerMatrix } from "../../../../../types/quizTypes/answer"
@@ -124,8 +123,8 @@ const MatrixSubmission: React.FC<
   const rowsCountArray: number[] = []
   const columnsCountArray: number[] = []
 
-  const msRowsCountArray: number[] = []
-  const msColumnsCountArray: number[] = []
+  const modelSolutionRowsCountArray: number[] = []
+  const modelSolutionColumnsCountArray: number[] = []
 
   const containsNonEmptyString = (arr: string[]): boolean =>
     arr.some((item) => typeof item === "string" && item.trim() !== "")
@@ -133,8 +132,8 @@ const MatrixSubmission: React.FC<
   let countRows = 0
   let countColumns = 0
 
-  let msCountRows = 0
-  let msCountColumns = 0
+  let modelSolutionCountRows = 0
+  let modelSolutionCountColumns = 0
 
   studentAnswers?.forEach((answer, index) => {
     if (containsNonEmptyString(answer)) {
@@ -155,14 +154,14 @@ const MatrixSubmission: React.FC<
 
   modelSolutionMatrix?.forEach((answer, index) => {
     if (containsNonEmptyString(answer)) {
-      msRowsCountArray.push(msCountRows)
-      msCountRows += 1
+      modelSolutionRowsCountArray.push(modelSolutionCountRows)
+      modelSolutionCountRows += 1
 
       index == 0 &&
         answer?.forEach((item) => {
           if (item !== "") {
-            msColumnsCountArray.push(msCountColumns)
-            msCountColumns += 1
+            modelSolutionColumnsCountArray.push(modelSolutionCountColumns)
+            modelSolutionCountColumns += 1
           }
         })
     }
@@ -185,13 +184,13 @@ const MatrixSubmission: React.FC<
             columnsCountArray={columnsCountArray}
             findOptionText={findOptionText}
           ></MatrixTable>
-          {correctAnswers && <FontAwesomeIcon icon={faTimesCircle} color="#D75861" size="lg" />}
+          {correctAnswers && <XmarkCircle color="#D75861" size={20} />}
         </div>
         {modelSolutionMatrix && (
           <div>
             <MatrixTable
-              rowsCountArray={msRowsCountArray}
-              columnsCountArray={msColumnsCountArray}
+              rowsCountArray={modelSolutionRowsCountArray}
+              columnsCountArray={modelSolutionColumnsCountArray}
               findOptionText={findOptionText}
             ></MatrixTable>
             <div
@@ -204,7 +203,7 @@ const MatrixSubmission: React.FC<
                 }
               `}
             >
-              <FontAwesomeIcon icon={faCheckCircle} color="#69AF8A" size="lg" />
+              <CheckCircle color="#69AF8A" size={20} />
             </div>
           </div>
         )}

@@ -71,21 +71,38 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
               "Set-state message data is invalid for the specified answer-exercise view type",
             )
           }
-          let public_spec = messageData.data.public_spec
+          let publicSpec = messageData.data.public_spec
           let quiz_answer = messageData.data.previous_submission
+
           if (isOldQuiz(messageData.data.previous_submission as OldQuizAnswer)) {
             quiz_answer = migrateQuizAnswer(
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               (messageData.data.previous_submission as any)?.private_spec as OldQuizAnswer,
-              public_spec as PublicSpecQuiz,
+              publicSpec as PublicSpecQuiz,
             )
           }
-          if (isOldQuiz(public_spec as OldPublicQuiz)) {
-            public_spec = migratePublicSpecQuiz(public_spec as OldPublicQuiz)
+          if (isOldQuiz(publicSpec as OldPublicQuiz)) {
+            publicSpec = migratePublicSpecQuiz(publicSpec as OldPublicQuiz)
           }
+          // An exercise might be edited after the previous submission and some item answers in the previous submission might be for a quiz item that has been removed from the exercise.
+          // We'll filter out those answers here so that we don't submit answers to non-existing quiz items.
+          if (quiz_answer) {
+            console.log("quiz_answer", quiz_answer)
+            console.log("publicSpec", publicSpec)
+            console.log("wat")
+            quiz_answer = {
+              ...(quiz_answer as UserAnswer),
+              itemAnswers: (quiz_answer as UserAnswer).itemAnswers.filter((itemAnswer) =>
+                (publicSpec as PublicSpecQuiz).items.some(
+                  (quizItem) => quizItem.id === itemAnswer.quizItemId,
+                ),
+              ),
+            } satisfies UserAnswer
+          }
+          console.log("quiz_answer after filtering", quiz_answer)
           setState({
             viewType: messageData.view_type,
-            publicSpec: public_spec as PublicSpecQuiz,
+            publicSpec: publicSpec as PublicSpecQuiz,
             userInformation: messageData.user_information,
             previousSubmission: quiz_answer as UserAnswer | null,
           })

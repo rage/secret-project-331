@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO public.course_module_certificate_configurations (\n    course_module_id,\n    course_instance_id,\n    certificate_owner_name_y_pos,\n    certificate_owner_name_x_pos,\n    certificate_owner_name_font_size,\n    certificate_owner_name_text_color,\n    certificate_owner_name_text_anchor,\n    certificate_validate_url_y_pos,\n    certificate_validate_url_x_pos,\n    certificate_validate_url_font_size,\n    certificate_validate_url_text_color,\n    certificate_validate_url_text_anchor,\n    certificate_date_y_pos,\n    certificate_date_x_pos,\n    certificate_date_font_size,\n    certificate_date_text_color,\n    certificate_date_text_anchor,\n    certificate_locale,\n    paper_size,\n    background_svg_path,\n    background_svg_file_upload_id,\n    overlay_svg_path,\n    overlay_svg_file_upload_id\n  )\nVALUES (\n    $1,\n    $2,\n    $3,\n    $4,\n    $5,\n    $6,\n    $7,\n    $8,\n    $9,\n    $10,\n    $11,\n    $12,\n    $13,\n    $14,\n    $15,\n    $16,\n    $17,\n    $18,\n    $19,\n    $20,\n    $21,\n    $22,\n    $23\n  )\nRETURNING id,\n  created_at,\n  updated_at,\n  deleted_at,\n  course_module_id,\n  course_instance_id,\n  certificate_owner_name_y_pos,\n  certificate_owner_name_x_pos,\n  certificate_owner_name_font_size,\n  certificate_owner_name_text_color,\n  certificate_owner_name_text_anchor as \"certificate_owner_name_text_anchor: _\",\n  certificate_validate_url_y_pos,\n  certificate_validate_url_x_pos,\n  certificate_validate_url_font_size,\n  certificate_validate_url_text_color,\n  certificate_validate_url_text_anchor as \"certificate_validate_url_text_anchor: _\",\n  certificate_date_y_pos,\n  certificate_date_x_pos,\n  certificate_date_font_size,\n  certificate_date_text_color,\n  certificate_date_text_anchor as \"certificate_date_text_anchor: _\",\n  certificate_locale,\n  paper_size as \"paper_size: _\",\n  background_svg_path,\n  background_svg_file_upload_id,\n  overlay_svg_path,\n  overlay_svg_file_upload_id\n",
+  "query": "\nINSERT INTO public.certificate_configurations (\n    certificate_owner_name_y_pos,\n    certificate_owner_name_x_pos,\n    certificate_owner_name_font_size,\n    certificate_owner_name_text_color,\n    certificate_owner_name_text_anchor,\n    certificate_validate_url_y_pos,\n    certificate_validate_url_x_pos,\n    certificate_validate_url_font_size,\n    certificate_validate_url_text_color,\n    certificate_validate_url_text_anchor,\n    certificate_date_y_pos,\n    certificate_date_x_pos,\n    certificate_date_font_size,\n    certificate_date_text_color,\n    certificate_date_text_anchor,\n    certificate_locale,\n    paper_size,\n    background_svg_path,\n    background_svg_file_upload_id,\n    overlay_svg_path,\n    overlay_svg_file_upload_id\n  )\nVALUES (\n    $1,\n    $2,\n    $3,\n    $4,\n    $5,\n    $6,\n    $7,\n    $8,\n    $9,\n    $10,\n    $11,\n    $12,\n    $13,\n    $14,\n    $15,\n    $16,\n    $17,\n    $18,\n    $19,\n    $20,\n    $21\n  )\nRETURNING id,\n  created_at,\n  updated_at,\n  deleted_at,\n  certificate_owner_name_y_pos,\n  certificate_owner_name_x_pos,\n  certificate_owner_name_font_size,\n  certificate_owner_name_text_color,\n  certificate_owner_name_text_anchor as \"certificate_owner_name_text_anchor: _\",\n  certificate_validate_url_y_pos,\n  certificate_validate_url_x_pos,\n  certificate_validate_url_font_size,\n  certificate_validate_url_text_color,\n  certificate_validate_url_text_anchor as \"certificate_validate_url_text_anchor: _\",\n  certificate_date_y_pos,\n  certificate_date_x_pos,\n  certificate_date_font_size,\n  certificate_date_text_color,\n  certificate_date_text_anchor as \"certificate_date_text_anchor: _\",\n  certificate_locale,\n  paper_size as \"paper_size: _\",\n  background_svg_path,\n  background_svg_file_upload_id,\n  overlay_svg_path,\n  overlay_svg_file_upload_id\n",
   "describe": {
     "columns": [
       {
@@ -25,36 +25,26 @@
       },
       {
         "ordinal": 4,
-        "name": "course_module_id",
-        "type_info": "Uuid"
-      },
-      {
-        "ordinal": 5,
-        "name": "course_instance_id",
-        "type_info": "Uuid"
-      },
-      {
-        "ordinal": 6,
         "name": "certificate_owner_name_y_pos",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 7,
+        "ordinal": 5,
         "name": "certificate_owner_name_x_pos",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 8,
+        "ordinal": 6,
         "name": "certificate_owner_name_font_size",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 9,
+        "ordinal": 7,
         "name": "certificate_owner_name_text_color",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 10,
+        "ordinal": 8,
         "name": "certificate_owner_name_text_anchor: _",
         "type_info": {
           "Custom": {
@@ -66,27 +56,27 @@
         }
       },
       {
-        "ordinal": 11,
+        "ordinal": 9,
         "name": "certificate_validate_url_y_pos",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 12,
+        "ordinal": 10,
         "name": "certificate_validate_url_x_pos",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 13,
+        "ordinal": 11,
         "name": "certificate_validate_url_font_size",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 14,
+        "ordinal": 12,
         "name": "certificate_validate_url_text_color",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 15,
+        "ordinal": 13,
         "name": "certificate_validate_url_text_anchor: _",
         "type_info": {
           "Custom": {
@@ -98,27 +88,27 @@
         }
       },
       {
-        "ordinal": 16,
+        "ordinal": 14,
         "name": "certificate_date_y_pos",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 17,
+        "ordinal": 15,
         "name": "certificate_date_x_pos",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 18,
+        "ordinal": 16,
         "name": "certificate_date_font_size",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 19,
+        "ordinal": 17,
         "name": "certificate_date_text_color",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 20,
+        "ordinal": 18,
         "name": "certificate_date_text_anchor: _",
         "type_info": {
           "Custom": {
@@ -130,12 +120,12 @@
         }
       },
       {
-        "ordinal": 21,
+        "ordinal": 19,
         "name": "certificate_locale",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 22,
+        "ordinal": 20,
         "name": "paper_size: _",
         "type_info": {
           "Custom": {
@@ -147,30 +137,28 @@
         }
       },
       {
-        "ordinal": 23,
+        "ordinal": 21,
         "name": "background_svg_path",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 24,
+        "ordinal": 22,
         "name": "background_svg_file_upload_id",
         "type_info": "Uuid"
       },
       {
-        "ordinal": 25,
+        "ordinal": 23,
         "name": "overlay_svg_path",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 26,
+        "ordinal": 24,
         "name": "overlay_svg_file_upload_id",
         "type_info": "Uuid"
       }
     ],
     "parameters": {
       "Left": [
-        "Uuid",
-        "Uuid",
         "Varchar",
         "Varchar",
         "Varchar",
@@ -228,8 +216,6 @@
       false,
       true,
       false,
-      true,
-      false,
       false,
       false,
       false,
@@ -252,5 +238,5 @@
       true
     ]
   },
-  "hash": "7223a3531443967d4b50601055af85fafffa93f5fe3432ab7433f14ac8ae7d35"
+  "hash": "6491949eca5c1e065396a2afe016e240f08240309219f56ed8bc570ff8f92d90"
 }

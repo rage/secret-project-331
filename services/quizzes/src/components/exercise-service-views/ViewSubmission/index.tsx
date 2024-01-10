@@ -17,7 +17,10 @@ import {
   UserItemAnswerTimeline,
 } from "../../../../types/quizTypes/answer"
 import { ItemAnswerFeedback } from "../../../../types/quizTypes/grading"
-import { ModelSolutionQuiz } from "../../../../types/quizTypes/modelSolutionSpec"
+import {
+  ModelSolutionQuiz,
+  ModelSolutionQuizItem,
+} from "../../../../types/quizTypes/modelSolutionSpec"
 import { QuizItemType } from "../../../../types/quizTypes/privateSpec"
 import {
   PublicSpecQuiz,
@@ -115,7 +118,10 @@ const FlexItem = styled.div`
   flex: 1;
 `
 
-const SubmissionFeedback: React.FC<{ itemFeedback: ItemAnswerFeedback }> = ({ itemFeedback }) => {
+const SubmissionFeedback: React.FC<{
+  itemFeedback: ItemAnswerFeedback
+  itemModelSolution: ModelSolutionQuizItem | null
+}> = ({ itemFeedback, itemModelSolution }) => {
   const { t } = useTranslation()
 
   let backgroundColor = "#fffaf1"
@@ -148,6 +154,19 @@ const SubmissionFeedback: React.FC<{ itemFeedback: ItemAnswerFeedback }> = ({ it
 
   const customItemFeedback = useMemo(() => {
     const customItemFeedback = itemFeedback.quiz_item_feedback?.trim()
+    // If feedback on model solution is defined, this feedback takes precedence as the user is allowed to see the model solution and the teacher wants to show a custom message on the model solution
+    let messageOnModelSolution = itemModelSolution?.messageOnModelSolution ?? null
+    if (messageOnModelSolution !== null && messageOnModelSolution.trim() !== "") {
+      messageOnModelSolution = messageOnModelSolution.trim()
+      if (
+        !messageOnModelSolution?.endsWith(".") &&
+        !messageOnModelSolution?.endsWith("!") &&
+        !messageOnModelSolution?.endsWith("?")
+      ) {
+        return messageOnModelSolution + "."
+      }
+      return messageOnModelSolution
+    }
     if (
       customItemFeedback === "" ||
       customItemFeedback === null ||
@@ -229,7 +248,10 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
           )[0]
           const feedback = itemAnswerFeedback &&
             componentDescriptor.shouldDisplayCorrectnessMessageAfterAnswer && (
-              <SubmissionFeedback itemFeedback={itemAnswerFeedback} />
+              <SubmissionFeedback
+                itemFeedback={itemAnswerFeedback}
+                itemModelSolution={itemModelSolution}
+              />
             )
           const missingQuizItemAnswer = !quizItemAnswer && (
             <div

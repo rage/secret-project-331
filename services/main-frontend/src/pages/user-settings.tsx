@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import { useQueries, useQuery } from "@tanstack/react-query"
-import React, { useEffect, useState } from "react"
+import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import ResearchOnCoursesForm from "../components/forms/ResearchOnCoursesForm"
@@ -19,7 +19,6 @@ interface Slug {
 const UserSettings: React.FC<React.PropsWithChildren<Slug>> = () => {
   const { t } = useTranslation()
   const [openResearchForm, setOpenResearchForm] = useState<boolean>(false)
-  const [allCourseIds, setAllCourseIds] = useState<string[]>([])
   const getUserConsent = useUserResearchConsentQuery()
 
   const getAllResearchFormAnswers = useQuery({
@@ -35,12 +34,11 @@ const UserSettings: React.FC<React.PropsWithChildren<Slug>> = () => {
     setOpenResearchForm(false)
   }
 
-  // Get course ids of the forms student has answered
-  useEffect(() => {
-    const uniqueCourseIds = getAllResearchFormAnswers.data
+  const allCourseIds = useMemo(() => {
+    const data = getAllResearchFormAnswers.data
       ?.map((obj) => obj.course_id)
       .filter((course_id: string, index, currentVal) => currentVal.indexOf(course_id) === index)
-    setAllCourseIds(uniqueCourseIds ?? [])
+    return data ?? []
   }, [getAllResearchFormAnswers.data])
 
   const breadcrumbQueries =

@@ -2,7 +2,7 @@
 
 use std::{collections::HashMap, net::IpAddr, path::Path};
 
-use actix_http::header;
+use actix_http::header::{self, X_FORWARDED_FOR};
 use actix_web::web::Json;
 use chrono::Utc;
 use futures::{future::OptionFuture, FutureExt};
@@ -34,7 +34,7 @@ use models::{
 
 use crate::{
     domain::authorization::{
-        authorize_access_to_course_material, can_user_view_not_open_chapter, skip_authorize,
+        authorize_access_to_course_material, can_user_view_chapter, skip_authorize,
     },
     prelude::*,
 };
@@ -82,18 +82,25 @@ async fn get_course_page_by_path(
     };
     let user_id = user.map(|u| u.id);
     let course_data = get_nondeleted_course_id_by_slug(&mut conn, &course_slug).await?;
+    let page_with_user_data =
+        models::pages::get_page_with_user_data_by_path(&mut conn, user_id, &course_data, &path)
+            .await?;
 
-    let can_view_not_open_chapters =
-        can_user_view_not_open_chapter(&mut conn, user_id, course_data.id).await?;
-
-    let page_with_user_data = models::pages::get_page_with_user_data_by_path(
+    // Chapters may be closed
+    if !can_user_view_chapter(
         &mut conn,
         user_id,
-        &course_data,
-        &path,
-        can_view_not_open_chapters,
+        page_with_user_data.page.course_id,
+        page_with_user_data.page.chapter_id,
     )
-    .await?;
+    .await?
+    {
+        return Err(ControllerError::new(
+            ControllerErrorType::Unauthorized,
+            "Chapter is not open yet.".to_string(),
+            None,
+        ));
+    }
 
     let token = authorize_access_to_course_material(
         &mut conn,
@@ -196,6 +203,10 @@ async fn derive_information_from_requester(
     ip_to_country_mapper: web::Data<IpToCountryMapper>,
 ) -> ControllerResult<RequestInformation> {
     let mut headers = req.headers().clone();
+    let x_real_ip = headers.get("X-Real-IP");
+    let x_forwarded_for = headers.get(X_FORWARDED_FOR);
+    let connection_info = req.connection_info();
+    let peer_address = connection_info.peer_addr();
     let headers_clone = headers.clone();
     let user_agent = headers_clone.get(header::USER_AGENT);
     let bots = Bots::default();
@@ -221,10 +232,14 @@ async fn derive_information_from_requester(
         .and_then(|ua| ua.to_str().ok())
         .and_then(|ua| user_agent_parser.parse(ua));
 
-    let ip: Option<IpAddr> = req
-        .connection_info()
+    let ip: Option<IpAddr> = connection_info
         .realip_remote_addr()
         .and_then(|ip| ip.parse::<IpAddr>().ok());
+
+    info!(
+        "Ip {:?}, x_real_ip {:?}, x_forwarded_for {:?}, peer_address {:?}",
+        ip, x_real_ip, x_forwarded_for, peer_address
+    );
 
     let country = ip
         .and_then(|ip| ip_to_country_mapper.map_ip_to_country(&ip))
@@ -801,14 +816,15 @@ async fn get_research_form_with_course_id(
     course_id: web::Path<Uuid>,
     user: AuthUser,
     pool: web::Data<PgPool>,
-) -> ControllerResult<web::Json<ResearchForm>> {
+) -> ControllerResult<web::Json<Option<ResearchForm>>> {
     let mut conn = pool.acquire().await?;
     let user_id = Some(user.id);
 
     let token = authorize_access_to_course_material(&mut conn, user_id, *course_id).await?;
 
-    let res =
-        models::research_forms::get_research_form_with_course_id(&mut conn, *course_id).await?;
+    let res = models::research_forms::get_research_form_with_course_id(&mut conn, *course_id)
+        .await
+        .optional()?;
 
     token.authorized_ok(web::Json(res))
 }

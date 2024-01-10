@@ -61,10 +61,10 @@ fn models(target: &mut File) {
         course_instances::CourseInstanceForm,
         course_instances::PointMap,
         course_instances::Points,
-        course_module_completion_certificates::CourseModuleCompletionCertificate,
-        course_module_certificate_configurations::CourseModuleCertificateConfiguration,
-        course_module_certificate_configurations::CertificateTextAnchor,
-        course_module_certificate_configurations::PaperSize,
+        generated_certificates::GeneratedCertificate,
+        certificate_configurations::CertificateConfiguration,
+        certificate_configurations::CertificateTextAnchor,
+        certificate_configurations::PaperSize,
         course_module_completions::CourseModuleCompletionWithRegistrationInfo,
         course_module_completions::CourseModuleCompletion,
         course_modules::AutomaticCompletionRequirements,
@@ -80,6 +80,8 @@ fn models(target: &mut File) {
         courses::CourseUpdate,
         courses::NewCourse,
         courses::CourseBreadcrumbInfo,
+        certificate_configurations::CertificateConfigurationAndRequirements,
+        certificate_configuration_to_requirements::CertificateAllRequirements,
 
         email_templates::EmailTemplate,
         email_templates::EmailTemplateNew,
@@ -290,7 +292,7 @@ fn controllers(target: &mut File) {
         export! {
             target,
 
-            certificates::CourseModuleCertificateConfigurationUpdate,
+            certificates::CertificateConfigurationUpdate,
             courses::GetFeedbackQuery,
             exams::ExamCourseInfo,
             exercise_repositories::NewExerciseRepository,

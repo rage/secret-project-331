@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  course_module_id,\n  course_instance_id,\n  certificate_owner_name_y_pos,\n  certificate_owner_name_x_pos,\n  certificate_owner_name_font_size,\n  certificate_owner_name_text_color,\n  certificate_owner_name_text_anchor as \"certificate_owner_name_text_anchor: _\",\n  certificate_validate_url_y_pos,\n  certificate_validate_url_x_pos,\n  certificate_validate_url_font_size,\n  certificate_validate_url_text_color,\n  certificate_validate_url_text_anchor as \"certificate_validate_url_text_anchor: _\",\n  certificate_date_y_pos,\n  certificate_date_x_pos,\n  certificate_date_font_size,\n  certificate_date_text_color,\n  certificate_date_text_anchor as \"certificate_date_text_anchor: _\",\n  certificate_locale,\n  paper_size as \"paper_size: _\",\n  background_svg_path,\n  background_svg_file_upload_id,\n  overlay_svg_path,\n  overlay_svg_file_upload_id\nFROM course_module_certificate_configurations\nWHERE course_instance_id = $1\n  AND deleted_at IS NULL\n        ",
+  "query": "\nSELECT cc.id,\n  cc.created_at,\n  cc.updated_at,\n  cc.deleted_at,\n  cc.certificate_owner_name_y_pos,\n  cc.certificate_owner_name_x_pos,\n  cc.certificate_owner_name_font_size,\n  cc.certificate_owner_name_text_color,\n  cc.certificate_owner_name_text_anchor as \"certificate_owner_name_text_anchor: _\",\n  cc.certificate_validate_url_y_pos,\n  cc.certificate_validate_url_x_pos,\n  cc.certificate_validate_url_font_size,\n  cc.certificate_validate_url_text_color,\n  cc.certificate_validate_url_text_anchor as \"certificate_validate_url_text_anchor: _\",\n  cc.certificate_date_y_pos,\n  cc.certificate_date_x_pos,\n  cc.certificate_date_font_size,\n  cc.certificate_date_text_color,\n  cc.certificate_date_text_anchor as \"certificate_date_text_anchor: _\",\n  cc.certificate_locale,\n  cc.paper_size as \"paper_size: _\",\n  cc.background_svg_path,\n  cc.background_svg_file_upload_id,\n  cc.overlay_svg_path,\n  cc.overlay_svg_file_upload_id\nFROM certificate_configurations cc\nJOIN certificate_configuration_to_requirements cctr ON cc.id = cctr.certificate_configuration_id\nWHERE cctr.course_instance_id = $1\n  AND cc.deleted_at IS NULL\n  AND cctr.deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -25,36 +25,26 @@
       },
       {
         "ordinal": 4,
-        "name": "course_module_id",
-        "type_info": "Uuid"
-      },
-      {
-        "ordinal": 5,
-        "name": "course_instance_id",
-        "type_info": "Uuid"
-      },
-      {
-        "ordinal": 6,
         "name": "certificate_owner_name_y_pos",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 7,
+        "ordinal": 5,
         "name": "certificate_owner_name_x_pos",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 8,
+        "ordinal": 6,
         "name": "certificate_owner_name_font_size",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 9,
+        "ordinal": 7,
         "name": "certificate_owner_name_text_color",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 10,
+        "ordinal": 8,
         "name": "certificate_owner_name_text_anchor: _",
         "type_info": {
           "Custom": {
@@ -66,27 +56,27 @@
         }
       },
       {
-        "ordinal": 11,
+        "ordinal": 9,
         "name": "certificate_validate_url_y_pos",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 12,
+        "ordinal": 10,
         "name": "certificate_validate_url_x_pos",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 13,
+        "ordinal": 11,
         "name": "certificate_validate_url_font_size",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 14,
+        "ordinal": 12,
         "name": "certificate_validate_url_text_color",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 15,
+        "ordinal": 13,
         "name": "certificate_validate_url_text_anchor: _",
         "type_info": {
           "Custom": {
@@ -98,27 +88,27 @@
         }
       },
       {
-        "ordinal": 16,
+        "ordinal": 14,
         "name": "certificate_date_y_pos",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 17,
+        "ordinal": 15,
         "name": "certificate_date_x_pos",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 18,
+        "ordinal": 16,
         "name": "certificate_date_font_size",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 19,
+        "ordinal": 17,
         "name": "certificate_date_text_color",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 20,
+        "ordinal": 18,
         "name": "certificate_date_text_anchor: _",
         "type_info": {
           "Custom": {
@@ -130,12 +120,12 @@
         }
       },
       {
-        "ordinal": 21,
+        "ordinal": 19,
         "name": "certificate_locale",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 22,
+        "ordinal": 20,
         "name": "paper_size: _",
         "type_info": {
           "Custom": {
@@ -147,22 +137,22 @@
         }
       },
       {
-        "ordinal": 23,
+        "ordinal": 21,
         "name": "background_svg_path",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 24,
+        "ordinal": 22,
         "name": "background_svg_file_upload_id",
         "type_info": "Uuid"
       },
       {
-        "ordinal": 25,
+        "ordinal": 23,
         "name": "overlay_svg_path",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 26,
+        "ordinal": 24,
         "name": "overlay_svg_file_upload_id",
         "type_info": "Uuid"
       }
@@ -173,8 +163,6 @@
     "nullable": [
       false,
       false,
-      false,
-      true,
       false,
       true,
       false,
@@ -200,5 +188,5 @@
       true
     ]
   },
-  "hash": "99b1997af8d5aa3529b09bedb96ce42e45865a370df916c56c2d5775717a8af2"
+  "hash": "ed1976f70ab893575699042392d4293928d718276489cdf0827e7a6ded0f072d"
 }

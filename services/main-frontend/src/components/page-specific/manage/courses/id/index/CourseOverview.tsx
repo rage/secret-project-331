@@ -14,7 +14,7 @@ const CourseOverview: React.FC<React.PropsWithChildren<CourseManagementPagesProp
   return (
     <>
       {courseQuery.isError && <ErrorBanner error={courseQuery.error} variant={"readOnly"} />}
-      {courseQuery.isLoading && <Spinner variant={"medium"} />}
+      {courseQuery.isPending && <Spinner variant={"medium"} />}
       {courseQuery.isSuccess && (
         <ManageCourse course={courseQuery.data} refetch={courseQuery.refetch} />
       )}

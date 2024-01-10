@@ -24,7 +24,7 @@ export default function useAuthorizeMultiple(
     queryFn: () => {
       return authorizeMultiple(requests)
     },
-    cacheTime: 15 * 60 * 1000,
+    gcTime: 15 * 60 * 1000,
     enabled: requests.length > 0,
   })
 

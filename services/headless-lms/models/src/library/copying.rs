@@ -271,6 +271,7 @@ WHERE id = $2;
         time_minutes: copied_exam.time_minutes,
         page_id: get_page_id.page_id,
         minimum_points_treshold: copied_exam.minimum_points_treshold,
+        language: copied_exam.language.unwrap_or("en-US".to_string()),
     })
 }
 
@@ -463,33 +464,41 @@ async fn map_old_exr_ids_to_new_exr_ids_for_courses(
 ) -> ModelResult<HashMap<String, String>> {
     let old_to_new_exercise_ids = sqlx::query!(
         "
-        INSERT INTO exercises (
-            id,
-            course_id,
-            name,
-            deadline,
-            page_id,
-            score_maximum,
-            order_number,
-            chapter_id,
-            copied_from,
-            exercise_language_group_id
-          )
-        SELECT uuid_generate_v5($1, id::text),
-          $1,
-          name,
-          deadline,
-          uuid_generate_v5($1, page_id::text),
-          score_maximum,
-          order_number,
-          uuid_generate_v5($1, chapter_id::text),
-          id,
-          exercise_language_group_id
-        FROM exercises
-        WHERE course_id = $2
-        AND deleted_at IS NULL
-        RETURNING id,
-          copied_from;
+INSERT INTO exercises (
+    id,
+    course_id,
+    name,
+    deadline,
+    page_id,
+    score_maximum,
+    order_number,
+    chapter_id,
+    copied_from,
+    exercise_language_group_id,
+    max_tries_per_slide,
+    limit_number_of_tries,
+    needs_peer_review,
+    use_course_default_peer_review_config
+  )
+SELECT uuid_generate_v5($1, id::text),
+  $1,
+  name,
+  deadline,
+  uuid_generate_v5($1, page_id::text),
+  score_maximum,
+  order_number,
+  uuid_generate_v5($1, chapter_id::text),
+  id,
+  exercise_language_group_id,
+  max_tries_per_slide,
+  limit_number_of_tries,
+  needs_peer_review,
+  use_course_default_peer_review_config
+FROM exercises
+WHERE course_id = $2
+  AND deleted_at IS NULL
+RETURNING id,
+  copied_from;
             ",
         namespace_id,
         parent_course_id
@@ -524,31 +533,39 @@ async fn map_old_exr_ids_to_new_exr_ids_for_exams(
 ) -> ModelResult<HashMap<String, String>> {
     let old_to_new_exercise_ids = sqlx::query!(
         "
-        INSERT INTO exercises (
-            id,
-            exam_id,
-            name,
-            deadline,
-            page_id,
-            score_maximum,
-            order_number,
-            chapter_id,
-            copied_from
-          )
-        SELECT uuid_generate_v5($1, id::text),
-          $1,
-          name,
-          deadline,
-          uuid_generate_v5($1, page_id::text),
-          score_maximum,
-          order_number,
-          uuid_generate_v5($1, chapter_id::text),
-          id
-        FROM exercises
-        WHERE exam_id = $2
-        AND deleted_at IS NULL
-        RETURNING id,
-          copied_from;
+INSERT INTO exercises (
+    id,
+    exam_id,
+    name,
+    deadline,
+    page_id,
+    score_maximum,
+    order_number,
+    chapter_id,
+    copied_from,
+    max_tries_per_slide,
+    limit_number_of_tries,
+    needs_peer_review,
+    use_course_default_peer_review_config
+  )
+SELECT uuid_generate_v5($1, id::text),
+  $1,
+  name,
+  deadline,
+  uuid_generate_v5($1, page_id::text),
+  score_maximum,
+  order_number,
+  uuid_generate_v5($1, chapter_id::text),
+  id,
+  max_tries_per_slide,
+  limit_number_of_tries,
+  needs_peer_review,
+  use_course_default_peer_review_config
+FROM exercises
+WHERE exam_id = $2
+  AND deleted_at IS NULL
+RETURNING id,
+  copied_from;
             ",
         namespace_id,
         parent_exam_id
@@ -725,6 +742,8 @@ mod tests {
     use super::*;
 
     mod course_copying {
+        use pretty_assertions::assert_eq;
+
         use super::*;
         use crate::{exercise_tasks::ExerciseTask, pages::Page, test_helper::*};
 
@@ -951,6 +970,26 @@ mod tests {
             assert_eq!(copied_exercises.len(), 1);
             let copied_exercise = copied_exercises.first().unwrap();
             assert_eq!(copied_exercise.copied_from, Some(exercise));
+            let original_exercise = crate::exercises::get_by_id(tx.as_mut(), exercise)
+                .await
+                .unwrap();
+            // Assert some important fields are copied correctly.
+            assert_eq!(
+                copied_exercise.max_tries_per_slide,
+                original_exercise.max_tries_per_slide
+            );
+            assert_eq!(
+                copied_exercise.limit_number_of_tries,
+                original_exercise.limit_number_of_tries
+            );
+            assert_eq!(
+                copied_exercise.needs_peer_review,
+                original_exercise.needs_peer_review
+            );
+            assert_eq!(
+                copied_exercise.use_course_default_peer_review_config,
+                original_exercise.use_course_default_peer_review_config
+            );
             let copied_slides = crate::exercise_slides::get_exercise_slides_by_exercise_id(
                 tx.as_mut(),
                 copied_exercise.id,

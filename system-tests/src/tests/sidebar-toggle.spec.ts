@@ -14,7 +14,7 @@ const gutenbergAxeSkip = [
   "aria-required-children",
 ]
 
-test("test", async ({ page, headless }, testInfo) => {
+test("Changing view in the cms sidebar works", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([

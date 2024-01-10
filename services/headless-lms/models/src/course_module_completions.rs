@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use futures::Stream;
 
-use crate::prelude::*;
+use crate::{prelude::*, study_registry_registrars::StudyRegistryRegistrar};
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -541,25 +541,42 @@ impl StudyRegistryGrade {
         }
     }
 }
-
+/// Streams completions.
+///
+/// If no_completions_registered_by_this_study_registry_registrar is None, then all completions are streamed.
 pub fn stream_by_course_module_id<'a>(
     conn: &'a mut PgConnection,
     course_module_ids: &'a [Uuid],
-) -> impl Stream<Item = sqlx::Result<StudyRegistryCompletion>> + 'a {
-    sqlx::query_as!(
+    no_completions_registered_by_this_study_registry_registrar: &'a Option<StudyRegistryRegistrar>,
+) -> impl Stream<Item = sqlx::Result<StudyRegistryCompletion>> + Send + 'a {
+    // If this is none, we're using a null uuid, which will never match anything. Therefore, no completions will be filtered out.
+    let study_module_registrar_id = no_completions_registered_by_this_study_registry_registrar
+        .clone()
+        .map(|o| o.id)
+        .unwrap_or(Uuid::nil());
+    let res = sqlx::query_as!(
         CourseModuleCompletion,
         r#"
 SELECT *
 FROM course_module_completions
 WHERE course_module_id = ANY($1)
   AND prerequisite_modules_completed
-  AND eligible_for_ects
+  AND eligible_for_ects IS TRUE
   AND deleted_at IS NULL
+  AND id NOT IN (
+    SELECT course_module_completion_id
+    FROM course_module_completion_registered_to_study_registries
+    WHERE course_module_id = ANY($1)
+      AND study_registry_registrar_id = $2
+      AND deleted_at IS NULL
+  )
         "#,
         course_module_ids,
+        study_module_registrar_id,
     )
     .map(StudyRegistryCompletion::from)
-    .fetch(conn)
+    .fetch(conn);
+    res
 }
 
 pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {

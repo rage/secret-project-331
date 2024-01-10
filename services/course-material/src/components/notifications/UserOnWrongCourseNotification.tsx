@@ -30,7 +30,7 @@ const UserOnWrongCourseNotification: React.FC<
     return <ErrorBanner variant={"readOnly"} error={getCourseById.error} />
   }
 
-  if (getCourseById.isLoading) {
+  if (getCourseById.isPending) {
     return <Spinner variant={"medium"} />
   }
   const languageHumanReadableName = ietfLanguageTagToHumanReadableName(

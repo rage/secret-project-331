@@ -1,8 +1,6 @@
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
-import { faXmark } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { XmarkCircle } from "@vectopus/atlas-icons-react"
+import { PlusCircle, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -67,7 +65,7 @@ const StyledBtn = styled.button`
   top: 19px;
 
   svg {
-    transform: rotate(45deg) scale(1.2);
+    transform: scale(1.2);
     width: 20px;
     .bg {
       fill: #08457a;
@@ -249,7 +247,7 @@ const TimelineContent: React.FC<React.PropsWithChildren<TimelineContentProps>> =
                     })
                   }}
                 >
-                  <XmarkCircle />{" "}
+                  <XmarkCircle size={22} />
                 </DeleteBtn>
               </ButtonWrapper>
             </List>
@@ -300,7 +298,7 @@ const TimelineContent: React.FC<React.PropsWithChildren<TimelineContentProps>> =
           value={t("submit")}
           disabled={!isValid || isSubmitting}
         >
-          <FontAwesomeIcon icon={faXmark} />
+          <PlusCircle />
         </StyledBtn>
       </StyledForm>
     </Wrapper>

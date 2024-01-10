@@ -1,7 +1,6 @@
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
-import { faAngleDown, faCircleExclamation } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { ExclamationMessage } from "@vectopus/atlas-icons-react"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { usePopper } from "react-popper"
@@ -14,6 +13,7 @@ import {
 } from "../../../../../../shared-module/bindings"
 import Button from "../../../../../../shared-module/components/Button"
 import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
+import ArrowDown from "../../../../../../shared-module/img/caret-arrow-down.svg"
 import { primaryFont } from "../../../../../../shared-module/styles"
 import { respondToOrLarger } from "../../../../../../shared-module/styles/respond"
 import SubmissionIFrame from "../../../../submissions/id/SubmissionIFrame"
@@ -25,12 +25,6 @@ interface Props {
   exerciseMaxPoints: number
   refetch: () => void
 }
-
-const StyledIconDark = styled(FontAwesomeIcon)`
-  font-size: 4rem;
-  color: white;
-  margin: 1.5rem;
-`
 
 const StatusPanel = styled.div`
   border-top: 3px solid rgba(112, 112, 112, 0.1);
@@ -149,7 +143,13 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
         `}
       >
         <TopBar>
-          <StyledIconDark icon={faCircleExclamation} />
+          <ExclamationMessage
+            size={64}
+            className={css`
+              color: white;
+              margin: 1.5rem;
+            `}
+          />
           <div id="text-column">
             <p
               className={css`
@@ -314,12 +314,12 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
                 onClick={handleOpenPopup}
               >
                 {t("button-text-custom-points")}
-                <FontAwesomeIcon
+                <ArrowDown
                   className={css`
-                    margin-left: 0.5em;
+                    transform: scale(1.2);
+                    margin-left: 0.6em;
+                    margin-bottom: 4px;
                   `}
-                  id="fa-angle-down"
-                  icon={faAngleDown}
                 />
               </Button>
             </div>
@@ -358,7 +358,7 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
                 `}
                 type="range"
                 min="0"
-                max="3"
+                max={exerciseMaxPoints}
                 step={0.1}
                 value={typeof sliderValue === "number" ? sliderValue : 0.0}
                 onChange={(event) => setSliderValue(Number(event.target.value))}

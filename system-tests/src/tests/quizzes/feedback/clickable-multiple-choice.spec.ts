@@ -8,7 +8,7 @@ test.use({
   storageState: "src/states/user@example.com.json",
 })
 
-test("test quizzes clickable multiple-choice feedback", async ({ page, headless }, testInfo) => {
+test("quizzes clickable multiple-choice feedback", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([

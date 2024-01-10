@@ -17,6 +17,6 @@ actix-web = "4.4.0"
 # Flexible concrete Error type built on std::error::Error
 anyhow = "1.0.75"
 # Combinators and utilities for working with Futures, Streams, Sinks, and the AsyncRead and AsyncWrite traits.
-futures-util = "0.3.28"
+futures-util = "0.3.29"
 # A runtime for writing reliable network applications without compromising speed.
-tokio = "1.33.0"
+tokio = "1.34.0"

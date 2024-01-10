@@ -8,4 +8,5 @@ type Exam = {
   ends_at: Date | null
   time_minutes: number
   minimum_points_treshold: number
+  language: string
 }

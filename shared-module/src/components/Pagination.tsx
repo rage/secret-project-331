@@ -1,14 +1,12 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import {
-  ChevronLeft as ChevronLeftIcon,
-  ChevronRight as ChevronRightIcon,
-  MoreHoriz as MoreHorizIcon,
-} from "@mui/icons-material"
+import { DotsHorizontal } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { PaginationInfo } from "../hooks/usePaginationInfo"
+import ArrowLeft from "../img/caret-arrow-left.svg"
+import ArrowRight from "../img/caret-arrow-right.svg"
 import { headingFont } from "../styles"
 
 import PaginationItemsPerPage from "./PaginationItemsPerPage"
@@ -123,17 +121,22 @@ const Pagination: React.FC<React.PropsWithChildren<React.PropsWithChildren<Pagin
       <LeftButton
         tabIndex={0}
         role="button"
+        key={t("go-to-previous-page")}
         aria-label={t("go-to-previous-page")}
         onClick={handleChangeEvent(Math.max(1, page - 1))}
       >
-        <ChevronLeftIcon />
+        <ArrowLeft
+          className={css`
+            transform: scale(1.2);
+          `}
+        />
       </LeftButton>,
     )
 
     // In case there is nothing
     if (totalPages === 0) {
       components.push(
-        <SelectedCircle aria-label={t("current-page-x", { number: 1 })}>
+        <SelectedCircle key={t("current-page-x")} aria-label={t("current-page-x", { number: 1 })}>
           <CircleText>1</CircleText>
         </SelectedCircle>,
       )
@@ -141,10 +144,15 @@ const Pagination: React.FC<React.PropsWithChildren<React.PropsWithChildren<Pagin
         <RightButton
           tabIndex={0}
           role="button"
+          key={t("go-to-next-page")}
           aria-label={t("go-to-next-page")}
           onClick={handleChangeEvent(Math.min(page + 1, totalPages))}
         >
-          <ChevronRightIcon />
+          <ArrowRight
+            className={css`
+              transform: scale(1.2);
+            `}
+          />
         </RightButton>,
       )
       return components
@@ -154,7 +162,7 @@ const Pagination: React.FC<React.PropsWithChildren<React.PropsWithChildren<Pagin
       for (let idx = 1; idx <= totalPages; idx++) {
         if (idx == page) {
           components.push(
-            <SelectedCircle aria-label={t("current-page-x", { number: idx })}>
+            <SelectedCircle key={idx} aria-label={t("current-page-x", { number: idx })}>
               <CircleText>{idx}</CircleText>
             </SelectedCircle>,
           )
@@ -163,6 +171,7 @@ const Pagination: React.FC<React.PropsWithChildren<React.PropsWithChildren<Pagin
             <Circle
               tabIndex={0}
               role="button"
+              key={t("go-to-page-x")}
               aria-label={t("go-to-page-x", { number: idx })}
               onClick={handleChangeEvent(idx)}
             >
@@ -176,10 +185,15 @@ const Pagination: React.FC<React.PropsWithChildren<React.PropsWithChildren<Pagin
         <RightButton
           tabIndex={0}
           role="button"
+          key={t("go-to-next-page")}
           aria-label={t("go-to-next-page")}
           onClick={handleChangeEvent(Math.min(page + 1, totalPages))}
         >
-          <ChevronRightIcon />
+          <ArrowRight
+            className={css`
+              transform: scale(1.2);
+            `}
+          />
         </RightButton>,
       )
       return components
@@ -189,7 +203,7 @@ const Pagination: React.FC<React.PropsWithChildren<React.PropsWithChildren<Pagin
       for (let idx = 1; idx <= CAPACITY; idx++) {
         if (idx == page) {
           components.push(
-            <SelectedCircle aria-label={t("current-page-x", { number: idx })}>
+            <SelectedCircle key={idx} aria-label={t("current-page-x", { number: idx })}>
               <CircleText>{idx}</CircleText>
             </SelectedCircle>,
           )
@@ -197,6 +211,7 @@ const Pagination: React.FC<React.PropsWithChildren<React.PropsWithChildren<Pagin
           components.push(
             <Circle
               role="button"
+              key={t("go-to-page-x")}
               aria-label={t("go-to-page-x", { number: idx })}
               onClick={handleChangeEvent(idx)}
             >
@@ -208,22 +223,27 @@ const Pagination: React.FC<React.PropsWithChildren<React.PropsWithChildren<Pagin
       if (totalPages > CAPACITY) {
         components.push(
           <HorizontalDots>
-            <MoreHorizIcon />
+            <DotsHorizontal size={18} weight="bold" />
           </HorizontalDots>,
         )
       }
-      components.push(<Circle onClick={handleChangeEvent(totalPages)}> {totalPages}</Circle>)
+      components.push(
+        <Circle key={totalPages} onClick={handleChangeEvent(totalPages)}>
+          {totalPages}
+        </Circle>,
+      )
     } else if (CAPACITY <= page && page <= totalPages - CAPACITY + 1) {
       components.push(<Circle onClick={handleChangeEvent(1)}> 1 </Circle>)
       components.push(
         <HorizontalDots>
-          <MoreHorizIcon />
+          <DotsHorizontal size={18} weight="bold" />
         </HorizontalDots>,
       )
       components.push(
         <Circle
           tabIndex={0}
           role="button"
+          key={t("go-to-page-x")}
           aria-label={t("go-to-page-x", { number: page - 1 })}
           onClick={handleChangeEvent(page - 1)}
         >
@@ -231,7 +251,10 @@ const Pagination: React.FC<React.PropsWithChildren<React.PropsWithChildren<Pagin
         </Circle>,
       )
       components.push(
-        <SelectedCircle aria-label={t("current-page-x", { number: page })}>
+        <SelectedCircle
+          key={t("current-page-x")}
+          aria-label={t("current-page-x", { number: page })}
+        >
           <CircleText>{page}</CircleText>
         </SelectedCircle>,
       )
@@ -239,6 +262,7 @@ const Pagination: React.FC<React.PropsWithChildren<React.PropsWithChildren<Pagin
         <Circle
           tabIndex={0}
           role="button"
+          key={t("go-to-page-x")}
           aria-label={t("go-to-page-x", { number: page + 1 })}
           onClick={handleChangeEvent(page + 1)}
         >
@@ -247,13 +271,14 @@ const Pagination: React.FC<React.PropsWithChildren<React.PropsWithChildren<Pagin
       )
       components.push(
         <HorizontalDots>
-          <MoreHorizIcon />
+          <DotsHorizontal size={18} weight="bold" />
         </HorizontalDots>,
       )
       components.push(
         <Circle
           tabIndex={0}
           role="button"
+          key={t("go-to-page-x")}
           aria-label={t("go-to-page-x", { number: totalPages })}
           onClick={handleChangeEvent(totalPages)}
         >
@@ -265,6 +290,7 @@ const Pagination: React.FC<React.PropsWithChildren<React.PropsWithChildren<Pagin
         <Circle
           tabIndex={0}
           role="button"
+          key={t("go-to-page-x")}
           aria-label={t("go-to-page-x", { number: 1 })}
           onClick={handleChangeEvent(1)}
         >
@@ -273,13 +299,13 @@ const Pagination: React.FC<React.PropsWithChildren<React.PropsWithChildren<Pagin
       )
       components.push(
         <HorizontalDots>
-          <MoreHorizIcon />
+          <DotsHorizontal size={18} weight="bold" />
         </HorizontalDots>,
       )
       for (let idx = totalPages - CAPACITY + 1; idx <= totalPages; idx++) {
         if (idx == page) {
           components.push(
-            <SelectedCircle aria-label={t("current-page-x", { number: idx })}>
+            <SelectedCircle key={idx} aria-label={t("current-page-x", { number: idx })}>
               <CircleText>{idx}</CircleText>
             </SelectedCircle>,
           )
@@ -288,6 +314,7 @@ const Pagination: React.FC<React.PropsWithChildren<React.PropsWithChildren<Pagin
             <Circle
               tabIndex={0}
               role="button"
+              key={t("go-to-page-x")}
               aria-label={t("go-to-page-x", { number: idx })}
               onClick={handleChangeEvent(idx)}
             >
@@ -300,7 +327,11 @@ const Pagination: React.FC<React.PropsWithChildren<React.PropsWithChildren<Pagin
 
     components.push(
       <RightButton onClick={handleChangeEvent(Math.min(page + 1, totalPages))}>
-        <ChevronRightIcon />
+        <ArrowRight
+          className={css`
+            transform: scale(1.2);
+          `}
+        />
       </RightButton>,
     )
     return components

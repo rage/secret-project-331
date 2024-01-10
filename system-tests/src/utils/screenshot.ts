@@ -42,6 +42,7 @@ type ViewPortDict = { [Property in keyof typeof viewPorts]: number }
 interface ExpectScreenshotsToMatchSnapshotsPropsCommon {
   headless: boolean | undefined
   snapshotName: string
+  useCoordinatesFromTheBottomForSavingYCoordinates?: boolean
   waitForTheseToBeVisibleAndStable?: Locator[]
   waitForTheseToBeGone?: Locator[]
   clearNotifications?: boolean
@@ -76,6 +77,7 @@ export default async function expectScreenshotsToMatchSnapshots({
   snapshotName,
   screenshotOptions,
   waitForTheseToBeVisibleAndStable,
+  useCoordinatesFromTheBottomForSavingYCoordinates,
   beforeScreenshot,
   clearNotifications = false,
   dontWaitForSpinnersToDisappear = false,
@@ -86,116 +88,121 @@ export default async function expectScreenshotsToMatchSnapshots({
   screenshotTarget,
   testInfo,
 }: ExpectScreenshotsToMatchSnapshotsProps): Promise<void> {
-  await test.step(`Expect screenshots to match snapshots "${snapshotName}"`, async () => {
-    let page: Page
-    if (isPage(screenshotTarget)) {
-      page = screenshotTarget
-    } else {
-      page = screenshotTarget.page()
-    }
-    if (!screenshotOptions) {
-      screenshotOptions = {}
-    }
-    if (!screenshotOptions.mask) {
-      screenshotOptions.mask = []
-    }
-    // We always want to mask the objects that have been wrapped with the `MaskOverThisInSystemTests` component
-    screenshotOptions.mask.push(page.locator('[data-mask-over-this-in-system-tests="true"]'))
+  await test.step(
+    `Expect screenshots to match snapshots "${snapshotName}"`,
+    async () => {
+      let page: Page
+      if (isPage(screenshotTarget)) {
+        page = screenshotTarget
+      } else {
+        page = screenshotTarget.page()
+      }
+      if (!screenshotOptions) {
+        screenshotOptions = {}
+      }
+      if (!screenshotOptions.mask) {
+        screenshotOptions.mask = []
+      }
+      // We always want to mask the objects that have been wrapped with the `MaskOverThisInSystemTests` component
+      screenshotOptions.mask.push(page.locator('[data-mask-over-this-in-system-tests="true"]'))
 
-    // If the page has not fully loaded yet, no reason to continue
-    await page.waitForLoadState()
+      // If the page has not fully loaded yet, no reason to continue
+      await page.waitForLoadState()
 
-    if (!dontWaitForSpinnersToDisappear) {
-      // Make sure there are no accidental loading spinners still visible on the page
-      try {
-        await page.waitForTimeout(100)
-        for (let i = 0; i < 2; i++) {
-          const spinnerLocators = await page.locator(`.${SPINNER_CLASS}`).all()
-          await Promise.all(
-            spinnerLocators.map((locator) => locator.waitFor({ state: "detached" })),
+      if (!dontWaitForSpinnersToDisappear) {
+        // Make sure there are no accidental loading spinners still visible on the page
+        try {
+          await page.waitForTimeout(100)
+          for (let i = 0; i < 2; i++) {
+            const spinnerLocators = await page.locator(`.${SPINNER_CLASS}`).all()
+            await Promise.all(
+              spinnerLocators.map((locator) => locator.waitFor({ state: "detached" })),
+            )
+          }
+        } catch (e) {
+          console.warn(`Spinner did not disappear before taking a screenshot: ${e}`)
+          throw new Error(
+            `A spinner was still visible when taking a screenshot. If this is expected, pass dontWaitForSpinnersToDisappear: true to expectScreenshotsToMatchSnapshots.`,
           )
         }
-      } catch (e) {
-        console.warn(`Spinner did not disappear before taking a screenshot: ${e}`)
-        throw new Error(
-          `A spinner was still visible when taking a screenshot. If this is expected, pass dontWaitForSpinnersToDisappear: true to expectScreenshotsToMatchSnapshots.`,
-        )
-      }
-    }
-
-    const originalViewPort = page.viewportSize()
-    try {
-      if (replaceSomePartsWithPlaceholders) {
-        await page.dispatchEvent("body", HIDE_TEXT_IN_SYSTEM_TESTS_EVENT)
       }
 
-      if (waitForTheseToBeVisibleAndStable) {
-        await waitToBeVisible({
-          waitForTheseToBeVisibleAndStable: waitForTheseToBeVisibleAndStable,
-        })
-      }
+      const originalViewPort = page.viewportSize()
+      try {
+        if (replaceSomePartsWithPlaceholders) {
+          await page.dispatchEvent("body", HIDE_TEXT_IN_SYSTEM_TESTS_EVENT)
+        }
+        if (waitForTheseToBeVisibleAndStable) {
+          await waitToBeVisible({
+            waitForTheseToBeVisibleAndStable: waitForTheseToBeVisibleAndStable,
+          })
+        }
 
-      if (clearNotifications) {
-        await page.evaluate(() => {
-          for (const notif of Array.from(
-            document.querySelectorAll<HTMLElement>("#give-feedback-button"),
-          )) {
-            notif.style.display = "none"
-          }
-        })
-        await hideToasts(page)
-      }
+        if (clearNotifications) {
+          await page.evaluate(() => {
+            for (const notif of Array.from(
+              document.querySelectorAll<HTMLElement>("#give-feedback-button"),
+            )) {
+              notif.style.display = "none"
+            }
+          })
+          await hideToasts(page)
+        }
 
-      if (!skipMobile) {
+        if (!skipMobile) {
+          await snapshotWithViewPort({
+            snapshotName,
+            viewPortName: "mobile-tall",
+            screenshotOptions,
+            waitForTheseToBeVisibleAndStable,
+            beforeScreenshot,
+            headless,
+            testInfo,
+            axeSkip,
+            scrollToYCoordinate,
+            replaceSomePartsWithPlaceholders,
+            useCoordinatesFromTheBottomForSavingYCoordinates,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            screenshotTarget: screenshotTarget as any,
+          })
+        }
+
         await snapshotWithViewPort({
           snapshotName,
-          viewPortName: "mobile-tall",
+          viewPortName: "desktop-regular",
           screenshotOptions,
-          waitForTheseToBeVisibleAndStable,
           beforeScreenshot,
           headless,
           testInfo,
+          waitForTheseToBeVisibleAndStable,
           axeSkip,
           scrollToYCoordinate,
           replaceSomePartsWithPlaceholders,
+          useCoordinatesFromTheBottomForSavingYCoordinates,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           screenshotTarget: screenshotTarget as any,
         })
-      }
-
-      await snapshotWithViewPort({
-        snapshotName,
-        viewPortName: "desktop-regular",
-        screenshotOptions,
-        beforeScreenshot,
-        headless,
-        testInfo,
-        waitForTheseToBeVisibleAndStable,
-        axeSkip,
-        scrollToYCoordinate,
-        replaceSomePartsWithPlaceholders,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        screenshotTarget: screenshotTarget as any,
-      })
-    } finally {
-      if (clearNotifications) {
-        await page.evaluate(() => {
-          for (const notif of Array.from(
-            document.querySelectorAll<HTMLElement>("#give-feedback-button"),
-          )) {
-            notif.style.display = "block"
+      } finally {
+        if (clearNotifications) {
+          await page.evaluate(() => {
+            for (const notif of Array.from(
+              document.querySelectorAll<HTMLElement>("#give-feedback-button"),
+            )) {
+              notif.style.display = "block"
+            }
+          })
+        }
+        if (originalViewPort) {
+          // always restore the original viewport
+          await page.setViewportSize(originalViewPort)
+          if (replaceSomePartsWithPlaceholders) {
+            await page.dispatchEvent("body", SHOW_TEXT_IN_SYSTEM_TESTS_EVENT)
           }
-        })
-      }
-      if (originalViewPort) {
-        // always restore the original viewport
-        await page.setViewportSize(originalViewPort)
-        if (replaceSomePartsWithPlaceholders) {
-          await page.dispatchEvent("body", SHOW_TEXT_IN_SYSTEM_TESTS_EVENT)
         }
       }
-    }
-  })
+    },
+    { box: true },
+  )
 }
 
 type SnapshotWithViewPortProps = ExpectScreenshotsToMatchSnapshotsProps & SnapshotWithViewPortExtra
@@ -217,6 +224,7 @@ async function snapshotWithViewPort({
   scrollToYCoordinate,
   replaceSomePartsWithPlaceholders,
   screenshotTarget,
+  useCoordinatesFromTheBottomForSavingYCoordinates,
 }: SnapshotWithViewPortProps) {
   let page: Page
   if (isPage(screenshotTarget)) {
@@ -281,6 +289,7 @@ async function snapshotWithViewPort({
       screenshotOptions,
       testInfo,
       page,
+      useCoordinatesFromTheBottomForSavingYCoordinates,
     )
   } else {
     console.warn("Not in headless mode, skipping screenshot")
@@ -301,6 +310,7 @@ export async function takeScreenshotAndComparetoSnapshot(
   screenshotOptions: ScreenshotOptions | PageScreenshotOptions,
   testInfo: TestInfo,
   page: Page,
+  useCoordinatesFromTheBottomForSavingYCoordinates: boolean | undefined,
 ): Promise<void> {
   const pathToImage = testInfo.snapshotPath(screenshotName)
   let newScreenshot = false
@@ -349,7 +359,11 @@ export async function takeScreenshotAndComparetoSnapshot(
     await ensureImageHasBeenOptimized(pathToImage)
     const savedYCoordinate = await imageSavedPageYCoordinate(pathToImage)
     if (savedYCoordinate === null) {
-      await savePageYCoordinateToImage(pathToImage, page)
+      await savePageYCoordinateToImage(
+        pathToImage,
+        page,
+        useCoordinatesFromTheBottomForSavingYCoordinates,
+      )
     }
   }
 }

@@ -32,7 +32,7 @@ interface ExamProps {
 }
 
 const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const examId = query.id
   const [pageState, pageStateDispatch] = useReducer(
     pageStateReducer,
@@ -65,6 +65,15 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
     }
   }, [exam.isError, exam.isSuccess, exam.data, exam.error])
 
+  useEffect(() => {
+    if (!exam.data) {
+      return
+    }
+    if (i18n.language !== exam.data.language) {
+      i18n.changeLanguage(exam.data.language)
+    }
+  })
+
   const layoutContext = useContext(LayoutContext)
   useEffect(() => {
     layoutContext.setOrganizationSlug(query.organizationSlug)
@@ -78,7 +87,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
     await handleRefresh()
   }, [handleRefresh])
 
-  if (exam.isLoading) {
+  if (exam.isPending) {
     return <Spinner variant="medium" />
   }
 
@@ -172,9 +181,6 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
     </BreakFromCentered>
   )
 
-  const canStartExam =
-    exam.data.enrollment_data.tag === "NotEnrolled" ? exam.data.enrollment_data.can_enroll : false
-
   if (
     exam.data.enrollment_data.tag === "NotEnrolled" ||
     exam.data.enrollment_data.tag === "NotYetStarted"
@@ -188,7 +194,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
               await enrollInExam(examId)
               exam.refetch()
             }}
-            canStartExam={canStartExam}
+            examEnrollmentData={exam.data.enrollment_data}
             examHasStarted={exam.data.starts_at ? isPast(exam.data.starts_at) : false}
             examHasEnded={exam.data.ends_at ? isPast(exam.data.ends_at) : false}
             timeMinutes={exam.data.time_minutes}

@@ -30,16 +30,13 @@ const CongratulationsBlock: React.FC<React.PropsWithChildren<unknown>> = () => {
       {getModuleCompletions.isError && (
         <ErrorBanner error={getModuleCompletions.error} variant="readOnly" />
       )}
-      {getModuleCompletions.isLoading && null}
+      {getModuleCompletions.isPending && null}
       {getModuleCompletions.isSuccess && (
         <>
           {/* This block is only visible after the default module is completed.*/}
           {courseInstanceId && getModuleCompletions.data.some((x) => x.default && x.completed) && (
             <BreakFromCentered sidebar={false}>
-              <Congratulations
-                courseInstanceId={courseInstanceId}
-                modules={getModuleCompletions.data}
-              />
+              <Congratulations modules={getModuleCompletions.data} />
             </BreakFromCentered>
           )}
         </>

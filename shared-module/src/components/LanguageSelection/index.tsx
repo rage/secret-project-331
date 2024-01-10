@@ -1,7 +1,6 @@
 import { css } from "@emotion/css"
-import { faGlobe } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Placement } from "@popperjs/core"
+import { LanguageTranslation } from "@vectopus/atlas-icons-react"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import OutsideClickHandler from "react-outside-click-handler"
@@ -53,6 +52,8 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
     document.cookie = `${LANGUAGE_COOKIE_KEY}=${selectedLanguage[0]}; path=/; SameSite=Strict; max-age=31536000;`
   }
 
+  const noLanguagesToChange = (languages ?? DEFAULT_LANGUAGES).length <= 1
+
   return (
     <>
       <OutsideClickHandler onOutsideClick={() => setVisible(false)}>
@@ -61,11 +62,13 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
           className={css`
             background: none;
             border: none;
-            padding: 0.5rem 1rem;
-
+            padding: 0.6rem 1rem;
+            margin-bottom: 2px;
             :hover {
               cursor: pointer;
             }
+
+            ${noLanguagesToChange && `cursor: not-allowed !important;`}
           `}
           ref={setReferenceElement}
           onClick={(e) => {
@@ -73,12 +76,12 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
             setVisible(!visible)
           }}
         >
-          <FontAwesomeIcon
+          <LanguageTranslation
+            size={18}
             className={css`
-              margin-right: 0.5rem;
+              margin-right: 0.6rem;
             `}
-            icon={faGlobe}
-          />{" "}
+          />
           {t("language")}
         </button>
         <div

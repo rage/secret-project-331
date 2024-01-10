@@ -89,14 +89,10 @@ const ModuleWrapper = styled.div`
 `
 
 export interface CongratulationsProps {
-  courseInstanceId: string
   modules: Array<UserModuleCompletionStatus>
 }
 
-const Congratulations: React.FC<React.PropsWithChildren<CongratulationsProps>> = ({
-  courseInstanceId,
-  modules,
-}) => {
+const Congratulations: React.FC<React.PropsWithChildren<CongratulationsProps>> = ({ modules }) => {
   const { t } = useTranslation()
 
   const someModuleCompleted = modules.some((module) => module.completed)
@@ -126,7 +122,7 @@ const Congratulations: React.FC<React.PropsWithChildren<CongratulationsProps>> =
             .map((module) => (
               <ModuleCard
                 key={module.module_id}
-                courseInstanceId={courseInstanceId}
+                certificateConfigurationId={module.certificate_configuration_id}
                 module={module}
               />
             ))}

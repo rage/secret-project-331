@@ -38,7 +38,7 @@ const PaginationItemsPerPage: React.FC<PaginationItemsPerPageProps> = ({ paginat
         label={t("label-items-per-page")}
         id={"set-pagination-limit"}
         value={paginationInfo.limit.toString()}
-        onChange={(o) => {
+        onChangeByValue={(o) => {
           paginationInfo.setLimit(Number(o))
         }}
         options={options}

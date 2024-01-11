@@ -11,27 +11,27 @@ license.workspace = true
 # and the comment from there.
 [dependencies]
 # An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
-tokio = { version = "1.34.0", features = ["fs", "io-util"] }
+tokio = { version = "1.35.1", features = ["fs", "io-util"] }
 # Additional utilities for working with Tokio.
 tokio-util = { version = "0.7.10", features = ["io"] }
 # Utilities to work with `Stream` and `tokio`.
 tokio-stream = "0.1.14"
 # An implementation of future and streams featuring zero allocations, composability, and itera…
-futures = "0.3.29"
+futures = "0.3.30"
 # A library to generate and parse UUIDs.
 uuid = { version = "1.6.1", features = ["serde", "v4", "v5"] }
 # A generic serialization/deserialization framework
-serde = { version = "1.0.193", features = ["derive"] }
+serde = { version = "1.0.195", features = ["derive"] }
 # Date and time library for Rust
 chrono = { version = "0.4.31", features = ["serde"] }
 # A JSON serialization file format
-serde_json = "1.0.108"
+serde_json = "1.0.111"
 # A crate for uploading files to Google cloud storage, and for generating download urls.
 cloud-storage = { version = "0.11.1", default-features = false, features = ["rustls-tls"] }
 # A library for managing a temporary directory and deleting all contents when it's dropped.
 tempdir = "0.3.7"
 # Type erasure for async trait methods
-async-trait = "0.1.74"
+async-trait = "0.1.77"
 # Types and traits for working with bytes
 bytes = "1.5.0"
 # Random number generators and other randomness functionality.
@@ -58,23 +58,23 @@ ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "07712bf04007472aeeb0
 # An implementation of regular expressions for Rust.
 regex = "1.10.2"
 # Single assignment cells and lazy values.
-once_cell = "1.18.0"
+once_cell = "1.19.0"
 # An LCS based slice and string diffing implementation.
 diff = "0.1.13"
 # This library provides a convenient derive macro for the standard library's std::error::Error trait.
-thiserror = "1.0.50"
+thiserror = "1.0.56"
 # Percent encoding and decoding
 percent-encoding = "2.3.1"
 # Provides types and useful methods for working with IPv4 and IPv6 network addresses.
 ipnet = "2.9.0"
 # Flexible concrete Error type built on std::error::Error
-anyhow = "1.0.75"
+anyhow = "1.0.79"
 # DEFLATE compression and decompression exposed as Read/BufRead/Write streams.
 flate2 = "1.0.28"
 # higher level HTTP client library
-reqwest = "0.11.22"
+reqwest = "0.11.23"
 # Redis driver for Rust.
-redis = { version = "0.23.3", features = ["aio", "tokio-comp"] }
+redis = { version = "0.24.0", features = ["aio", "tokio-comp"] }
 
 [dev-dependencies]
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.

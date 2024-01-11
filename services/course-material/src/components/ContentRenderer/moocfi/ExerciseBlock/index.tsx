@@ -504,7 +504,7 @@ const ExerciseBlock: React.FC<
                 !inSubmissionView && (
                   <button
                     disabled={
-                      postSubmissionMutation.isLoading ||
+                      postSubmissionMutation.isPending ||
                       answers.size < (postThisStateToIFrame?.length ?? 0) ||
                       Array.from(answers.values()).some((x) => !x.valid)
                     }
@@ -611,7 +611,7 @@ const ExerciseBlock: React.FC<
                         disabled={
                           getCourseMaterialExercise.isRefetching ||
                           !getCourseMaterialExercise.data.can_post_submission ||
-                          tryAgainMutation.isLoading
+                          tryAgainMutation.isPending
                         }
                       >
                         {t("try-again")}

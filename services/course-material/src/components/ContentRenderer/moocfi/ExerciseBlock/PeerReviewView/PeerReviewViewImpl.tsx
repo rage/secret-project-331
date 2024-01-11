@@ -19,6 +19,7 @@ import PeerReviewProgress from "../../../../../shared-module/components/PeerRevi
 import Spinner from "../../../../../shared-module/components/Spinner"
 import LoginStateContext from "../../../../../shared-module/contexts/LoginStateContext"
 import useToastMutation from "../../../../../shared-module/hooks/useToastMutation"
+import { narrowContainerWidthPx } from "../../../../../shared-module/styles/constants"
 import getGuestPseudonymousUserId from "../../../../../shared-module/utils/getGuestPseudonymousUserId"
 import { exerciseTaskGradingToExerciseTaskGradingResult } from "../../../../../shared-module/utils/typeMappter"
 import ExerciseTaskIframe from "../ExerciseTaskIframe"

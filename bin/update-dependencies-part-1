@@ -8,13 +8,13 @@ RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
 
 run_command cd "$RELATIVE_PATH"
 
-# if [[ $(git status --porcelain) ]]; then
-#   echo "You have uncommitted changes. Please commit them before running this script."
-#   exit 1
-# fi
+if [[ $(git status --porcelain) ]]; then
+  echo "You have uncommitted changes. Please commit them before running this script."
+  exit 1
+fi
 
-# run_command npm ci
-# run_command bin/npm-ci-all
+run_command npm ci
+run_command bin/npm-ci-all
 
 function update_node_deps() {
   folder=$1
@@ -46,25 +46,25 @@ function update_node_deps() {
   cd -
 }
 
-# update_node_deps "$RELATIVE_PATH" "repo root"
-# update_node_deps "$RELATIVE_PATH/system-tests" "system-tests"
-# update_node_deps "$RELATIVE_PATH/services/cms" "cms"
-# update_node_deps "$RELATIVE_PATH/services/course-material" "course-material"
-# update_node_deps "$RELATIVE_PATH/services/example-exercise" "example-exercise"
-# update_node_deps "$RELATIVE_PATH/services/main-frontend" "main-frontend"
-# update_node_deps "$RELATIVE_PATH/services/quizzes" "quizzes"
-# update_node_deps "$RELATIVE_PATH/services/tmc" "tmc"
+update_node_deps "$RELATIVE_PATH" "repo root"
+update_node_deps "$RELATIVE_PATH/system-tests" "system-tests"
+update_node_deps "$RELATIVE_PATH/services/cms" "cms"
+update_node_deps "$RELATIVE_PATH/services/course-material" "course-material"
+update_node_deps "$RELATIVE_PATH/services/example-exercise" "example-exercise"
+update_node_deps "$RELATIVE_PATH/services/main-frontend" "main-frontend"
+update_node_deps "$RELATIVE_PATH/services/quizzes" "quizzes"
+update_node_deps "$RELATIVE_PATH/services/tmc" "tmc"
 update_node_deps "$RELATIVE_PATH/shared-module" "shared-module"
 
 # Update rust deps
-run_command bin/npm-update-rust
+run_command bin/update-rust
 run_command cd services/headless-lms
 run_command cargo upgrade --incompatible allow --pinned allow --recursive true
 if [[ $(git status --porcelain) ]]; then
   git add .
   git commit -m "Cargo upgrade" --no-verify
 fi
-run_command cargo update --incompatible allow --pinned allow --recursive true
+run_command cargo update --recursive
 if [[ $(git status --porcelain) ]]; then
   git add .
   git commit -m "Cargo update" --no-verify

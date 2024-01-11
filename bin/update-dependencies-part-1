@@ -8,13 +8,13 @@ RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
 
 run_command cd "$RELATIVE_PATH"
 
-if [[ $(git status --porcelain) ]]; then
-  echo "You have uncommitted changes. Please commit them before running this script."
-  exit 1
-fi
+# if [[ $(git status --porcelain) ]]; then
+#   echo "You have uncommitted changes. Please commit them before running this script."
+#   exit 1
+# fi
 
-run_command npm ci
-run_command bin/npm-ci-all
+# run_command npm ci
+# run_command bin/npm-ci-all
 
 function update_node_deps() {
   folder=$1
@@ -34,9 +34,11 @@ function update_node_deps() {
     git add package.json package-lock.json
     git commit -m "Update dependencies for $target_name " --no-verify
   fi
+  set +e
   run_command npm audit fix
   run_command npm audit fix
   run_command npm audit fix
+  set -e
   if [[ $(git status --porcelain) ]]; then
     git add package-lock.json
     git commit -am "npm audit for $target_name" --no-verify
@@ -44,14 +46,14 @@ function update_node_deps() {
   cd -
 }
 
-update_node_deps "$RELATIVE_PATH" "repo root"
-update_node_deps "$RELATIVE_PATH/system-tests" "system-tests"
-update_node_deps "$RELATIVE_PATH/services/cms" "cms"
-update_node_deps "$RELATIVE_PATH/services/course-material" "course-material"
-update_node_deps "$RELATIVE_PATH/services/example-exercise" "example-exercise"
-update_node_deps "$RELATIVE_PATH/services/main-frontend" "main-frontend"
-update_node_deps "$RELATIVE_PATH/services/quizzes" "quizzes"
-update_node_deps "$RELATIVE_PATH/services/tmc" "tmc"
+# update_node_deps "$RELATIVE_PATH" "repo root"
+# update_node_deps "$RELATIVE_PATH/system-tests" "system-tests"
+# update_node_deps "$RELATIVE_PATH/services/cms" "cms"
+# update_node_deps "$RELATIVE_PATH/services/course-material" "course-material"
+# update_node_deps "$RELATIVE_PATH/services/example-exercise" "example-exercise"
+# update_node_deps "$RELATIVE_PATH/services/main-frontend" "main-frontend"
+# update_node_deps "$RELATIVE_PATH/services/quizzes" "quizzes"
+# update_node_deps "$RELATIVE_PATH/services/tmc" "tmc"
 update_node_deps "$RELATIVE_PATH/shared-module" "shared-module"
 
 # Update rust deps

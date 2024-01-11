@@ -57,7 +57,8 @@ test("Limited tries work", async ({ page }) => {
     "http://project-331.local/org/uh-cs/courses/limited-tries/chapter-1/page-6",
   )
 
-  await page.locator("text=Points:0/8").waitFor()
+  // await page.locator("text=Points:0/8").waitFor()
+  await page.locator("div.points").getByText("0/8").waitFor()
 
   await page.locator("text=Tries remaining: 2").waitFor()
 

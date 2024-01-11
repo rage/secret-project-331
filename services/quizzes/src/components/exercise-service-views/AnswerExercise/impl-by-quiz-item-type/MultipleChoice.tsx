@@ -18,7 +18,7 @@ import {
   QUIZ_TITLE_STYLE,
   TWO_DIMENSIONAL_BUTTON_SELECTED,
   TWO_DIMENSIONAL_BUTTON_STYLES,
-} from "./ChooseN"
+} from "./AnswerQuizStyles"
 
 import { QuizItemComponentProps } from "."
 

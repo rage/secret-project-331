@@ -7,7 +7,7 @@ import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import MarkdownText from "../../../MarkdownText"
 
-import { QUIZ_TITLE_STYLE } from "./ChooseN"
+import { QUIZ_TITLE_STYLE } from "./AnswerQuizStyles"
 
 import { QuizItemComponentProps } from "."
 

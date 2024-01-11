@@ -43,17 +43,6 @@ const Essay: React.FunctionComponent<
   const { t } = useTranslation()
   const text = quizItemAnswerState?.textData ?? ""
   const usersWordCount = useMemo(() => wordCount(text), [text])
-  let isValid = null
-
-  if (quizItem?.minWords && quizItem.maxWords) {
-    isValid = usersWordCount >= quizItem?.minWords && usersWordCount <= quizItem.maxWords
-  }
-
-  if (usersWordCount < 1) {
-    isValid = null
-  }
-
-  console.log(isValid, usersWordCount)
 
   return (
     <div
@@ -148,15 +137,15 @@ const Essay: React.FunctionComponent<
             css`
               margin: 0.5rem 0;
               text-transform: uppercase;
-              background: ${isValid === null ? "#f1f1f3" : isValid ? " #66B8B2" : "#746FB0"};
+              background: "#f1f1f3";
 
               p {
-                background: ${isValid === null ? "#c4c4c6" : isValid ? "#50938E" : "#5D5890"};
-                color: ${isValid === null ? "#57606f" : isValid ? "#fff" : "#fff"};
+                background: "#c4c4c6";
+                color: "#57606f";
               }
 
               span {
-                color: ${isValid === null ? "#57606f" : isValid ? "#fff" : "#fff"} !important;
+                color: "#57606f" !important;
               }
             `,
             container,

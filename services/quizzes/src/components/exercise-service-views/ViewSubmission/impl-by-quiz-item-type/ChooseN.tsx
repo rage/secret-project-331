@@ -47,9 +47,6 @@ const MultipleChoiceClickableFeedback: React.FC<
           const backgroundColor = correct
             ? quizTheme.gradingCorrectItemBackground
             : quizTheme.gradingWrongItemBackground
-          // const foregroundColor = correct
-          //   ? quizTheme.gradingCorrectItemColor
-          //   : quizTheme.gradingWrongItemColor
 
           return (
             <button

@@ -131,43 +131,36 @@ const MatrixSubmission: React.FC<
   const containsNonEmptyString = (arr: string[]): boolean =>
     arr.some((item) => typeof item === "string" && item.trim() !== "")
 
-  let countRows = 0
-  let countColumns = 0
-
-  let modelSolutionCountRows = 0
-  let modelSolutionCountColumns = 0
-
-  studentAnswers?.forEach((answer, index) => {
-    if (containsNonEmptyString(answer)) {
-      rowsCountArray.push(countRows)
-      countRows += 1
-
-      index == 0 &&
-        answer?.forEach((item) => {
-          if (item !== "") {
-            columnsCountArray.push(countColumns)
-            countColumns += 1
-          }
-        })
-    }
-  })
-
   const modelSolutionMatrix = modelSolution?.optionCells
 
-  modelSolutionMatrix?.forEach((answer, index) => {
-    if (containsNonEmptyString(answer)) {
-      modelSolutionRowsCountArray.push(modelSolutionCountRows)
-      modelSolutionCountRows += 1
+  const populateRowsAndColumns = (
+    matrixArr: string[][] | undefined,
+    column: number[],
+    row: number[],
+  ) => {
+    let countRows = 0
+    let countColumns = 0
+    return matrixArr?.forEach((answer, index) => {
+      if (containsNonEmptyString(answer)) {
+        column.push(countRows)
+        countRows += 1
+        index == 0 &&
+          answer?.forEach((item) => {
+            if (item !== "") {
+              row.push(countColumns)
+              countColumns += 1
+            }
+          })
+      }
+    })
+  }
 
-      index == 0 &&
-        answer?.forEach((item) => {
-          if (item !== "") {
-            modelSolutionColumnsCountArray.push(modelSolutionCountColumns)
-            modelSolutionCountColumns += 1
-          }
-        })
-    }
-  })
+  populateRowsAndColumns(studentAnswers, columnsCountArray, rowsCountArray)
+  populateRowsAndColumns(
+    modelSolutionMatrix,
+    modelSolutionColumnsCountArray,
+    modelSolutionRowsCountArray,
+  )
 
   if (isIncorrect) {
     return (

@@ -843,7 +843,7 @@ mod tests {
                 .await
                 .unwrap();
             assert_eq!(copied_chapters.len(), 1);
-            assert_eq!(copied_chapters.get(0).unwrap().copied_from, Some(chapter));
+            assert_eq!(copied_chapters.first().unwrap().copied_from, Some(chapter));
         }
 
         #[tokio::test]
@@ -859,7 +859,7 @@ mod tests {
             let copied_chapters = crate::chapters::course_chapters(tx.as_mut(), copied_course.id)
                 .await
                 .unwrap();
-            let copied_chapter = copied_chapters.get(0).unwrap();
+            let copied_chapter = copied_chapters.first().unwrap();
             let copied_chapter_front_page =
                 crate::pages::get_page(tx.as_mut(), copied_chapter.front_page_id.unwrap())
                     .await

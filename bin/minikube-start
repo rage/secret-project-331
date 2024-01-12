@@ -46,5 +46,8 @@ else
   ARGUMENTS=(start --addons ingress --cpus "$CORES" --disk-size 100g --memory "$MEMORY_TO_USE" "$@")
 fi
 
-echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
-exec "$COMMAND" "${ARGUMENTS[@]}"
+run_command "$COMMAND" "${ARGUMENTS[@]}"
+# Have to update the config for the ingress to that the ingress controller does not reject our ingresses
+run_command kubectl patch configmap ingress-nginx-controller -p '{"data":{"allow-snippet-annotations":"true"}}' -n ingress-nginx --type merge
+echo ""
+echo -e "${GREEN}✅ Minikube has been started. You can now use bin/dev, bin/dev-only-db, or bin/test.${RESET_EVERYTHING}"

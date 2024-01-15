@@ -55,7 +55,7 @@ backtrace = "0.3.69"
 # This library provides a convenient derive macro for the standard library's std::error::Error trait.
 thiserror = "1.0.56"
 # generate typescript bindings from rust types
-ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "07712bf04007472aeeb065091261b3b64c019381", features = [
+ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "94bf3c040ece6627b69f0d7095c0a5e2984adc86", features = [
   "bytes-impl",
   "chrono-impl",
   "serde-compat",

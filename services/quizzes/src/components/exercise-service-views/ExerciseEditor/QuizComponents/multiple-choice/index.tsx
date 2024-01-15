@@ -11,7 +11,7 @@ import Button from "../../../../../shared-module/components/Button"
 import CheckBox from "../../../../../shared-module/components/InputFields/CheckBox"
 import RadioButton from "../../../../../shared-module/components/InputFields/RadioButton"
 import SelectField from "../../../../../shared-module/components/InputFields/SelectField"
-import { primaryFont } from "../../../../../shared-module/styles"
+import { headingFont, primaryFont } from "../../../../../shared-module/styles"
 import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"
 import MultipleChoiceOption from "../common/MultipleChoiceOption"
@@ -357,11 +357,11 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
               className={css`
                 color: #414246;
                 font-size: 14px;
+                margin-bottom: 8px;
                 font-family:
                   Josefin Sans,
                   sans-serif;
                 display: block;
-                margin-bottom: 8px;
                 ${!selected.allowSelectingMultipleOptions && "opacity: 0.5;"}
               `}
             >
@@ -376,6 +376,18 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
               {selected.multipleChoiceMultipleOptionsGradingPolicy ==
                 "some-correct-none-incorrect" &&
                 t("multiple-choice-grading-some-correct-none-incorrect-description")}
+
+              <a
+                className={css`
+                  color: #414246;
+                  font-size: 14px;
+                  font-family: ${headingFont};
+                  display: block;
+                `}
+                href="https://github.com/rage/secret-project-331/wiki/Points-calculation-logic"
+              >
+                {t("examples-of-grading-policies")}
+              </a>
             </span>
             <OptionTitle> {t("feedback-message")} </OptionTitle>
             <ParsedTextField
@@ -401,6 +413,18 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                 })
               }}
               label={t("failure-message")}
+            />
+            <ParsedTextField
+              value={selected.messageOnModelSolution ?? ""}
+              onChange={(newValue) => {
+                updateState((draft) => {
+                  if (!draft) {
+                    return
+                  }
+                  draft.messageOnModelSolution = newValue
+                })
+              }}
+              label={t("label-message-on-model-solution")}
             />
           </AdvancedOptionsContainer>
         </details>

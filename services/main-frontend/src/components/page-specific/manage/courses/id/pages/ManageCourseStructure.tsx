@@ -44,7 +44,7 @@ const headingDropdown = css`
 export interface ManageCourseStructureProps {
   courseStructure: CourseStructure
   refetch: (
-    options?: (RefetchOptions & RefetchQueryFilters<unknown>) | undefined,
+    options?: (RefetchOptions & RefetchQueryFilters) | undefined,
   ) => Promise<QueryObserverResult<CourseStructure, unknown>>
 }
 

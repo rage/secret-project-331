@@ -7,7 +7,7 @@ test.use({
   storageState: "src/states/language.teacher@example.com.json",
 })
 
-test("test", async ({ page, headless }, testInfo) => {
+test("Creating a new language version works", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([

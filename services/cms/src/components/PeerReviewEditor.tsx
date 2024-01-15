@@ -1,9 +1,7 @@
-/* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { faXmark } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useQuery } from "@tanstack/react-query"
+import { XmarkCircle } from "@vectopus/atlas-icons-react"
 import React, { useEffect, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
@@ -13,7 +11,7 @@ import { getCoursesDefaultCmsPeerReviewConfiguration } from "../services/backend
 import {
   CmsPeerReviewConfig,
   CmsPeerReviewQuestion,
-  PeerReviewAcceptingStrategy,
+  PeerReviewProcessingStrategy,
   PeerReviewQuestion,
   PeerReviewQuestionType,
 } from "../shared-module/bindings"
@@ -157,17 +155,17 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
     { label: t("likert-scale"), value: "Scale" },
   ]
 
-  const peerReviewAcceptingStrategyOptions: {
+  const peerReviewProcessingStrategyOptions: {
     label: string
-    value: PeerReviewAcceptingStrategy
+    value: PeerReviewProcessingStrategy
   }[] = [
     {
-      label: "Automatically accept or reject by average",
-      value: "AutomaticallyAcceptOrRejectByAverage",
+      label: "Automatically grade by average",
+      value: "AutomaticallyGradeByAverage",
     },
     {
-      label: "Automatically accept or manual review by average",
-      value: "AutomaticallyAcceptOrManualReviewByAverage",
+      label: "Automatically grade or manual review by average",
+      value: "AutomaticallyGradeOrManualReviewByAverage",
     },
     {
       label: "Manual review everything",
@@ -178,8 +176,8 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
   const handlePeerReviewValueChange = (value: string, field: keyof CmsPeerReviewConfig) => {
     let peerReviewConfig
     switch (field) {
-      case "accepting_strategy":
-        peerReviewConfig = { ...parsedPeerReviewConfig, accepting_strategy: value }
+      case "processing_strategy":
+        peerReviewConfig = { ...parsedPeerReviewConfig, processing_strategy: value }
         break
       case "accepting_threshold":
         peerReviewConfig = { ...parsedPeerReviewConfig, accepting_threshold: Number(value) }
@@ -189,6 +187,12 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
         break
       case "peer_reviews_to_receive":
         peerReviewConfig = { ...parsedPeerReviewConfig, peer_reviews_to_receive: Number(value) }
+        break
+      case "points_are_all_or_nothing":
+        peerReviewConfig = {
+          ...parsedPeerReviewConfig,
+          points_are_all_or_nothing: value === "true",
+        }
         break
       default:
         break
@@ -205,8 +209,8 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
     event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement | HTMLSelectElement>,
     field: keyof CmsPeerReviewQuestion,
   ) => {
-    const peerReviewQuestions: CmsPeerReviewQuestion[] = parsedPeerReviewQuestionConfig.map(
-      (prq) => {
+    const peerReviewQuestions: CmsPeerReviewQuestion[] = parsedPeerReviewQuestionConfig
+      .map((prq) => {
         if (prq.id === id) {
           switch (field) {
             case "question":
@@ -216,14 +220,22 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
             case "answer_required":
               // @ts-expect-error: in this case the event is from a checkbox
               return { ...prq, answer_required: Boolean(event.target.checked) }
+            case "weight": {
+              let newWeight = Number(event.target.value)
+              if (newWeight < 0 || newWeight > 1) {
+                newWeight = 0
+              }
+              return { ...prq, weight: newWeight }
+            }
             default:
               return prq
           }
         } else {
           return prq
         }
-      },
-    )
+      })
+      .sort((o1, o2) => o1.order_number - o2.order_number)
+
     setExerciseAttributes({
       ...exerciseAttributes,
       peer_review_config: JSON.stringify(parsedPeerReviewConfig),
@@ -236,10 +248,11 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
       id: v4(),
       course_id: courseId,
       exercise_id: exerciseId ?? null,
-      accepting_strategy: "AutomaticallyAcceptOrManualReviewByAverage",
+      processing_strategy: "AutomaticallyGradeOrManualReviewByAverage",
       accepting_threshold: 2.1,
       peer_reviews_to_give: 3,
       peer_reviews_to_receive: 2,
+      points_are_all_or_nothing: true,
     }
     setExerciseAttributes({
       ...exerciseAttributes,
@@ -276,7 +289,8 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
           peer_review_config_id: peerReviewId,
           answer_required: true,
           order_number: parsedPeerReviewQuestionConfig.length,
-        },
+          weight: 0,
+        } satisfies CmsPeerReviewQuestion,
       ]),
       peer_review_config: JSON.stringify(parsedPeerReviewConfig),
     })
@@ -296,7 +310,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
     })
   }
 
-  if (defaultCmsPeerReviewConfig.isLoading) {
+  if (defaultCmsPeerReviewConfig.isPending) {
     return <Spinner variant="medium" />
   }
 
@@ -334,7 +348,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                   target="_blank"
                   rel="noreferrer"
                 >
-                  Course default peer review config
+                  {t("link-course-default-peer-review-config")}
                 </a>
               </div>
             )}
@@ -386,20 +400,41 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                     t("peer-reviews-to-receive-and-give-error-message")}
                 </p>
                 <SelectField
-                  id={`peer-review-accepting-strategy-${id}`}
-                  label={t("peer-review-accepting-strategy")}
+                  id={`peer-review-processing-strategy-${id}`}
+                  label={t("peer-review-processing-strategy")}
                   onChangeByValue={(value) => {
-                    handlePeerReviewValueChange(value, "accepting_strategy")
+                    handlePeerReviewValueChange(value, "processing_strategy")
                   }}
-                  options={peerReviewAcceptingStrategyOptions}
-                  defaultValue={parsedPeerReviewConfig.accepting_strategy}
+                  options={peerReviewProcessingStrategyOptions}
+                  defaultValue={parsedPeerReviewConfig.processing_strategy}
                 />
+                <CheckBox
+                  label={t("label-points-are-all-or-nothing")}
+                  checked={parsedPeerReviewConfig.points_are_all_or_nothing}
+                  onChangeByValue={(checked) =>
+                    handlePeerReviewValueChange(checked.toString(), "points_are_all_or_nothing")
+                  }
+                  disabled={parsedPeerReviewConfig.processing_strategy === "ManualReviewEverything"}
+                />
+                {!parsedPeerReviewConfig.points_are_all_or_nothing && (
+                  <div
+                    className={css`
+                      margin-bottom: 1rem;
+                      padding: 1rem;
+                      background-color: ${baseTheme.colors.red[100]};
+                      color: ${baseTheme.colors.red[700]};
+                    `}
+                  >
+                    {t("warning-points-are-all-or-nothing-disabled")}
+                  </div>
+                )}
                 <TextField
                   label={t("peer-review-accepting-threshold")}
                   type={"number"}
                   step="0.01"
                   min={0}
                   required
+                  disabled={parsedPeerReviewConfig.processing_strategy === "ManualReviewEverything"}
                   value={parsedPeerReviewConfig.accepting_threshold}
                   onChangeByValue={(value) => {
                     handlePeerReviewValueChange(value, "accepting_threshold")
@@ -409,7 +444,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                 {parsedPeerReviewQuestionConfig &&
                   parsedPeerReviewQuestionConfig
                     .sort((o1, o2) => o1.order_number - o2.order_number)
-                    .map(({ id, question, question_type, answer_required }) => (
+                    .map(({ id, question, question_type, answer_required, weight }) => (
                       <List key={id} id={id}>
                         <StyledQuestion>
                           <StyledSelectField
@@ -422,6 +457,23 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                             id={`peer-review-question-${id}`}
                             onBlur={() => null}
                           />
+                          {question_type === "Scale" &&
+                            parsedPeerReviewConfig?.points_are_all_or_nothing === false && (
+                              <TextField
+                                label="Weight"
+                                type="number"
+                                min={0}
+                                max={1}
+                                step={0.01}
+                                value={weight}
+                                onChange={(e) => {
+                                  handlePeerReviewQuestionValueChange(id, e, "weight")
+                                }}
+                                className={css`
+                                  margin-bottom: 0;
+                                `}
+                              />
+                            )}
                         </StyledQuestion>
                         <StyledQuestionType>
                           <TextAreaField
@@ -434,19 +486,30 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                           />
                         </StyledQuestionType>
                         <StyledQuestion>
-                          <CheckBox
-                            label={t("answer-required")}
-                            checked={answer_required}
-                            onChange={(e) =>
-                              handlePeerReviewQuestionValueChange(id, e, "answer_required")
-                            }
-                          />
+                          {
+                            <CheckBox
+                              label={t("answer-required")}
+                              checked={answer_required}
+                              disabled={question_type === "Scale"}
+                              className={css`
+                                margin-top: 0.5rem;
+                              `}
+                              onChange={(e) =>
+                                handlePeerReviewQuestionValueChange(id, e, "answer_required")
+                              }
+                            />
+                          }
                         </StyledQuestion>
                         <DeleteBtn
                           aria-label={t("delete")}
                           onClick={() => deletePeerReviewQuestion(id)}
+                          className={css`
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                          `}
                         >
-                          <FontAwesomeIcon icon={faXmark} />
+                          <XmarkCircle />
                         </DeleteBtn>
                       </List>
                     ))}
@@ -480,10 +543,11 @@ function defaultPeerReviewConfig(
     id: v4(),
     exercise_id: exerciseId ? exerciseId : null,
     course_id: courseId,
-    accepting_strategy: "AutomaticallyAcceptOrManualReviewByAverage",
+    processing_strategy: "AutomaticallyGradeOrManualReviewByAverage",
     accepting_threshold: 2.1,
     peer_reviews_to_give: 3,
     peer_reviews_to_receive: 2,
+    points_are_all_or_nothing: true,
   }
 }
 

@@ -8,16 +8,15 @@ use crate::programs::seed::seed_helpers::{
 use anyhow::Result;
 use chrono::{TimeZone, Utc};
 
-use headless_lms_models::course_module_certificate_configurations::DatabaseCourseModuleCertificateConfiguration;
+use headless_lms_models::certificate_configurations::DatabaseCertificateConfiguration;
 use headless_lms_models::pages::PageUpdateArgs;
-use headless_lms_models::CourseOrExamId;
+use headless_lms_models::{certificate_configuration_to_requirements, CourseOrExamId};
 use headless_lms_models::{
-    chapters,
+    certificate_configurations, chapters,
     chapters::NewChapter,
     course_instance_enrollments,
     course_instance_enrollments::NewCourseInstanceEnrollment,
     course_instances::{self, NewCourseInstance},
-    course_module_certificate_configurations,
     course_modules::{self, NewCourseModule},
     courses::NewCourse,
     exercise_repositories, feedback,
@@ -27,8 +26,8 @@ use headless_lms_models::{
     page_history::HistoryChangeReason,
     pages::CmsPageUpdate,
     pages::{self, NewCoursePage},
-    peer_review_configs::PeerReviewAcceptingStrategy::{
-        AutomaticallyAcceptOrManualReviewByAverage, AutomaticallyAcceptOrRejectByAverage,
+    peer_review_configs::PeerReviewProcessingStrategy::{
+        AutomaticallyGradeByAverage, AutomaticallyGradeOrManualReviewByAverage,
         ManualReviewEverything,
     },
     proposed_block_edits::NewProposedBlockEdit,
@@ -1933,9 +1932,8 @@ pub async fn seed_sample_course(
         None,
     )
     .await?;
-    let configuration = DatabaseCourseModuleCertificateConfiguration {
-        course_module_id: default_module.id,
-        course_instance_id: Some(default_instance.id),
+    let configuration = DatabaseCertificateConfiguration {
+        id: Uuid::new_v5(&course_id, b"886d3e22-5007-4371-94d7-e0ad93a2391c"),
         certificate_owner_name_y_pos: None,
         certificate_owner_name_x_pos: None,
         certificate_owner_name_font_size: None,
@@ -1958,7 +1956,15 @@ pub async fn seed_sample_course(
         overlay_svg_path: None,
         overlay_svg_file_upload_id: None,
     };
-    course_module_certificate_configurations::insert(&mut conn, &configuration).await?;
+    let database_configuration =
+        certificate_configurations::insert(&mut conn, &configuration).await?;
+    certificate_configuration_to_requirements::insert(
+        &mut conn,
+        database_configuration.id,
+        Some(default_module.id),
+        Some(default_instance.id),
+    )
+    .await?;
 
     Ok(course.id)
 }
@@ -3304,6 +3310,7 @@ pub async fn seed_course_without_submissions(
         exercise_1_id,
         ManualReviewEverything,
         3.0,
+        true,
     )
     .await?;
 
@@ -3408,8 +3415,9 @@ pub async fn seed_course_without_submissions(
         &mut conn,
         course_id,
         exercise_2_id,
-        AutomaticallyAcceptOrManualReviewByAverage,
+        AutomaticallyGradeOrManualReviewByAverage,
         2.5,
+        true,
     )
     .await?;
 
@@ -3417,8 +3425,9 @@ pub async fn seed_course_without_submissions(
         &mut conn,
         course_id,
         exercise_3_id,
-        AutomaticallyAcceptOrRejectByAverage,
+        AutomaticallyGradeByAverage,
         2.0,
+        true,
     )
     .await?;
 
@@ -4505,6 +4514,7 @@ pub async fn seed_peer_review_course_without_submissions(
         exercise_1_id,
         ManualReviewEverything,
         3.0,
+        true,
     )
     .await?;
 
@@ -4526,7 +4536,7 @@ pub async fn seed_peer_review_course_without_submissions(
         exercise_2_slide_1_task_1_spec_1_id,
         exercise_2_slide_1_task_1_spec_2_id,
         exercise_2_slide_1_task_1_spec_3_id,
-        Some("AutomaticallyAcceptOrManualReviewByAverage".to_string()),
+        Some("AutomaticallyGradeOrManualReviewByAverage".to_string()),
         CommonExerciseData {
             exercise_id: exercise_2_id,
             exercise_slide_id: exercise_2_slide_1_id,
@@ -4558,8 +4568,9 @@ pub async fn seed_peer_review_course_without_submissions(
         &mut conn,
         course_id,
         exercise_2_id,
-        AutomaticallyAcceptOrManualReviewByAverage,
+        AutomaticallyGradeOrManualReviewByAverage,
         2.5,
+        true,
     )
     .await?;
 
@@ -4581,7 +4592,7 @@ pub async fn seed_peer_review_course_without_submissions(
         exercise_3_slide_1_task_1_spec_1_id,
         exercise_3_slide_1_task_1_spec_2_id,
         exercise_3_slide_1_task_1_spec_3_id,
-        Some("AutomaticallyAcceptOrRejectByAverage".to_string()),
+        Some("AutomaticallyGradeByAverage".to_string()),
         CommonExerciseData {
             exercise_id: exercise_3_id,
             exercise_slide_id: exercise_3_slide_1_id,
@@ -4613,8 +4624,9 @@ pub async fn seed_peer_review_course_without_submissions(
         &mut conn,
         course_id,
         exercise_3_id,
-        AutomaticallyAcceptOrRejectByAverage,
+        AutomaticallyGradeByAverage,
         2.0,
+        true,
     )
     .await?;
 
@@ -4670,6 +4682,7 @@ pub async fn seed_peer_review_course_without_submissions(
         exercise_4_id,
         ManualReviewEverything,
         3.0,
+        true,
     )
     .await?;
 

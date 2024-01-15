@@ -75,7 +75,7 @@ const CourseInstanceEmailTemplates: React.FC<
       {getCourseInstanceEmailTemplates.isError && (
         <ErrorBanner variant={"readOnly"} error={getCourseInstanceEmailTemplates.error} />
       )}
-      {getCourseInstanceEmailTemplates.isLoading && <Spinner variant={"medium"} />}
+      {getCourseInstanceEmailTemplates.isPending && <Spinner variant={"medium"} />}
       {getCourseInstanceEmailTemplates.isSuccess && (
         <ul>
           {getCourseInstanceEmailTemplates.data.map((template) => {

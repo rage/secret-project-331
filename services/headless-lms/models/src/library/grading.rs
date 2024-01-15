@@ -14,7 +14,7 @@ use crate::{
     exercise_task_submissions::{self, ExerciseTaskSubmission},
     exercise_tasks::{self, CourseMaterialExerciseTask, ExerciseTask},
     exercises::{self, Exercise, ExerciseStatus, GradingProgress},
-    peer_review_configs::PeerReviewAcceptingStrategy,
+    peer_review_configs::PeerReviewProcessingStrategy,
     peer_review_question_submissions::{
         self, PeerReviewQuestionSubmission, PeerReviewWithQuestionsAndAnswers,
     },
@@ -94,9 +94,9 @@ pub struct ExerciseSlideSubmissionWithTasks {
 pub struct ExerciseStateUpdateNeedToUpdatePeerReviewStatusWithThis {
     pub given_enough_peer_reviews: bool,
     pub received_enough_peer_reviews: bool,
-    pub peer_review_accepting_strategy: PeerReviewAcceptingStrategy,
+    pub peer_review_processing_strategy: PeerReviewProcessingStrategy,
     pub peer_review_accepting_threshold: f32,
-    /// Used to for calculating averages when acting on PeerReviewAcceptingStrategy
+    /// Used to for calculating averages when acting on PeerReviewProcessingStrategy
     pub received_peer_review_question_submissions: Vec<PeerReviewQuestionSubmission>,
 }
 

@@ -23,6 +23,9 @@ export interface AudioDeprecated1Attributes {
     [k: string]: unknown
   }
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -39,6 +42,9 @@ export interface ButtonDeprecated10Attributes {
     [k: string]: unknown
   }
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -55,6 +61,9 @@ export interface ButtonDeprecated11Attributes {
     [k: string]: unknown
   }
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -80,6 +89,9 @@ export interface ButtonDeprecated1Attributes {
   fontFamily?: string
   fontSize?: string
   style?: {
+    [k: string]: unknown
+  }
+  metadata?: {
     [k: string]: unknown
   }
 }
@@ -109,6 +121,9 @@ export interface ButtonDeprecated2Attributes {
   style?: {
     [k: string]: unknown
   }
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -134,6 +149,9 @@ export interface ButtonDeprecated3Attributes {
   fontFamily?: string
   fontSize?: string
   style?: {
+    [k: string]: unknown
+  }
+  metadata?: {
     [k: string]: unknown
   }
 }
@@ -162,6 +180,9 @@ export interface ButtonDeprecated4Attributes {
   }
   anchor?: string
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -188,6 +209,9 @@ export interface ButtonDeprecated5Attributes {
   }
   anchor?: string
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -212,6 +236,9 @@ export interface ButtonDeprecated6Attributes {
     [k: string]: unknown
   }
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -236,6 +263,9 @@ export interface ButtonDeprecated7Attributes {
     [k: string]: unknown
   }
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -257,6 +287,9 @@ export interface ButtonDeprecated8Attributes {
     [k: string]: unknown
   }
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -275,6 +308,9 @@ export interface ButtonDeprecated9Attributes {
     [k: string]: unknown
   }
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -292,6 +328,9 @@ export interface ButtonsDeprecated1Attributes {
   style?: {
     [k: string]: unknown
   }
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -304,6 +343,9 @@ export interface ButtonsDeprecated2Attributes {
   }
   anchor?: string
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -316,6 +358,9 @@ export interface ColumnDeprecated1Attributes {
     [k: string]: unknown
   }
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -331,6 +376,9 @@ export interface ColumnsDeprecated1Attributes {
     [k: string]: unknown
   }
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -342,6 +390,9 @@ export interface ColumnsDeprecated2Attributes {
     [k: string]: unknown
   }
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -353,6 +404,9 @@ export interface ColumnsDeprecated3Attributes {
     [k: string]: unknown
   }
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -370,6 +424,9 @@ export interface EmbedDeprecated1Attributes {
     [k: string]: unknown
   }
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
   height?: number
   title?: string
 }
@@ -389,6 +446,9 @@ export interface EmbedDeprecated2Attributes {
     [k: string]: unknown
   }
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
   height?: number
   title?: string
 }
@@ -413,6 +473,9 @@ export interface FileDeprecated1Attributes {
   }
   anchor?: string
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -435,6 +498,9 @@ export interface FileDeprecated2Attributes {
   }
   anchor?: string
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -456,6 +522,9 @@ export interface FileDeprecated3Attributes {
   }
   anchor?: string
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -480,6 +549,9 @@ export interface HeadingDeprecated1Attributes {
   style?: {
     [k: string]: unknown
   }
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -500,6 +572,9 @@ export interface HeadingDeprecated2Attributes {
   style?: {
     [k: string]: unknown
   }
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -517,6 +592,9 @@ export interface HeadingDeprecated3Attributes {
   }
   anchor?: string
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -534,6 +612,9 @@ export interface HeadingDeprecated4Attributes {
   }
   anchor?: string
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -551,6 +632,9 @@ export interface HeadingDeprecated5Attributes {
   }
   anchor?: string
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -585,6 +669,9 @@ export interface ImageDeprecated1Attributes {
   style?: {
     [k: string]: unknown
   }
+  metadata?: {
+    [k: string]: unknown
+  }
   blurDataUrl: string
 }
 
@@ -615,6 +702,9 @@ export interface ImageDeprecated2Attributes {
   className?: string
   borderColor?: string
   style?: {
+    [k: string]: unknown
+  }
+  metadata?: {
     [k: string]: unknown
   }
   blurDataUrl: string
@@ -649,6 +739,9 @@ export interface ImageDeprecated3Attributes {
   style?: {
     [k: string]: unknown
   }
+  metadata?: {
+    [k: string]: unknown
+  }
   blurDataUrl: string
 }
 
@@ -678,6 +771,9 @@ export interface ImageDeprecated4Attributes {
   style?: {
     [k: string]: unknown
   }
+  metadata?: {
+    [k: string]: unknown
+  }
   blurDataUrl: string
 }
 
@@ -704,6 +800,9 @@ export interface ImageDeprecated5Attributes {
   }
   anchor?: string
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
   blurDataUrl: string
 }
 
@@ -724,6 +823,9 @@ export interface ImageDeprecated6Attributes {
     [k: string]: unknown
   }
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
   blurDataUrl: string
 }
 
@@ -743,6 +845,9 @@ export interface ImageDeprecated7Attributes {
     [k: string]: unknown
   }
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
   blurDataUrl: string
 }
 
@@ -762,6 +867,9 @@ export interface ImageDeprecated8Attributes {
     [k: string]: unknown
   }
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
   blurDataUrl: string
 }
 
@@ -786,6 +894,9 @@ export interface ListDeprecated1Attributes {
   fontFamily?: string
   fontSize?: string
   style?: {
+    [k: string]: unknown
+  }
+  metadata?: {
     [k: string]: unknown
   }
 }
@@ -813,6 +924,9 @@ export interface ListDeprecated2Attributes {
   style?: {
     [k: string]: unknown
   }
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -838,6 +952,9 @@ export interface ListDeprecated3Attributes {
   style?: {
     [k: string]: unknown
   }
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -859,6 +976,9 @@ export interface ParagraphDeprecated1Attributes {
     [k: string]: unknown
   }
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -880,6 +1000,9 @@ export interface ParagraphDeprecated2Attributes {
     [k: string]: unknown
   }
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -901,6 +1024,9 @@ export interface ParagraphDeprecated3Attributes {
     [k: string]: unknown
   }
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -923,6 +1049,9 @@ export interface ParagraphDeprecated4Attributes {
     [k: string]: unknown
   }
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -941,6 +1070,9 @@ export interface ParagraphDeprecated5Attributes {
     [k: string]: unknown
   }
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -962,6 +1094,9 @@ export interface ParagraphDeprecated6Attributes {
     [k: string]: unknown
   }
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -975,6 +1110,9 @@ export interface PullquoteDeprecated1Attributes {
     [k: string]: unknown
   }
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -991,6 +1129,9 @@ export interface PullquoteDeprecated2Attributes {
     [k: string]: unknown
   }
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -1010,6 +1151,9 @@ export interface PullquoteDeprecated3Attributes {
     [k: string]: unknown
   }
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -1026,6 +1170,9 @@ export interface PullquoteDeprecated4Attributes {
     [k: string]: unknown
   }
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -1042,6 +1189,9 @@ export interface PullquoteDeprecated5Attributes {
     [k: string]: unknown
   }
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -1059,6 +1209,9 @@ export interface PullquoteDeprecated6Attributes {
     [k: string]: unknown
   }
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -1077,6 +1230,9 @@ export interface QuoteDeprecated1Attributes {
   style?: {
     [k: string]: unknown
   }
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -1090,6 +1246,9 @@ export interface QuoteDeprecated2Attributes {
     [k: string]: unknown
   }
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -1104,6 +1263,9 @@ export interface QuoteDeprecated3Attributes {
     [k: string]: unknown
   }
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -1118,6 +1280,9 @@ export interface QuoteDeprecated4Attributes {
     [k: string]: unknown
   }
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -1130,6 +1295,9 @@ export interface SeparatorDeprecated1Attributes {
     [k: string]: unknown
   }
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -1142,6 +1310,9 @@ export interface SpacerDeprecated1Attributes {
     [k: string]: unknown
   }
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -1163,6 +1334,9 @@ export interface VerseDeprecated1Attributes {
   style?: {
     [k: string]: unknown
   }
+  metadata?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -1175,4 +1349,7 @@ export interface VerseDeprecated2Attributes {
     [k: string]: unknown
   }
   className?: string
+  metadata?: {
+    [k: string]: unknown
+  }
 }

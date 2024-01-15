@@ -117,6 +117,7 @@ async fn get_module_completions_for_course_instance(
     module_completion_statuses.iter_mut().for_each(|module| {
         if !module.prerequisite_modules_completed {
             module.completed = false;
+            module.certificate_configuration_id = None;
         }
     });
     token.authorized_ok(web::Json(module_completion_statuses))

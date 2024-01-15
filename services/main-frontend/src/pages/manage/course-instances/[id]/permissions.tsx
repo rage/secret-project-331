@@ -35,7 +35,7 @@ const CourseInstancePermissions: React.FC<React.PropsWithChildren<Props>> = ({ q
         }
       `}
     >
-      {courseInstance.isLoading && <Spinner variant="large" />}
+      {courseInstance.isPending && <Spinner variant="large" />}
       {courseInstance.isError && <ErrorBanner variant="readOnly" error={courseInstance.error} />}
       {courseInstance.isSuccess && (
         <>

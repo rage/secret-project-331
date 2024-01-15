@@ -7,4 +7,5 @@ type ExamData = {
   ended: boolean
   time_minutes: number
   enrollment_data: ExamEnrollmentData
+  language: string
 }

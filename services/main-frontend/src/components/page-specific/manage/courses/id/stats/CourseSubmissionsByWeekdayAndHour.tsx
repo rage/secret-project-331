@@ -76,7 +76,7 @@ const CourseSubmissionsByWeekdayAndHour: React.FC<
     return <ErrorBanner variant={"readOnly"} error={getCourseWeekdayHourSubmissionCount.error} />
   }
 
-  if (getCourseWeekdayHourSubmissionCount.isLoading) {
+  if (getCourseWeekdayHourSubmissionCount.isPending) {
     return <Spinner variant={"medium"} />
   }
 

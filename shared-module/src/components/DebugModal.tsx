@@ -1,7 +1,6 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { faBug as faIcon } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { BugInsect } from "@vectopus/atlas-icons-react"
 import { Dispatch, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -63,10 +62,12 @@ const DebugModal: React.FC<React.PropsWithChildren<React.PropsWithChildren<Debug
         aria-label={t("debug")}
         onClick={() => openModal()}
         className={css`
+          height: 41px;
+          padding: 8px;
           color: white !important;
         `}
       >
-        <FontAwesomeIcon icon={faIcon} />
+        <BugInsect size={16} weight="bold" />
       </Button>
       <Dialog
         width="wide"

@@ -38,12 +38,22 @@ const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = (
           </h1>
         )}
         {organizationQuery.isSuccess && (
-          <a
-            href={`/manage/organizations/${organizationQuery.data.id}`}
-            aria-label={`${t("link-manage")}`}
+          <OnlyRenderIfPermissions
+            action={{
+              type: "edit",
+            }}
+            resource={{
+              type: "organization",
+              id: organizationQuery.data.id,
+            }}
           >
-            {t("manage")}
-          </a>
+            <a
+              href={`/manage/organizations/${organizationQuery.data.id}`}
+              aria-label={`${t("link-manage")}`}
+            >
+              {t("manage")}
+            </a>
+          </OnlyRenderIfPermissions>
         )}
         {organizationQuery.isSuccess && (
           <>
@@ -59,7 +69,7 @@ const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = (
             )}
           </>
         )}
-        {organizationQuery.isLoading && <Spinner variant={"medium"} />}
+        {organizationQuery.isPending && <Spinner variant={"medium"} />}
         {organizationQuery.isError && (
           <ErrorBanner variant={"readOnly"} error={organizationQuery.error} />
         )}

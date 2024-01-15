@@ -12,7 +12,7 @@ import {
   isResearchForm,
   isResearchFormQuestion,
 } from "../../shared-module/bindings.guard"
-import { isArray, validateResponse } from "../../shared-module/utils/fetching"
+import { isArray, isNull, isUnion, validateResponse } from "../../shared-module/utils/fetching"
 
 import { cmsClient } from "./cmsClient"
 
@@ -36,11 +36,13 @@ export const getAllPagesForACourse = async (courseId: string): Promise<Page[]> =
   return validateResponse(response, isArray(isPage))
 }
 
-export const fetchResearchFormWithCourseId = async (courseId: string): Promise<ResearchForm> => {
+export const fetchResearchFormWithCourseId = async (
+  courseId: string,
+): Promise<ResearchForm | null> => {
   const response = await cmsClient.get(`/courses/${courseId}/research-consent-form`, {
     responseType: "json",
   })
-  return validateResponse(response, isResearchForm)
+  return validateResponse(response, isUnion(isResearchForm, isNull))
 }
 
 export const upsertResearchForm = async (

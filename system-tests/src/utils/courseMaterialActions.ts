@@ -17,26 +17,30 @@ export async function selectCourseInstanceIfPrompted(
   page: Page,
   courseVariantName?: string | undefined,
 ) {
-  await test.step("Select course instance if prompted", async () => {
-    // Wait until some blocks have rendered on the page. This is to make sure the page has actually loaded. Would not work on pages with no blocks.
-    await page.locator(`.course-material-block`).first().waitFor({ state: "attached" })
-    // Give a moment for the dialog to appear
-    if (!(await isCourseSettingsModalOpen(page))) {
-      await page.waitForTimeout(100)
+  await test.step(
+    "Select course instance if prompted",
+    async () => {
+      // Wait until some blocks have rendered on the page. This is to make sure the page has actually loaded. Would not work on pages with no blocks.
+      await page.locator(`.course-material-block`).first().waitFor({ state: "attached" })
+      // Give a moment for the dialog to appear
       if (!(await isCourseSettingsModalOpen(page))) {
         await page.waitForTimeout(100)
-      }
-    }
-
-    if (await isCourseSettingsModalOpen(page)) {
-      if (courseVariantName === undefined) {
-        await page.getByTestId("default-course-instance-radiobutton").click()
-      } else {
-        await page.locator(`label:has-text("${courseVariantName}")`).click()
+        if (!(await isCourseSettingsModalOpen(page))) {
+          await page.waitForTimeout(100)
+        }
       }
 
-      await page.getByTestId("select-course-instance-continue-button").click()
-      await page.getByTestId("select-course-instance-heading").waitFor({ state: "detached" })
-    }
-  })
+      if (await isCourseSettingsModalOpen(page)) {
+        if (courseVariantName === undefined) {
+          await page.getByTestId("default-course-instance-radiobutton").click()
+        } else {
+          await page.locator(`label:has-text("${courseVariantName}")`).click()
+        }
+
+        await page.getByTestId("select-course-instance-continue-button").click()
+        await page.getByTestId("select-course-instance-heading").waitFor({ state: "detached" })
+      }
+    },
+    { box: true },
+  )
 }

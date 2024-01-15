@@ -180,6 +180,24 @@ export default function managePageOrderReducer(
         }
       })
     }
+
+    // There may be gaps in chapter numbers, so we'll iterate through chapters and make sure
+    // the chapter numbers are sequential
+    if (draftState.chapters) {
+      const chapters = draftState.chapters
+      chapters
+        .sort((c1, c2) => c1.chapter_number - c2.chapter_number)
+        .forEach((chapter, index) => {
+          const expectedChapterNumber = index + 1
+          if (chapter.chapter_number !== expectedChapterNumber) {
+            console.info(
+              `Updating chapter number for ${chapter.id} from ${chapter.chapter_number} to ${expectedChapterNumber}`,
+            )
+            chapter.chapter_number = expectedChapterNumber
+            draftState.unsavedChapterChanges = true
+          }
+        })
+    }
   })
 }
 

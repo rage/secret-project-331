@@ -4,7 +4,9 @@ import React, { useContext, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { getExerciseBlockBeginningScrollingId } from ".."
+import ContentRenderer from "../../.."
 import {
+  Block,
   fetchPeerReviewDataByExerciseId,
   postPeerReviewSubmission,
 } from "../../../../../services/backend"
@@ -127,7 +129,7 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
     return <ErrorBanner variant={"readOnly"} error={query.error} />
   }
 
-  if (query.isLoading || !query.data) {
+  if (query.isPending || !query.data) {
     return <Spinner variant="medium" />
   }
 
@@ -145,7 +147,7 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
           variant="primary"
           onClick={() => query.refetch()}
           size="medium"
-          disabled={query.isLoading}
+          disabled={query.isPending}
         >
           {t("button-text-refresh")}
         </Button>
@@ -202,39 +204,56 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
               </h4>
               {peerReviewData.answer_to_review.course_material_exercise_tasks
                 .sort((a, b) => a.order_number - b.order_number)
-                .map((course_material_exercise_task) => (
-                  <ExerciseTaskIframe
-                    exerciseServiceSlug={course_material_exercise_task.exercise_service_slug}
-                    key={course_material_exercise_task.id}
-                    postThisStateToIFrame={{
-                      // eslint-disable-next-line i18next/no-literal-string
-                      view_type: "view-submission",
-                      exercise_task_id: course_material_exercise_task.id,
-                      user_information: {
-                        pseudonymous_id:
-                          course_material_exercise_task.pseudonumous_user_id ??
-                          getGuestPseudonymousUserId(),
-                        signed_in: Boolean(loginStateContext.signedIn),
-                      },
-                      // Don't reveal peer revewiee user variables to peer reviewers in case they contain something sensitive
-                      user_variables: {},
-                      data: {
-                        grading: exerciseTaskGradingToExerciseTaskGradingResult(
-                          course_material_exercise_task.previous_submission_grading,
-                        ),
-                        user_answer: course_material_exercise_task.previous_submission?.data_json,
-                        public_spec: course_material_exercise_task.public_spec,
-                        model_solution_spec: course_material_exercise_task.model_solution_spec,
-                      },
-                    }}
-                    url={`${course_material_exercise_task.exercise_iframe_url}?width=${narrowContainerWidthPx}`}
-                    setAnswer={null}
-                    title={t("exercise-task-content", {
-                      "exercise-number": exerciseNumber + 1,
-                      "task-number": course_material_exercise_task.order_number + 1,
-                    })}
-                  />
-                ))}
+                .map((course_material_exercise_task) => {
+                  return (
+                    <div key={course_material_exercise_task.id}>
+                      <div data-testid="assignment">
+                        <ContentRenderer
+                          data={
+                            (course_material_exercise_task.assignment as Array<Block<unknown>>) ??
+                            []
+                          }
+                          editing={false}
+                          selectedBlockId={null}
+                          setEdits={(map) => map}
+                          isExam={false}
+                        />
+                      </div>
+                      <ExerciseTaskIframe
+                        exerciseServiceSlug={course_material_exercise_task.exercise_service_slug}
+                        key={course_material_exercise_task.id}
+                        postThisStateToIFrame={{
+                          // eslint-disable-next-line i18next/no-literal-string
+                          view_type: "view-submission",
+                          exercise_task_id: course_material_exercise_task.id,
+                          user_information: {
+                            pseudonymous_id:
+                              course_material_exercise_task.pseudonumous_user_id ??
+                              getGuestPseudonymousUserId(),
+                            signed_in: Boolean(loginStateContext.signedIn),
+                          },
+                          // Don't reveal peer revewiee user variables to peer reviewers in case they contain something sensitive
+                          user_variables: {},
+                          data: {
+                            grading: exerciseTaskGradingToExerciseTaskGradingResult(
+                              course_material_exercise_task.previous_submission_grading,
+                            ),
+                            user_answer:
+                              course_material_exercise_task.previous_submission?.data_json,
+                            public_spec: course_material_exercise_task.public_spec,
+                            model_solution_spec: course_material_exercise_task.model_solution_spec,
+                          },
+                        }}
+                        url={`${course_material_exercise_task.exercise_iframe_url}?width=${narrowContainerWidthPx}`}
+                        setAnswer={null}
+                        title={t("exercise-task-content", {
+                          "exercise-number": exerciseNumber + 1,
+                          "task-number": course_material_exercise_task.order_number + 1,
+                        })}
+                      />
+                    </div>
+                  )
+                })}
             </div>
           </Centered>
         </div>
@@ -276,7 +295,7 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
       <Button
         size="medium"
         variant="primary"
-        disabled={!isValid || !peerReviewData || submitPeerReviewMutation.isLoading}
+        disabled={!isValid || !peerReviewData || submitPeerReviewMutation.isPending}
         onClick={() => submitPeerReviewMutation.mutate()}
       >
         {t("submit-button")}

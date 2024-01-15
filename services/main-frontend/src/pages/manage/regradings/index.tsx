@@ -76,7 +76,7 @@ const RegradingsPage: React.FC = () => {
     return <ErrorBanner variant="readOnly" error={regradingsQuery.error} />
   }
 
-  if (regradingsQuery.isLoading) {
+  if (regradingsQuery.isPending) {
     return <Spinner variant="medium" />
   }
 
@@ -195,7 +195,7 @@ const RegradingsPage: React.FC = () => {
         <Button
           variant="primary"
           size="medium"
-          disabled={!isValid || newRegradingMutation.isLoading}
+          disabled={!isValid || newRegradingMutation.isPending}
           onClick={handleSubmit(async (data) => {
             const lines = data.exerciseTaskSubmissionIds
               .trim()

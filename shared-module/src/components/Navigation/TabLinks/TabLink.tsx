@@ -74,7 +74,7 @@ const TabLink: React.FC<React.PropsWithChildren<React.PropsWithChildren<TabLinkP
         }
       `}
     >
-      <span>{children}</span> {count?.isLoading && <Spinner variant="small" disableMargin />}
+      <span>{children}</span> {count?.isPending && <Spinner variant="small" disableMargin />}
       {count?.isSuccess && count.data !== 0 && (
         <span
           className={css`

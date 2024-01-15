@@ -55,28 +55,32 @@ const SelectCourseInstanceForm: React.FC<
     queryKey: ["additional-questions", instance],
     queryFn: () => fetchBackgroundQuestionsAndAnswers(assertNotNullOrUndefined(instance)),
     enabled: instance !== undefined,
-    onSuccess(data) {
-      // Populates initial answers for all questions
-      setAdditionalQuestionAnswers((prev) => {
-        const newState: NewCourseBackgroundQuestionAnswer[] = []
-        data.background_questions.forEach((question) => {
-          const prevAnswer = prev.find((a) => a.course_background_question_id === question.id)
-          const savedAnswer = data.answers.find(
-            (a) => a.course_background_question_id === question.id,
-          )
-          let initialValue = prevAnswer?.answer_value ?? savedAnswer?.answer_value ?? null
-          if (question.question_type === "Checkbox" && initialValue === null) {
-            initialValue = "f"
-          }
-          newState.push({
-            answer_value: initialValue,
-            course_background_question_id: question.id,
-          })
-        })
-        return newState
-      })
-    },
   })
+
+  useEffect(() => {
+    if (!additionalQuestionsQuery.data) {
+      return
+    }
+    // Populates initial answers for all questions
+    setAdditionalQuestionAnswers((prev) => {
+      const newState: NewCourseBackgroundQuestionAnswer[] = []
+      additionalQuestionsQuery.data.background_questions.forEach((question) => {
+        const prevAnswer = prev.find((a) => a.course_background_question_id === question.id)
+        const savedAnswer = additionalQuestionsQuery.data.answers.find(
+          (a) => a.course_background_question_id === question.id,
+        )
+        let initialValue = prevAnswer?.answer_value ?? savedAnswer?.answer_value ?? null
+        if (question.question_type === "Checkbox" && initialValue === null) {
+          initialValue = "f"
+        }
+        newState.push({
+          answer_value: initialValue,
+          course_background_question_id: question.id,
+        })
+      })
+      return newState
+    })
+  }, [additionalQuestionsQuery.data])
 
   useEffect(() => {
     if (languageChanged) {
@@ -185,7 +189,7 @@ const SelectCourseInstanceForm: React.FC<
             size="medium"
             variant="primary"
             onClick={enrollOnCourse}
-            disabled={!instance || additionalQuestionsQuery.isLoading}
+            disabled={!instance || additionalQuestionsQuery.isPending}
             data-testid="select-course-instance-continue-button"
           >
             {t("continue")}

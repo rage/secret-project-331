@@ -6,10 +6,8 @@ pub mod font_loader;
 
 use chrono::{Datelike, NaiveDate};
 use futures::future::OptionFuture;
-use headless_lms_models::course_module_certificate_configurations::{
-    get_by_course_module_and_course_instance, CertificateTextAnchor, PaperSize,
-};
-use headless_lms_models::course_module_completion_certificates::CourseModuleCompletionCertificate;
+use headless_lms_models::certificate_configurations::{CertificateTextAnchor, PaperSize};
+use headless_lms_models::generated_certificates::GeneratedCertificate;
 use headless_lms_models::prelude::{BackendError, PgConnection};
 use headless_lms_utils::file_store::FileStore;
 use headless_lms_utils::icu4x::Icu4xBlob;
@@ -42,14 +40,13 @@ Generates a certificate as a png.
 pub async fn generate_certificate(
     conn: &mut PgConnection,
     file_store: &dyn FileStore,
-    certificate: &CourseModuleCompletionCertificate,
+    certificate: &GeneratedCertificate,
     debug: bool,
     icu4x_blob: Icu4xBlob,
 ) -> UtilResult<Vec<u8>> {
-    let config = get_by_course_module_and_course_instance(
+    let config = headless_lms_models::certificate_configurations::get_by_id(
         &mut *conn,
-        certificate.course_module_id,
-        Some(certificate.course_instance_id),
+        certificate.certificate_configuration_id,
     )
     .await
     .map_err(|original_error| {
@@ -382,11 +379,11 @@ fn generate_text_svg(
             }
             Ok(())
         })
-        .map_err(|original_error| {
+        .map_err(|original_error: anyhow::Error| {
             UtilError::new(
                 UtilErrorType::Other,
                 "Could not write text svg".to_string(),
-                Some(original_error.into()),
+                Some(original_error),
             )
         })?;
 

@@ -3,8 +3,8 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import {
+  CertificateConfigurationAndRequirements,
   CertificateTextAnchor,
-  CourseModuleCertificateConfiguration,
   PaperSize,
 } from "../../../../shared-module/bindings"
 import Button from "../../../../shared-module/components/Button"
@@ -17,7 +17,7 @@ import { baseTheme } from "../../../../shared-module/styles"
 
 interface Props {
   generatingCertificatesEnabled: boolean
-  configuration: CourseModuleCertificateConfiguration | null
+  configurationAndRequirements: CertificateConfigurationAndRequirements | null
   onClickSave: (fields: CertificateFields) => void
   onClickCancel: () => void
 }
@@ -45,7 +45,12 @@ export interface CertificateFields {
   clearCurrentOverlaySvg: boolean
 }
 
-const CertificateForm: React.FC<Props> = ({ configuration, onClickSave, onClickCancel }) => {
+const CertificateForm: React.FC<Props> = ({
+  configurationAndRequirements,
+  onClickSave,
+  onClickCancel,
+}) => {
+  const configuration = configurationAndRequirements?.certificate_configuration
   const { t } = useTranslation()
   const {
     register,

@@ -1,6 +1,5 @@
 import { css } from "@emotion/css"
-import { faExclamationCircle } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { ExclamationMessage } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -63,10 +62,9 @@ const BottomPanel: React.FC<Props> = ({
           color: ${baseTheme.colors.gray[500]};
         `}
       >
-        <FontAwesomeIcon
-          icon={faExclamationCircle}
+        <ExclamationMessage
+          size={40}
           className={css`
-            font-size: 40px;
             margin-right: 1rem;
             color: ${baseTheme.colors.gray[600]};
           `}

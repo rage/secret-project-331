@@ -331,17 +331,29 @@ pub async fn authorize_access_to_tmc_server(
     ))
 }
 
-/**  Can be used to check whether user is allowed to view some course material */
-pub async fn can_user_view_not_open_chapter(
+/**  Can be used to check whether user is allowed to view some course material. Chapters can be closed and and limited to certain people only. */
+pub async fn can_user_view_chapter(
     conn: &mut PgConnection,
     user_id: Option<Uuid>,
-    course_id: Uuid,
+    course_id: Option<Uuid>,
+    chapter_id: Option<Uuid>,
 ) -> Result<bool, ControllerError> {
-    if user_id.is_none() {
-        return Ok(false);
+    if let Some(course_id) = course_id {
+        if let Some(chapter_id) = chapter_id {
+            if !models::chapters::is_open(&mut *conn, chapter_id).await? {
+                if user_id.is_none() {
+                    return Ok(false);
+                }
+                // If the user has been granted access to view the material, then they can see the unopened chapters too
+                // This is important because sometimes teachers wish to test unopened chapters with real students
+                let permission =
+                    authorize(conn, Act::ViewMaterial, user_id, Res::Course(course_id)).await;
+
+                return Ok(permission.is_ok());
+            }
+        }
     }
-    let permission = authorize(conn, Act::Edit, user_id, Res::Course(course_id)).await;
-    Ok(permission.is_ok())
+    Ok(true)
 }
 
 /**
@@ -404,10 +416,10 @@ pub async fn authorize_with_fetched_list_of_roles(
     // for some resources, we need to get more information from the database
     match resource {
         Resource::Chapter(id) => {
-            // if trying to View a chapter that is not open, check for permission to Teach
+            // if trying to View a chapter that is not open, check for permission to view the material
             let action =
                 if matches!(action, Action::View) && !models::chapters::is_open(conn, id).await? {
-                    Action::Teach
+                    Action::ViewMaterial
                 } else {
                     action
                 };
@@ -593,8 +605,15 @@ async fn check_study_registry_permission(
     secret_key: String,
     _action: Action,
 ) -> Result<AuthorizationToken, ControllerError> {
-    let _registrar =
-        models::study_registry_registrars::get_by_secret_key(conn, &secret_key).await?;
+    let _registrar = models::study_registry_registrars::get_by_secret_key(conn, &secret_key)
+        .await
+        .map_err(|original_error| {
+            ControllerError::new(
+                ControllerErrorType::Forbidden,
+                "Unauthorized".to_string(),
+                Some(original_error.into()),
+            )
+        })?;
     Ok(AuthorizationToken(()))
 }
 
@@ -787,9 +806,7 @@ query ($upstreamId: Int) {
     upstream_id
   }
 }"#,
-            variables: Some(json!({
-                "upstreamId": upstream_id
-            })),
+            variables: Some(json!({ "upstreamId": upstream_id })),
         })
         .send()
         .await
@@ -862,6 +879,8 @@ pub async fn authenticate_test_user(
         models::users::get_by_email(conn, "teacher@example.com").await?
     } else if email == "language.teacher@example.com" && password == "language.teacher" {
         models::users::get_by_email(conn, "language.teacher@example.com").await?
+    } else if email == "material.viewer@example.com" && password == "material.viewer" {
+        models::users::get_by_email(conn, "material.viewer@example.com").await?
     } else if email == "user@example.com" && password == "user" {
         models::users::get_by_email(conn, "user@example.com").await?
     } else if email == "assistant@example.com" && password == "assistant" {

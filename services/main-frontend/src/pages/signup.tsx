@@ -294,7 +294,7 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
           />
         </fieldset>
         <input
-          disabled={!isValid || createAccountMutation.isLoading}
+          disabled={!isValid || createAccountMutation.isPending}
           value={t("create-an-acount")}
           type="submit"
         />

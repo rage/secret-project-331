@@ -78,15 +78,7 @@ test("default peer review editing", async ({ page, headless }, testInfo) => {
   // Fill input[type="number"] >> nth=1
   await page1.locator('input[type="number"]').nth(1).fill("4")
   // Select ManualReviewEverything
-  await page1
-    .locator(
-      "text=Peer review accepting strategyAutomatically accept or reject by averageAutomatic >> select",
-    )
-    .selectOption("ManualReviewEverything")
-
-  await page1.locator('input[type="number"]').nth(2).click()
-  // Fill input[type="number"] >> nth=2
-  await page1.locator('input[type="number"]').nth(2).fill("2.5")
+  await page1.getByLabel("Peer review processing").selectOption("ManualReviewEverything")
 
   await page1.getByRole("button", { name: "Delete" }).nth(1).click()
   // Fill text=General comments

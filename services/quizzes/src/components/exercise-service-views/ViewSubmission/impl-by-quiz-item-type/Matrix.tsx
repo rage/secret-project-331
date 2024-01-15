@@ -1,7 +1,6 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { faCheckCircle, faTimesCircle } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { CheckCircle, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React from "react"
 
 import { UserItemAnswerMatrix } from "../../../../../types/quizTypes/answer"
@@ -91,12 +90,12 @@ const MatrixSubmission: React.FC<
             tempArray={tempArray}
             findOptionText={findOptionText}
           ></MatrixTable>
-          {correctAnswers && <FontAwesomeIcon icon={faTimesCircle} color="red" size="lg" />}
+          {correctAnswers && <XmarkCircle color="red" size={20} />}
         </div>
         {correctAnswers && (
           <div>
             <MatrixTable tempArray={tempArray} findOptionText={findOptionText}></MatrixTable>
-            <FontAwesomeIcon icon={faCheckCircle} color="green" size="lg" />
+            <CheckCircle color="green" size={20} />
           </div>
         )}
       </div>

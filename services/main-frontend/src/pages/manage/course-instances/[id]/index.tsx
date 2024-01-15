@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import { isPast } from "date-fns"
+import { isPast, parseISO } from "date-fns"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -93,13 +93,17 @@ const ManageCourseInstances: React.FC<React.PropsWithChildren<ManageCourseInstan
       let schedule
       if (data.ends_at && isPast(data.ends_at)) {
         // instance is over
-        schedule = <div>{t("instance-ended-at-time", { time: data.ends_at.toISOString() })}</div>
+        schedule = (
+          <div>{t("instance-ended-at-time", { time: parseISO(data.ends_at).toISOString() })}</div>
+        )
       } else if (data.starts_at && isPast(data.starts_at)) {
         // course is currently open
         if (data.ends_at) {
           schedule = (
             <div>
-              {t("instance-is-open-and-ends-at-time", { time: data.ends_at.toISOString() })}
+              {t("instance-is-open-and-ends-at-time", {
+                time: parseISO(data.ends_at).toISOString(),
+              })}
             </div>
           )
         } else {
@@ -107,7 +111,9 @@ const ManageCourseInstances: React.FC<React.PropsWithChildren<ManageCourseInstan
         }
       } else if (data.starts_at) {
         // course is not open yet
-        schedule = <div>{t("instance-opens-at-time", { time: data.starts_at.toISOString() })}</div>
+        schedule = (
+          <div>{t("instance-opens-at-time", { time: parseISO(data.starts_at).toISOString() })}</div>
+        )
       } else {
         schedule = <div>{t("instance-has-no-set-opening-time")}</div>
       }

@@ -32,12 +32,42 @@ interface ChangeDescription {
   syncFolder: string | null
   operation: watcher.EventType
 }
+let subscriptions: watcher.AsyncSubscription[] = []
 
 async function main() {
+  let restarted = false
+
+  process.once("SIGINT", async function (_signal) {
+    console.log("Exitting...")
+    await Promise.all(subscriptions.map((subscription) => subscription.unsubscribe()))
+    process.exit(0)
+  })
+
+  // Loop to make sure restarts work
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    await runSync(restarted)
+    restarted = true
+  }
+}
+
+async function runSync(restarted: boolean) {
+  const startTime = Date.now()
   console.clear()
+  if (restarted) {
+    console.log(
+      "Restarted syncing at " +
+        new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+          .toISOString()
+          .replace("T", " ")
+          .replace("Z", "")
+          .split(".")[0],
+    )
+  }
   await syncEverything()
+
   // Subscribe to events, one subscription per sync target
-  const subscriptions = await Promise.all(
+  subscriptions = await Promise.all(
     SYNC_TARGETS.map(async (target) => {
       return await watcher.subscribe(
         path.resolve(__dirname, "packages", target.source, "src"),
@@ -83,17 +113,18 @@ async function main() {
     }),
   )
 
-  process.once("SIGINT", async function (_signal) {
-    console.log("Exitting...")
-    await Promise.all(subscriptions.map((subscription) => subscription.unsubscribe()))
-    process.exit(0)
-  })
-
   console.log("Watching...")
   // eslint-disable-next-line no-constant-condition
   while (true) {
-    await new Promise((resolve) => setTimeout(resolve, 100_000))
+    await new Promise((resolve) => setTimeout(resolve, 300_000))
+    if (Date.now() - startTime > 3_600_000) {
+      // Restarting the watching process to make sure nothing is missed in case of something like https://github.com/parcel-bundler/watcher/issues/97
+      console.log("One hour has elapsed, restarting...")
+      break
+    }
   }
+  await Promise.all(subscriptions.map((subscription) => subscription.unsubscribe()))
+  subscriptions = []
 }
 
 function getCommonRootOfChanges(changes: ChangeDescription[]) {

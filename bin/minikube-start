@@ -50,4 +50,4 @@ run_command "$COMMAND" "${ARGUMENTS[@]}"
 # Have to update the config for the ingress to that the ingress controller does not reject our ingresses
 run_command kubectl patch configmap ingress-nginx-controller -p '{"data":{"allow-snippet-annotations":"true"}}' -n ingress-nginx --type merge
 echo ""
-echo -e "${GREEN}✅ Minikube has been started. You can now use bin/dev, bin/dev-only-db, or bin/test.${RESET_EVERYTHING}"
+echo -e "${GREEN}✅ Minikube has been started. You can now use ${CURSIVE}bin/dev${RESET_EVERYTHING}${GREEN}, ${CURSIVE}bin/dev-only-db${RESET_EVERYTHING}${GREEN}, or ${CURSIVE}bin/test${RESET_EVERYTHING}${GREEN}.${RESET_EVERYTHING}"

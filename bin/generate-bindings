@@ -40,3 +40,6 @@ run_command npx eslint --fix shared-module/src/exercise-service-protocol-types.g
 # Post-update for shared module
 
 run_command npm run postinstall
+
+echo ""
+echo -e "${GREEN}✅ The files ${CURSIVE}bindings.ts${RESET_EVERYTHING}${GREEN} and ${CURSIVE}bindings.guard.ts${RESET_EVERYTHING}${GREEN} have been generated in the shared module.${RESET_EVERYTHING}"

@@ -114,6 +114,7 @@ import {
   GeneratedCertificate,
   GetEditProposalsQuery,
   GetFeedbackQuery,
+  GlobalStatEntry,
   GradingProgress,
   HistoryChangeReason,
   HistoryRestoreData,
@@ -258,7 +259,9 @@ export function isAction(obj: unknown): obj is Action {
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
       typedObj["type"] === "view_user_progress_or_details") ||
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-      typedObj["type"] === "view_internal_course_structure")
+      typedObj["type"] === "view_internal_course_structure") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["type"] === "view_stats")
   )
 }
 
@@ -1508,6 +1511,19 @@ export function isExerciseStatusSummaryForUser(obj: unknown): obj is ExerciseSta
       (isTeacherGradingDecision(typedObj["teacher_grading_decision"]) as boolean)) &&
     Array.isArray(typedObj["peer_review_questions"]) &&
     typedObj["peer_review_questions"].every((e: any) => isPeerReviewQuestion(e) as boolean)
+  )
+}
+
+export function isGlobalStatEntry(obj: unknown): obj is GlobalStatEntry {
+  const typedObj = obj as GlobalStatEntry
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["name"] === "string" &&
+    typeof typedObj["course_id"] === "string" &&
+    typeof typedObj["organization_id"] === "string" &&
+    typeof typedObj["organization_name"] === "string" &&
+    typeof typedObj["year"] === "string" &&
+    typeof typedObj["value"] === "number"
   )
 }
 

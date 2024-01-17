@@ -21,6 +21,7 @@ export type Action =
   | { type: "upload_file" }
   | { type: "view_user_progress_or_details" }
   | { type: "view_internal_course_structure" }
+  | { type: "view_stats" }
 
 export interface ActionOnResource {
   action: Action
@@ -791,6 +792,15 @@ export interface ExerciseStatusSummaryForUser {
   peer_review_queue_entry: PeerReviewQueueEntry | null
   teacher_grading_decision: TeacherGradingDecision | null
   peer_review_questions: Array<PeerReviewQuestion>
+}
+
+export interface GlobalStatEntry {
+  name: string
+  course_id: string
+  organization_id: string
+  organization_name: string
+  year: string
+  value: number
 }
 
 export interface ExerciseGradingStatus {

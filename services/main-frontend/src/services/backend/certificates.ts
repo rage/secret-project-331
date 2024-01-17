@@ -11,9 +11,7 @@ export const generateCertificate = async (
     certificate_configuration_id: certificateConfigurationId,
     name_on_certificate: nameOnCertificate,
   }
-  await mainFrontendClient.post(`/certificates/generate`, data, {
-    responseType: "json",
-  })
+  await mainFrontendClient.post(`/certificates/generate`, data)
 }
 
 export const fetchCertificate = async (

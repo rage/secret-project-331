@@ -9,6 +9,7 @@ import ProgressBar from "../../../shared-module/components/CourseProgress/Progre
 import DebugModal from "../../../shared-module/components/DebugModal"
 import ErrorBanner from "../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../shared-module/components/Spinner"
+import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../../../shared-module/hooks/useQueryParameter"
 import dontRenderUntilQueryParametersReady from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import { dateToString } from "../../../shared-module/utils/time"
@@ -159,4 +160,4 @@ const ViewRegradingPage: React.FC<React.PropsWithChildren<unknown>> = () => {
   )
 }
 
-export default dontRenderUntilQueryParametersReady(ViewRegradingPage)
+export default withSignedIn(dontRenderUntilQueryParametersReady(ViewRegradingPage))

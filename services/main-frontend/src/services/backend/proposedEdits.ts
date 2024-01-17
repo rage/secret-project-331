@@ -18,7 +18,6 @@ export const fetchEditProposals = async (
   const params: GetEditProposalsQuery = { page, limit, pending }
   const response = await mainFrontendClient.get(`/proposed-edits/course/${courseId}`, {
     params,
-    responseType: "json",
   })
   return validateResponse(response, isArray(isPageProposal))
 }
@@ -38,7 +37,5 @@ export const processProposal = async (
     page_proposal_id: pageProposalId,
     block_proposals: blockProposals,
   }
-  await mainFrontendClient.post(`/proposed-edits/process-edit-proposal`, data, {
-    headers: { "Content-Type": "application/json" },
-  })
+  await mainFrontendClient.post(`/proposed-edits/process-edit-proposal`, data)
 }

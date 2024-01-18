@@ -82,7 +82,9 @@ export const updateCertificateConfiguration = async (
   if (backgroundSvgFile !== null && configurationUpdate.background_svg_file_name !== null) {
     formData.append("file", backgroundSvgFile, configurationUpdate.background_svg_file_name)
   }
-  await mainFrontendClient.post("/certificates", formData)
+  await mainFrontendClient.post("/certificates", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  })
 }
 
 export const deleteCertificateConfiguration = async (configurationId: string): Promise<void> => {

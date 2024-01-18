@@ -164,8 +164,12 @@ export default function managePageOrderReducer(
             console.info(
               `Updating page order number for ${page.id} from ${page.order_number} to ${expectedOrderNumber}`,
             )
-            page.order_number = expectedOrderNumber
-            draftState.unsavedChanges = true
+            try {
+              page.order_number = expectedOrderNumber
+              draftState.unsavedChanges = true
+            } catch (e) {
+              console.warn(`Could not update page order number for ${page.id}`, e)
+            }
           }
         })
       })

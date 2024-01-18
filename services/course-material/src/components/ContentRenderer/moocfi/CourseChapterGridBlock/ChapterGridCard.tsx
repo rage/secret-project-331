@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
-import { differenceInSeconds, formatDuration } from "date-fns"
+import { differenceInSeconds, formatDuration, parseISO } from "date-fns"
 import { useTranslation } from "react-i18next"
 
 import { fetchPageUrl } from "../../../../services/backend"
@@ -90,12 +90,12 @@ const ChapterGridCard: React.FC<React.PropsWithChildren<ChapterProps>> = ({
       })
     } else {
       // opens in over 10 minutes
-      date = chapter.opens_at.toLocaleString(i18n.language, {
+      date = parseISO(chapter.opens_at).toLocaleString(i18n.language, {
         year: NUMERIC,
         month: LONG,
         day: NUMERIC,
       })
-      time = chapter.opens_at.toLocaleString(i18n.language, {
+      time = parseISO(chapter.opens_at).toLocaleString(i18n.language, {
         hour: NUMERIC,
         minute: NUMERIC,
       })

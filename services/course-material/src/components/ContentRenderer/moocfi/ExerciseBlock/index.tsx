@@ -27,6 +27,7 @@ import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 import HideTextInSystemTests from "../../../../shared-module/components/system-tests/HideTextInSystemTests"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
+import { useDateStringAsDateNullable } from "../../../../shared-module/hooks/useDateStringAsDate"
 import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
 import { baseTheme, headingFont, secondaryFont } from "../../../../shared-module/styles"
 import { dateDiffInDays } from "../../../../shared-module/utils/dateUtil"
@@ -164,6 +165,9 @@ const ExerciseBlock: React.FC<
       notify: false,
     },
   )
+  const exerciseDeadline = useDateStringAsDateNullable(
+    getCourseMaterialExercise.data?.exercise.deadline,
+  )
 
   if (!showExercise) {
     return <div>{t("please-select-course-instance-before-answering-exercise")}</div>
@@ -192,8 +196,6 @@ const ExerciseBlock: React.FC<
   const limit_number_of_tries = getCourseMaterialExercise.data.exercise.limit_number_of_tries
   const ranOutOfTries =
     limit_number_of_tries && maxTries !== null && triesRemaining !== null && triesRemaining <= 0
-
-  const exerciseDeadline = getCourseMaterialExercise.data.exercise.deadline
 
   const exerciseSlideSubmissionId =
     getCourseMaterialExercise.data.previous_exercise_slide_submission?.id

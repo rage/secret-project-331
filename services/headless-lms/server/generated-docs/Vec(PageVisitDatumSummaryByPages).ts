@@ -1,8 +1,8 @@
 type Vec<PageVisitDatumSummaryByPages> = Array<{
   id: string
-  created_at: Date
-  updated_at: Date
-  deleted_at: Date | null
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
   exam_id: string | null
   course_id: string | null
   page_id: string

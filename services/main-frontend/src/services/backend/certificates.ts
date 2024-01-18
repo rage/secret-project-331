@@ -11,9 +11,7 @@ export const generateCertificate = async (
     certificate_configuration_id: certificateConfigurationId,
     name_on_certificate: nameOnCertificate,
   }
-  await mainFrontendClient.post(`/certificates/generate`, data, {
-    responseType: "json",
-  })
+  await mainFrontendClient.post(`/certificates/generate`, data)
 }
 
 export const fetchCertificate = async (
@@ -84,7 +82,9 @@ export const updateCertificateConfiguration = async (
   if (backgroundSvgFile !== null && configurationUpdate.background_svg_file_name !== null) {
     formData.append("file", backgroundSvgFile, configurationUpdate.background_svg_file_name)
   }
-  await mainFrontendClient.post("/certificates", formData)
+  await mainFrontendClient.post("/certificates", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  })
 }
 
 export const deleteCertificateConfiguration = async (configurationId: string): Promise<void> => {

@@ -18,15 +18,12 @@ test("Error notifications work", async ({ page, headless }, testInfo) => {
   await page.evaluate(() => {
     window.scrollTo(0, 0)
   })
-
+  await page.getByText("An error occurred").waitFor()
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
     testInfo,
     snapshotName: "error-notification-test",
-    waitForTheseToBeVisibleAndStable: [
-      page.getByRole("heading", { name: "Error 400: Bad Request" }),
-    ],
     clearNotifications: true,
   })
   await showToastsNormally(page)

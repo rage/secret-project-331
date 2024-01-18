@@ -1,12 +1,12 @@
 type Vec<Course> = Array<{
   id: string
   slug: string
-  created_at: Date
-  updated_at: Date
+  created_at: string
+  updated_at: string
   name: string
   description: string | null
   organization_id: string
-  deleted_at: Date | null
+  deleted_at: string | null
   language_code: string
   copied_from: string | null
   content_search_language: string | null

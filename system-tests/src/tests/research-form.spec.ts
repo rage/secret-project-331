@@ -72,7 +72,8 @@ test("User can change answer of the research form", async ({ page, headless }, t
     waitForTheseToBeVisibleAndStable: [page.locator("text=Advanced course instance management")],
   })
   await page.getByRole("link", { name: "Edit" }).getByRole("button", { name: "Edit" }).click()
-  expect(await page.getByLabel("I want to take part in research").isChecked())
+
+  await expect(page.getByLabel("I want to take part in research")).toBeChecked()
 
   await page.getByText("I want to take part in research").click()
   await page.getByRole("button", { name: "Save" }).click()

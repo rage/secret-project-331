@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
-import { differenceInSeconds, formatDuration } from "date-fns"
+import { differenceInSeconds, formatDuration, parseISO } from "date-fns"
 import React, { useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -159,12 +159,12 @@ const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
         })
         closedUntil = t("opens-in-time", { "relative-time": formatted })
       } else {
-        const date = next_page.chapter_opens_at.toLocaleString(i18n.language, {
+        const date = parseISO(next_page.chapter_opens_at).toLocaleString(i18n.language, {
           year: NUMERIC,
           month: LONG,
           day: NUMERIC,
         })
-        const time = next_page.chapter_opens_at.toLocaleString(i18n.language, {
+        const time = parseISO(next_page.chapter_opens_at).toLocaleString(i18n.language, {
           hour: NUMERIC,
           minute: NUMERIC,
         })

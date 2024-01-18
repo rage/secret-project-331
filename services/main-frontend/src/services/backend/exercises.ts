@@ -10,9 +10,6 @@ export const fetchExerciseSubmissions = async (
 ): Promise<ExerciseSubmissions> => {
   const response = await mainFrontendClient.get(
     `/exercises/${exerciseId}/submissions?page=${page}&limit=${limit}`,
-    {
-      responseType: "json",
-    },
   )
   return validateResponse(response, isExerciseSubmissions)
 }

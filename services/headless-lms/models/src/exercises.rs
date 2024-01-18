@@ -961,7 +961,7 @@ mod test {
             exercise
                 .current_exercise_slide
                 .exercise_tasks
-                .get(0)
+                .first()
                 .unwrap()
                 .id,
             exercise_task_id

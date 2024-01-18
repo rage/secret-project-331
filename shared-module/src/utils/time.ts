@@ -1,7 +1,7 @@
 /* eslint-disable i18next/no-literal-string */
 import { format } from "date-fns"
 
-export const dateToString = (date: Date, timeZone = true): string => {
+export const dateToString = (date: Date | string, timeZone = true): string => {
   try {
     const datePart = `${format(date, "yyyy-MM-dd HH:mm:ss")}`
     const timeZonePart = ` UTC${format(date, `xxx`)}`
@@ -11,7 +11,7 @@ export const dateToString = (date: Date, timeZone = true): string => {
   }
 }
 
-export const dateToDateTimeLocalString = (date: Date): string => {
+export const dateToDateTimeLocalString = (date: Date | string): string => {
   try {
     return `${format(date, "yyyy-MM-dd")}T${format(date, "HH:mm:ss")}`
   } catch (e) {

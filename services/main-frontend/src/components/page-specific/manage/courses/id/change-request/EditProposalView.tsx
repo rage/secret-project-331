@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
+import { parseISO } from "date-fns"
 import { diffChars } from "diff"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -305,7 +306,11 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
         />
       </div>
       <div>
-        <TimeComponent boldLabel={false} label={t("label-created")} date={proposal.created_at} />
+        <TimeComponent
+          boldLabel={false}
+          label={t("label-created")}
+          date={parseISO(proposal.created_at)}
+        />
       </div>
       <ul
         className={css`

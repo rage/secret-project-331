@@ -5,16 +5,12 @@ import { validateFile } from "../../shared-module/utils/files"
 import { mainFrontendClient } from "../mainFrontendClient"
 
 export const postNewChapter = async (data: NewChapter): Promise<Chapter> => {
-  const response = await mainFrontendClient.post("/chapters", data, {
-    headers: { "Content-Type": "application/json" },
-  })
+  const response = await mainFrontendClient.post("/chapters", data)
   return validateResponse(response, isChapter)
 }
 
 export const updateChapter = async (chapterId: string, data: ChapterUpdate): Promise<Chapter> => {
-  const response = await mainFrontendClient.put(`/chapters/${chapterId}`, data, {
-    headers: { "Content-Type": "application/json" },
-  })
+  const response = await mainFrontendClient.put(`/chapters/${chapterId}`, data)
   return validateResponse(response, isChapter)
 }
 

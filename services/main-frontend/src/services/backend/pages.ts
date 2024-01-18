@@ -20,9 +20,7 @@ import { validateFile } from "../../shared-module/utils/files"
 import { mainFrontendClient } from "../mainFrontendClient"
 
 export const postNewPage = async (data: NewPage): Promise<Page> => {
-  const response = await mainFrontendClient.post("/pages", data, {
-    headers: { "Content-Type": "application/json" },
-  })
+  const response = await mainFrontendClient.post("/pages", data)
   return validateResponse(response, isPage)
 }
 
@@ -49,14 +47,12 @@ export const fetchHistoryCountForPage = async (pageId: string): Promise<number> 
 
 export const restorePage = async (pageId: string, historyId: string): Promise<string> => {
   const data: HistoryRestoreData = { history_id: historyId }
-  const response = await mainFrontendClient.post(`/pages/${pageId}/restore`, data, {
-    headers: { "Content-Type": "application/json" },
-  })
+  const response = await mainFrontendClient.post(`/pages/${pageId}/restore`, data)
   return validateResponse(response, isString)
 }
 
 export const fetchPageInfo = async (pageId: string): Promise<PageInfo> => {
-  const response = await mainFrontendClient.get(`/pages/${pageId}/info`, { responseType: "json" })
+  const response = await mainFrontendClient.get(`/pages/${pageId}/info`)
   return validateResponse(response, isPageInfo)
 }
 

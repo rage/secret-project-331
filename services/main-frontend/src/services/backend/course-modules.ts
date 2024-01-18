@@ -15,9 +15,7 @@ import { validateResponse } from "../../shared-module/utils/fetching"
 import { mainFrontendClient } from "../mainFrontendClient"
 
 export const fetchCourseModule = async (id: string): Promise<CourseModule> => {
-  const response = await mainFrontendClient.get(`/course-modules/${id}`, {
-    responseType: "json",
-  })
+  const response = await mainFrontendClient.get(`/course-modules/${id}`)
   return validateResponse(response, isCourseModule)
 }
 
@@ -27,9 +25,6 @@ export const fetchUserCompletionInformation = async (
   {
     const response = await mainFrontendClient.get(
       `/course-modules/${courseModuleId}/user-completion`,
-      {
-        responseType: "json",
-      },
     )
     return validateResponse(response, isUserCompletionInformation)
   }
@@ -40,9 +35,6 @@ export const fetchCompletionRegistrationLink = async (
 ): Promise<CompletionRegistrationLink> => {
   const res = await mainFrontendClient.get(
     `/course-modules/${courseModuleId}/completion-registration-link`,
-    {
-      responseType: "json",
-    },
   )
   return validateResponse(res, isCompletionRegistrationLink)
 }
@@ -60,9 +52,7 @@ export const submitChanges = async (
     modified_modules: modifiedModules,
     moved_chapters: movedChapters,
   }
-  await mainFrontendClient.post(`/courses/${courseId}/course-modules`, data, {
-    responseType: "json",
-  })
+  await mainFrontendClient.post(`/courses/${courseId}/course-modules`, data)
 }
 
 export const setCertificationGeneration = async (id: string, enable: boolean): Promise<void> => {

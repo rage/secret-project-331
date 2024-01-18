@@ -312,6 +312,9 @@ export async function takeScreenshotAndComparetoSnapshot(
   page: Page,
   useCoordinatesFromTheBottomForSavingYCoordinates: boolean | undefined,
 ): Promise<void> {
+  if (process.env.SKIP_TAKING_SCREENSHOTS) {
+    return
+  }
   const pathToImage = testInfo.snapshotPath(screenshotName)
   let newScreenshot = false
   try {

@@ -8,6 +8,7 @@ import {
   Trash,
   XmarkCircle,
 } from "@vectopus/atlas-icons-react"
+import { parseISO } from "date-fns"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -269,14 +270,14 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
         >
           <TimeComponent
             label={`${t("label-created")} `}
-            date={exerciseService.created_at}
+            date={parseISO(exerciseService.created_at)}
             right={false}
             boldLabel
           />
           <TimeComponent
             label={`${t("label-updated")} `}
             boldLabel
-            date={exerciseService.updated_at}
+            date={parseISO(exerciseService.updated_at)}
             right={true}
           />
         </div>

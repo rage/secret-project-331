@@ -1,4 +1,3 @@
-import { parseISO } from "date-fns"
 import Papa from "papaparse"
 import React, { useState } from "react"
 import { useForm } from "react-hook-form"
@@ -61,7 +60,7 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({
       if (parsed.errors.length > 0) {
         setError(COMPLETIONS, { message: parsed.errors[0].message })
       }
-      const defaultDate = date ? parseISO(makeDateStringTimezoneErrorsLessLikely(date)) : null
+      const defaultDate = date ? makeDateStringTimezoneErrorsLessLikely(date) : null
       const newCompletions = parsed.data.map((entry) => {
         const completionDate = (entry as RawTeacherManualCompletion).completion_date
         const grade = (entry as RawTeacherManualCompletion).grade
@@ -71,7 +70,7 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({
         }
         return {
           completion_date: completionDate
-            ? parseISO(makeDateStringTimezoneErrorsLessLikely(completionDate))
+            ? makeDateStringTimezoneErrorsLessLikely(completionDate)
             : defaultDate,
           grade: grade ? parseInt(grade) : null,
           user_id: userId,

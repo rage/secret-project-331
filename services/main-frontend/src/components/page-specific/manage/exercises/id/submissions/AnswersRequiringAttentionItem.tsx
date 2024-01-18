@@ -1,6 +1,7 @@
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import { ExclamationMessage } from "@vectopus/atlas-icons-react"
+import { parseISO } from "date-fns"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { usePopper } from "react-popper"
@@ -163,7 +164,9 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
               `}
             >
               {t("answered-at", {
-                time: `${answerRequiringAttention?.created_at.toDateString()} ${answerRequiringAttention?.created_at.toLocaleTimeString()}`,
+                time: `${parseISO(answerRequiringAttention.created_at).toDateString()} ${parseISO(
+                  answerRequiringAttention.created_at,
+                ).toLocaleTimeString()}`,
               })}{" "}
             </p>
             <p

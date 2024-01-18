@@ -32,7 +32,7 @@ test.describe("user", () => {
   })
   test("cannot directly navigate to the draft course page", async ({ page }) => {
     await page.goto("http://project-331.local/org/uh-mathstat/courses/introduction-to-drafts")
-    await page.getByText("Unauthorized").waitFor()
+    await page.getByText("Unauthorized", { exact: true }).waitFor()
     await expect(page.locator("text=Introduction to Drafts")).toBeHidden()
   })
 })

@@ -1,8 +1,8 @@
 type PeerReviewSubmission = {
   id: string
-  created_at: Date
-  updated_at: Date
-  deleted_at: Date | null
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
   user_id: string
   exercise_id: string
   course_instance_id: string

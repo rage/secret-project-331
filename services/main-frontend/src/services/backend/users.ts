@@ -19,13 +19,7 @@ export async function getCourseInstanceEnrollmentsInfo(
 }
 
 export const postUserResearchConsent = async (consent: boolean): Promise<UserResearchConsent> => {
-  const res = await mainFrontendClient.post(
-    `/users/user-research-consents`,
-    { consent },
-    {
-      responseType: "json",
-    },
-  )
+  const res = await mainFrontendClient.post(`/users/user-research-consents`, { consent })
   return validateResponse(res, isUserResearchConsent)
 }
 

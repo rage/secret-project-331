@@ -4,6 +4,6 @@ type StudentCountry = {
   course_id: string
   course_instance_id: string
   country_code: string
-  created_at: Date
-  deleted_at: Date | null
+  created_at: string
+  deleted_at: string | null
 }

@@ -1,8 +1,8 @@
 type CourseModule = {
   id: string
-  created_at: Date
-  updated_at: Date
-  deleted_at: Date | null
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
   name: string | null
   course_id: string
   order_number: number

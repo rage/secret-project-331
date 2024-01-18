@@ -23,8 +23,8 @@ interface NewChapterFormProps {
 interface Fields {
   name: string
   color: string | null
-  opens_at: Date | null
-  deadline: Date | null
+  opens_at: string | null
+  deadline: string | null
   chapter_number: number
 }
 
@@ -84,8 +84,8 @@ const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = (
           color: data.color,
           chapter_number: chapterNumber,
           front_page_id: null,
-          opens_at: data.opens_at,
-          deadline: data.deadline,
+          opens_at: data.opens_at ?? null,
+          deadline: data.deadline ?? null,
           course_module_id: null,
         })
       })}

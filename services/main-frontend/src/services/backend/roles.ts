@@ -6,7 +6,6 @@ import { mainFrontendClient } from "../mainFrontendClient"
 export const fetchRoles = async (query: RoleQuery): Promise<Array<RoleUser>> => {
   const response = await mainFrontendClient.get(`/roles`, {
     params: query,
-    responseType: "json",
   })
   return validateResponse(response, isArray(isRoleUser))
 }
@@ -21,7 +20,7 @@ export const giveRole = async (
     role,
     domain,
   }
-  await mainFrontendClient.post(`/roles/add`, data, { responseType: "json" })
+  await mainFrontendClient.post(`/roles/add`, data)
 }
 
 export const removeRole = async (
@@ -34,5 +33,5 @@ export const removeRole = async (
     role,
     domain,
   }
-  await mainFrontendClient.post(`/roles/remove`, data, { responseType: "json" })
+  await mainFrontendClient.post(`/roles/remove`, data)
 }

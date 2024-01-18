@@ -2,6 +2,7 @@ import KaTex from "katex"
 import { renderToString } from "react-dom/server"
 import "katex/dist/katex.min.css"
 
+import { StringWithHTML } from "../../../../types"
 import { Term } from "../../../shared-module/bindings"
 import { sanitizeCourseMaterialHtml } from "../../../utils/sanitizeCourseMaterialHtml"
 import Tooltip from "../core/common/GlossaryTooltip"
@@ -61,7 +62,7 @@ const parseCitation = (data: string) => {
   return converted
 }
 
-const parseText = (content: string, terms: Term[]) => {
+const parseText = (content: string | undefined | StringWithHTML, terms: Term[]) => {
   const sanitizedHTML = sanitizeCourseMaterialHtml(content)
   const { count, converted: parsedLatex } = convertToLatex(sanitizedHTML)
   const parsedCitation = parseCitation(parsedLatex)

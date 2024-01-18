@@ -122,6 +122,8 @@ fn models(target: &mut File) {
         exercises::ExerciseStatus,
         exercises::ExerciseStatusSummaryForUser,
 
+        library::global_stats::GlobalStatEntry,
+
         exercises::ExerciseGradingStatus,
         exercises::GradingProgress,
 

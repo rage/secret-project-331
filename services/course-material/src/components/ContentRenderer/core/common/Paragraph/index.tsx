@@ -91,7 +91,7 @@ const ParagraphBlock: React.FC<
                 edits.set(id, {
                   block_id: id,
                   block_attribute: "content",
-                  original_text: content,
+                  original_text: content ?? "",
                   changed_text: changed,
                 })
                 return new Map(edits)
@@ -109,7 +109,7 @@ const ParagraphBlock: React.FC<
         </p>
       )
     } else {
-      const diffChanges = diffChars(data.attributes.content, editedContent)
+      const diffChanges = diffChars(data.attributes.content ?? "", editedContent ?? "")
 
       return (
         <p

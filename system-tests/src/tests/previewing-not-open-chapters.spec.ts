@@ -43,7 +43,7 @@ test("Teachers can preview chapters that are not open yet", async ({ page, brows
   await page3.goto(
     "http://project-331.local/org/uh-mathstat/courses/preview-unopened-chapters/chapter-1/page-1",
   )
-  await page3.getByText("Chapter is not open yet").waitFor()
+  await page3.getByText("Chapter is not open yet.", { exact: true }).waitFor()
   await context2.close()
 })
 

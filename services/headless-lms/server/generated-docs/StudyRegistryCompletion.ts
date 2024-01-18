@@ -1,7 +1,7 @@
 type StudyRegistryCompletion = {
-  completion_date: Date
+  completion_date: string
   completion_language: string
-  completion_registration_attempt_date: Date | null
+  completion_registration_attempt_date: string | null
   email: string
   grade: StudyRegistryGrade
   id: string

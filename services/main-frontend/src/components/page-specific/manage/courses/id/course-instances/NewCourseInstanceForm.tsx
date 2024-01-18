@@ -92,14 +92,14 @@ const NewCourseInstanceForm: React.FC<React.PropsWithChildren<FormProps>> = ({
         />
         <TimePicker
           label={t("opening-time")}
-          onChangeByValue={(time) => setNewOpeningTime(new Date(time))}
+          onChangeByValue={(time) => setNewOpeningTime(new Date(time).toISOString())}
           className={css`
             margin-bottom: 0.5rem;
           `}
         />
         <TimePicker
           label={t("closing-time")}
-          onChangeByValue={(time) => setNewClosingTime(new Date(time))}
+          onChangeByValue={(time) => setNewClosingTime(new Date(time).toISOString())}
           className={css`
             margin-bottom: 0.5rem;
           `}

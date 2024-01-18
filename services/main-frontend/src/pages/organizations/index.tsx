@@ -10,6 +10,7 @@ import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 const MANAGE_EXERCISE_SERVICES_HREF = "/manage/exercise-services"
 const SEARCH_USERS_HREF = "/manage/search-users"
 const GLOBAL_PERMISSIONS_HREF = "/manage/permissions"
+const GLOBAL_STATS_HREF = "/stats"
 
 const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
@@ -62,6 +63,23 @@ const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
             `}
           >
             {t("global-permissions")}
+          </Link>
+        </div>
+      </OnlyRenderIfPermissions>
+      <OnlyRenderIfPermissions
+        action={{ type: "view_stats" }}
+        resource={{ type: "global_permissions" }}
+      >
+        <div>
+          <Link
+            href={GLOBAL_STATS_HREF}
+            className={css`
+              cursor: pointer;
+              color: blue;
+              text-decoration: underline;
+            `}
+          >
+            {t("link-text-global-stats")}
           </Link>
         </div>
       </OnlyRenderIfPermissions>

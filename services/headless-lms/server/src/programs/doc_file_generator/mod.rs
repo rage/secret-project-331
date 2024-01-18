@@ -124,6 +124,7 @@ use headless_lms_models::{
     courses::CourseBreadcrumbInfo,
     exercise_task_submissions::PeerReviewsRecieved,
     exercises::ExerciseStatusSummaryForUser,
+    library::global_stats::GlobalStatEntry,
     page_audio_files::PageAudioFile,
     page_visit_datum_summary_by_courses::PageVisitDatumSummaryByCourse,
     page_visit_datum_summary_by_courses_countries::PageVisitDatumSummaryByCoursesCountries,
@@ -1782,6 +1783,17 @@ fn models() {
             created_at,
             updated_at,
             deleted_at,
+        }
+    );
+    doc!(
+        Vec,
+        GlobalStatEntry {
+            name: "Introduction to everything".to_string(),
+            course_id,
+            organization_id,
+            organization_name: "University of Helsinki, Department of Computer Science".to_string(),
+            year: "2024".to_string(),
+            value: 632,
         }
     );
 }

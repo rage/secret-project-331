@@ -58,7 +58,7 @@ export default function useToastMutation<
       },
       {
         ...notificationOptions.toastOptions,
-        duration: showToastInfinitely ? 1000000 : notificationOptions.toastOptions?.duration,
+        duration: showToastInfinitely ? Infinity : notificationOptions.toastOptions?.duration,
         id: toastId,
       },
     )

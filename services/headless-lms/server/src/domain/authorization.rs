@@ -187,6 +187,7 @@ pub enum Action {
     UploadFile,
     ViewUserProgressOrDetails,
     ViewInternalCourseStructure,
+    ViewStats,
 }
 
 /// The target of an action.

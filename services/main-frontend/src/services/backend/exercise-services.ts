@@ -4,25 +4,21 @@ import { isArray, validateResponse } from "../../shared-module/utils/fetching"
 import { mainFrontendClient } from "../mainFrontendClient"
 
 export const fetchExerciseServices = async (): Promise<Array<ExerciseService>> => {
-  const response = await mainFrontendClient.get(`/exercise-services/`, { responseType: "json" })
+  const response = await mainFrontendClient.get(`/exercise-services/`)
   return validateResponse(response, isArray(isExerciseService))
 }
 
 export const fetchExerciseServiceById = async (
   exercise_service_id: string,
 ): Promise<ExerciseService> => {
-  const response = await mainFrontendClient.get(`/exercise-services/${exercise_service_id}`, {
-    responseType: "json",
-  })
+  const response = await mainFrontendClient.get(`/exercise-services/${exercise_service_id}`)
   return validateResponse(response, isExerciseService)
 }
 
 export const addExerciseService = async (
   exercise_service: ExerciseServiceNewOrUpdate,
 ): Promise<ExerciseService> => {
-  const response = await mainFrontendClient.post("/exercise-services/", exercise_service, {
-    responseType: "json",
-  })
+  const response = await mainFrontendClient.post("/exercise-services/", exercise_service)
   return validateResponse(response, isExerciseService)
 }
 
@@ -40,9 +36,6 @@ export const updateExerciseService = async (
   const response = await mainFrontendClient.put(
     `/exercise-services/${exercise_service_id}`,
     exercise_service,
-    {
-      headers: { "Content-Type": "application/json" },
-    },
   )
   return validateResponse(response, isExerciseService)
 }

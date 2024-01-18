@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["SvgDocumentsList","SvgDocumentsListIter","Table"]};
+window.SIDEBAR_ITEMS = {"struct":["SvgDocument","SvgDocumentsList","SvgDocumentsListIter","Table"]};

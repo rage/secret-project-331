@@ -5,14 +5,14 @@
 <p>Since anyone can access this endpoint, any unlisted pages are omited from these results.</p>
 <h3 id="response-typescript-definition"><a href="#response-typescript-definition">Response TypeScript definition</a></h3><div class="example-wrap"><pre class="language-ts"><code>type Vec&lt;Page&gt; = Array&lt;{
   id: string
-  created_at: Date
-  updated_at: Date
+  created_at: string
+  updated_at: string
   course_id: string | null
   exam_id: string | null
   chapter_id: string | null
   url_path: string
   title: string
-  deleted_at: Date | null
+  deleted_at: string | null
   content: unknown
   order_number: number
   copied_from: string | null

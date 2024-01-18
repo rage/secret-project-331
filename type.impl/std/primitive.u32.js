@@ -1,6 +1,7 @@
 (function() {var type_impls = {
 "fontconfig_parser":[],
 "libgit2_sys":[],
+"linux_raw_sys":[],
 "nix":[],
 "serde":[],
 "tokio":[],

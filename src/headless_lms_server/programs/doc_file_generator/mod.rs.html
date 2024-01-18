@@ -1806,6 +1806,18 @@
 <a href="#1806" id="1806">1806</a>
 <a href="#1807" id="1807">1807</a>
 <a href="#1808" id="1808">1808</a>
+<a href="#1809" id="1809">1809</a>
+<a href="#1810" id="1810">1810</a>
+<a href="#1811" id="1811">1811</a>
+<a href="#1812" id="1812">1812</a>
+<a href="#1813" id="1813">1813</a>
+<a href="#1814" id="1814">1814</a>
+<a href="#1815" id="1815">1815</a>
+<a href="#1816" id="1816">1816</a>
+<a href="#1817" id="1817">1817</a>
+<a href="#1818" id="1818">1818</a>
+<a href="#1819" id="1819">1819</a>
+<a href="#1820" id="1820">1820</a>
 </pre></div><pre class="rust"><code><span class="doccomment">/*! The doc file generator is used to write example JSON and TypeScript definitions for the docs of return values of API endpoints.
 
 This is done by writing .json and .ts files that can be discovered by the #[generated_doc] attribute macro that is used by API endpoints.
@@ -1932,6 +1944,7 @@ This method is mainly useful for external/std types. For example, we cannot writ
     courses::CourseBreadcrumbInfo,
     exercise_task_submissions::PeerReviewsRecieved,
     exercises::ExerciseStatusSummaryForUser,
+    library::global_stats::GlobalStatEntry,
     page_audio_files::PageAudioFile,
     page_visit_datum_summary_by_courses::PageVisitDatumSummaryByCourse,
     page_visit_datum_summary_by_courses_countries::PageVisitDatumSummaryByCoursesCountries,
@@ -3590,6 +3603,17 @@ This method is mainly useful for external/std types. For example, we cannot writ
             created_at,
             updated_at,
             deleted_at,
+        }
+    );
+    <span class="macro">doc!</span>(
+        Vec,
+        GlobalStatEntry {
+            name: <span class="string">&quot;Introduction to everything&quot;</span>.to_string(),
+            course_id,
+            organization_id,
+            organization_name: <span class="string">&quot;University of Helsinki, Department of Computer Science&quot;</span>.to_string(),
+            year: <span class="string">&quot;2024&quot;</span>.to_string(),
+            value: <span class="number">632</span>,
         }
     );
 }

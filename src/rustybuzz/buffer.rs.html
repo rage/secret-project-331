@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.10.0/src/buffer.rs`."><title>buffer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.12.1/src/buffer.rs`."><title>buffer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1802,6 +1802,53 @@
 <a href="#1802" id="1802">1802</a>
 <a href="#1803" id="1803">1803</a>
 <a href="#1804" id="1804">1804</a>
+<a href="#1805" id="1805">1805</a>
+<a href="#1806" id="1806">1806</a>
+<a href="#1807" id="1807">1807</a>
+<a href="#1808" id="1808">1808</a>
+<a href="#1809" id="1809">1809</a>
+<a href="#1810" id="1810">1810</a>
+<a href="#1811" id="1811">1811</a>
+<a href="#1812" id="1812">1812</a>
+<a href="#1813" id="1813">1813</a>
+<a href="#1814" id="1814">1814</a>
+<a href="#1815" id="1815">1815</a>
+<a href="#1816" id="1816">1816</a>
+<a href="#1817" id="1817">1817</a>
+<a href="#1818" id="1818">1818</a>
+<a href="#1819" id="1819">1819</a>
+<a href="#1820" id="1820">1820</a>
+<a href="#1821" id="1821">1821</a>
+<a href="#1822" id="1822">1822</a>
+<a href="#1823" id="1823">1823</a>
+<a href="#1824" id="1824">1824</a>
+<a href="#1825" id="1825">1825</a>
+<a href="#1826" id="1826">1826</a>
+<a href="#1827" id="1827">1827</a>
+<a href="#1828" id="1828">1828</a>
+<a href="#1829" id="1829">1829</a>
+<a href="#1830" id="1830">1830</a>
+<a href="#1831" id="1831">1831</a>
+<a href="#1832" id="1832">1832</a>
+<a href="#1833" id="1833">1833</a>
+<a href="#1834" id="1834">1834</a>
+<a href="#1835" id="1835">1835</a>
+<a href="#1836" id="1836">1836</a>
+<a href="#1837" id="1837">1837</a>
+<a href="#1838" id="1838">1838</a>
+<a href="#1839" id="1839">1839</a>
+<a href="#1840" id="1840">1840</a>
+<a href="#1841" id="1841">1841</a>
+<a href="#1842" id="1842">1842</a>
+<a href="#1843" id="1843">1843</a>
+<a href="#1844" id="1844">1844</a>
+<a href="#1845" id="1845">1845</a>
+<a href="#1846" id="1846">1846</a>
+<a href="#1847" id="1847">1847</a>
+<a href="#1848" id="1848">1848</a>
+<a href="#1849" id="1849">1849</a>
+<a href="#1850" id="1850">1850</a>
+<a href="#1851" id="1851">1851</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>alloc::{string::String, vec::Vec};
 <span class="kw">use </span>core::convert::TryFrom;
 
@@ -1983,12 +2030,12 @@
             <span class="kw-2">*</span>scratch_flags |= BufferScratchFlags::HAS_NON_ASCII;
 
             <span class="kw">if </span>u.is_default_ignorable() {
-                props |= UnicodeProps::IGNORABLE.bits;
+                props |= UnicodeProps::IGNORABLE.bits();
                 <span class="kw-2">*</span>scratch_flags |= BufferScratchFlags::HAS_DEFAULT_IGNORABLES;
 
                 <span class="kw">match </span>u <span class="kw">as </span>u32 {
-                    <span class="number">0x200C </span>=&gt; props |= UnicodeProps::CF_ZWNJ.bits,
-                    <span class="number">0x200D </span>=&gt; props |= UnicodeProps::CF_ZWJ.bits,
+                    <span class="number">0x200C </span>=&gt; props |= UnicodeProps::CF_ZWNJ.bits(),
+                    <span class="number">0x200D </span>=&gt; props |= UnicodeProps::CF_ZWJ.bits(),
 
                     <span class="comment">// Mongolian Free Variation Selectors need to be remembered
                     // because although we need to hide them like default-ignorables,
@@ -1997,16 +2044,16 @@
                     // FVSes are GC=Mn, we have use a separate bit to remember them.
                     // Fixes:
                     // https://github.com/harfbuzz/harfbuzz/issues/234
-                    </span><span class="number">0x180B</span>..=<span class="number">0x180D </span>=&gt; props |= UnicodeProps::HIDDEN.bits,
+                    </span><span class="number">0x180B</span>..=<span class="number">0x180D </span>=&gt; props |= UnicodeProps::HIDDEN.bits(),
 
                     <span class="comment">// TAG characters need similar treatment. Fixes:
                     // https://github.com/harfbuzz/harfbuzz/issues/463
-                    </span><span class="number">0xE0020</span>..=<span class="number">0xE007F </span>=&gt; props |= UnicodeProps::HIDDEN.bits,
+                    </span><span class="number">0xE0020</span>..=<span class="number">0xE007F </span>=&gt; props |= UnicodeProps::HIDDEN.bits(),
 
                     <span class="comment">// COMBINING GRAPHEME JOINER should not be skipped; at least some times.
                     // https://github.com/harfbuzz/harfbuzz/issues/554
                     </span><span class="number">0x034F </span>=&gt; {
-                        props |= UnicodeProps::HIDDEN.bits;
+                        props |= UnicodeProps::HIDDEN.bits();
                         <span class="kw-2">*</span>scratch_flags |= BufferScratchFlags::HAS_CGJ;
                     }
 
@@ -2015,7 +2062,7 @@
             }
 
             <span class="kw">if </span>gc.is_mark() {
-                props |= UnicodeProps::CONTINUATION.bits;
+                props |= UnicodeProps::CONTINUATION.bits();
                 props |= (u.modified_combining_class() <span class="kw">as </span>u16) &lt;&lt; <span class="number">8</span>;
             }
         }
@@ -2025,7 +2072,7 @@
 
     <span class="attr">#[inline]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>general_category(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; GeneralCategory {
-        <span class="kw">let </span>n = <span class="self">self</span>.unicode_props() &amp; UnicodeProps::GENERAL_CATEGORY.bits;
+        <span class="kw">let </span>n = <span class="self">self</span>.unicode_props() &amp; UnicodeProps::GENERAL_CATEGORY.bits();
         GeneralCategory::from_rb(n <span class="kw">as </span>u32)
     }
 
@@ -2033,7 +2080,7 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>set_general_category(<span class="kw-2">&amp;mut </span><span class="self">self</span>, gc: GeneralCategory) {
         <span class="kw">let </span>gc = gc.to_rb();
         <span class="kw">let </span>n =
-            (gc <span class="kw">as </span>u16) | (<span class="self">self</span>.unicode_props() &amp; (<span class="number">0xFF </span>&amp; !UnicodeProps::GENERAL_CATEGORY.bits));
+            (gc <span class="kw">as </span>u16) | (<span class="self">self</span>.unicode_props() &amp; (<span class="number">0xFF </span>&amp; !UnicodeProps::GENERAL_CATEGORY.bits()));
         <span class="self">self</span>.set_unicode_props(n);
     }
 
@@ -2063,13 +2110,13 @@
     <span class="attr">#[inline]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>is_zwnj(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.general_category() == GeneralCategory::Format
-            &amp;&amp; (<span class="self">self</span>.unicode_props() &amp; UnicodeProps::CF_ZWNJ.bits != <span class="number">0</span>)
+            &amp;&amp; (<span class="self">self</span>.unicode_props() &amp; UnicodeProps::CF_ZWNJ.bits() != <span class="number">0</span>)
     }
 
     <span class="attr">#[inline]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>is_zwj(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.general_category() == GeneralCategory::Format
-            &amp;&amp; (<span class="self">self</span>.unicode_props() &amp; UnicodeProps::CF_ZWJ.bits != <span class="number">0</span>)
+            &amp;&amp; (<span class="self">self</span>.unicode_props() &amp; UnicodeProps::CF_ZWJ.bits() != <span class="number">0</span>)
     }
 
     <span class="attr">#[inline]
@@ -2091,38 +2138,38 @@
 
     <span class="attr">#[inline]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>is_hidden(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.unicode_props() &amp; UnicodeProps::HIDDEN.bits != <span class="number">0
+        <span class="self">self</span>.unicode_props() &amp; UnicodeProps::HIDDEN.bits() != <span class="number">0
     </span>}
 
     <span class="attr">#[inline]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>unhide(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">let </span><span class="kw-2">mut </span>n = <span class="self">self</span>.unicode_props();
-        n &amp;= !UnicodeProps::HIDDEN.bits;
+        n &amp;= !UnicodeProps::HIDDEN.bits();
         <span class="self">self</span>.set_unicode_props(n);
     }
 
     <span class="attr">#[inline]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>set_continuation(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">let </span><span class="kw-2">mut </span>n = <span class="self">self</span>.unicode_props();
-        n |= UnicodeProps::CONTINUATION.bits;
+        n |= UnicodeProps::CONTINUATION.bits();
         <span class="self">self</span>.set_unicode_props(n);
     }
 
     <span class="attr">#[inline]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>reset_continuation(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">let </span><span class="kw-2">mut </span>n = <span class="self">self</span>.unicode_props();
-        n &amp;= !UnicodeProps::CONTINUATION.bits;
+        n &amp;= !UnicodeProps::CONTINUATION.bits();
         <span class="self">self</span>.set_unicode_props(n);
     }
 
     <span class="attr">#[inline]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>is_continuation(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.unicode_props() &amp; UnicodeProps::CONTINUATION.bits != <span class="number">0
+        <span class="self">self</span>.unicode_props() &amp; UnicodeProps::CONTINUATION.bits() != <span class="number">0
     </span>}
 
     <span class="attr">#[inline]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>is_default_ignorable(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="kw">let </span>n = <span class="self">self</span>.unicode_props() &amp; UnicodeProps::IGNORABLE.bits;
+        <span class="kw">let </span>n = <span class="self">self</span>.unicode_props() &amp; UnicodeProps::IGNORABLE.bits();
         n != <span class="number">0 </span>&amp;&amp; !<span class="self">self</span>.is_substituted()
     }
 
@@ -2196,7 +2243,8 @@
 
     <span class="attr">#[inline]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>lig_num_comps(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8 {
-        <span class="kw">if </span><span class="self">self</span>.glyph_props() &amp; GlyphPropsFlags::LIGATURE.bits != <span class="number">0 </span>&amp;&amp; <span class="self">self</span>.is_ligated_internal() {
+        <span class="kw">if </span><span class="self">self</span>.glyph_props() &amp; GlyphPropsFlags::LIGATURE.bits() != <span class="number">0 </span>&amp;&amp; <span class="self">self</span>.is_ligated_internal()
+        {
             <span class="self">self</span>.lig_props() &amp; <span class="number">0x0F
         </span>} <span class="kw">else </span>{
             <span class="number">1
@@ -2220,32 +2268,32 @@
 
     <span class="attr">#[inline]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>is_base_glyph(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.glyph_props() &amp; GlyphPropsFlags::BASE_GLYPH.bits != <span class="number">0
+        <span class="self">self</span>.glyph_props() &amp; GlyphPropsFlags::BASE_GLYPH.bits() != <span class="number">0
     </span>}
 
     <span class="attr">#[inline]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>is_ligature(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.glyph_props() &amp; GlyphPropsFlags::LIGATURE.bits != <span class="number">0
+        <span class="self">self</span>.glyph_props() &amp; GlyphPropsFlags::LIGATURE.bits() != <span class="number">0
     </span>}
 
     <span class="attr">#[inline]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>is_mark(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.glyph_props() &amp; GlyphPropsFlags::MARK.bits != <span class="number">0
+        <span class="self">self</span>.glyph_props() &amp; GlyphPropsFlags::MARK.bits() != <span class="number">0
     </span>}
 
     <span class="attr">#[inline]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>is_substituted(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.glyph_props() &amp; GlyphPropsFlags::SUBSTITUTED.bits != <span class="number">0
+        <span class="self">self</span>.glyph_props() &amp; GlyphPropsFlags::SUBSTITUTED.bits() != <span class="number">0
     </span>}
 
     <span class="attr">#[inline]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>is_ligated(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.glyph_props() &amp; GlyphPropsFlags::LIGATED.bits != <span class="number">0
+        <span class="self">self</span>.glyph_props() &amp; GlyphPropsFlags::LIGATED.bits() != <span class="number">0
     </span>}
 
     <span class="attr">#[inline]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>is_multiplied(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.glyph_props() &amp; GlyphPropsFlags::MULTIPLIED.bits != <span class="number">0
+        <span class="self">self</span>.glyph_props() &amp; GlyphPropsFlags::MULTIPLIED.bits() != <span class="number">0
     </span>}
 
     <span class="attr">#[inline]
@@ -2256,14 +2304,14 @@
     <span class="attr">#[inline]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>clear_ligated_and_multiplied(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">let </span><span class="kw-2">mut </span>n = <span class="self">self</span>.glyph_props();
-        n &amp;= !(GlyphPropsFlags::LIGATED | GlyphPropsFlags::MULTIPLIED).bits;
+        n &amp;= !(GlyphPropsFlags::LIGATED | GlyphPropsFlags::MULTIPLIED).bits();
         <span class="self">self</span>.set_glyph_props(n);
     }
 
     <span class="attr">#[inline]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>clear_substituted(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">let </span><span class="kw-2">mut </span>n = <span class="self">self</span>.glyph_props();
-        n &amp;= !GlyphPropsFlags::SUBSTITUTED.bits;
+        n &amp;= !GlyphPropsFlags::SUBSTITUTED.bits();
         <span class="self">self</span>.set_glyph_props(n);
     }
 
@@ -2331,7 +2379,7 @@
     <span class="doccomment">/// Allocations successful.
     </span><span class="kw">pub </span>successful: bool,
     <span class="doccomment">/// Whether we have an output buffer going on.
-    </span>have_output: bool,
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) have_output: bool,
     <span class="kw">pub </span>have_separate_output: bool,
     <span class="doccomment">/// Whether we have positions
     </span><span class="kw">pub </span>have_positions: bool,
@@ -2570,15 +2618,17 @@
     </span>}
 
     <span class="kw">pub fn </span>swap_buffers(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="macro">assert!</span>(<span class="self">self</span>.have_output);
+
+        <span class="macro">assert!</span>(<span class="self">self</span>.idx &lt;= <span class="self">self</span>.len);
         <span class="kw">if </span>!<span class="self">self</span>.successful {
+            <span class="self">self</span>.have_output = <span class="bool-val">false</span>;
+            <span class="self">self</span>.out_len = <span class="number">0</span>;
+            <span class="self">self</span>.idx = <span class="number">0</span>;
             <span class="kw">return</span>;
         }
 
-        <span class="macro">assert!</span>(<span class="self">self</span>.idx &lt;= <span class="self">self</span>.len);
         <span class="self">self</span>.next_glyphs(<span class="self">self</span>.len - <span class="self">self</span>.idx);
-
-        <span class="macro">assert!</span>(<span class="self">self</span>.have_output);
-        <span class="self">self</span>.have_output = <span class="bool-val">false</span>;
 
         <span class="kw">if </span><span class="self">self</span>.have_separate_output {
             <span class="comment">// Swap info and pos buffers.
@@ -2588,23 +2638,18 @@
             <span class="self">self</span>.info = pos;
         }
 
-        core::mem::swap(<span class="kw-2">&amp;mut </span><span class="self">self</span>.len, <span class="kw-2">&amp;mut </span><span class="self">self</span>.out_len);
+        <span class="self">self</span>.len = <span class="self">self</span>.out_len;
 
-        <span class="self">self</span>.idx = <span class="number">0</span>;
-    }
-
-    <span class="kw">pub fn </span>remove_output(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="self">self</span>.have_output = <span class="bool-val">false</span>;
-        <span class="self">self</span>.have_positions = <span class="bool-val">false</span>;
-
         <span class="self">self</span>.out_len = <span class="number">0</span>;
-        <span class="self">self</span>.have_separate_output = <span class="bool-val">false</span>;
+        <span class="self">self</span>.idx = <span class="number">0</span>;
     }
 
     <span class="kw">pub fn </span>clear_output(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="self">self</span>.have_output = <span class="bool-val">true</span>;
         <span class="self">self</span>.have_positions = <span class="bool-val">false</span>;
 
+        <span class="self">self</span>.idx = <span class="number">0</span>;
         <span class="self">self</span>.out_len = <span class="number">0</span>;
         <span class="self">self</span>.have_separate_output = <span class="bool-val">false</span>;
     }
@@ -3028,13 +3073,12 @@
             <span class="comment">// This will blow in our face if memory allocation fails later
             // in this same lookup...
             //
-            // We used to shift with extra 32 items, instead of the 0 below.
+            // We used to shift with extra 32 items.
             // But that would leave empty slots in the buffer in case of allocation
-            // failures.  Setting to zero for now to avoid other problems (see
-            // comments in shift_forward().  This can cause O(N^2) behavior more
-            // severely than adding 32 empty slots can...
+            // failures.  See comments in shift_forward().  This can cause O(N^2)
+            // behavior more severely than adding 32 empty slots can...
             </span><span class="kw">if </span><span class="self">self</span>.idx &lt; count {
-                <span class="self">self</span>.shift_forward(count);
+                <span class="self">self</span>.shift_forward(count - <span class="self">self</span>.idx);
             }
 
             <span class="macro">assert!</span>(<span class="self">self</span>.idx &gt;= count);
@@ -3091,7 +3135,7 @@
         <span class="macro">assert!</span>(<span class="self">self</span>.have_output);
         <span class="self">self</span>.ensure(<span class="self">self</span>.len + count);
 
-        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..(<span class="self">self</span>.len - <span class="self">self</span>.idx) {
+        <span class="kw">for </span>i <span class="kw">in </span>(<span class="number">0</span>..(<span class="self">self</span>.len - <span class="self">self</span>.idx)).rev() {
             <span class="self">self</span>.info[<span class="self">self</span>.idx + count + i] = <span class="self">self</span>.info[<span class="self">self</span>.idx + i];
         }
 
@@ -3103,6 +3147,10 @@
 
         <span class="self">self</span>.len += count;
         <span class="self">self</span>.idx += count;
+    }
+
+    <span class="kw">fn </span>clear_context(<span class="kw-2">&amp;mut </span><span class="self">self</span>, side: usize) {
+        <span class="self">self</span>.context_len[side] = <span class="number">0</span>;
     }
 
     <span class="kw">pub fn </span>sort(<span class="kw-2">&amp;mut </span><span class="self">self</span>, start: usize, end: usize, cmp: <span class="kw">impl </span>Fn(<span class="kw-2">&amp;</span>GlyphInfo, <span class="kw-2">&amp;</span>GlyphInfo) -&gt; bool) {
@@ -3184,6 +3232,22 @@
 
         <span class="kw">for </span>(i, c) <span class="kw">in </span>text.char_indices() {
             <span class="self">self</span>.add(c <span class="kw">as </span>u32, i <span class="kw">as </span>u32);
+        }
+    }
+
+    <span class="kw">fn </span>set_pre_context(<span class="kw-2">&amp;mut </span><span class="self">self</span>, text: <span class="kw-2">&amp;</span>str) {
+        <span class="self">self</span>.clear_context(<span class="number">0</span>);
+        <span class="kw">for </span>(i, c) <span class="kw">in </span>text.chars().rev().enumerate().take(CONTEXT_LENGTH) {
+            <span class="self">self</span>.context[<span class="number">0</span>][i] = c;
+            <span class="self">self</span>.context_len[<span class="number">0</span>] += <span class="number">1</span>;
+        }
+    }
+
+    <span class="kw">fn </span>set_post_context(<span class="kw-2">&amp;mut </span><span class="self">self</span>, text: <span class="kw-2">&amp;</span>str) {
+        <span class="self">self</span>.clear_context(<span class="number">1</span>);
+        <span class="kw">for </span>(i, c) <span class="kw">in </span>text.chars().enumerate().take(CONTEXT_LENGTH) {
+            <span class="self">self</span>.context[<span class="number">1</span>][i] = c;
+            <span class="self">self</span>.context_len[<span class="number">1</span>] += <span class="number">1</span>;
         }
     }
 
@@ -3278,7 +3342,7 @@
 }
 
 <span class="macro">bitflags::bitflags! </span>{
-    <span class="attr">#[derive(Default)]
+    <span class="attr">#[derive(Default, Debug, Clone, Copy)]
     </span><span class="kw">pub struct </span>UnicodeProps: u16 {
         <span class="kw">const </span>GENERAL_CATEGORY  = <span class="number">0x001F</span>;
         <span class="kw">const </span>IGNORABLE         = <span class="number">0x0020</span>;
@@ -3293,36 +3357,42 @@
 }
 
 <span class="macro">bitflags::bitflags! </span>{
-    <span class="attr">#[derive(Default)]
+    <span class="attr">#[derive(Default, Debug, Clone, Copy)]
     </span><span class="kw">pub struct </span>GlyphPropsFlags: u16 {
         <span class="comment">// The following three match LookupFlags::Ignore* numbers.
         </span><span class="kw">const </span>BASE_GLYPH    = <span class="number">0x02</span>;
         <span class="kw">const </span>LIGATURE      = <span class="number">0x04</span>;
         <span class="kw">const </span>MARK          = <span class="number">0x08</span>;
-        <span class="kw">const </span>CLASS_MASK    = <span class="self">Self</span>::BASE_GLYPH.bits | <span class="self">Self</span>::LIGATURE.bits | <span class="self">Self</span>::MARK.bits;
+        <span class="kw">const </span>CLASS_MASK    = <span class="self">Self</span>::BASE_GLYPH.bits() | <span class="self">Self</span>::LIGATURE.bits() | <span class="self">Self</span>::MARK.bits();
 
         <span class="comment">// The following are used internally; not derived from GDEF.
         </span><span class="kw">const </span>SUBSTITUTED   = <span class="number">0x10</span>;
         <span class="kw">const </span>LIGATED       = <span class="number">0x20</span>;
         <span class="kw">const </span>MULTIPLIED    = <span class="number">0x40</span>;
 
-        <span class="kw">const </span>PRESERVE      = <span class="self">Self</span>::SUBSTITUTED.bits | <span class="self">Self</span>::LIGATED.bits | <span class="self">Self</span>::MULTIPLIED.bits;
+        <span class="kw">const </span>PRESERVE      = <span class="self">Self</span>::SUBSTITUTED.bits() | <span class="self">Self</span>::LIGATED.bits() | <span class="self">Self</span>::MULTIPLIED.bits();
     }
 }
 
 <span class="macro">bitflags::bitflags! </span>{
-    <span class="attr">#[derive(Default)]
+    <span class="doccomment">/// Flags for buffers.
+    </span><span class="attr">#[derive(Default, Debug, Clone, Copy)]
     </span><span class="kw">pub struct </span>BufferFlags: u32 {
-        <span class="kw">const </span>BEGINNING_OF_TEXT             = <span class="number">1 </span>&lt;&lt; <span class="number">1</span>;
-        <span class="kw">const </span>END_OF_TEXT                   = <span class="number">1 </span>&lt;&lt; <span class="number">2</span>;
-        <span class="kw">const </span>PRESERVE_DEFAULT_IGNORABLES   = <span class="number">1 </span>&lt;&lt; <span class="number">3</span>;
-        <span class="kw">const </span>REMOVE_DEFAULT_IGNORABLES     = <span class="number">1 </span>&lt;&lt; <span class="number">4</span>;
-        <span class="kw">const </span>DO_NOT_INSERT_DOTTED_CIRCLE   = <span class="number">1 </span>&lt;&lt; <span class="number">5</span>;
+        <span class="doccomment">/// Indicates that special handling of the beginning of text paragraph can be applied to this buffer. Should usually be set, unless you are passing to the buffer only part of the text without the full context.
+        </span><span class="kw">const </span>BEGINNING_OF_TEXT             = <span class="number">1 </span>&lt;&lt; <span class="number">1</span>;
+        <span class="doccomment">/// Indicates that special handling of the end of text paragraph can be applied to this buffer, similar to [`BufferFlags::BEGINNING_OF_TEXT`].
+        </span><span class="kw">const </span>END_OF_TEXT                   = <span class="number">1 </span>&lt;&lt; <span class="number">2</span>;
+        <span class="doccomment">/// Indicates that characters with `Default_Ignorable` Unicode property should use the corresponding glyph from the font, instead of hiding them (done by replacing them with the space glyph and zeroing the advance width.) This flag takes precedence over [`BufferFlags::REMOVE_DEFAULT_IGNORABLES`].
+        </span><span class="kw">const </span>PRESERVE_DEFAULT_IGNORABLES   = <span class="number">1 </span>&lt;&lt; <span class="number">3</span>;
+        <span class="doccomment">/// Indicates that characters with `Default_Ignorable` Unicode property should be removed from glyph string instead of hiding them (done by replacing them with the space glyph and zeroing the advance width.) [`BufferFlags::PRESERVE_DEFAULT_IGNORABLES`] takes precedence over this flag.
+        </span><span class="kw">const </span>REMOVE_DEFAULT_IGNORABLES     = <span class="number">1 </span>&lt;&lt; <span class="number">4</span>;
+        <span class="doccomment">/// Indicates that a dotted circle should not be inserted in the rendering of incorrect character sequences (such as `&lt;0905 093E&gt;`).
+        </span><span class="kw">const </span>DO_NOT_INSERT_DOTTED_CIRCLE   = <span class="number">1 </span>&lt;&lt; <span class="number">5</span>;
     }
 }
 
 <span class="macro">bitflags::bitflags! </span>{
-    <span class="attr">#[derive(Default)]
+    <span class="attr">#[derive(Default, Debug, Clone, Copy)]
     </span><span class="kw">pub struct </span>BufferScratchFlags: u32 {
         <span class="kw">const </span>HAS_NON_ASCII             = <span class="number">0x00000001</span>;
         <span class="kw">const </span>HAS_DEFAULT_IGNORABLES    = <span class="number">0x00000002</span>;
@@ -3390,6 +3460,18 @@
         <span class="self">self</span>.<span class="number">0</span>.push_str(str);
     }
 
+    <span class="doccomment">/// Sets the pre-context for this buffer.
+    </span><span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>set_pre_context(<span class="kw-2">&amp;mut </span><span class="self">self</span>, str: <span class="kw-2">&amp;</span>str) {
+        <span class="self">self</span>.<span class="number">0</span>.set_pre_context(str)
+    }
+
+    <span class="doccomment">/// Sets the post-context for this buffer.
+    </span><span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>set_post_context(<span class="kw-2">&amp;mut </span><span class="self">self</span>, str: <span class="kw-2">&amp;</span>str) {
+        <span class="self">self</span>.<span class="number">0</span>.set_post_context(str)
+    }
+
     <span class="doccomment">/// Appends a character to a buffer with the given cluster value.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>add(<span class="kw-2">&amp;mut </span><span class="self">self</span>, codepoint: char, cluster: u32) {
@@ -3437,6 +3519,18 @@
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>guess_segment_properties(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="self">self</span>.<span class="number">0</span>.guess_segment_properties()
+    }
+
+    <span class="doccomment">/// Set the flags for this buffer.
+    </span><span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>set_flags(<span class="kw-2">&amp;mut </span><span class="self">self</span>, flags: BufferFlags) {
+        <span class="self">self</span>.<span class="number">0</span>.flags = flags;
+    }
+
+    <span class="doccomment">/// Get the flags for this buffer.
+    </span><span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>flags(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; BufferFlags {
+        <span class="self">self</span>.<span class="number">0</span>.flags
     }
 
     <span class="doccomment">/// Set the cluster level of the buffer.

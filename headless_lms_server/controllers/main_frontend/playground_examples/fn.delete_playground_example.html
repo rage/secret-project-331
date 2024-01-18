@@ -5,9 +5,9 @@
 ) -&gt; <a class="type" href="../../../domain/error/type.ControllerResult.html" title="type headless_lms_server::domain::error::ControllerResult">ControllerResult</a>&lt;<a class="struct" href="../../../prelude/web/struct.Json.html" title="struct headless_lms_server::prelude::web::Json">Json</a>&lt;<a class="struct" href="../../../../headless_lms_models/playground_examples/struct.PlaygroundExample.html" title="struct headless_lms_models::playground_examples::PlaygroundExample">PlaygroundExample</a>&gt;&gt;</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>DELETE <code>/api/v0/main-frontend/playground_examples</code> - Deletes a playground example if exists.</p>
 <h3 id="response-typescript-definition"><a href="#response-typescript-definition">Response TypeScript definition</a></h3><div class="example-wrap"><pre class="language-ts"><code>type PlaygroundExample = {
   id: string
-  created_at: Date
-  updated_at: Date
-  deleted_at: Date | null
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
   name: string
   url: string
   width: number

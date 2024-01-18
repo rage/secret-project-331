@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-tree-0.36.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg_tree" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-tree-0.37.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg_tree" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1330,6 +1330,27 @@
 <a href="#1330" id="1330">1330</a>
 <a href="#1331" id="1331">1331</a>
 <a href="#1332" id="1332">1332</a>
+<a href="#1333" id="1333">1333</a>
+<a href="#1334" id="1334">1334</a>
+<a href="#1335" id="1335">1335</a>
+<a href="#1336" id="1336">1336</a>
+<a href="#1337" id="1337">1337</a>
+<a href="#1338" id="1338">1338</a>
+<a href="#1339" id="1339">1339</a>
+<a href="#1340" id="1340">1340</a>
+<a href="#1341" id="1341">1341</a>
+<a href="#1342" id="1342">1342</a>
+<a href="#1343" id="1343">1343</a>
+<a href="#1344" id="1344">1344</a>
+<a href="#1345" id="1345">1345</a>
+<a href="#1346" id="1346">1346</a>
+<a href="#1347" id="1347">1347</a>
+<a href="#1348" id="1348">1348</a>
+<a href="#1349" id="1349">1349</a>
+<a href="#1350" id="1350">1350</a>
+<a href="#1351" id="1351">1351</a>
+<a href="#1352" id="1352">1352</a>
+<a href="#1353" id="1353">1353</a>
 </pre></div><pre class="rust"><code><span class="comment">// This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -1569,6 +1590,12 @@
 <span class="doccomment">/// A generic gradient.
 </span><span class="attr">#[derive(Clone, Debug)]
 </span><span class="kw">pub struct </span>BaseGradient {
+    <span class="doccomment">/// Element&#39;s ID.
+    ///
+    /// Taken from the SVG itself.
+    /// Used only during SVG writing. `resvg` doesn&#39;t rely on this property.
+    </span><span class="kw">pub </span>id: String,
+
     <span class="doccomment">/// Coordinate system units.
     ///
     /// `gradientUnits` in SVG.
@@ -1594,19 +1621,13 @@
 </span><span class="attr">#[allow(missing_docs)]
 #[derive(Clone, Debug)]
 </span><span class="kw">pub struct </span>LinearGradient {
-    <span class="doccomment">/// Element&#39;s ID.
-    ///
-    /// Taken from the SVG itself.
-    /// Can&#39;t be empty.
-    </span><span class="kw">pub </span>id: String,
+    <span class="doccomment">/// Base gradient data.
+    </span><span class="kw">pub </span>base: BaseGradient,
 
     <span class="kw">pub </span>x1: f32,
     <span class="kw">pub </span>y1: f32,
     <span class="kw">pub </span>x2: f32,
     <span class="kw">pub </span>y2: f32,
-
-    <span class="doccomment">/// Base gradient data.
-    </span><span class="kw">pub </span>base: BaseGradient,
 }
 
 <span class="kw">impl </span>std::ops::Deref <span class="kw">for </span>LinearGradient {
@@ -1623,20 +1644,14 @@
 </span><span class="attr">#[allow(missing_docs)]
 #[derive(Clone, Debug)]
 </span><span class="kw">pub struct </span>RadialGradient {
-    <span class="doccomment">/// Element&#39;s ID.
-    ///
-    /// Taken from the SVG itself.
-    /// Can&#39;t be empty.
-    </span><span class="kw">pub </span>id: String,
+    <span class="doccomment">/// Base gradient data.
+    </span><span class="kw">pub </span>base: BaseGradient,
 
     <span class="kw">pub </span>cx: f32,
     <span class="kw">pub </span>cy: f32,
     <span class="kw">pub </span>r: PositiveF32,
     <span class="kw">pub </span>fx: f32,
     <span class="kw">pub </span>fy: f32,
-
-    <span class="doccomment">/// Base gradient data.
-    </span><span class="kw">pub </span>base: BaseGradient,
 }
 
 <span class="kw">impl </span>std::ops::Deref <span class="kw">for </span>RadialGradient {
@@ -1679,7 +1694,7 @@
     <span class="doccomment">/// Element&#39;s ID.
     ///
     /// Taken from the SVG itself.
-    /// Can&#39;t be empty.
+    /// Used only during SVG writing. `resvg` doesn&#39;t rely on this property.
     </span><span class="kw">pub </span>id: String,
 
     <span class="doccomment">/// Coordinate system units.
@@ -1950,7 +1965,7 @@
 </span><span class="kw">pub struct </span>ClipPath {
     <span class="doccomment">/// Element&#39;s ID.
     ///
-    /// Taken from the SVG itself or generated by the parser.
+    /// Taken from the SVG itself.
     /// Used only during SVG writing. `resvg` doesn&#39;t rely on this property.
     </span><span class="kw">pub </span>id: String,
 
@@ -2009,7 +2024,7 @@
 </span><span class="kw">pub struct </span>Mask {
     <span class="doccomment">/// Element&#39;s ID.
     ///
-    /// Taken from the SVG itself or generated by the parser.
+    /// Taken from the SVG itself.
     /// Used only during SVG writing. `resvg` doesn&#39;t rely on this property.
     </span><span class="kw">pub </span>id: String,
 
@@ -2064,16 +2079,6 @@
             NodeKind::Text(<span class="kw-2">ref </span>e) =&gt; e.id.as_str(),
         }
     }
-
-    <span class="doccomment">/// Returns node&#39;s transform.
-    </span><span class="kw">pub fn </span>transform(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Transform {
-        <span class="kw">match </span><span class="self">self </span>{
-            NodeKind::Group(<span class="kw-2">ref </span>e) =&gt; e.transform,
-            NodeKind::Path(<span class="kw-2">ref </span>e) =&gt; e.transform,
-            NodeKind::Image(<span class="kw-2">ref </span>e) =&gt; e.transform,
-            NodeKind::Text(<span class="kw-2">ref </span>e) =&gt; e.transform,
-        }
-    }
 }
 
 <span class="doccomment">/// A group container.
@@ -2091,8 +2096,18 @@
     /// Can be empty.
     </span><span class="kw">pub </span>id: String,
 
-    <span class="doccomment">/// Element transform.
+    <span class="doccomment">/// Element&#39;s transform.
     </span><span class="kw">pub </span>transform: Transform,
+
+    <span class="doccomment">/// Element&#39;s absolute transform.
+    ///
+    /// Contains all ancestors transforms.
+    /// Will be set automatically by the parser or can be recalculated manually using
+    /// [`Tree::calculate_abs_transforms`].
+    ///
+    /// Note that subroots, like clipPaths, masks and patterns, have their own root transform,
+    /// which isn&#39;t affected by the node that references this subroot.
+    </span><span class="kw">pub </span>abs_transform: Transform,
 
     <span class="doccomment">/// Group opacity.
     ///
@@ -2125,6 +2140,7 @@
         Group {
             id: String::new(),
             transform: Transform::default(),
+            abs_transform: Transform::default(),
             opacity: Opacity::ONE,
             blend_mode: BlendMode::Normal,
             isolate: <span class="bool-val">false</span>,
@@ -2176,9 +2192,6 @@
     /// Can be empty.
     </span><span class="kw">pub </span>id: String,
 
-    <span class="doccomment">/// Element transform.
-    </span><span class="kw">pub </span>transform: Transform,
-
     <span class="doccomment">/// Element visibility.
     </span><span class="kw">pub </span>visibility: Visibility,
 
@@ -2201,18 +2214,6 @@
     /// `shape-rendering` in SVG.
     </span><span class="kw">pub </span>rendering_mode: ShapeRendering,
 
-    <span class="doccomment">/// Contains a text bbox.
-    ///
-    /// Text bbox is different from path bbox. The later one contains a tight path bbox,
-    /// while the text bbox is based on the actual font metrics and usually larger than tight bbox.
-    ///
-    /// Also, path bbox doesn&#39;t include leading and trailing whitespaces,
-    /// because there is nothing to include. But text bbox does.
-    ///
-    /// As the name suggests, this property will be set only for paths
-    /// that were converted from text.
-    </span><span class="kw">pub </span>text_bbox: <span class="prelude-ty">Option</span>&lt;NonZeroRect&gt;,
-
     <span class="doccomment">/// Segments list.
     ///
     /// All segments are in absolute coordinates.
@@ -2224,13 +2225,11 @@
     </span><span class="kw">pub fn </span>new(data: Rc&lt;tiny_skia_path::Path&gt;) -&gt; <span class="self">Self </span>{
         Path {
             id: String::new(),
-            transform: Transform::default(),
             visibility: Visibility::Visible,
             fill: <span class="prelude-val">None</span>,
             stroke: <span class="prelude-val">None</span>,
             paint_order: PaintOrder::default(),
             rendering_mode: ShapeRendering::default(),
-            text_bbox: <span class="prelude-val">None</span>,
             data,
         }
     }
@@ -2271,9 +2270,6 @@
     /// Isn&#39;t automatically generated.
     /// Can be empty.
     </span><span class="kw">pub </span>id: String,
-
-    <span class="doccomment">/// Element transform.
-    </span><span class="kw">pub </span>transform: Transform,
 
     <span class="doccomment">/// Element visibility.
     </span><span class="kw">pub </span>visibility: Visibility,
@@ -2367,6 +2363,16 @@
     </span><span class="kw">pub fn </span>filters&lt;F: FnMut(Rc&lt;filter::Filter&gt;)&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>f: F) {
         loop_over_filters(<span class="kw-2">&amp;</span><span class="self">self</span>.root, <span class="kw-2">&amp;mut </span>f)
     }
+
+    <span class="doccomment">/// Calculates absolute transforms for all nodes in the tree.
+    ///
+    /// As of now, sets [`Group::abs_transform`].
+    ///
+    /// Automatically called by the parser
+    /// and ideally should be called manually after each tree modification.
+    </span><span class="kw">pub fn </span>calculate_abs_transforms(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        calculate_abs_transform(<span class="kw-2">&amp;</span><span class="self">self</span>.root, Transform::identity());
+    }
 }
 
 <span class="kw">fn </span>has_text_nodes(root: <span class="kw-2">&amp;</span>Node) -&gt; bool {
@@ -2376,6 +2382,15 @@
         }
 
         <span class="kw">let </span><span class="kw-2">mut </span>has_text = <span class="bool-val">false</span>;
+
+        <span class="kw">if let </span>NodeKind::Image(<span class="kw-2">ref </span>image) = <span class="kw-2">*</span>node.borrow() {
+            <span class="kw">if let </span>ImageKind::SVG(<span class="kw-2">ref </span>tree) = image.kind {
+                <span class="kw">if </span>has_text_nodes(<span class="kw-2">&amp;</span>tree.root) {
+                    has_text = <span class="bool-val">true</span>;
+                }
+            }
+        }
+
         node.subroots(|subroot| {
             <span class="kw">if </span>has_text_nodes(<span class="kw-2">&amp;</span>subroot) {
                 has_text = <span class="bool-val">true</span>;
@@ -2402,24 +2417,27 @@
             push(path.fill.as_ref().map(|f| <span class="kw-2">&amp;</span>f.paint), f);
             push(path.stroke.as_ref().map(|f| <span class="kw-2">&amp;</span>f.paint), f);
         } <span class="kw">else if let </span>NodeKind::Text(<span class="kw-2">ref </span>text) = <span class="kw-2">*</span>node.borrow() {
-            <span class="kw">for </span>chunk <span class="kw">in </span><span class="kw-2">&amp;</span>text.chunks {
-                <span class="kw">for </span>span <span class="kw">in </span><span class="kw-2">&amp;</span>chunk.spans {
-                    push(span.fill.as_ref().map(|f| <span class="kw-2">&amp;</span>f.paint), f);
-                    push(span.stroke.as_ref().map(|f| <span class="kw-2">&amp;</span>f.paint), f);
+            <span class="comment">// A flattened text should be ignored, otherwise we would have duplicates.
+            </span><span class="kw">if </span>text.flattened.is_none() {
+                <span class="kw">for </span>chunk <span class="kw">in </span><span class="kw-2">&amp;</span>text.chunks {
+                    <span class="kw">for </span>span <span class="kw">in </span><span class="kw-2">&amp;</span>chunk.spans {
+                        push(span.fill.as_ref().map(|f| <span class="kw-2">&amp;</span>f.paint), f);
+                        push(span.stroke.as_ref().map(|f| <span class="kw-2">&amp;</span>f.paint), f);
 
-                    <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>underline) = span.decoration.underline {
-                        push(underline.fill.as_ref().map(|f| <span class="kw-2">&amp;</span>f.paint), f);
-                        push(underline.stroke.as_ref().map(|f| <span class="kw-2">&amp;</span>f.paint), f);
-                    }
+                        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>underline) = span.decoration.underline {
+                            push(underline.fill.as_ref().map(|f| <span class="kw-2">&amp;</span>f.paint), f);
+                            push(underline.stroke.as_ref().map(|f| <span class="kw-2">&amp;</span>f.paint), f);
+                        }
 
-                    <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>overline) = span.decoration.overline {
-                        push(overline.fill.as_ref().map(|f| <span class="kw-2">&amp;</span>f.paint), f);
-                        push(overline.stroke.as_ref().map(|f| <span class="kw-2">&amp;</span>f.paint), f);
-                    }
+                        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>overline) = span.decoration.overline {
+                            push(overline.fill.as_ref().map(|f| <span class="kw-2">&amp;</span>f.paint), f);
+                            push(overline.stroke.as_ref().map(|f| <span class="kw-2">&amp;</span>f.paint), f);
+                        }
 
-                    <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>line_through) = span.decoration.line_through {
-                        push(line_through.fill.as_ref().map(|f| <span class="kw-2">&amp;</span>f.paint), f);
-                        push(line_through.stroke.as_ref().map(|f| <span class="kw-2">&amp;</span>f.paint), f);
+                        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>line_through) = span.decoration.line_through {
+                            push(line_through.fill.as_ref().map(|f| <span class="kw-2">&amp;</span>f.paint), f);
+                            push(line_through.stroke.as_ref().map(|f| <span class="kw-2">&amp;</span>f.paint), f);
+                        }
                     }
                 }
             }
@@ -2512,8 +2530,15 @@
             push_patt(path.fill.as_ref().map(|f| <span class="kw-2">&amp;</span>f.paint));
             push_patt(path.stroke.as_ref().map(|f| <span class="kw-2">&amp;</span>f.paint));
         }
-        NodeKind::Image(<span class="kw">_</span>) =&gt; {}
-        NodeKind::Text(<span class="kw-2">ref </span>text) =&gt; {
+        NodeKind::Image(<span class="kw">_</span>) =&gt; {} <span class="comment">// TODO: what about an SVG image?
+        </span>NodeKind::Text(<span class="kw-2">ref </span>text) =&gt; {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>flattened) = text.flattened {
+                f(flattened.clone());
+                <span class="comment">// Return now, since text chunks would have the same styles
+                // as the flattened text, which would lead to duplicates.
+                </span><span class="kw">return</span>;
+            }
+
             <span class="kw">for </span>chunk <span class="kw">in </span><span class="kw-2">&amp;</span>text.chunks {
                 <span class="kw">for </span>span <span class="kw">in </span><span class="kw-2">&amp;</span>chunk.spans {
                     push_patt(span.fill.as_ref().map(|f| <span class="kw-2">&amp;</span>f.paint));
@@ -2548,27 +2573,21 @@
     /// will be returned.
     </span><span class="kw">fn </span>id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; std::cell::Ref&lt;str&gt;;
 
-    <span class="doccomment">/// Returns node&#39;s transform.
-    ///
-    /// If a current node doesn&#39;t support transformation - a default
-    /// transform will be returned.
-    </span><span class="kw">fn </span>transform(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Transform;
-
     <span class="doccomment">/// Returns node&#39;s absolute transform.
     ///
     /// If a current node doesn&#39;t support transformation - a default
     /// transform will be returned.
+    ///
+    /// This method is cheap, since an absolute transform is already stored in
+    /// [`Group::abs_transform`].
     </span><span class="kw">fn </span>abs_transform(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Transform;
 
     <span class="doccomment">/// Appends `kind` as a node child.
-    ///
-    /// Shorthand for `Node::append(Node::new(Box::new(kind)))`.
     </span><span class="kw">fn </span>append_kind(<span class="kw-2">&amp;</span><span class="self">self</span>, kind: NodeKind) -&gt; Node;
 
     <span class="doccomment">/// Calculates node&#39;s absolute bounding box.
     ///
-    /// Always returns `None` for `NodeKind::Text` since we cannot calculate its bbox
-    /// without converting it into paths first.
+    /// Returns `None` for `NodeKind::Text` unless it was flattened already.
     </span><span class="kw">fn </span>calculate_bbox(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Rect&gt;;
 
     <span class="doccomment">/// Calls a closure for each subroot this `Node` has.
@@ -2602,23 +2621,14 @@
         std::cell::Ref::map(<span class="self">self</span>.borrow(), |v| v.id())
     }
 
-    <span class="attr">#[inline]
-    </span><span class="kw">fn </span>transform(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Transform {
-        <span class="self">self</span>.borrow().transform()
-    }
-
     <span class="kw">fn </span>abs_transform(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Transform {
-        <span class="kw">let </span><span class="kw-2">mut </span>ts_list = Vec::new();
-        <span class="kw">for </span>p <span class="kw">in </span><span class="self">self</span>.ancestors() {
-            ts_list.push(p.transform());
+        <span class="kw">if let </span>NodeKind::Group(<span class="kw-2">ref </span>g) = <span class="kw-2">*</span><span class="self">self</span>.borrow() {
+            g.abs_transform
+        } <span class="kw">else </span>{
+            <span class="comment">// Only groups can have a transform, therefore for paths, images and text
+            // we simply use the parent transform.
+            </span><span class="self">self</span>.parent().map(|n| n.abs_transform()).unwrap_or_default()
         }
-
-        <span class="kw">let </span><span class="kw-2">mut </span>abs_ts = Transform::default();
-        <span class="kw">for </span>ts <span class="kw">in </span>ts_list.iter().rev() {
-            abs_ts = abs_ts.pre_concat(<span class="kw-2">*</span>ts);
-        }
-
-        abs_ts
     }
 
     <span class="attr">#[inline]
@@ -2640,13 +2650,21 @@
 
 <span class="kw">fn </span>calc_node_bbox(node: <span class="kw-2">&amp;</span>Node, ts: Transform) -&gt; <span class="prelude-ty">Option</span>&lt;BBox&gt; {
     <span class="kw">match </span><span class="kw-2">*</span>node.borrow() {
-        NodeKind::Path(<span class="kw-2">ref </span>path) =&gt; path.data.bounds().transform(ts).map(BBox::from),
+        NodeKind::Path(<span class="kw-2">ref </span>path) =&gt; path
+            .data
+            .compute_tight_bounds()<span class="question-mark">?
+            </span>.transform(ts)
+            .map(BBox::from),
         NodeKind::Image(<span class="kw-2">ref </span>img) =&gt; img.view_box.rect.transform(ts).map(BBox::from),
         NodeKind::Group(<span class="kw">_</span>) =&gt; {
             <span class="kw">let </span><span class="kw-2">mut </span>bbox = BBox::default();
 
             <span class="kw">for </span>child <span class="kw">in </span>node.children() {
-                <span class="kw">let </span>child_transform = ts.pre_concat(child.transform());
+                <span class="kw">let </span>child_transform = <span class="kw">if let </span>NodeKind::Group(<span class="kw-2">ref </span>group) = <span class="kw-2">*</span>child.borrow() {
+                    ts.pre_concat(group.transform)
+                } <span class="kw">else </span>{
+                    ts
+                };
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(c_bbox) = calc_node_bbox(<span class="kw-2">&amp;</span>child, child_transform) {
                     bbox = bbox.expand(c_bbox);
                 }
@@ -2659,7 +2677,31 @@
 
             <span class="prelude-val">Some</span>(bbox)
         }
-        NodeKind::Text(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
+        NodeKind::Text(<span class="kw-2">ref </span>text) =&gt; {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(bbox) = text.bounding_box {
+                bbox.transform(ts).map(BBox::from)
+            } <span class="kw">else </span>{
+                <span class="prelude-val">None
+            </span>}
+        }
     }
+}
+
+<span class="comment">// TODO: test somehow
+</span><span class="kw">fn </span>calculate_abs_transform(node: <span class="kw-2">&amp;</span>Node, ts: Transform) {
+    <span class="kw">if </span><span class="macro">matches!</span>(<span class="kw-2">*</span>node.borrow(), NodeKind::Group(<span class="kw">_</span>)) {
+        <span class="kw">let </span><span class="kw-2">mut </span>abs_ts = ts;
+        <span class="kw">if let </span>NodeKind::Group(<span class="kw-2">ref mut </span>group) = <span class="kw-2">*</span>node.borrow_mut() {
+            group.abs_transform = ts.pre_concat(group.transform);
+            abs_ts = group.abs_transform;
+        }
+
+        <span class="kw">for </span>child <span class="kw">in </span>node.children() {
+            calculate_abs_transform(<span class="kw-2">&amp;</span>child, abs_ts);
+        }
+    }
+
+    <span class="comment">// Yes, subroots are not affected by the node&#39;s transform.
+    </span>node.subroots(|root| calculate_abs_transform(<span class="kw-2">&amp;</span>root, Transform::identity()));
 }
 </code></pre></div></section></main></body></html>

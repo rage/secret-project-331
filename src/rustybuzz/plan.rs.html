@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.10.0/src/plan.rs`."><title>plan.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.12.1/src/plan.rs`."><title>plan.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -342,47 +342,85 @@
 <a href="#342" id="342">342</a>
 <a href="#343" id="343">343</a>
 <a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
+<a href="#361" id="361">361</a>
+<a href="#362" id="362">362</a>
+<a href="#363" id="363">363</a>
+<a href="#364" id="364">364</a>
+<a href="#365" id="365">365</a>
+<a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>alloc::boxed::Box;
+<span class="kw">use </span>alloc::vec::Vec;
 <span class="kw">use </span>core::any::Any;
 
 <span class="kw">use </span><span class="kw">crate</span>::complex::{complex_categorize, ComplexShaper, DEFAULT_SHAPER, DUMBER_SHAPER};
 <span class="kw">use </span><span class="kw">crate</span>::ot::{<span class="self">self</span>, feature, FeatureFlags, TableIndex};
 <span class="kw">use crate</span>::{aat, Direction, Face, Feature, Language, Mask, Script, Tag};
 
-<span class="kw">pub struct </span>ShapePlan {
-    <span class="kw">pub </span>direction: Direction,
-    <span class="kw">pub </span>script: <span class="prelude-ty">Option</span>&lt;Script&gt;,
-    <span class="kw">pub </span>shaper: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>ComplexShaper,
-    <span class="kw">pub </span>ot_map: ot::Map,
-    <span class="kw">pub </span>aat_map: aat::Map,
-    data: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>Any&gt;&gt;,
+<span class="doccomment">/// A reusable plan for shaping a text buffer.
+</span><span class="kw">pub struct </span>ShapePlan {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) direction: Direction,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) script: <span class="prelude-ty">Option</span>&lt;Script&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) shaper: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>ComplexShaper,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) ot_map: ot::Map,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) aat_map: aat::Map,
+    data: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>Any + Send + Sync&gt;&gt;,
 
-    <span class="kw">pub </span>frac_mask: Mask,
-    <span class="kw">pub </span>numr_mask: Mask,
-    <span class="kw">pub </span>dnom_mask: Mask,
-    <span class="kw">pub </span>rtlm_mask: Mask,
-    <span class="kw">pub </span>kern_mask: Mask,
-    <span class="kw">pub </span>trak_mask: Mask,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) frac_mask: Mask,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) numr_mask: Mask,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) dnom_mask: Mask,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) rtlm_mask: Mask,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) kern_mask: Mask,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) trak_mask: Mask,
 
-    <span class="kw">pub </span>requested_kerning: bool,
-    <span class="kw">pub </span>requested_tracking: bool,
-    <span class="kw">pub </span>has_frac: bool,
-    <span class="kw">pub </span>has_vert: bool,
-    <span class="kw">pub </span>has_gpos_mark: bool,
-    <span class="kw">pub </span>zero_marks: bool,
-    <span class="kw">pub </span>fallback_glyph_classes: bool,
-    <span class="kw">pub </span>fallback_mark_positioning: bool,
-    <span class="kw">pub </span>adjust_mark_positioning_when_zeroing: bool,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) requested_kerning: bool,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) has_frac: bool,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) has_vert: bool,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) has_gpos_mark: bool,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) zero_marks: bool,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) fallback_glyph_classes: bool,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) fallback_mark_positioning: bool,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) adjust_mark_positioning_when_zeroing: bool,
 
-    <span class="kw">pub </span>apply_gpos: bool,
-    <span class="kw">pub </span>apply_kern: bool,
-    <span class="kw">pub </span>apply_kerx: bool,
-    <span class="kw">pub </span>apply_morx: bool,
-    <span class="kw">pub </span>apply_trak: bool,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) apply_gpos: bool,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) apply_fallback_kern: bool,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) apply_kern: bool,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) apply_kerx: bool,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) apply_morx: bool,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) apply_trak: bool,
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) user_features: Vec&lt;Feature&gt;,
 }
 
 <span class="kw">impl </span>ShapePlan {
-    <span class="kw">pub fn </span>new(
+    <span class="doccomment">/// Returns a plan that can be used for shaping any buffer with the
+    /// provided properties.
+    </span><span class="kw">pub fn </span>new(
         face: <span class="kw-2">&amp;</span>Face,
         direction: Direction,
         script: <span class="prelude-ty">Option</span>&lt;Script&gt;,
@@ -392,10 +430,10 @@
         <span class="macro">assert_ne!</span>(direction, Direction::Invalid);
         <span class="kw">let </span><span class="kw-2">mut </span>planner = ShapePlanner::new(face, direction, script, language);
         planner.collect_features(user_features);
-        planner.compile()
+        planner.compile(user_features)
     }
 
-    <span class="kw">pub fn </span>data&lt;T: <span class="lifetime">&#39;static</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>T {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>data&lt;T: <span class="lifetime">&#39;static</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>T {
         <span class="self">self</span>.data.as_ref().unwrap().downcast_ref().unwrap()
     }
 }
@@ -543,7 +581,11 @@
                 <span class="self">self</span>.ot_map.add_feature(tag, flags, <span class="number">1</span>);
             }
         } <span class="kw">else </span>{
-            <span class="comment">// We really want to find a &#39;vert&#39; feature if there&#39;s any in the font, no
+            <span class="comment">// We only apply `vert` feature. See:
+            // https://github.com/harfbuzz/harfbuzz/commit/d71c0df2d17f4590d5611239577a6cb532c26528
+            // https://lists.freedesktop.org/archives/harfbuzz/2013-August/003490.html
+
+            // We really want to find a &#39;vert&#39; feature if there&#39;s any in the font, no
             // matter which script/langsys it is listed (or not) under.
             // See various bugs referenced from:
             // https://github.com/harfbuzz/harfbuzz/issues/63
@@ -572,8 +614,7 @@
         }
     }
 
-    <span class="comment">// TODO: to just self
-    </span><span class="kw">fn </span>compile(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; ShapePlan {
+    <span class="kw">fn </span>compile(<span class="kw-2">mut </span><span class="self">self</span>, user_features: <span class="kw-2">&amp;</span>[Feature]) -&gt; ShapePlan {
         <span class="kw">let </span>ot_map = <span class="self">self</span>.ot_map.compile();
 
         <span class="kw">let </span>aat_map = <span class="kw">if </span><span class="self">self</span>.apply_morx {
@@ -620,9 +661,12 @@
         <span class="kw">let </span><span class="kw-2">mut </span>apply_kern = <span class="bool-val">false</span>;
 
         <span class="comment">// Decide who does positioning. GPOS, kerx, kern, or fallback.
-        </span><span class="kw">if </span><span class="self">self</span>.face.tables().kerx.is_some() {
+        </span><span class="kw">let </span>has_gsub = <span class="self">self</span>.face.tables().gsub.is_some();
+        <span class="kw">let </span>has_gpos = !disable_gpos &amp;&amp; <span class="self">self</span>.face.tables().gpos.is_some();
+
+        <span class="kw">if </span><span class="self">self</span>.face.tables().kerx.is_some() &amp;&amp; !(has_gsub &amp;&amp; has_gpos) {
             apply_kerx = <span class="bool-val">true</span>;
-        } <span class="kw">else if </span>!apply_morx &amp;&amp; !disable_gpos &amp;&amp; <span class="self">self</span>.face.gpos.is_some() {
+        } <span class="kw">else if </span>!apply_morx &amp;&amp; has_gpos {
             apply_gpos = <span class="bool-val">true</span>;
         }
 
@@ -635,17 +679,25 @@
             }
         }
 
+        <span class="kw">let </span>apply_fallback_kern = !(apply_gpos || apply_kerx || apply_kern);
         <span class="kw">let </span>zero_marks = <span class="self">self</span>.script_zero_marks
             &amp;&amp; !apply_kerx
             &amp;&amp; (!apply_kern || !ot::has_machine_kerning(<span class="self">self</span>.face));
 
         <span class="kw">let </span>has_gpos_mark = ot_map.one_mask(feature::MARK_POSITIONING) != <span class="number">0</span>;
 
-        <span class="kw">let </span>adjust_mark_positioning_when_zeroing =
+        <span class="kw">let </span><span class="kw-2">mut </span>adjust_mark_positioning_when_zeroing =
             !apply_gpos &amp;&amp; !apply_kerx &amp;&amp; (!apply_kern || !ot::has_cross_kerning(<span class="self">self</span>.face));
 
         <span class="kw">let </span>fallback_mark_positioning =
             adjust_mark_positioning_when_zeroing &amp;&amp; <span class="self">self</span>.script_fallback_mark_positioning;
+
+        <span class="comment">// If we&#39;re using morx shaping, we cancel mark position adjustment because
+        // Apple Color Emoji assumes this will NOT be done when forming emoji sequences;
+        // https://github.com/harfbuzz/harfbuzz/issues/2967.
+        </span><span class="kw">if </span>apply_morx {
+            adjust_mark_positioning_when_zeroing = <span class="bool-val">false</span>;
+        }
 
         <span class="comment">// Currently we always apply trak.
         </span><span class="kw">let </span>apply_trak = requested_tracking &amp;&amp; <span class="self">self</span>.face.tables().trak.is_some();
@@ -664,7 +716,6 @@
             kern_mask,
             trak_mask,
             requested_kerning,
-            requested_tracking,
             has_frac,
             has_vert,
             has_gpos_mark,
@@ -674,9 +725,11 @@
             adjust_mark_positioning_when_zeroing,
             apply_gpos,
             apply_kern,
+            apply_fallback_kern,
             apply_kerx,
             apply_morx,
             apply_trak,
+            user_features: user_features.to_vec(),
         };
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(func) = <span class="self">self</span>.shaper.create_data {
@@ -684,6 +737,17 @@
         }
 
         plan
+    }
+}
+
+<span class="attr">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span><span class="kw">super</span>::ShapePlan;
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_shape_plan_is_send_and_sync() {
+        <span class="kw">fn </span>ensure_send_and_sync&lt;T: Send + Sync&gt;() {}
+        ensure_send_and_sync::&lt;ShapePlan&gt;();
     }
 }
 </code></pre></div></section></main></body></html>

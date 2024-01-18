@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["escape"],"mod":["ranges","scalar"],"struct":["VHtmlescape"]};

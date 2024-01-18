@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.1/src/read/pe/file.rs`."><title>file.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/read/pe/file.rs`."><title>file.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1027,6 +1027,27 @@
 <a href="#1027" id="1027">1027</a>
 <a href="#1028" id="1028">1028</a>
 <a href="#1029" id="1029">1029</a>
+<a href="#1030" id="1030">1030</a>
+<a href="#1031" id="1031">1031</a>
+<a href="#1032" id="1032">1032</a>
+<a href="#1033" id="1033">1033</a>
+<a href="#1034" id="1034">1034</a>
+<a href="#1035" id="1035">1035</a>
+<a href="#1036" id="1036">1036</a>
+<a href="#1037" id="1037">1037</a>
+<a href="#1038" id="1038">1038</a>
+<a href="#1039" id="1039">1039</a>
+<a href="#1040" id="1040">1040</a>
+<a href="#1041" id="1041">1041</a>
+<a href="#1042" id="1042">1042</a>
+<a href="#1043" id="1043">1043</a>
+<a href="#1044" id="1044">1044</a>
+<a href="#1045" id="1045">1045</a>
+<a href="#1046" id="1046">1046</a>
+<a href="#1047" id="1047">1047</a>
+<a href="#1048" id="1048">1048</a>
+<a href="#1049" id="1049">1049</a>
+<a href="#1050" id="1050">1050</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>alloc::vec::Vec;
 <span class="kw">use </span>core::fmt::Debug;
 <span class="kw">use </span>core::{mem, str};
@@ -1038,7 +1059,7 @@
     <span class="self">self</span>, Architecture, ComdatKind, Error, Export, FileFlags, Import, NoDynamicRelocationIterator,
     Object, ObjectComdat, ObjectKind, ReadError, ReadRef, <span class="prelude-ty">Result</span>, SectionIndex, SymbolIndex,
 };
-<span class="kw">use crate</span>::{pe, ByteString, Bytes, CodeView, LittleEndian <span class="kw">as </span>LE, Pod, U32};
+<span class="kw">use crate</span>::{pe, ByteString, Bytes, CodeView, LittleEndian <span class="kw">as </span>LE, Pod, SubArchitecture, U32};
 
 <span class="kw">use super</span>::{
     DataDirectories, ExportTable, ImageThunkData, ImportTable, PeSection, PeSectionIterator,
@@ -1046,11 +1067,19 @@
 };
 
 <span class="doccomment">/// A PE32 (32-bit) image file.
+///
+/// This is a file that starts with [`pe::ImageNtHeaders32`], and corresponds
+/// to [`crate::FileKind::Pe32`].
 </span><span class="kw">pub type </span>PeFile32&lt;<span class="lifetime">&#39;data</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; = PeFile&lt;<span class="lifetime">&#39;data</span>, pe::ImageNtHeaders32, R&gt;;
 <span class="doccomment">/// A PE32+ (64-bit) image file.
+///
+/// This is a file that starts with [`pe::ImageNtHeaders64`], and corresponds
+/// to [`crate::FileKind::Pe64`].
 </span><span class="kw">pub type </span>PeFile64&lt;<span class="lifetime">&#39;data</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; = PeFile&lt;<span class="lifetime">&#39;data</span>, pe::ImageNtHeaders64, R&gt;;
 
-<span class="doccomment">/// A PE object file.
+<span class="doccomment">/// A PE image file.
+///
+/// Most functionality is provided by the [`Object`] trait implementation.
 </span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>PeFile&lt;<span class="lifetime">&#39;data</span>, Pe, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;
 <span class="kw">where
@@ -1176,10 +1205,17 @@
     <span class="kw">fn </span>architecture(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Architecture {
         <span class="kw">match </span><span class="self">self</span>.nt_headers.file_header().machine.get(LE) {
             pe::IMAGE_FILE_MACHINE_ARMNT =&gt; Architecture::Arm,
-            pe::IMAGE_FILE_MACHINE_ARM64 =&gt; Architecture::Aarch64,
+            pe::IMAGE_FILE_MACHINE_ARM64 | pe::IMAGE_FILE_MACHINE_ARM64EC =&gt; Architecture::Aarch64,
             pe::IMAGE_FILE_MACHINE_I386 =&gt; Architecture::I386,
             pe::IMAGE_FILE_MACHINE_AMD64 =&gt; Architecture::X86_64,
             <span class="kw">_ </span>=&gt; Architecture::Unknown,
+        }
+    }
+
+    <span class="kw">fn </span>sub_architecture(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;SubArchitecture&gt; {
+        <span class="kw">match </span><span class="self">self</span>.nt_headers.file_header().machine.get(LE) {
+            pe::IMAGE_FILE_MACHINE_ARM64EC =&gt; <span class="prelude-val">Some</span>(SubArchitecture::Arm64EC),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
     }
 
@@ -1409,14 +1445,16 @@
     }
 }
 
-<span class="doccomment">/// An iterator over the COMDAT section groups of a `PeFile32`.
+<span class="doccomment">/// An iterator for the COMDAT section groups in a [`PeFile32`].
 </span><span class="kw">pub type </span>PeComdatIterator32&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; =
     PeComdatIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, pe::ImageNtHeaders32, R&gt;;
-<span class="doccomment">/// An iterator over the COMDAT section groups of a `PeFile64`.
+<span class="doccomment">/// An iterator for the COMDAT section groups in a [`PeFile64`].
 </span><span class="kw">pub type </span>PeComdatIterator64&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; =
     PeComdatIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, pe::ImageNtHeaders64, R&gt;;
 
-<span class="doccomment">/// An iterator over the COMDAT section groups of a `PeFile`.
+<span class="doccomment">/// An iterator for the COMDAT section groups in a [`PeFile`].
+///
+/// This is a stub that doesn&#39;t implement any functionality.
 </span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>PeComdatIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Pe, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;
 <span class="kw">where
@@ -1440,14 +1478,16 @@
     </span>}
 }
 
-<span class="doccomment">/// A COMDAT section group of a `PeFile32`.
+<span class="doccomment">/// A COMDAT section group in a [`PeFile32`].
 </span><span class="kw">pub type </span>PeComdat32&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; =
     PeComdat&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, pe::ImageNtHeaders32, R&gt;;
-<span class="doccomment">/// A COMDAT section group of a `PeFile64`.
+<span class="doccomment">/// A COMDAT section group in a [`PeFile64`].
 </span><span class="kw">pub type </span>PeComdat64&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; =
     PeComdat&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, pe::ImageNtHeaders64, R&gt;;
 
-<span class="doccomment">/// A COMDAT section group of a `PeFile`.
+<span class="doccomment">/// A COMDAT section group in a [`PeFile`].
+///
+/// This is a stub that doesn&#39;t implement any functionality.
 </span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>PeComdat&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Pe, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;
 <span class="kw">where
@@ -1498,14 +1538,16 @@
     }
 }
 
-<span class="doccomment">/// An iterator over the sections in a COMDAT section group of a `PeFile32`.
+<span class="doccomment">/// An iterator for the sections in a COMDAT section group in a [`PeFile32`].
 </span><span class="kw">pub type </span>PeComdatSectionIterator32&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; =
     PeComdatSectionIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, pe::ImageNtHeaders32, R&gt;;
-<span class="doccomment">/// An iterator over the sections in a COMDAT section group of a `PeFile64`.
+<span class="doccomment">/// An iterator for the sections in a COMDAT section group in a [`PeFile64`].
 </span><span class="kw">pub type </span>PeComdatSectionIterator64&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; =
     PeComdatSectionIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, pe::ImageNtHeaders64, R&gt;;
 
-<span class="doccomment">/// An iterator over the sections in a COMDAT section group of a `PeFile`.
+<span class="doccomment">/// An iterator for the sections in a COMDAT section group in a [`PeFile`].
+///
+/// This is a stub that doesn&#39;t implement any functionality.
 </span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>PeComdatSectionIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Pe, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;
 <span class="kw">where
@@ -1550,7 +1592,7 @@
     }
 }
 
-<span class="doccomment">/// Find the optional header and read the `optional_header.magic`.
+<span class="doccomment">/// Find the optional header and read its `magic` field.
 ///
 /// It can be useful to know this magic value before trying to
 /// fully parse the NT headers.
@@ -1569,7 +1611,7 @@
     <span class="prelude-val">Ok</span>(nt_headers.optional_header().magic())
 }
 
-<span class="doccomment">/// A trait for generic access to `ImageNtHeaders32` and `ImageNtHeaders64`.
+<span class="doccomment">/// A trait for generic access to [`pe::ImageNtHeaders32`] and [`pe::ImageNtHeaders64`].
 </span><span class="attr">#[allow(missing_docs)]
 </span><span class="kw">pub trait </span>ImageNtHeaders: Debug + Pod {
     <span class="kw">type </span>ImageOptionalHeader: ImageOptionalHeader;
@@ -1598,7 +1640,7 @@
     ///
     /// `data` must be for the entire file.
     ///
-    /// `offset` must be headers offset, which can be obtained from `ImageDosHeader::nt_headers_offset`.
+    /// `offset` must be headers offset, which can be obtained from [`pe::ImageDosHeader::nt_headers_offset`].
     /// It is updated to point after the optional header, which is where the section headers are located.
     ///
     /// Also checks that the `signature` and `magic` fields in the headers are valid.
@@ -1655,7 +1697,7 @@
     }
 }
 
-<span class="doccomment">/// A trait for generic access to `ImageOptionalHeader32` and `ImageOptionalHeader64`.
+<span class="doccomment">/// A trait for generic access to [`pe::ImageOptionalHeader32`] and [`pe::ImageOptionalHeader64`].
 </span><span class="attr">#[allow(missing_docs)]
 </span><span class="kw">pub trait </span>ImageOptionalHeader: Debug + Pod {
     <span class="comment">// Standard fields.

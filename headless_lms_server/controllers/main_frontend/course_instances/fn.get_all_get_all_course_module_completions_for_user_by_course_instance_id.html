@@ -5,15 +5,15 @@
 ) -&gt; <a class="type" href="../../../domain/error/type.ControllerResult.html" title="type headless_lms_server::domain::error::ControllerResult">ControllerResult</a>&lt;<a class="struct" href="../../../prelude/web/struct.Json.html" title="struct headless_lms_server::prelude::web::Json">Json</a>&lt;<a class="struct" href="https://doc.rust-lang.org/1.75.0/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="struct" href="../../../../headless_lms_models/course_module_completions/struct.CourseModuleCompletion.html" title="struct headless_lms_models::course_module_completions::CourseModuleCompletion">CourseModuleCompletion</a>&gt;&gt;&gt;</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>GET /course-instances/:id/course-module-completions/:user_id - Returns a list of all course module completions for a given user for this course instance.</p>
 <h3 id="response-typescript-definition"><a href="#response-typescript-definition">Response TypeScript definition</a></h3><div class="example-wrap"><pre class="language-ts"><code>type Vec&lt;CourseModuleCompletion&gt; = Array&lt;{
   id: string
-  created_at: Date
-  updated_at: Date
-  deleted_at: Date | null
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
   course_id: string
   course_instance_id: string
   course_module_id: string
   user_id: string
-  completion_date: Date
-  completion_registration_attempt_date: Date | null
+  completion_date: string
+  completion_registration_attempt_date: string | null
   completion_language: string
   eligible_for_ects: boolean
   email: string

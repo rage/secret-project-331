@@ -5,9 +5,9 @@
 ) -&gt; <a class="type" href="../../../domain/error/type.ControllerResult.html" title="type headless_lms_server::domain::error::ControllerResult">ControllerResult</a>&lt;<a class="struct" href="../../../prelude/web/struct.Json.html" title="struct headless_lms_server::prelude::web::Json">Json</a>&lt;<a class="struct" href="../../../../headless_lms_models/exercise_services/struct.ExerciseService.html" title="struct headless_lms_models::exercise_services::ExerciseService">ExerciseService</a>&gt;&gt;</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>DELETE <code>/api/v0/main-frontend/exercise-services/:id</code></p>
 <h3 id="response-typescript-definition"><a href="#response-typescript-definition">Response TypeScript definition</a></h3><div class="example-wrap"><pre class="language-ts"><code>type ExerciseService = {
   id: string
-  created_at: Date
-  updated_at: Date
-  deleted_at: Date | null
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
   name: string
   slug: string
   public_url: string

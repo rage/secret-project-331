@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ring-0.17.6/src/ec/suite_b/ops.rs`."><title>ops.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="ring" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ring-0.17.7/src/ec/suite_b/ops.rs`."><title>ops.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="ring" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1156,6 +1156,40 @@
 <a href="#1156" id="1156">1156</a>
 <a href="#1157" id="1157">1157</a>
 <a href="#1158" id="1158">1158</a>
+<a href="#1159" id="1159">1159</a>
+<a href="#1160" id="1160">1160</a>
+<a href="#1161" id="1161">1161</a>
+<a href="#1162" id="1162">1162</a>
+<a href="#1163" id="1163">1163</a>
+<a href="#1164" id="1164">1164</a>
+<a href="#1165" id="1165">1165</a>
+<a href="#1166" id="1166">1166</a>
+<a href="#1167" id="1167">1167</a>
+<a href="#1168" id="1168">1168</a>
+<a href="#1169" id="1169">1169</a>
+<a href="#1170" id="1170">1170</a>
+<a href="#1171" id="1171">1171</a>
+<a href="#1172" id="1172">1172</a>
+<a href="#1173" id="1173">1173</a>
+<a href="#1174" id="1174">1174</a>
+<a href="#1175" id="1175">1175</a>
+<a href="#1176" id="1176">1176</a>
+<a href="#1177" id="1177">1177</a>
+<a href="#1178" id="1178">1178</a>
+<a href="#1179" id="1179">1179</a>
+<a href="#1180" id="1180">1180</a>
+<a href="#1181" id="1181">1181</a>
+<a href="#1182" id="1182">1182</a>
+<a href="#1183" id="1183">1183</a>
+<a href="#1184" id="1184">1184</a>
+<a href="#1185" id="1185">1185</a>
+<a href="#1186" id="1186">1186</a>
+<a href="#1187" id="1187">1187</a>
+<a href="#1188" id="1188">1188</a>
+<a href="#1189" id="1189">1189</a>
+<a href="#1190" id="1190">1190</a>
+<a href="#1191" id="1191">1191</a>
+<a href="#1192" id="1192">1192</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright 2016 Brian Smith.
 //
 // Permission to use, copy, modify, and/or distribute this software for any
@@ -1210,9 +1244,9 @@
 
 <span class="doccomment">/// Operations and values needed by all curve operations.
 </span><span class="kw">pub struct </span>CommonOps {
-    <span class="kw">pub </span>num_limbs: usize,
+    num_limbs: usize,
     q: Modulus,
-    <span class="kw">pub </span>n: Elem&lt;Unencoded&gt;,
+    n: Elem&lt;Unencoded&gt;,
 
     <span class="kw">pub </span>a: Elem&lt;R&gt;, <span class="comment">// Must be -3 mod q
     </span><span class="kw">pub </span>b: Elem&lt;R&gt;,
@@ -1225,6 +1259,17 @@
 }
 
 <span class="kw">impl </span>CommonOps {
+    <span class="comment">// The length of a field element, which is the same as the length of a
+    // scalar, in bytes.
+    </span><span class="kw">pub fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.num_limbs * LIMB_BYTES
+    }
+
+    <span class="attr">#[cfg(test)]
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>n_limbs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[Limb] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.n.limbs[..<span class="self">self</span>.num_limbs]
+    }
+
     <span class="attr">#[inline]
     </span><span class="kw">pub fn </span>elem_add&lt;E: Encoding&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, a: <span class="kw-2">&amp;mut </span>Elem&lt;E&gt;, b: <span class="kw-2">&amp;</span>Elem&lt;E&gt;) {
         <span class="kw">let </span>num_limbs = <span class="self">self</span>.num_limbs;
@@ -1333,6 +1378,10 @@
 }
 
 <span class="kw">impl </span>PrivateKeyOps {
+    <span class="kw">pub fn </span>leak_limbs&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, a: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Elem&lt;Unencoded&gt;) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[Limb] {
+        <span class="kw-2">&amp;</span>a.limbs[..<span class="self">self</span>.common.num_limbs]
+    }
+
     <span class="attr">#[inline(always)]
     </span><span class="kw">pub fn </span>point_mul_base(<span class="kw-2">&amp;</span><span class="self">self</span>, a: <span class="kw-2">&amp;</span>Scalar) -&gt; Point {
         (<span class="self">self</span>.point_mul_base_impl)(a)
@@ -1371,7 +1420,7 @@
     // implements NIST SP 800-56A Step 2: &quot;Verify that xQ and yQ are integers
     // in the interval [0, p-1] in the case that q is an odd prime p[.]&quot;
     </span><span class="kw">pub fn </span>elem_parse(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="kw-2">&amp;mut </span>untrusted::Reader) -&gt; <span class="prelude-ty">Result</span>&lt;Elem&lt;R&gt;, error::Unspecified&gt; {
-        <span class="kw">let </span>encoded_value = input.read_bytes(<span class="self">self</span>.common.num_limbs * LIMB_BYTES)<span class="question-mark">?</span>;
+        <span class="kw">let </span>encoded_value = input.read_bytes(<span class="self">self</span>.common.len())<span class="question-mark">?</span>;
         <span class="kw">let </span>parsed = elem_parse_big_endian_fixed_consttime(<span class="self">self</span>.common, encoded_value)<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>r = Elem::zero();
         <span class="comment">// Montgomery encode (elem_to_mont).
@@ -1392,21 +1441,17 @@
 </span><span class="kw">pub struct </span>ScalarOps {
     <span class="kw">pub </span>common: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>CommonOps,
 
-    scalar_inv_to_mont_impl: <span class="kw">fn</span>(a: <span class="kw-2">&amp;</span>Scalar) -&gt; Scalar&lt;R&gt;,
     scalar_mul_mont: <span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(r: <span class="kw-2">*mut </span>Limb, a: <span class="kw-2">*const </span>Limb, b: <span class="kw-2">*const </span>Limb),
 }
 
 <span class="kw">impl </span>ScalarOps {
     <span class="comment">// The (maximum) length of a scalar, not including any padding.
     </span><span class="kw">pub fn </span>scalar_bytes_len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
-        <span class="self">self</span>.common.num_limbs * LIMB_BYTES
+        <span class="self">self</span>.common.len()
     }
 
-    <span class="doccomment">/// Returns the modular inverse of `a` (mod `n`). Panics of `a` is zero,
-    /// because zero isn&#39;t invertible.
-    </span><span class="kw">pub fn </span>scalar_inv_to_mont(<span class="kw-2">&amp;</span><span class="self">self</span>, a: <span class="kw-2">&amp;</span>Scalar) -&gt; Scalar&lt;R&gt; {
-        <span class="macro">assert!</span>(!<span class="self">self</span>.common.is_zero(a));
-        (<span class="self">self</span>.scalar_inv_to_mont_impl)(a)
+    <span class="kw">pub fn </span>leak_limbs&lt;<span class="lifetime">&#39;s</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, s: <span class="kw-2">&amp;</span><span class="lifetime">&#39;s </span>Scalar) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;s </span>[Limb] {
+        <span class="kw-2">&amp;</span>s.limbs[..<span class="self">self</span>.common.num_limbs]
     }
 
     <span class="attr">#[inline]
@@ -1428,10 +1473,15 @@
     <span class="kw">pub </span>public_key_ops: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>PublicKeyOps,
 
     <span class="kw">pub </span>twin_mul: <span class="kw">fn</span>(g_scalar: <span class="kw-2">&amp;</span>Scalar, p_scalar: <span class="kw-2">&amp;</span>Scalar, p_xy: <span class="kw-2">&amp;</span>(Elem&lt;R&gt;, Elem&lt;R&gt;)) -&gt; Point,
+    <span class="kw">pub </span>scalar_inv_to_mont_vartime: <span class="kw">fn</span>(s: <span class="kw-2">&amp;</span>Scalar&lt;Unencoded&gt;) -&gt; Scalar&lt;R&gt;,
     <span class="kw">pub </span>q_minus_n: Elem&lt;Unencoded&gt;,
 }
 
 <span class="kw">impl </span>PublicScalarOps {
+    <span class="kw">pub fn </span>n(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Elem&lt;Unencoded&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.scalar_ops.common.n
+    }
+
     <span class="attr">#[inline]
     </span><span class="kw">pub fn </span>scalar_as_elem(<span class="kw-2">&amp;</span><span class="self">self</span>, a: <span class="kw-2">&amp;</span>Scalar) -&gt; Elem&lt;Unencoded&gt; {
         Elem {
@@ -1450,14 +1500,32 @@
         <span class="kw">let </span>num_limbs = <span class="self">self</span>.public_key_ops.common.num_limbs;
         limbs_less_than_limbs_vartime(<span class="kw-2">&amp;</span>a.limbs[..num_limbs], <span class="kw-2">&amp;</span>b.limbs[..num_limbs])
     }
+
+    <span class="kw">pub fn </span>scalar_inv_to_mont_vartime(<span class="kw-2">&amp;</span><span class="self">self</span>, s: <span class="kw-2">&amp;</span>Scalar&lt;Unencoded&gt;) -&gt; Scalar&lt;R&gt; {
+        (<span class="self">self</span>.scalar_inv_to_mont_vartime)(s)
+    }
 }
 
 <span class="attr">#[allow(non_snake_case)]
 </span><span class="kw">pub struct </span>PrivateScalarOps {
     <span class="kw">pub </span>scalar_ops: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>ScalarOps,
 
-    <span class="kw">pub </span>oneRR_mod_n: Scalar&lt;RR&gt;, <span class="comment">// 1 * R**2 (mod n). TOOD: Use One&lt;RR&gt;.
-</span>}
+    oneRR_mod_n: Scalar&lt;RR&gt;, <span class="comment">// 1 * R**2 (mod n). TOOD: Use One&lt;RR&gt;.
+    </span>scalar_inv_to_mont: <span class="kw">fn</span>(a: Scalar&lt;R&gt;) -&gt; Scalar&lt;R&gt;,
+}
+
+<span class="kw">impl </span>PrivateScalarOps {
+    <span class="kw">pub fn </span>to_mont(<span class="kw-2">&amp;</span><span class="self">self</span>, s: <span class="kw-2">&amp;</span>Scalar&lt;Unencoded&gt;) -&gt; Scalar&lt;R&gt; {
+        <span class="self">self</span>.scalar_ops.scalar_product(s, <span class="kw-2">&amp;</span><span class="self">self</span>.oneRR_mod_n)
+    }
+
+    <span class="doccomment">/// Returns the modular inverse of `a` (mod `n`). Panics if `a` is zero.
+    </span><span class="kw">pub fn </span>scalar_inv_to_mont(<span class="kw-2">&amp;</span><span class="self">self</span>, a: <span class="kw-2">&amp;</span>Scalar) -&gt; Scalar&lt;R&gt; {
+        <span class="macro">assert!</span>(!<span class="self">self</span>.scalar_ops.common.is_zero(a));
+        <span class="kw">let </span>a = <span class="self">self</span>.to_mont(a);
+        (<span class="self">self</span>.scalar_inv_to_mont)(a)
+    }
+}
 
 <span class="comment">// XXX: Inefficient and unnecessarily depends on `PrivateKeyOps`. TODO: implement interleaved wNAF
 // multiplication.
@@ -1565,7 +1633,7 @@
     allow_zero: AllowZero,
     max_exclusive: <span class="kw-2">&amp;</span>[Limb],
 ) -&gt; <span class="prelude-ty">Result</span>&lt;elem::Elem&lt;M, Unencoded&gt;, error::Unspecified&gt; {
-    <span class="kw">if </span>bytes.len() != ops.num_limbs * LIMB_BYTES {
+    <span class="kw">if </span>bytes.len() != ops.len() {
         <span class="kw">return </span><span class="prelude-val">Err</span>(error::Unspecified);
     }
     <span class="kw">let </span><span class="kw-2">mut </span>r = elem::Elem::zero();
@@ -1893,15 +1961,15 @@
     }
 
     <span class="attr">#[test]
-    #[should_panic(expected = <span class="string">&quot;!self.common.is_zero(a)&quot;</span>)]
+    #[should_panic(expected = <span class="string">&quot;!self.scalar_ops.common.is_zero(a)&quot;</span>)]
     </span><span class="kw">fn </span>p256_scalar_inv_to_mont_zero_panic_test() {
-        <span class="kw">let _ </span>= p256::SCALAR_OPS.scalar_inv_to_mont(<span class="kw-2">&amp;</span>ZERO_SCALAR);
+        <span class="kw">let _ </span>= p256::PRIVATE_SCALAR_OPS.scalar_inv_to_mont(<span class="kw-2">&amp;</span>ZERO_SCALAR);
     }
 
     <span class="attr">#[test]
-    #[should_panic(expected = <span class="string">&quot;!self.common.is_zero(a)&quot;</span>)]
+    #[should_panic(expected = <span class="string">&quot;!self.scalar_ops.common.is_zero(a)&quot;</span>)]
     </span><span class="kw">fn </span>p384_scalar_inv_to_mont_zero_panic_test() {
-        <span class="kw">let _ </span>= p384::SCALAR_OPS.scalar_inv_to_mont(<span class="kw-2">&amp;</span>ZERO_SCALAR);
+        <span class="kw">let _ </span>= p384::PRIVATE_SCALAR_OPS.scalar_inv_to_mont(<span class="kw-2">&amp;</span>ZERO_SCALAR);
     }
 
     <span class="attr">#[test]
@@ -2086,9 +2154,9 @@
 
             <span class="kw">let </span>product = priv_ops.point_mul(<span class="kw-2">&amp;</span>p_scalar, <span class="kw-2">&amp;</span>p);
 
-            <span class="kw">let </span><span class="kw-2">mut </span>actual_result = <span class="macro">vec!</span>[<span class="number">4u8</span>; <span class="number">1 </span>+ (<span class="number">2 </span>* (cops.num_limbs * LIMB_BYTES))];
+            <span class="kw">let </span><span class="kw-2">mut </span>actual_result = <span class="macro">vec!</span>[<span class="number">4u8</span>; <span class="number">1 </span>+ (<span class="number">2 </span>* cops.len())];
             {
-                <span class="kw">let </span>(x, y) = actual_result[<span class="number">1</span>..].split_at_mut(cops.num_limbs * LIMB_BYTES);
+                <span class="kw">let </span>(x, y) = actual_result[<span class="number">1</span>..].split_at_mut(cops.len());
                 <span class="kw">super</span>::<span class="kw">super</span>::private_key::big_endian_affine_from_jacobian(
                     priv_ops,
                     <span class="prelude-val">Some</span>(x),
@@ -2305,7 +2373,7 @@
         name: <span class="kw-2">&amp;</span>str,
     ) -&gt; Vec&lt;u8&gt; {
         <span class="kw">let </span>unpadded_bytes = test_case.consume_bytes(name);
-        <span class="kw">let </span><span class="kw-2">mut </span>bytes = <span class="macro">vec!</span>[<span class="number">0</span>; (ops.num_limbs * LIMB_BYTES) - unpadded_bytes.len()];
+        <span class="kw">let </span><span class="kw-2">mut </span>bytes = <span class="macro">vec!</span>[<span class="number">0</span>; ops.len() - unpadded_bytes.len()];
         bytes.extend(<span class="kw-2">&amp;</span>unpadded_bytes);
         bytes
     }

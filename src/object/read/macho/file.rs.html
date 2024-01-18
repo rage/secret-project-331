@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.1/src/read/macho/file.rs`."><title>file.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/read/macho/file.rs`."><title>file.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -729,6 +729,56 @@
 <a href="#729" id="729">729</a>
 <a href="#730" id="730">730</a>
 <a href="#731" id="731">731</a>
+<a href="#732" id="732">732</a>
+<a href="#733" id="733">733</a>
+<a href="#734" id="734">734</a>
+<a href="#735" id="735">735</a>
+<a href="#736" id="736">736</a>
+<a href="#737" id="737">737</a>
+<a href="#738" id="738">738</a>
+<a href="#739" id="739">739</a>
+<a href="#740" id="740">740</a>
+<a href="#741" id="741">741</a>
+<a href="#742" id="742">742</a>
+<a href="#743" id="743">743</a>
+<a href="#744" id="744">744</a>
+<a href="#745" id="745">745</a>
+<a href="#746" id="746">746</a>
+<a href="#747" id="747">747</a>
+<a href="#748" id="748">748</a>
+<a href="#749" id="749">749</a>
+<a href="#750" id="750">750</a>
+<a href="#751" id="751">751</a>
+<a href="#752" id="752">752</a>
+<a href="#753" id="753">753</a>
+<a href="#754" id="754">754</a>
+<a href="#755" id="755">755</a>
+<a href="#756" id="756">756</a>
+<a href="#757" id="757">757</a>
+<a href="#758" id="758">758</a>
+<a href="#759" id="759">759</a>
+<a href="#760" id="760">760</a>
+<a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
+<a href="#763" id="763">763</a>
+<a href="#764" id="764">764</a>
+<a href="#765" id="765">765</a>
+<a href="#766" id="766">766</a>
+<a href="#767" id="767">767</a>
+<a href="#768" id="768">768</a>
+<a href="#769" id="769">769</a>
+<a href="#770" id="770">770</a>
+<a href="#771" id="771">771</a>
+<a href="#772" id="772">772</a>
+<a href="#773" id="773">773</a>
+<a href="#774" id="774">774</a>
+<a href="#775" id="775">775</a>
+<a href="#776" id="776">776</a>
+<a href="#777" id="777">777</a>
+<a href="#778" id="778">778</a>
+<a href="#779" id="779">779</a>
+<a href="#780" id="780">780</a>
+<a href="#781" id="781">781</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>alloc::vec::Vec;
 <span class="kw">use </span>core::fmt::Debug;
 <span class="kw">use </span>core::{mem, str};
@@ -736,7 +786,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::read::{
     <span class="self">self</span>, Architecture, ComdatKind, Error, Export, FileFlags, Import, NoDynamicRelocationIterator,
     Object, ObjectComdat, ObjectKind, ObjectMap, ObjectSection, ReadError, ReadRef, <span class="prelude-ty">Result</span>,
-    SectionIndex, SymbolIndex,
+    SectionIndex, SubArchitecture, SymbolIndex,
 };
 <span class="kw">use crate</span>::{endian, macho, BigEndian, ByteString, Endian, Endianness, Pod};
 
@@ -747,15 +797,21 @@
 };
 
 <span class="doccomment">/// A 32-bit Mach-O object file.
+///
+/// This is a file that starts with [`macho::MachHeader32`], and corresponds
+/// to [`crate::FileKind::MachO32`].
 </span><span class="kw">pub type </span>MachOFile32&lt;<span class="lifetime">&#39;data</span>, Endian = Endianness, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; =
     MachOFile&lt;<span class="lifetime">&#39;data</span>, macho::MachHeader32&lt;Endian&gt;, R&gt;;
 <span class="doccomment">/// A 64-bit Mach-O object file.
+///
+/// This is a file that starts with [`macho::MachHeader64`], and corresponds
+/// to [`crate::FileKind::MachO64`].
 </span><span class="kw">pub type </span>MachOFile64&lt;<span class="lifetime">&#39;data</span>, Endian = Endianness, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; =
     MachOFile&lt;<span class="lifetime">&#39;data</span>, macho::MachHeader64&lt;Endian&gt;, R&gt;;
 
 <span class="doccomment">/// A partially parsed Mach-O file.
 ///
-/// Most of the functionality of this type is provided by the `Object` trait implementation.
+/// Most of the functionality of this type is provided by the [`Object`] trait implementation.
 </span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>MachOFile&lt;<span class="lifetime">&#39;data</span>, Mach, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;
 <span class="kw">where
@@ -893,6 +949,34 @@
             .get(index)
             .read_error(<span class="string">&quot;Invalid Mach-O segment index&quot;</span>)
     }
+
+    <span class="doccomment">/// Returns the endianness.
+    </span><span class="kw">pub fn </span>endian(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Mach::Endian {
+        <span class="self">self</span>.endian
+    }
+
+    <span class="doccomment">/// Returns the raw data.
+    </span><span class="kw">pub fn </span>data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; R {
+        <span class="self">self</span>.data
+    }
+
+    <span class="doccomment">/// Returns the raw Mach-O file header.
+    </span><span class="kw">pub fn </span>raw_header(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>Mach {
+        <span class="self">self</span>.header
+    }
+
+    <span class="doccomment">/// Return the `LC_BUILD_VERSION` load command if present.
+    </span><span class="kw">pub fn </span>build_version(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>macho::BuildVersionCommand&lt;Mach::Endian&gt;&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>commands = <span class="self">self
+            </span>.header
+            .load_commands(<span class="self">self</span>.endian, <span class="self">self</span>.data, <span class="self">self</span>.header_offset)<span class="question-mark">?</span>;
+        <span class="kw">while let </span><span class="prelude-val">Some</span>(command) = commands.next()<span class="question-mark">? </span>{
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(build_version) = command.build_version()<span class="question-mark">? </span>{
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(build_version));
+            }
+        }
+        <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
+    }
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, Mach, R&gt; read::private::Sealed <span class="kw">for </span>MachOFile&lt;<span class="lifetime">&#39;data</span>, Mach, R&gt;
@@ -930,6 +1014,16 @@
             macho::CPU_TYPE_POWERPC =&gt; Architecture::PowerPc,
             macho::CPU_TYPE_POWERPC64 =&gt; Architecture::PowerPc64,
             <span class="kw">_ </span>=&gt; Architecture::Unknown,
+        }
+    }
+
+    <span class="kw">fn </span>sub_architecture(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;SubArchitecture&gt; {
+        <span class="kw">match </span>(
+            <span class="self">self</span>.header.cputype(<span class="self">self</span>.endian),
+            <span class="self">self</span>.header.cpusubtype(<span class="self">self</span>.endian),
+        ) {
+            (macho::CPU_TYPE_ARM64, macho::CPU_SUBTYPE_ARM64E) =&gt; <span class="prelude-val">Some</span>(SubArchitecture::Arm64E),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
     }
 
@@ -1162,14 +1256,16 @@
     }
 }
 
-<span class="doccomment">/// An iterator over the COMDAT section groups of a `MachOFile64`.
+<span class="doccomment">/// An iterator for the COMDAT section groups in a [`MachOFile64`].
 </span><span class="kw">pub type </span>MachOComdatIterator32&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Endian = Endianness, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; =
     MachOComdatIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, macho::MachHeader32&lt;Endian&gt;, R&gt;;
-<span class="doccomment">/// An iterator over the COMDAT section groups of a `MachOFile64`.
+<span class="doccomment">/// An iterator for the COMDAT section groups in a [`MachOFile64`].
 </span><span class="kw">pub type </span>MachOComdatIterator64&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Endian = Endianness, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; =
     MachOComdatIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, macho::MachHeader64&lt;Endian&gt;, R&gt;;
 
-<span class="doccomment">/// An iterator over the COMDAT section groups of a `MachOFile`.
+<span class="doccomment">/// An iterator for the COMDAT section groups in a [`MachOFile`].
+///
+/// This is a stub that doesn&#39;t implement any functionality.
 </span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>MachOComdatIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Mach, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;
 <span class="kw">where
@@ -1193,15 +1289,17 @@
     </span>}
 }
 
-<span class="doccomment">/// A COMDAT section group of a `MachOFile32`.
+<span class="doccomment">/// A COMDAT section group in a [`MachOFile32`].
 </span><span class="kw">pub type </span>MachOComdat32&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Endian = Endianness, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; =
     MachOComdat&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, macho::MachHeader32&lt;Endian&gt;, R&gt;;
 
-<span class="doccomment">/// A COMDAT section group of a `MachOFile64`.
+<span class="doccomment">/// A COMDAT section group in a [`MachOFile64`].
 </span><span class="kw">pub type </span>MachOComdat64&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Endian = Endianness, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; =
     MachOComdat&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, macho::MachHeader64&lt;Endian&gt;, R&gt;;
 
-<span class="doccomment">/// A COMDAT section group of a `MachOFile`.
+<span class="doccomment">/// A COMDAT section group in a [`MachOFile`].
+///
+/// This is a stub that doesn&#39;t implement any functionality.
 </span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>MachOComdat&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Mach, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;
 <span class="kw">where
@@ -1252,14 +1350,16 @@
     }
 }
 
-<span class="doccomment">/// An iterator over the sections in a COMDAT section group of a `MachOFile32`.
+<span class="doccomment">/// An iterator for the sections in a COMDAT section group in a [`MachOFile32`].
 </span><span class="kw">pub type </span>MachOComdatSectionIterator32&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Endian = Endianness, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; =
     MachOComdatSectionIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, macho::MachHeader32&lt;Endian&gt;, R&gt;;
-<span class="doccomment">/// An iterator over the sections in a COMDAT section group of a `MachOFile64`.
+<span class="doccomment">/// An iterator for the sections in a COMDAT section group in a [`MachOFile64`].
 </span><span class="kw">pub type </span>MachOComdatSectionIterator64&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Endian = Endianness, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; =
     MachOComdatSectionIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, macho::MachHeader64&lt;Endian&gt;, R&gt;;
 
-<span class="doccomment">/// An iterator over the sections in a COMDAT section group of a `MachOFile`.
+<span class="doccomment">/// An iterator for the sections in a COMDAT section group in a [`MachOFile`].
+///
+/// This is a stub that doesn&#39;t implement any functionality.
 </span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>MachOComdatSectionIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Mach, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;
 <span class="kw">where
@@ -1282,7 +1382,7 @@
     </span>}
 }
 
-<span class="doccomment">/// A trait for generic access to `MachHeader32` and `MachHeader64`.
+<span class="doccomment">/// A trait for generic access to [`macho::MachHeader32`] and [`macho::MachHeader64`].
 </span><span class="attr">#[allow(missing_docs)]
 </span><span class="kw">pub trait </span>MachHeader: Debug + Pod {
     <span class="kw">type </span>Word: Into&lt;u64&gt;;

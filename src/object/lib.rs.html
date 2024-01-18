@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.1/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -97,23 +97,6 @@
 <a href="#97" id="97">97</a>
 <a href="#98" id="98">98</a>
 <a href="#99" id="99">99</a>
-<a href="#100" id="100">100</a>
-<a href="#101" id="101">101</a>
-<a href="#102" id="102">102</a>
-<a href="#103" id="103">103</a>
-<a href="#104" id="104">104</a>
-<a href="#105" id="105">105</a>
-<a href="#106" id="106">106</a>
-<a href="#107" id="107">107</a>
-<a href="#108" id="108">108</a>
-<a href="#109" id="109">109</a>
-<a href="#110" id="110">110</a>
-<a href="#111" id="111">111</a>
-<a href="#112" id="112">112</a>
-<a href="#113" id="113">113</a>
-<a href="#114" id="114">114</a>
-<a href="#115" id="115">115</a>
-<a href="#116" id="116">116</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! # `object`
 //!
 //! The `object` crate provides a unified interface to working with object files
@@ -124,52 +107,34 @@
 //!
 //! Raw structs are defined for: [ELF](elf), [Mach-O](macho), [PE/COFF](pe),
 //! [XCOFF](xcoff), [archive].
-//! Types and traits for zerocopy support are defined in [pod] and [endian].
+//! Types and traits for zerocopy support are defined in the [`pod`] and [`endian`] modules.
 //!
 //! ## Unified read API
 //!
-//! The [read::Object] trait defines the unified interface. This trait is implemented
-//! by [read::File], which allows reading any file format, as well as implementations
-//! for each file format: [ELF](read::elf::ElfFile), [Mach-O](read::macho::MachOFile),
-//! [COFF](read::coff::CoffFile), [PE](read::pe::PeFile), [Wasm](read::wasm::WasmFile),
-//! [XCOFF](read::xcoff::XcoffFile).
+//! The [`read`] module provides a unified read API using the [`read::Object`] trait.
+//! There is an implementation of this trait for [`read::File`], which allows reading any
+//! file format, as well as implementations for each file format.
 //!
 //! ## Low level read API
 //!
-//! In addition to the unified read API, the various `read` modules define helpers that
-//! operate on the raw structs. These also provide traits that abstract over the differences
-//! between 32-bit and 64-bit versions of the file format.
+//! The [`read#modules`] submodules define helpers that operate on the raw structs.
+//! These can be used instead of the unified API, or in conjunction with it to access
+//! details that are not available via the unified API.
 //!
 //! ## Unified write API
 //!
-//! [write::Object] allows building a COFF/ELF/Mach-O/XCOFF relocatable object file and
-//! then writing it out.
+//! The [`mod@write`] module provides a unified write API for relocatable object files
+//! using [`write::Object`]. This does not support writing executable files.
 //!
-//! ## Low level executable writers
+//! ## Low level write API
 //!
-//! [write::elf::Writer] and [write::pe::Writer] allow writing executable files.
+//! The [`mod@write#modules`] submodules define helpers for writing the raw structs.
 //!
-//! ## Example for unified read API
-//!  ```no_run
-//! # #[cfg(feature = &quot;read&quot;)]
-//! use object::{Object, ObjectSection};
-//! use std::error::Error;
-//! use std::fs;
+//! ## Shared definitions
 //!
-//! /// Reads a file and displays the content of the &quot;.boot&quot; section.
-//! fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-//! # #[cfg(all(feature = &quot;read&quot;, feature = &quot;std&quot;))] {
-//!   let bin_data = fs::read(&quot;./multiboot2-binary.elf&quot;)?;
-//!   let obj_file = object::File::parse(&amp;*bin_data)?;
-//!   if let Some(section) = obj_file.section_by_name(&quot;.boot&quot;) {
-//!     println!(&quot;{:#x?}&quot;, section.data()?);
-//!   } else {
-//!     eprintln!(&quot;section not available&quot;);
-//!   }
-//! # }
-//!   Ok(())
-//! }
-//! ```
+//! The crate provides a number of definitions that are used by both the read and write
+//! APIs. These are defined at the top level module, but none of these are the main entry
+//! points of the crate.
 
 </span><span class="attr">#![deny(missing_docs)]
 #![deny(missing_debug_implementations)]
@@ -178,6 +143,7 @@
 </span><span class="comment">// Style.
 </span><span class="attr">#![allow(clippy::collapsible_if)]
 #![allow(clippy::comparison_chain)]
+#![allow(clippy::manual_flatten)]
 #![allow(clippy::match_like_matches_macro)]
 #![allow(clippy::single_match)]
 #![allow(clippy::type_complexity)]

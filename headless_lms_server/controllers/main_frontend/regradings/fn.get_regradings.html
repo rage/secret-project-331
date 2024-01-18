@@ -5,10 +5,10 @@
 ) -&gt; <a class="type" href="../../../domain/error/type.ControllerResult.html" title="type headless_lms_server::domain::error::ControllerResult">ControllerResult</a>&lt;<a class="struct" href="../../../prelude/web/struct.Json.html" title="struct headless_lms_server::prelude::web::Json">Json</a>&lt;<a class="struct" href="https://doc.rust-lang.org/1.75.0/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="struct" href="../../../../headless_lms_models/regradings/struct.Regrading.html" title="struct headless_lms_models::regradings::Regrading">Regrading</a>&gt;&gt;&gt;</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>GET <code>/api/v0/main-frontend/regradings</code> - Returns a paginated list of all the regradings.</p>
 <h3 id="response-typescript-definition"><a href="#response-typescript-definition">Response TypeScript definition</a></h3><div class="example-wrap"><pre class="language-ts"><code>type Vec&lt;Regrading&gt; = Array&lt;{
   id: string
-  created_at: Date
-  updated_at: Date
-  regrading_started_at: Date | null
-  regrading_completed_at: Date | null
+  created_at: string
+  updated_at: string
+  regrading_started_at: string | null
+  regrading_completed_at: string | null
   total_grading_progress: GradingProgress
   user_points_update_strategy: UserPointsUpdateStrategy
   user_id: string | null

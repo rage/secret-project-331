@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/memmap2-0.8.0/src/advice.rs`."><title>advice.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="memmap2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/memmap2-0.9.3/src/advice.rs`."><title>advice.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="memmap2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -382,173 +382,35 @@
 <a href="#382" id="382">382</a>
 <a href="#383" id="383">383</a>
 <a href="#384" id="384">384</a>
-<a href="#385" id="385">385</a>
-<a href="#386" id="386">386</a>
-<a href="#387" id="387">387</a>
-<a href="#388" id="388">388</a>
-<a href="#389" id="389">389</a>
-<a href="#390" id="390">390</a>
-<a href="#391" id="391">391</a>
-<a href="#392" id="392">392</a>
-<a href="#393" id="393">393</a>
-<a href="#394" id="394">394</a>
-<a href="#395" id="395">395</a>
-<a href="#396" id="396">396</a>
-<a href="#397" id="397">397</a>
-<a href="#398" id="398">398</a>
-<a href="#399" id="399">399</a>
-<a href="#400" id="400">400</a>
-<a href="#401" id="401">401</a>
-<a href="#402" id="402">402</a>
-<a href="#403" id="403">403</a>
-<a href="#404" id="404">404</a>
-<a href="#405" id="405">405</a>
-<a href="#406" id="406">406</a>
-<a href="#407" id="407">407</a>
-<a href="#408" id="408">408</a>
-<a href="#409" id="409">409</a>
 </pre></div><pre class="rust"><code><span class="doccomment">/// Values supported by [`Mmap::advise`][crate::Mmap::advise] and [`MmapMut::advise`][crate::MmapMut::advise] functions.
+///
 /// See [madvise()](https://man7.org/linux/man-pages/man2/madvise.2.html) map page.
-</span><span class="attr">#[derive(Debug, Eq, PartialEq, Hash)]
-</span><span class="kw">pub struct </span>Advice(<span class="kw">pub</span>(<span class="kw">crate</span>) libc::c_int);
-
-<span class="kw">impl </span>Advice {
+</span><span class="attr">#[repr(i32)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
+</span><span class="kw">pub enum </span>Advice {
     <span class="doccomment">/// **MADV_NORMAL**
     ///
     /// No special treatment.  This is the default.
-    </span><span class="kw">pub fn </span>normal() -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>(libc::MADV_NORMAL)
-    }
+    </span>Normal = libc::MADV_NORMAL,
 
     <span class="doccomment">/// **MADV_RANDOM**
     ///
     /// Expect page references in random order.  (Hence, read
     /// ahead may be less useful than normally.)
-    </span><span class="kw">pub fn </span>random() -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>(libc::MADV_RANDOM)
-    }
+    </span>Random = libc::MADV_RANDOM,
 
     <span class="doccomment">/// **MADV_SEQUENTIAL**
     ///
     /// Expect page references in sequential order.  (Hence, pages
     /// in the given range can be aggressively read ahead, and may
     /// be freed soon after they are accessed.)
-    </span><span class="kw">pub fn </span>sequential() -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>(libc::MADV_SEQUENTIAL)
-    }
+    </span>Sequential = libc::MADV_SEQUENTIAL,
 
     <span class="doccomment">/// **MADV_WILLNEED**
     ///
     /// Expect access in the near future.  (Hence, it might be a
     /// good idea to read some pages ahead.)
-    </span><span class="kw">pub fn </span>will_need() -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>(libc::MADV_WILLNEED)
-    }
-
-    <span class="doccomment">/// **MADV_DONTNEED**
-    ///
-    /// Do not expect access in the near future.  (For the time
-    /// being, the application is finished with the given range,
-    /// so the kernel can free resources associated with it.)
-    ///
-    /// After a successful MADV_DONTNEED operation, the semantics
-    /// of memory access in the specified region are changed:
-    /// subsequent accesses of pages in the range will succeed,
-    /// but will result in either repopulating the memory contents
-    /// from the up-to-date contents of the underlying mapped file
-    /// (for shared file mappings, shared anonymous mappings, and
-    /// shmem-based techniques such as System V shared memory
-    /// segments) or zero-fill-on-demand pages for anonymous
-    /// private mappings.
-    ///
-    /// Note that, when applied to shared mappings, MADV_DONTNEED
-    /// might not lead to immediate freeing of the pages in the
-    /// range.  The kernel is free to delay freeing the pages
-    /// until an appropriate moment.  The resident set size (RSS)
-    /// of the calling process will be immediately reduced
-    /// however.
-    ///
-    /// **MADV_DONTNEED** cannot be applied to locked pages, Huge TLB
-    /// pages, or VM_PFNMAP pages.  (Pages marked with the kernel-
-    /// internal VM_PFNMAP flag are special memory areas that are
-    /// not managed by the virtual memory subsystem.  Such pages
-    /// are typically created by device drivers that map the pages
-    /// into user space.)
-    ///
-    /// # Safety
-    ///
-    /// Using the returned value with conceptually write to the
-    /// mapped pages, i.e. borrowing the mapping when the pages
-    /// are freed results in undefined behaviour.
-    </span><span class="kw">pub unsafe fn </span>dont_need() -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>(libc::MADV_DONTNEED)
-    }
-
-    <span class="comment">//
-    // The rest are Linux-specific
-    //
-    </span><span class="doccomment">/// **MADV_FREE** - Linux (since Linux 4.5) and Darwin
-    ///
-    /// The application no longer requires the pages in the range
-    /// specified by addr and len.  The kernel can thus free these
-    /// pages, but the freeing could be delayed until memory
-    /// pressure occurs.  For each of the pages that has been
-    /// marked to be freed but has not yet been freed, the free
-    /// operation will be canceled if the caller writes into the
-    /// page.  After a successful MADV_FREE operation, any stale
-    /// data (i.e., dirty, unwritten pages) will be lost when the
-    /// kernel frees the pages.  However, subsequent writes to
-    /// pages in the range will succeed and then kernel cannot
-    /// free those dirtied pages, so that the caller can always
-    /// see just written data.  If there is no subsequent write,
-    /// the kernel can free the pages at any time.  Once pages in
-    /// the range have been freed, the caller will see zero-fill-
-    /// on-demand pages upon subsequent page references.
-    ///
-    /// The MADV_FREE operation can be applied only to private
-    /// anonymous pages (see mmap(2)).  In Linux before version
-    /// 4.12, when freeing pages on a swapless system, the pages
-    /// in the given range are freed instantly, regardless of
-    /// memory pressure.
-    ///
-    /// # Safety
-    ///
-    /// Using the returned value with conceptually write to the
-    /// mapped pages, i.e. borrowing the mapping while the pages
-    /// are still being freed results in undefined behaviour.
-    </span><span class="attr">#[cfg(any(target_os = <span class="string">&quot;linux&quot;</span>, target_os = <span class="string">&quot;macos&quot;</span>, target_os = <span class="string">&quot;ios&quot;</span>))]
-    </span><span class="kw">pub unsafe fn </span>free() -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>(libc::MADV_FREE)
-    }
-
-    <span class="doccomment">/// **MADV_REMOVE** - Linux only (since Linux 2.6.16)
-    ///
-    /// Free up a given range of pages and its associated backing
-    /// store.  This is equivalent to punching a hole in the
-    /// corresponding byte range of the backing store (see
-    /// fallocate(2)).  Subsequent accesses in the specified
-    /// address range will see bytes containing zero.
-    ///
-    /// The specified address range must be mapped shared and
-    /// writable.  This flag cannot be applied to locked pages,
-    /// Huge TLB pages, or VM_PFNMAP pages.
-    ///
-    /// In the initial implementation, only tmpfs(5) was supported
-    /// **MADV_REMOVE**; but since Linux 3.5, any filesystem which
-    /// supports the fallocate(2) FALLOC_FL_PUNCH_HOLE mode also
-    /// supports MADV_REMOVE.  Hugetlbfs fails with the error
-    /// EINVAL and other filesystems fail with the error
-    /// EOPNOTSUPP.
-    ///
-    /// # Safety
-    ///
-    /// Using the returned value with conceptually write to the
-    /// mapped pages, i.e. borrowing the mapping when the pages
-    /// are freed results in undefined behaviour.
-    </span><span class="attr">#[cfg(target_os = <span class="string">&quot;linux&quot;</span>)]
-    </span><span class="kw">pub unsafe fn </span>remove() -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>(libc::MADV_REMOVE)
-    }
+    </span>WillNeed = libc::MADV_WILLNEED,
 
     <span class="doccomment">/// **MADV_DONTFORK** - Linux only (since Linux 2.6.16)
     ///
@@ -559,18 +421,14 @@
     /// relocations cause problems for hardware that DMAs into the
     /// page.)
     </span><span class="attr">#[cfg(target_os = <span class="string">&quot;linux&quot;</span>)]
-    </span><span class="kw">pub fn </span>dont_fork() -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>(libc::MADV_DONTFORK)
-    }
+    </span>DontFork = libc::MADV_DONTFORK,
 
     <span class="doccomment">/// **MADV_DOFORK** - Linux only (since Linux 2.6.16)
     ///
     /// Undo the effect of MADV_DONTFORK, restoring the default
     /// behavior, whereby a mapping is inherited across fork(2).
     </span><span class="attr">#[cfg(target_os = <span class="string">&quot;linux&quot;</span>)]
-    </span><span class="kw">pub fn </span>do_fork() -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>(libc::MADV_DOFORK)
-    }
+    </span>DoFork = libc::MADV_DOFORK,
 
     <span class="doccomment">/// **MADV_MERGEABLE** - Linux only (since Linux 2.6.32)
     ///
@@ -593,9 +451,7 @@
     /// available only if the kernel was configured with
     /// CONFIG_KSM.
     </span><span class="attr">#[cfg(target_os = <span class="string">&quot;linux&quot;</span>)]
-    </span><span class="kw">pub fn </span>mergeable() -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>(libc::MADV_MERGEABLE)
-    }
+    </span>Mergeable = libc::MADV_MERGEABLE,
 
     <span class="doccomment">/// **MADV_UNMERGEABLE** - Linux only (since Linux 2.6.32)
     ///
@@ -604,9 +460,7 @@
     /// it had merged in the address range specified by addr and
     /// length.
     </span><span class="attr">#[cfg(target_os = <span class="string">&quot;linux&quot;</span>)]
-    </span><span class="kw">pub fn </span>unmergeable() -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>(libc::MADV_UNMERGEABLE)
-    }
+    </span>Unmergeable = libc::MADV_UNMERGEABLE,
 
     <span class="doccomment">/// **MADV_HUGEPAGE** - Linux only (since Linux 2.6.38)
     ///
@@ -645,18 +499,14 @@
     /// available only if the kernel was configured with
     /// CONFIG_TRANSPARENT_HUGEPAGE.
     </span><span class="attr">#[cfg(target_os = <span class="string">&quot;linux&quot;</span>)]
-    </span><span class="kw">pub fn </span>huge_page() -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>(libc::MADV_HUGEPAGE)
-    }
+    </span>HugePage = libc::MADV_HUGEPAGE,
 
     <span class="doccomment">/// **MADV_NOHUGEPAGE** - Linux only (since Linux 2.6.38)
     ///
     /// Ensures that memory in the address range specified by addr
     /// and length will not be backed by transparent hugepages.
     </span><span class="attr">#[cfg(target_os = <span class="string">&quot;linux&quot;</span>)]
-    </span><span class="kw">pub fn </span>no_huge_page() -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>(libc::MADV_NOHUGEPAGE)
-    }
+    </span>NoHugePage = libc::MADV_NOHUGEPAGE,
 
     <span class="doccomment">/// **MADV_DONTDUMP** - Linux only (since Linux 3.4)
     ///
@@ -668,17 +518,13 @@
     /// set via the `/proc/[pid]/coredump_filter` file (see
     /// core(5)).
     </span><span class="attr">#[cfg(target_os = <span class="string">&quot;linux&quot;</span>)]
-    </span><span class="kw">pub fn </span>dont_dump() -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>(libc::MADV_DONTDUMP)
-    }
+    </span>DontDump = libc::MADV_DONTDUMP,
 
     <span class="doccomment">/// **MADV_DODUMP** - Linux only (since Linux 3.4)
     ///
     /// Undo the effect of an earlier MADV_DONTDUMP.
     </span><span class="attr">#[cfg(target_os = <span class="string">&quot;linux&quot;</span>)]
-    </span><span class="kw">pub fn </span>do_dump() -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>(libc::MADV_DODUMP)
-    }
+    </span>DoDump = libc::MADV_DODUMP,
 
     <span class="doccomment">/// **MADV_HWPOISON** - Linux only (since Linux 2.6.32)
     ///
@@ -693,9 +539,7 @@
     /// handling code; it is available only if the kernel was
     /// configured with CONFIG_MEMORY_FAILURE.
     </span><span class="attr">#[cfg(target_os = <span class="string">&quot;linux&quot;</span>)]
-    </span><span class="kw">pub fn </span>hw_poison() -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>(libc::MADV_HWPOISON)
-    }
+    </span>HwPoison = libc::MADV_HWPOISON,
 
     <span class="doccomment">/// **MADV_POPULATE_READ** - Linux only (since Linux 5.14)
     ///
@@ -730,9 +574,7 @@
     /// Note  that with MADV_POPULATE_READ, the process can be killed
     /// at any moment when the system runs out of memory.
     </span><span class="attr">#[cfg(target_os = <span class="string">&quot;linux&quot;</span>)]
-    </span><span class="kw">pub fn </span>populate_read() -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>(libc::MADV_POPULATE_READ)
-    }
+    </span>PopulateRead = libc::MADV_POPULATE_READ,
 
     <span class="doccomment">/// **MADV_POPULATE_WRITE** - Linux only (since Linux 5.14)
     ///
@@ -764,9 +606,7 @@
     /// Note that with MADV_POPULATE_WRITE, the process can be killed
     /// at any moment when the system runs out of memory.
     </span><span class="attr">#[cfg(target_os = <span class="string">&quot;linux&quot;</span>)]
-    </span><span class="kw">pub fn </span>populate_write() -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>(libc::MADV_POPULATE_WRITE)
-    }
+    </span>PopulateWrite = libc::MADV_POPULATE_WRITE,
 
     <span class="doccomment">/// **MADV_ZERO_WIRED_PAGES** - Darwin only
     ///
@@ -775,9 +615,123 @@
     /// a munmap(2) without a preceding munlock(2) or the application quits).  This is used
     /// with madvise() system call.
     </span><span class="attr">#[cfg(any(target_os = <span class="string">&quot;macos&quot;</span>, target_os = <span class="string">&quot;ios&quot;</span>))]
-    </span><span class="kw">pub fn </span>zero_wired_pages() -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>(libc::MADV_ZERO_WIRED_PAGES)
-    }
+    </span>ZeroWiredPages = libc::MADV_ZERO_WIRED_PAGES,
+}
+
+<span class="doccomment">/// Values supported by [`Mmap::unsafe_advise`][crate::Mmap::unsafe_advise] and [`MmapMut::unsafe_advise`][crate::MmapMut::unsafe_advise] functions.
+///
+/// These flags can be passed to the [madvise (2)][man_page] system call
+/// and effects on the mapped pages which are conceptually writes,
+/// i.e. the change the observable contents of these pages which
+/// implies undefined behaviour if the mapping is still borrowed.
+///
+/// Hence, these potentially unsafe flags must be used with the unsafe
+/// methods and the programmer has to justify that the code
+/// does not keep any borrows of the mapping active while the mapped pages
+/// are updated by the kernel&#39;s memory management subsystem.
+///
+/// [man_page]: https://man7.org/linux/man-pages/man2/madvise.2.html
+</span><span class="attr">#[repr(i32)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
+</span><span class="kw">pub enum </span>UncheckedAdvice {
+    <span class="doccomment">/// **MADV_DONTNEED**
+    ///
+    /// Do not expect access in the near future.  (For the time
+    /// being, the application is finished with the given range,
+    /// so the kernel can free resources associated with it.)
+    ///
+    /// After a successful MADV_DONTNEED operation, the semantics
+    /// of memory access in the specified region are changed:
+    /// subsequent accesses of pages in the range will succeed,
+    /// but will result in either repopulating the memory contents
+    /// from the up-to-date contents of the underlying mapped file
+    /// (for shared file mappings, shared anonymous mappings, and
+    /// shmem-based techniques such as System V shared memory
+    /// segments) or zero-fill-on-demand pages for anonymous
+    /// private mappings.
+    ///
+    /// Note that, when applied to shared mappings, MADV_DONTNEED
+    /// might not lead to immediate freeing of the pages in the
+    /// range.  The kernel is free to delay freeing the pages
+    /// until an appropriate moment.  The resident set size (RSS)
+    /// of the calling process will be immediately reduced
+    /// however.
+    ///
+    /// **MADV_DONTNEED** cannot be applied to locked pages, Huge TLB
+    /// pages, or VM_PFNMAP pages.  (Pages marked with the kernel-
+    /// internal VM_PFNMAP flag are special memory areas that are
+    /// not managed by the virtual memory subsystem.  Such pages
+    /// are typically created by device drivers that map the pages
+    /// into user space.)
+    ///
+    /// # Safety
+    ///
+    /// Using the returned value with conceptually write to the
+    /// mapped pages, i.e. borrowing the mapping when the pages
+    /// are freed results in undefined behaviour.
+    </span>DontNeed = libc::MADV_DONTNEED,
+
+    <span class="comment">//
+    // The rest are Linux-specific
+    //
+    </span><span class="doccomment">/// **MADV_FREE** - Linux (since Linux 4.5) and Darwin
+    ///
+    /// The application no longer requires the pages in the range
+    /// specified by addr and len.  The kernel can thus free these
+    /// pages, but the freeing could be delayed until memory
+    /// pressure occurs.  For each of the pages that has been
+    /// marked to be freed but has not yet been freed, the free
+    /// operation will be canceled if the caller writes into the
+    /// page.  After a successful MADV_FREE operation, any stale
+    /// data (i.e., dirty, unwritten pages) will be lost when the
+    /// kernel frees the pages.  However, subsequent writes to
+    /// pages in the range will succeed and then kernel cannot
+    /// free those dirtied pages, so that the caller can always
+    /// see just written data.  If there is no subsequent write,
+    /// the kernel can free the pages at any time.  Once pages in
+    /// the range have been freed, the caller will see zero-fill-
+    /// on-demand pages upon subsequent page references.
+    ///
+    /// The MADV_FREE operation can be applied only to private
+    /// anonymous pages (see mmap(2)).  In Linux before version
+    /// 4.12, when freeing pages on a swapless system, the pages
+    /// in the given range are freed instantly, regardless of
+    /// memory pressure.
+    ///
+    /// # Safety
+    ///
+    /// Using the returned value with conceptually write to the
+    /// mapped pages, i.e. borrowing the mapping while the pages
+    /// are still being freed results in undefined behaviour.
+    </span><span class="attr">#[cfg(any(target_os = <span class="string">&quot;linux&quot;</span>, target_os = <span class="string">&quot;macos&quot;</span>, target_os = <span class="string">&quot;ios&quot;</span>))]
+    </span>Free = libc::MADV_FREE,
+
+    <span class="doccomment">/// **MADV_REMOVE** - Linux only (since Linux 2.6.16)
+    ///
+    /// Free up a given range of pages and its associated backing
+    /// store.  This is equivalent to punching a hole in the
+    /// corresponding byte range of the backing store (see
+    /// fallocate(2)).  Subsequent accesses in the specified
+    /// address range will see bytes containing zero.
+    ///
+    /// The specified address range must be mapped shared and
+    /// writable.  This flag cannot be applied to locked pages,
+    /// Huge TLB pages, or VM_PFNMAP pages.
+    ///
+    /// In the initial implementation, only tmpfs(5) was supported
+    /// **MADV_REMOVE**; but since Linux 3.5, any filesystem which
+    /// supports the fallocate(2) FALLOC_FL_PUNCH_HOLE mode also
+    /// supports MADV_REMOVE.  Hugetlbfs fails with the error
+    /// EINVAL and other filesystems fail with the error
+    /// EOPNOTSUPP.
+    ///
+    /// # Safety
+    ///
+    /// Using the returned value with conceptually write to the
+    /// mapped pages, i.e. borrowing the mapping when the pages
+    /// are freed results in undefined behaviour.
+    </span><span class="attr">#[cfg(target_os = <span class="string">&quot;linux&quot;</span>)]
+    </span>Remove = libc::MADV_REMOVE,
 
     <span class="doccomment">/// **MADV_FREE_REUSABLE** - Darwin only
     ///
@@ -789,9 +743,7 @@
     /// mapped pages, i.e. borrowing the mapping while the pages
     /// are still being freed results in undefined behaviour.
     </span><span class="attr">#[cfg(any(target_os = <span class="string">&quot;macos&quot;</span>, target_os = <span class="string">&quot;ios&quot;</span>))]
-    </span><span class="kw">pub unsafe fn </span>free_reusable() -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>(libc::MADV_FREE_REUSABLE)
-    }
+    </span>FreeReusable = libc::MADV_FREE_REUSABLE,
 
     <span class="doccomment">/// **MADV_FREE_REUSE** - Darwin only
     ///
@@ -805,9 +757,7 @@
     /// mapped pages, i.e. borrowing the mapping while the pages
     /// are still being freed results in undefined behaviour.
     </span><span class="attr">#[cfg(any(target_os = <span class="string">&quot;macos&quot;</span>, target_os = <span class="string">&quot;ios&quot;</span>))]
-    </span><span class="kw">pub unsafe fn </span>free_reuse() -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>(libc::MADV_FREE_REUSE)
-    }
+    </span>FreeReuse = libc::MADV_FREE_REUSE,
 }
 
 <span class="comment">// Future expansion:

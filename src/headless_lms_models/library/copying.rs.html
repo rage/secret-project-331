@@ -2013,7 +2013,7 @@ AND deleted_at IS NULL;
                 .<span class="kw">await
                 </span>.unwrap();
             <span class="macro">assert_eq!</span>(copied_chapters.len(), <span class="number">1</span>);
-            <span class="macro">assert_eq!</span>(copied_chapters.get(<span class="number">0</span>).unwrap().copied_from, <span class="prelude-val">Some</span>(chapter));
+            <span class="macro">assert_eq!</span>(copied_chapters.first().unwrap().copied_from, <span class="prelude-val">Some</span>(chapter));
         }
 
         <span class="attr">#[tokio::test]
@@ -2029,7 +2029,7 @@ AND deleted_at IS NULL;
             <span class="kw">let </span>copied_chapters = <span class="kw">crate</span>::chapters::course_chapters(tx.as_mut(), copied_course.id)
                 .<span class="kw">await
                 </span>.unwrap();
-            <span class="kw">let </span>copied_chapter = copied_chapters.get(<span class="number">0</span>).unwrap();
+            <span class="kw">let </span>copied_chapter = copied_chapters.first().unwrap();
             <span class="kw">let </span>copied_chapter_front_page =
                 <span class="kw">crate</span>::pages::get_page(tx.as_mut(), copied_chapter.front_page_id.unwrap())
                     .<span class="kw">await

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["ElementEnd","EntityDefinition","Error","ExternalId","Reference","StreamError","Token"],"struct":["StrSpan","Stream","TextPos","Tokenizer"],"trait":["XmlByteExt","XmlCharExt"]};

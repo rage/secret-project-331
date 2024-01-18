@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/resvg-0.36.0/src/path.rs`."><title>path.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="resvg" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/resvg-0.37.0/src/path.rs`."><title>path.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="resvg" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -251,26 +251,6 @@
 <a href="#251" id="251">251</a>
 <a href="#252" id="252">252</a>
 <a href="#253" id="253">253</a>
-<a href="#254" id="254">254</a>
-<a href="#255" id="255">255</a>
-<a href="#256" id="256">256</a>
-<a href="#257" id="257">257</a>
-<a href="#258" id="258">258</a>
-<a href="#259" id="259">259</a>
-<a href="#260" id="260">260</a>
-<a href="#261" id="261">261</a>
-<a href="#262" id="262">262</a>
-<a href="#263" id="263">263</a>
-<a href="#264" id="264">264</a>
-<a href="#265" id="265">265</a>
-<a href="#266" id="266">266</a>
-<a href="#267" id="267">267</a>
-<a href="#268" id="268">268</a>
-<a href="#269" id="269">269</a>
-<a href="#270" id="270">270</a>
-<a href="#271" id="271">271</a>
-<a href="#272" id="272">272</a>
-<a href="#273" id="273">273</a>
 </pre></div><pre class="rust"><code><span class="comment">// This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -282,7 +262,6 @@
 <span class="kw">use </span><span class="kw">crate</span>::tree::{BBoxes, Node};
 
 <span class="kw">pub struct </span>FillPath {
-    <span class="kw">pub </span>transform: tiny_skia::Transform,
     <span class="kw">pub </span>paint: Paint,
     <span class="kw">pub </span>rule: tiny_skia::FillRule,
     <span class="kw">pub </span>anti_alias: bool,
@@ -290,35 +269,26 @@
 }
 
 <span class="kw">pub struct </span>StrokePath {
-    <span class="kw">pub </span>transform: tiny_skia::Transform,
     <span class="kw">pub </span>paint: Paint,
     <span class="kw">pub </span>stroke: tiny_skia::Stroke,
     <span class="kw">pub </span>anti_alias: bool,
     <span class="kw">pub </span>path: Rc&lt;tiny_skia::Path&gt;,
 }
 
-<span class="kw">pub fn </span>convert(upath: <span class="kw-2">&amp;</span>usvg::Path, children: <span class="kw-2">&amp;mut </span>Vec&lt;Node&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;BBoxes&gt; {
-    <span class="kw">let </span>transform = upath.transform;
+<span class="kw">pub fn </span>convert(
+    upath: <span class="kw-2">&amp;</span>usvg::Path,
+    text_bbox: <span class="prelude-ty">Option</span>&lt;tiny_skia::NonZeroRect&gt;,
+    children: <span class="kw-2">&amp;mut </span>Vec&lt;Node&gt;,
+) -&gt; <span class="prelude-ty">Option</span>&lt;BBoxes&gt; {
     <span class="kw">let </span>anti_alias = upath.rendering_mode.use_shape_antialiasing();
 
-    <span class="kw">let </span>fill_path = upath.fill.as_ref().and_then(|ufill| {
-        convert_fill_path(
-            ufill,
-            upath.data.clone(),
-            transform,
-            upath.text_bbox,
-            anti_alias,
-        )
-    });
+    <span class="kw">let </span>fill_path = upath
+        .fill
+        .as_ref()
+        .and_then(|ufill| convert_fill_path(ufill, upath.data.clone(), text_bbox, anti_alias));
 
     <span class="kw">let </span>stroke_path = upath.stroke.as_ref().and_then(|ustroke| {
-        convert_stroke_path(
-            ustroke,
-            upath.data.clone(),
-            transform,
-            upath.text_bbox,
-            anti_alias,
-        )
+        convert_stroke_path(ustroke, upath.data.clone(), text_bbox, anti_alias)
     });
 
     <span class="kw">if </span>fill_path.is_none() &amp;&amp; stroke_path.is_none() {
@@ -327,16 +297,14 @@
 
     <span class="kw">let </span><span class="kw-2">mut </span>bboxes = BBoxes::default();
 
-    <span class="kw">if let </span><span class="prelude-val">Some</span>((<span class="kw">_</span>, l_bbox, o_bbox)) = fill_path {
-        bboxes.layer = bboxes.layer.expand(l_bbox);
+    <span class="kw">if let </span><span class="prelude-val">Some</span>((<span class="kw">_</span>, o_bbox)) = fill_path {
+        bboxes.layer = bboxes.layer.expand(o_bbox);
         bboxes.object = bboxes.object.expand(o_bbox);
     }
     <span class="kw">if let </span><span class="prelude-val">Some</span>((<span class="kw">_</span>, l_bbox, o_bbox)) = stroke_path {
         bboxes.layer = bboxes.layer.expand(l_bbox);
         bboxes.object = bboxes.object.expand(o_bbox);
     }
-
-    bboxes.transformed_object = bboxes.object.transform(upath.transform)<span class="question-mark">?</span>;
 
     <span class="comment">// Do not add hidden paths, but preserve the bbox.
     // visibility=hidden still affects the bbox calculation.
@@ -345,7 +313,7 @@
     }
 
     <span class="kw">if </span>upath.paint_order == usvg::PaintOrder::FillAndStroke {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>((path, <span class="kw">_</span>, <span class="kw">_</span>)) = fill_path {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>((path, <span class="kw">_</span>)) = fill_path {
             children.push(Node::FillPath(path));
         }
 
@@ -357,7 +325,7 @@
             children.push(Node::StrokePath(path));
         }
 
-        <span class="kw">if let </span><span class="prelude-val">Some</span>((path, <span class="kw">_</span>, <span class="kw">_</span>)) = fill_path {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>((path, <span class="kw">_</span>)) = fill_path {
             children.push(Node::FillPath(path));
         }
     }
@@ -368,10 +336,9 @@
 <span class="kw">fn </span>convert_fill_path(
     ufill: <span class="kw-2">&amp;</span>usvg::Fill,
     path: Rc&lt;tiny_skia::Path&gt;,
-    transform: tiny_skia::Transform,
     text_bbox: <span class="prelude-ty">Option</span>&lt;tiny_skia::NonZeroRect&gt;,
     anti_alias: bool,
-) -&gt; <span class="prelude-ty">Option</span>&lt;(FillPath, usvg::BBox, usvg::BBox)&gt; {
+) -&gt; <span class="prelude-ty">Option</span>&lt;(FillPath, usvg::BBox)&gt; {
     <span class="comment">// Horizontal and vertical lines cannot be filled. Skip.
     </span><span class="kw">if </span>path.bounds().width() == <span class="number">0.0 </span>|| path.bounds().height() == <span class="number">0.0 </span>{
         <span class="kw">return </span><span class="prelude-val">None</span>;
@@ -382,7 +349,7 @@
         usvg::FillRule::EvenOdd =&gt; tiny_skia::FillRule::EvenOdd,
     };
 
-    <span class="kw">let </span><span class="kw-2">mut </span>object_bbox = usvg::BBox::from(path.bounds());
+    <span class="kw">let </span><span class="kw-2">mut </span>object_bbox = usvg::BBox::from(path.compute_tight_bounds()<span class="question-mark">?</span>);
     <span class="kw">if let </span><span class="prelude-val">Some</span>(text_bbox) = text_bbox {
         object_bbox = object_bbox.expand(usvg::BBox::from(text_bbox));
     }
@@ -391,20 +358,18 @@
         <span class="kw">crate</span>::paint_server::convert(<span class="kw-2">&amp;</span>ufill.paint, ufill.opacity, object_bbox.to_non_zero_rect())<span class="question-mark">?</span>;
 
     <span class="kw">let </span>path = FillPath {
-        transform,
         paint,
         rule,
         anti_alias,
         path,
     };
 
-    <span class="prelude-val">Some</span>((path, object_bbox, object_bbox))
+    <span class="prelude-val">Some</span>((path, object_bbox))
 }
 
 <span class="kw">fn </span>convert_stroke_path(
     ustroke: <span class="kw-2">&amp;</span>usvg::Stroke,
     path: Rc&lt;tiny_skia::Path&gt;,
-    transform: tiny_skia::Transform,
     text_bbox: <span class="prelude-ty">Option</span>&lt;tiny_skia::NonZeroRect&gt;,
     anti_alias: bool,
 ) -&gt; <span class="prelude-ty">Option</span>&lt;(StrokePath, usvg::BBox, usvg::BBox)&gt; {
@@ -428,7 +393,7 @@
     <span class="comment">// Zero-sized stroke path is not an error, because linecap round or square
     // would produce the shape either way.
     // TODO: Find a better way to handle it.
-    </span><span class="kw">let </span>object_bbox = usvg::BBox::from(path.bounds());
+    </span><span class="kw">let </span>object_bbox = usvg::BBox::from(path.compute_tight_bounds()<span class="question-mark">?</span>);
 
     <span class="kw">let </span><span class="kw-2">mut </span>complete_object_bbox = object_bbox;
     <span class="kw">if let </span><span class="prelude-val">Some</span>(text_bbox) = text_bbox {
@@ -446,11 +411,9 @@
 
     <span class="comment">// TODO: explain
     // TODO: expand by stroke width for round/bevel joins
-    </span><span class="kw">let </span>resolution_scale = tiny_skia::PathStroker::compute_resolution_scale(<span class="kw-2">&amp;</span>transform);
-    <span class="kw">let </span>resolution_scale = resolution_scale.max(<span class="number">10.0</span>);
-    <span class="kw">let </span>stroked_path = path.stroke(<span class="kw-2">&amp;</span>stroke, resolution_scale)<span class="question-mark">?</span>;
+    </span><span class="kw">let </span>stroked_path = path.stroke(<span class="kw-2">&amp;</span>stroke, <span class="number">1.0</span>)<span class="question-mark">?</span>;
 
-    <span class="kw">let </span><span class="kw-2">mut </span>layer_bbox = usvg::BBox::from(stroked_path.bounds());
+    <span class="kw">let </span><span class="kw-2">mut </span>layer_bbox = usvg::BBox::from(stroked_path.compute_tight_bounds()<span class="question-mark">?</span>);
     <span class="kw">if let </span><span class="prelude-val">Some</span>(text_bbox) = text_bbox {
         layer_bbox = layer_bbox.expand(usvg::BBox::from(text_bbox));
     }
@@ -459,7 +422,6 @@
     // TODO: preserve stroked path
 
     </span><span class="kw">let </span>path = StrokePath {
-        transform,
         paint,
         stroke,
         anti_alias,
@@ -500,7 +462,6 @@
     paint.anti_alias = path.anti_alias;
     paint.blend_mode = blend_mode;
 
-    <span class="kw">let </span>transform = transform.pre_concat(path.transform);
     pixmap.fill_path(<span class="kw-2">&amp;</span>path.path, <span class="kw-2">&amp;</span>paint, path.rule, transform, <span class="prelude-val">None</span>);
 
     <span class="prelude-val">Some</span>(())
@@ -539,8 +500,7 @@
 
     <span class="comment">// TODO: fallback to a stroked path when possible
 
-    </span><span class="kw">let </span>transform = transform.pre_concat(path.transform);
-    pixmap.stroke_path(<span class="kw-2">&amp;</span>path.path, <span class="kw-2">&amp;</span>paint, <span class="kw-2">&amp;</span>path.stroke, transform, <span class="prelude-val">None</span>);
+    </span>pixmap.stroke_path(<span class="kw-2">&amp;</span>path.path, <span class="kw-2">&amp;</span>paint, <span class="kw-2">&amp;</span>path.stroke, transform, <span class="prelude-val">None</span>);
 
     <span class="prelude-val">Some</span>(())
 }

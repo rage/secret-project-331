@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-files-0.6.2/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_files" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-files-0.6.5/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_files" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../actix_files/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_files"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1010,6 +1010,32 @@
 <a href="#1010" id="1010">1010</a>
 <a href="#1011" id="1011">1011</a>
 <a href="#1012" id="1012">1012</a>
+<a href="#1013" id="1013">1013</a>
+<a href="#1014" id="1014">1014</a>
+<a href="#1015" id="1015">1015</a>
+<a href="#1016" id="1016">1016</a>
+<a href="#1017" id="1017">1017</a>
+<a href="#1018" id="1018">1018</a>
+<a href="#1019" id="1019">1019</a>
+<a href="#1020" id="1020">1020</a>
+<a href="#1021" id="1021">1021</a>
+<a href="#1022" id="1022">1022</a>
+<a href="#1023" id="1023">1023</a>
+<a href="#1024" id="1024">1024</a>
+<a href="#1025" id="1025">1025</a>
+<a href="#1026" id="1026">1026</a>
+<a href="#1027" id="1027">1027</a>
+<a href="#1028" id="1028">1028</a>
+<a href="#1029" id="1029">1029</a>
+<a href="#1030" id="1030">1030</a>
+<a href="#1031" id="1031">1031</a>
+<a href="#1032" id="1032">1032</a>
+<a href="#1033" id="1033">1033</a>
+<a href="#1034" id="1034">1034</a>
+<a href="#1035" id="1035">1035</a>
+<a href="#1036" id="1036">1036</a>
+<a href="#1037" id="1037">1037</a>
+<a href="#1038" id="1038">1038</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Static file serving for Actix Web.
 //!
 //! Provides a non-blocking service for serving static files from disk.
@@ -1025,15 +1051,19 @@
 
 </span><span class="attr">#![deny(rust_2018_idioms, nonstandard_style)]
 #![warn(future_incompatible, missing_docs, missing_debug_implementations)]
+#![doc(html_logo_url = <span class="string">&quot;https://actix.rs/img/logo.png&quot;</span>)]
+#![doc(html_favicon_url = <span class="string">&quot;https://actix.rs/favicon.ico&quot;</span>)]
+#![cfg_attr(docsrs, feature(doc_auto_cfg))]
 
-</span><span class="kw">use </span>actix_service::boxed::{BoxService, BoxServiceFactory};
+</span><span class="kw">use </span>std::path::Path;
+
+<span class="kw">use </span>actix_service::boxed::{BoxService, BoxServiceFactory};
 <span class="kw">use </span>actix_web::{
     dev::{RequestHead, ServiceRequest, ServiceResponse},
     error::Error,
     http::header::DispositionType,
 };
 <span class="kw">use </span>mime_guess::from_ext;
-<span class="kw">use </span>std::path::Path;
 
 <span class="kw">mod </span>chunked;
 <span class="kw">mod </span>directory;
@@ -1045,16 +1075,15 @@
 <span class="kw">mod </span>range;
 <span class="kw">mod </span>service;
 
-<span class="kw">pub use </span><span class="self">self</span>::chunked::ChunkedReadFile;
-<span class="kw">pub use </span><span class="self">self</span>::directory::Directory;
-<span class="kw">pub use </span><span class="self">self</span>::files::Files;
-<span class="kw">pub use </span><span class="self">self</span>::named::NamedFile;
-<span class="kw">pub use </span><span class="self">self</span>::range::HttpRange;
-<span class="kw">pub use </span><span class="self">self</span>::service::FilesService;
-
-<span class="kw">use </span><span class="self">self</span>::directory::{directory_listing, DirectoryRenderer};
-<span class="kw">use </span><span class="self">self</span>::error::FilesError;
-<span class="kw">use </span><span class="self">self</span>::path_buf::PathBufWrap;
+<span class="kw">pub use </span><span class="self">self</span>::{
+    chunked::ChunkedReadFile, directory::Directory, files::Files, named::NamedFile,
+    range::HttpRange, service::FilesService,
+};
+<span class="kw">use </span><span class="self">self</span>::{
+    directory::{directory_listing, DirectoryRenderer},
+    error::FilesError,
+    path_buf::PathBufWrap,
+};
 
 <span class="kw">type </span>HttpService = BoxService&lt;ServiceRequest, ServiceResponse, Error&gt;;
 <span class="kw">type </span>HttpNewService = BoxServiceFactory&lt;(), ServiceRequest, ServiceResponse, Error, ()&gt;;
@@ -1074,6 +1103,7 @@
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
     <span class="kw">use </span>std::{
+        fmt::Write <span class="kw">as _</span>,
         fs::{<span class="self">self</span>},
         ops::Add,
         time::{Duration, SystemTime},
@@ -1562,10 +1592,9 @@
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_static_files_with_spaces() {
-        <span class="kw">let </span>srv = test::init_service(
-            App::new().service(Files::new(<span class="string">&quot;/&quot;</span>, <span class="string">&quot;.&quot;</span>).index_file(<span class="string">&quot;Cargo.toml&quot;</span>)),
-        )
-        .<span class="kw">await</span>;
+        <span class="kw">let </span>srv =
+            test::init_service(App::new().service(Files::new(<span class="string">&quot;/&quot;</span>, <span class="string">&quot;.&quot;</span>).index_file(<span class="string">&quot;Cargo.toml&quot;</span>)))
+                .<span class="kw">await</span>;
         <span class="kw">let </span>request = TestRequest::get()
             .uri(<span class="string">&quot;/tests/test%20space.binary&quot;</span>)
             .to_request();
@@ -1574,6 +1603,29 @@
 
         <span class="kw">let </span>bytes = test::read_body(response).<span class="kw">await</span>;
         <span class="kw">let </span>data = web::Bytes::from(fs::read(<span class="string">&quot;tests/test space.binary&quot;</span>).unwrap());
+        <span class="macro">assert_eq!</span>(bytes, data);
+    }
+
+    <span class="attr">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_static_files_with_special_characters() {
+        <span class="comment">// Create the file we want to test against ad-hoc. We can&#39;t check it in as otherwise
+        // Windows can&#39;t even checkout this repository.
+        </span><span class="kw">let </span>temp_dir = tempfile::tempdir().unwrap();
+        <span class="kw">let </span>file_with_newlines = temp_dir.path().join(<span class="string">&quot;test\n\x0B\x0C\rnewline.text&quot;</span>);
+        fs::write(<span class="kw-2">&amp;</span>file_with_newlines, <span class="string">&quot;Look at my newlines&quot;</span>).unwrap();
+
+        <span class="kw">let </span>srv = test::init_service(
+            App::new().service(Files::new(<span class="string">&quot;/&quot;</span>, temp_dir.path()).index_file(<span class="string">&quot;Cargo.toml&quot;</span>)),
+        )
+        .<span class="kw">await</span>;
+        <span class="kw">let </span>request = TestRequest::get()
+            .uri(<span class="string">&quot;/test%0A%0B%0C%0Dnewline.text&quot;</span>)
+            .to_request();
+        <span class="kw">let </span>response = test::call_service(<span class="kw-2">&amp;</span>srv, request).<span class="kw">await</span>;
+        <span class="macro">assert_eq!</span>(response.status(), StatusCode::OK);
+
+        <span class="kw">let </span>bytes = test::read_body(response).<span class="kw">await</span>;
+        <span class="kw">let </span>data = web::Bytes::from(fs::read(file_with_newlines).unwrap());
         <span class="macro">assert_eq!</span>(bytes, data);
     }
 
@@ -1675,8 +1727,7 @@
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_static_files() {
         <span class="kw">let </span>srv =
-            test::init_service(App::new().service(Files::new(<span class="string">&quot;/&quot;</span>, <span class="string">&quot;.&quot;</span>).show_files_listing()))
-                .<span class="kw">await</span>;
+            test::init_service(App::new().service(Files::new(<span class="string">&quot;/&quot;</span>, <span class="string">&quot;.&quot;</span>).show_files_listing())).<span class="kw">await</span>;
         <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/missing&quot;</span>).to_request();
 
         <span class="kw">let </span>resp = test::call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
@@ -1689,8 +1740,7 @@
         <span class="macro">assert_eq!</span>(resp.status(), StatusCode::NOT_FOUND);
 
         <span class="kw">let </span>srv =
-            test::init_service(App::new().service(Files::new(<span class="string">&quot;/&quot;</span>, <span class="string">&quot;.&quot;</span>).show_files_listing()))
-                .<span class="kw">await</span>;
+            test::init_service(App::new().service(Files::new(<span class="string">&quot;/&quot;</span>, <span class="string">&quot;.&quot;</span>).show_files_listing())).<span class="kw">await</span>;
         <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/tests&quot;</span>).to_request();
         <span class="kw">let </span>resp = test::call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(
@@ -1851,19 +1901,21 @@
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_percent_encoding_2() {
-        <span class="kw">let </span>tmpdir = tempfile::tempdir().unwrap();
+        <span class="kw">let </span>temp_dir = tempfile::tempdir().unwrap();
         <span class="kw">let </span>filename = <span class="kw">match </span><span class="macro">cfg!</span>(unix) {
-            <span class="bool-val">true </span>=&gt; <span class="string">&quot;ض:?#[]{}&lt;&gt;()@!$&amp;&#39;`|*+,;= %20.test&quot;</span>,
+            <span class="bool-val">true </span>=&gt; <span class="string">&quot;ض:?#[]{}&lt;&gt;()@!$&amp;&#39;`|*+,;= %20\n.test&quot;</span>,
             <span class="bool-val">false </span>=&gt; <span class="string">&quot;ض#[]{}()@!$&amp;&#39;`+,;= %20.test&quot;</span>,
         };
         <span class="kw">let </span>filename_encoded = filename
             .as_bytes()
             .iter()
-            .map(|c| <span class="macro">format!</span>(<span class="string">&quot;%{:02X}&quot;</span>, c))
-            .collect::&lt;String&gt;();
-        std::fs::File::create(tmpdir.path().join(filename)).unwrap();
+            .fold(String::new(), |<span class="kw-2">mut </span>buf, c| {
+                <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span>buf, <span class="string">&quot;%{:02X}&quot;</span>, c).unwrap();
+                buf
+            });
+        std::fs::File::create(temp_dir.path().join(filename)).unwrap();
 
-        <span class="kw">let </span>srv = test::init_service(App::new().service(Files::new(<span class="string">&quot;&quot;</span>, tmpdir.path()))).<span class="kw">await</span>;
+        <span class="kw">let </span>srv = test::init_service(App::new().service(Files::new(<span class="string">&quot;/&quot;</span>, temp_dir.path()))).<span class="kw">await</span>;
 
         <span class="kw">let </span>req = TestRequest::get()
             .uri(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;/{}&quot;</span>, filename_encoded))

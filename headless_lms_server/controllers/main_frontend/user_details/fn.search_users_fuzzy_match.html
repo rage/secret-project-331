@@ -5,8 +5,8 @@
 ) -&gt; <a class="type" href="../../../domain/error/type.ControllerResult.html" title="type headless_lms_server::domain::error::ControllerResult">ControllerResult</a>&lt;<a class="struct" href="../../../prelude/web/struct.Json.html" title="struct headless_lms_server::prelude::web::Json">Json</a>&lt;<a class="struct" href="https://doc.rust-lang.org/1.75.0/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="struct" href="../../../../headless_lms_models/user_details/struct.UserDetail.html" title="struct headless_lms_models::user_details::UserDetail">UserDetail</a>&gt;&gt;&gt;</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>GET <code>/api/v0/main-frontend/user-details/search-fuzzy-match</code> - Allows to find the right user details in cases where there is a small typing error in the search query</p>
 <h3 id="response-typescript-definition"><a href="#response-typescript-definition">Response TypeScript definition</a></h3><div class="example-wrap"><pre class="language-ts"><code>type Vec&lt;UserDetail&gt; = Array&lt;{
   user_id: string
-  created_at: Date
-  updated_at: Date
+  created_at: string
+  updated_at: string
   email: string
   first_name: string | null
   last_name: string | null

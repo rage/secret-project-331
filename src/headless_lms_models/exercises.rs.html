@@ -1947,7 +1947,7 @@ RETURNING id;
             exercise
                 .current_exercise_slide
                 .exercise_tasks
-                .get(<span class="number">0</span>)
+                .first()
                 .unwrap()
                 .id,
             exercise_task_id

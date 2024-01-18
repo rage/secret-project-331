@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-parser-0.36.0/src/filter.rs`."><title>filter.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-parser-0.37.0/src/filter.rs`."><title>filter.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1133,6 +1133,18 @@
 <a href="#1133" id="1133">1133</a>
 <a href="#1134" id="1134">1134</a>
 <a href="#1135" id="1135">1135</a>
+<a href="#1136" id="1136">1136</a>
+<a href="#1137" id="1137">1137</a>
+<a href="#1138" id="1138">1138</a>
+<a href="#1139" id="1139">1139</a>
+<a href="#1140" id="1140">1140</a>
+<a href="#1141" id="1141">1141</a>
+<a href="#1142" id="1142">1142</a>
+<a href="#1143" id="1143">1143</a>
+<a href="#1144" id="1144">1144</a>
+<a href="#1145" id="1145">1145</a>
+<a href="#1146" id="1146">1146</a>
+<a href="#1147" id="1147">1147</a>
 </pre></div><pre class="rust"><code><span class="comment">// This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -1151,10 +1163,10 @@
     Units,
 };
 
-<span class="kw">use </span><span class="kw">crate</span>::converter::SvgColorExt;
+<span class="kw">use </span><span class="kw">crate</span>::converter::{<span class="self">self</span>, SvgColorExt};
 <span class="kw">use </span><span class="kw">crate</span>::paint_server::{convert_units, resolve_number};
 <span class="kw">use </span><span class="kw">crate</span>::svgtree::{AId, EId, FromValue, SvgNode};
-<span class="kw">use crate</span>::{converter, OptionLog};
+<span class="kw">use </span><span class="kw">crate</span>::OptionLog;
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; FromValue&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; <span class="kw">for </span>usvg_tree::filter::ColorInterpolation {
     <span class="kw">fn </span>parse(<span class="kw">_</span>: SvgNode, <span class="kw">_</span>: AId, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
@@ -1179,36 +1191,35 @@
     <span class="kw">let </span><span class="kw-2">mut </span>has_invalid_urls = <span class="bool-val">false</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>filters = Vec::new();
 
-    <span class="kw">let </span>create_base_filter_func =
-        |kind, filters: <span class="kw-2">&amp;mut </span>Vec&lt;Rc&lt;Filter&gt;&gt;, cache: <span class="kw-2">&amp;mut </span>converter::Cache| {
-            <span class="comment">// Filter functions, unlike `filter` elements, do not have a filter region.
-            // We&#39;re currently do not support an unlimited region, so we simply use a fairly large one.
-            // This if far from ideal, but good for now.
-            // TODO: Should be fixed eventually.
-            </span><span class="kw">let </span>rect = <span class="kw">match </span>kind {
-                Kind::DropShadow(<span class="kw">_</span>) | Kind::GaussianBlur(<span class="kw">_</span>) =&gt; {
-                    NonZeroRect::from_xywh(-<span class="number">0.5</span>, -<span class="number">0.5</span>, <span class="number">2.0</span>, <span class="number">2.0</span>).unwrap()
-                }
-                <span class="kw">_ </span>=&gt; NonZeroRect::from_xywh(-<span class="number">0.1</span>, -<span class="number">0.1</span>, <span class="number">1.2</span>, <span class="number">1.2</span>).unwrap(),
-            };
-
-            filters.push(Rc::new(Filter {
-                id: cache.gen_filter_id(),
-                units: Units::ObjectBoundingBox,
-                primitive_units: Units::UserSpaceOnUse,
-                rect,
-                primitives: <span class="macro">vec!</span>[Primitive {
-                    x: <span class="prelude-val">None</span>,
-                    y: <span class="prelude-val">None</span>,
-                    width: <span class="prelude-val">None</span>,
-                    height: <span class="prelude-val">None</span>,
-                    <span class="comment">// Unlike `filter` elements, filter functions use sRGB colors by default.
-                    </span>color_interpolation: ColorInterpolation::SRGB,
-                    result: <span class="string">&quot;result&quot;</span>.to_string(),
-                    kind,
-                }],
-            }));
+    <span class="kw">let </span>create_base_filter_func = |kind, filters: <span class="kw-2">&amp;mut </span>Vec&lt;Rc&lt;Filter&gt;&gt;| {
+        <span class="comment">// Filter functions, unlike `filter` elements, do not have a filter region.
+        // We&#39;re currently do not support an unlimited region, so we simply use a fairly large one.
+        // This if far from ideal, but good for now.
+        // TODO: Should be fixed eventually.
+        </span><span class="kw">let </span>rect = <span class="kw">match </span>kind {
+            Kind::DropShadow(<span class="kw">_</span>) | Kind::GaussianBlur(<span class="kw">_</span>) =&gt; {
+                NonZeroRect::from_xywh(-<span class="number">0.5</span>, -<span class="number">0.5</span>, <span class="number">2.0</span>, <span class="number">2.0</span>).unwrap()
+            }
+            <span class="kw">_ </span>=&gt; NonZeroRect::from_xywh(-<span class="number">0.1</span>, -<span class="number">0.1</span>, <span class="number">1.2</span>, <span class="number">1.2</span>).unwrap(),
         };
+
+        filters.push(Rc::new(Filter {
+            id: String::new(),
+            units: Units::ObjectBoundingBox,
+            primitive_units: Units::UserSpaceOnUse,
+            rect,
+            primitives: <span class="macro">vec!</span>[Primitive {
+                x: <span class="prelude-val">None</span>,
+                y: <span class="prelude-val">None</span>,
+                width: <span class="prelude-val">None</span>,
+                height: <span class="prelude-val">None</span>,
+                <span class="comment">// Unlike `filter` elements, filter functions use sRGB colors by default.
+                </span>color_interpolation: ColorInterpolation::SRGB,
+                result: <span class="string">&quot;result&quot;</span>.to_string(),
+                kind,
+            }],
+        }));
+    };
 
     <span class="kw">for </span>func <span class="kw">in </span>svgtypes::FilterValueListParser::from(value) {
         <span class="kw">let </span>func = <span class="kw">match </span>func {
@@ -1221,11 +1232,9 @@
         };
 
         <span class="kw">match </span>func {
-            svgtypes::FilterValue::Blur(std_dev) =&gt; create_base_filter_func(
-                convert_blur_function(node, std_dev, state),
-                <span class="kw-2">&amp;mut </span>filters,
-                cache,
-            ),
+            svgtypes::FilterValue::Blur(std_dev) =&gt; {
+                create_base_filter_func(convert_blur_function(node, std_dev, state), <span class="kw-2">&amp;mut </span>filters)
+            }
             svgtypes::FilterValue::DropShadow {
                 color,
                 dx,
@@ -1234,31 +1243,30 @@
             } =&gt; create_base_filter_func(
                 convert_drop_shadow_function(node, color, dx, dy, std_dev, state),
                 <span class="kw-2">&amp;mut </span>filters,
-                cache,
             ),
             svgtypes::FilterValue::Brightness(amount) =&gt; {
-                create_base_filter_func(convert_brightness_function(amount), <span class="kw-2">&amp;mut </span>filters, cache)
+                create_base_filter_func(convert_brightness_function(amount), <span class="kw-2">&amp;mut </span>filters)
             }
             svgtypes::FilterValue::Contrast(amount) =&gt; {
-                create_base_filter_func(convert_contrast_function(amount), <span class="kw-2">&amp;mut </span>filters, cache)
+                create_base_filter_func(convert_contrast_function(amount), <span class="kw-2">&amp;mut </span>filters)
             }
             svgtypes::FilterValue::Grayscale(amount) =&gt; {
-                create_base_filter_func(convert_grayscale_function(amount), <span class="kw-2">&amp;mut </span>filters, cache)
+                create_base_filter_func(convert_grayscale_function(amount), <span class="kw-2">&amp;mut </span>filters)
             }
             svgtypes::FilterValue::HueRotate(angle) =&gt; {
-                create_base_filter_func(convert_hue_rotate_function(angle), <span class="kw-2">&amp;mut </span>filters, cache)
+                create_base_filter_func(convert_hue_rotate_function(angle), <span class="kw-2">&amp;mut </span>filters)
             }
             svgtypes::FilterValue::Invert(amount) =&gt; {
-                create_base_filter_func(convert_invert_function(amount), <span class="kw-2">&amp;mut </span>filters, cache)
+                create_base_filter_func(convert_invert_function(amount), <span class="kw-2">&amp;mut </span>filters)
             }
             svgtypes::FilterValue::Opacity(amount) =&gt; {
-                create_base_filter_func(convert_opacity_function(amount), <span class="kw-2">&amp;mut </span>filters, cache)
+                create_base_filter_func(convert_opacity_function(amount), <span class="kw-2">&amp;mut </span>filters)
             }
             svgtypes::FilterValue::Sepia(amount) =&gt; {
-                create_base_filter_func(convert_sepia_function(amount), <span class="kw-2">&amp;mut </span>filters, cache)
+                create_base_filter_func(convert_sepia_function(amount), <span class="kw-2">&amp;mut </span>filters)
             }
             svgtypes::FilterValue::Saturate(amount) =&gt; {
-                create_base_filter_func(convert_saturate_function(amount), <span class="kw-2">&amp;mut </span>filters, cache)
+                create_base_filter_func(convert_saturate_function(amount), <span class="kw-2">&amp;mut </span>filters)
             }
             svgtypes::FilterValue::Url(url) =&gt; {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(link) = node.document().element_by_id(url) {
@@ -1839,7 +1847,23 @@
         <span class="kw">crate</span>::converter::convert_element(node, <span class="kw-2">&amp;</span>state, cache, <span class="kw-2">&amp;mut </span>root);
         <span class="kw">return if let </span><span class="prelude-val">Some</span>(node) = root.first_child() {
             node.detach(); <span class="comment">// drops `root` node
-            </span>Kind::Image(Image {
+
+            // Transfer node id from group&#39;s child to the group itself if needed.
+            </span><span class="kw">let </span><span class="kw-2">mut </span>id = String::new();
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(child) = node.first_child() {
+                id = child.borrow().id().to_string();
+                <span class="kw">match </span><span class="kw-2">*</span>child.borrow_mut() {
+                    NodeKind::Group(<span class="kw-2">ref mut </span>g) =&gt; g.id.clear(),
+                    NodeKind::Path(<span class="kw-2">ref mut </span>path) =&gt; path.id.clear(),
+                    NodeKind::Image(<span class="kw-2">ref mut </span>image) =&gt; image.id.clear(),
+                    NodeKind::Text(<span class="kw-2">ref mut </span>text) =&gt; text.id.clear(),
+                }
+            }
+            <span class="kw">if let </span>NodeKind::Group(<span class="kw-2">ref mut </span>g) = <span class="kw-2">*</span>node.borrow_mut() {
+                g.id = id;
+            }
+
+            Kind::Image(Image {
                 aspect,
                 rendering_mode,
                 data: ImageKind::Use(node),

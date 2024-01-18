@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.1/src/read/macho/relocation.rs`."><title>relocation.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/read/macho/relocation.rs`."><title>relocation.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -125,6 +125,37 @@
 <a href="#125" id="125">125</a>
 <a href="#126" id="126">126</a>
 <a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>core::{fmt, slice};
 
 <span class="kw">use </span><span class="kw">crate</span>::endian::Endianness;
@@ -136,14 +167,14 @@
 
 <span class="kw">use super</span>::{MachHeader, MachOFile};
 
-<span class="doccomment">/// An iterator over the relocations in a `MachOSection32`.
+<span class="doccomment">/// An iterator for the relocations in a [`MachOSection32`](super::MachOSection32).
 </span><span class="kw">pub type </span>MachORelocationIterator32&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Endian = Endianness, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; =
     MachORelocationIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, macho::MachHeader32&lt;Endian&gt;, R&gt;;
-<span class="doccomment">/// An iterator over the relocations in a `MachOSection64`.
+<span class="doccomment">/// An iterator for the relocations in a [`MachOSection64`](super::MachOSection64).
 </span><span class="kw">pub type </span>MachORelocationIterator64&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Endian = Endianness, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; =
     MachORelocationIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, macho::MachHeader64&lt;Endian&gt;, R&gt;;
 
-<span class="doccomment">/// An iterator over the relocations in a `MachOSection`.
+<span class="doccomment">/// An iterator for the relocations in a [`MachOSection`](super::MachOSection).
 </span><span class="kw">pub struct </span>MachORelocationIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Mach, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;
 <span class="kw">where
     </span>Mach: MachHeader,
@@ -161,6 +192,7 @@
     <span class="kw">type </span>Item = (u64, Relocation);
 
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>paired_addend = <span class="number">0</span>;
         <span class="kw">loop </span>{
             <span class="kw">let </span>reloc = <span class="self">self</span>.relocations.next()<span class="question-mark">?</span>;
             <span class="kw">let </span>endian = <span class="self">self</span>.file.endian;
@@ -183,6 +215,12 @@
                 macho::CPU_TYPE_ARM64 | macho::CPU_TYPE_ARM64_32 =&gt; {
                     <span class="kw">match </span>(reloc.r_type, reloc.r_pcrel) {
                         (macho::ARM64_RELOC_UNSIGNED, <span class="bool-val">false</span>) =&gt; RelocationKind::Absolute,
+                        (macho::ARM64_RELOC_ADDEND, <span class="kw">_</span>) =&gt; {
+                            paired_addend = i64::from(reloc.r_symbolnum)
+                                .wrapping_shl(<span class="number">64 </span>- <span class="number">24</span>)
+                                .wrapping_shr(<span class="number">64 </span>- <span class="number">24</span>);
+                            <span class="kw">continue</span>;
+                        }
                         <span class="kw">_ </span>=&gt; RelocationKind::MachO {
                             value: reloc.r_type,
                             relative: reloc.r_pcrel,
@@ -227,7 +265,31 @@
             } <span class="kw">else </span>{
                 RelocationTarget::Section(SectionIndex(reloc.r_symbolnum <span class="kw">as </span>usize))
             };
-            <span class="kw">let </span>addend = <span class="kw">if </span>reloc.r_pcrel { -<span class="number">4 </span>} <span class="kw">else </span>{ <span class="number">0 </span>};
+            <span class="kw">let </span>implicit_addend = paired_addend == <span class="number">0</span>;
+            <span class="kw">let </span><span class="kw-2">mut </span>addend = paired_addend;
+            <span class="kw">if </span>reloc.r_pcrel {
+                <span class="comment">// For PC relative relocations on some architectures, the
+                // addend does not include the offset required due to the
+                // PC being different from the place of the relocation.
+                // This differs from other file formats, so adjust the
+                // addend here to account for this.
+                </span><span class="kw">match </span>cputype {
+                    macho::CPU_TYPE_X86 =&gt; {
+                        addend -= <span class="number">1 </span>&lt;&lt; reloc.r_length;
+                    }
+                    macho::CPU_TYPE_X86_64 =&gt; {
+                        addend -= <span class="number">1 </span>&lt;&lt; reloc.r_length;
+                        <span class="kw">match </span>reloc.r_type {
+                            macho::X86_64_RELOC_SIGNED_1 =&gt; addend -= <span class="number">1</span>,
+                            macho::X86_64_RELOC_SIGNED_2 =&gt; addend -= <span class="number">2</span>,
+                            macho::X86_64_RELOC_SIGNED_4 =&gt; addend -= <span class="number">4</span>,
+                            <span class="kw">_ </span>=&gt; {}
+                        }
+                    }
+                    <span class="comment">// TODO: maybe missing support for some architectures and relocations
+                    </span><span class="kw">_ </span>=&gt; {}
+                }
+            }
             <span class="kw">return </span><span class="prelude-val">Some</span>((
                 reloc.r_address <span class="kw">as </span>u64,
                 Relocation {
@@ -236,7 +298,7 @@
                     size,
                     target,
                     addend,
-                    implicit_addend: <span class="bool-val">true</span>,
+                    implicit_addend,
                 },
             ));
         }

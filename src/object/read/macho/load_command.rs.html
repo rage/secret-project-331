@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.1/src/read/macho/load_command.rs`."><title>load_command.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/read/macho/load_command.rs`."><title>load_command.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -371,6 +371,15 @@
 <a href="#371" id="371">371</a>
 <a href="#372" id="372">372</a>
 <a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>core::marker::PhantomData;
 <span class="kw">use </span>core::mem;
 
@@ -380,7 +389,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::read::macho::{MachHeader, SymbolTable};
 <span class="kw">use </span><span class="kw">crate</span>::read::{Bytes, Error, ReadError, ReadRef, <span class="prelude-ty">Result</span>, StringTable};
 
-<span class="doccomment">/// An iterator over the load commands of a `MachHeader`.
+<span class="doccomment">/// An iterator for the load commands from a [`MachHeader`].
 </span><span class="attr">#[derive(Debug, Default, Clone, Copy)]
 </span><span class="kw">pub struct </span>LoadCommandIterator&lt;<span class="lifetime">&#39;data</span>, E: Endian&gt; {
     endian: E,
@@ -424,7 +433,7 @@
     }
 }
 
-<span class="doccomment">/// The data for a `LoadCommand`.
+<span class="doccomment">/// The data for a [`macho::LoadCommand`].
 </span><span class="attr">#[derive(Debug, Clone, Copy)]
 </span><span class="kw">pub struct </span>LoadCommandData&lt;<span class="lifetime">&#39;data</span>, E: Endian&gt; {
     cmd: u32,
@@ -434,14 +443,14 @@
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, E: Endian&gt; LoadCommandData&lt;<span class="lifetime">&#39;data</span>, E&gt; {
-    <span class="doccomment">/// Return the `cmd` field of the `LoadCommand`.
+    <span class="doccomment">/// Return the `cmd` field of the [`macho::LoadCommand`].
     ///
     /// This is one of the `LC_` constants.
     </span><span class="kw">pub fn </span>cmd(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
         <span class="self">self</span>.cmd
     }
 
-    <span class="doccomment">/// Return the `cmdsize` field of the `LoadCommand`.
+    <span class="doccomment">/// Return the `cmdsize` field of the [`macho::LoadCommand`].
     </span><span class="kw">pub fn </span>cmdsize(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
         <span class="self">self</span>.data.len() <span class="kw">as </span>u32
     }
@@ -454,7 +463,7 @@
             .read_error(<span class="string">&quot;Invalid Mach-O command size&quot;</span>)
     }
 
-    <span class="doccomment">/// Raw bytes of this LoadCommand structure.
+    <span class="doccomment">/// Raw bytes of this [`macho::LoadCommand`] structure.
     </span><span class="kw">pub fn </span>raw_data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8] {
         <span class="self">self</span>.data.<span class="number">0
     </span>}
@@ -536,7 +545,7 @@
         })
     }
 
-    <span class="doccomment">/// Try to parse this command as a `SegmentCommand32`.
+    <span class="doccomment">/// Try to parse this command as a [`macho::SegmentCommand32`].
     ///
     /// Returns the segment command and the data containing the sections.
     </span><span class="kw">pub fn </span>segment_32(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>macho::SegmentCommand32&lt;E&gt;, <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8])&gt;&gt; {
@@ -549,7 +558,7 @@
         }
     }
 
-    <span class="doccomment">/// Try to parse this command as a `SymtabCommand`.
+    <span class="doccomment">/// Try to parse this command as a [`macho::SymtabCommand`].
     ///
     /// Returns the segment command and the data containing the sections.
     </span><span class="kw">pub fn </span>symtab(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>macho::SymtabCommand&lt;E&gt;&gt;&gt; {
@@ -560,7 +569,7 @@
         }
     }
 
-    <span class="doccomment">/// Try to parse this command as a `DysymtabCommand`.
+    <span class="doccomment">/// Try to parse this command as a [`macho::DysymtabCommand`].
     </span><span class="kw">pub fn </span>dysymtab(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>macho::DysymtabCommand&lt;E&gt;&gt;&gt; {
         <span class="kw">if </span><span class="self">self</span>.cmd == macho::LC_DYSYMTAB {
             <span class="prelude-val">Some</span>(<span class="self">self</span>.data()).transpose()
@@ -569,7 +578,7 @@
         }
     }
 
-    <span class="doccomment">/// Try to parse this command as a `DylibCommand`.
+    <span class="doccomment">/// Try to parse this command as a [`macho::DylibCommand`].
     </span><span class="kw">pub fn </span>dylib(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>macho::DylibCommand&lt;E&gt;&gt;&gt; {
         <span class="kw">if </span><span class="self">self</span>.cmd == macho::LC_LOAD_DYLIB
             || <span class="self">self</span>.cmd == macho::LC_LOAD_WEAK_DYLIB
@@ -583,7 +592,7 @@
         }
     }
 
-    <span class="doccomment">/// Try to parse this command as a `UuidCommand`.
+    <span class="doccomment">/// Try to parse this command as a [`macho::UuidCommand`].
     </span><span class="kw">pub fn </span>uuid(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>macho::UuidCommand&lt;E&gt;&gt;&gt; {
         <span class="kw">if </span><span class="self">self</span>.cmd == macho::LC_UUID {
             <span class="prelude-val">Some</span>(<span class="self">self</span>.data()).transpose()
@@ -592,7 +601,7 @@
         }
     }
 
-    <span class="doccomment">/// Try to parse this command as a `SegmentCommand64`.
+    <span class="doccomment">/// Try to parse this command as a [`macho::SegmentCommand64`].
     </span><span class="kw">pub fn </span>segment_64(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>macho::SegmentCommand64&lt;E&gt;, <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8])&gt;&gt; {
         <span class="kw">if </span><span class="self">self</span>.cmd == macho::LC_SEGMENT_64 {
             <span class="kw">let </span><span class="kw-2">mut </span>data = <span class="self">self</span>.data;
@@ -603,7 +612,7 @@
         }
     }
 
-    <span class="doccomment">/// Try to parse this command as a `DyldInfoCommand`.
+    <span class="doccomment">/// Try to parse this command as a [`macho::DyldInfoCommand`].
     </span><span class="kw">pub fn </span>dyld_info(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>macho::DyldInfoCommand&lt;E&gt;&gt;&gt; {
         <span class="kw">if </span><span class="self">self</span>.cmd == macho::LC_DYLD_INFO || <span class="self">self</span>.cmd == macho::LC_DYLD_INFO_ONLY {
             <span class="prelude-val">Some</span>(<span class="self">self</span>.data()).transpose()
@@ -612,7 +621,7 @@
         }
     }
 
-    <span class="doccomment">/// Try to parse this command as an `EntryPointCommand`.
+    <span class="doccomment">/// Try to parse this command as an [`macho::EntryPointCommand`].
     </span><span class="kw">pub fn </span>entry_point(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>macho::EntryPointCommand&lt;E&gt;&gt;&gt; {
         <span class="kw">if </span><span class="self">self</span>.cmd == macho::LC_MAIN {
             <span class="prelude-val">Some</span>(<span class="self">self</span>.data()).transpose()
@@ -620,9 +629,18 @@
             <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
         }
     }
+
+    <span class="doccomment">/// Try to parse this command as a [`macho::BuildVersionCommand`].
+    </span><span class="kw">pub fn </span>build_version(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>macho::BuildVersionCommand&lt;E&gt;&gt;&gt; {
+        <span class="kw">if </span><span class="self">self</span>.cmd == macho::LC_BUILD_VERSION {
+            <span class="prelude-val">Some</span>(<span class="self">self</span>.data()).transpose()
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
+        }
+    }
 }
 
-<span class="doccomment">/// A `LoadCommand` that has been interpreted according to its `cmd` field.
+<span class="doccomment">/// A [`macho::LoadCommand`] that has been interpreted according to its `cmd` field.
 </span><span class="attr">#[derive(Debug, Clone, Copy)]
 #[non_exhaustive]
 </span><span class="kw">pub enum </span>LoadCommandVariant&lt;<span class="lifetime">&#39;data</span>, E: Endian&gt; {

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/lettre-0.11.2/src/transport/smtp/client/tls.rs`."><title>tls.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="lettre" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../../lettre/index.html"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="lettre"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/lettre-0.11.3/src/transport/smtp/client/tls.rs`."><title>tls.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="lettre" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../../lettre/index.html"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="lettre"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -572,9 +572,16 @@
 <a href="#572" id="572">572</a>
 <a href="#573" id="573">573</a>
 <a href="#574" id="574">574</a>
+<a href="#575" id="575">575</a>
+<a href="#576" id="576">576</a>
+<a href="#577" id="577">577</a>
+<a href="#578" id="578">578</a>
+<a href="#579" id="579">579</a>
+<a href="#580" id="580">580</a>
+<a href="#581" id="581">581</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt::{<span class="self">self</span>, Debug};
 <span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
-</span><span class="kw">use </span>std::{sync::Arc, time::SystemTime};
+</span><span class="kw">use </span>std::{io, sync::Arc};
 
 <span class="attr">#[cfg(feature = <span class="string">&quot;boring-tls&quot;</span>)]
 </span><span class="kw">use </span>boring::{
@@ -585,8 +592,10 @@
 </span><span class="kw">use </span>native_tls::{Protocol, TlsConnector};
 <span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
 </span><span class="kw">use </span>rustls::{
-    client::{ServerCertVerified, ServerCertVerifier, WebPkiVerifier},
-    ClientConfig, Error <span class="kw">as </span>TlsError, RootCertStore, ServerName,
+    client::danger::{HandshakeSignatureValid, ServerCertVerified, ServerCertVerifier},
+    crypto::{verify_tls12_signature, verify_tls13_signature},
+    pki_types::{CertificateDer, ServerName, UnixTime},
+    ClientConfig, DigitallySignedStruct, Error <span class="kw">as </span>TlsError, RootCertStore, SignatureScheme,
 };
 
 <span class="attr">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
@@ -911,8 +920,6 @@
     </span><span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
     #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)))]
     </span><span class="kw">pub fn </span>build_rustls(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;TlsParameters, Error&gt; {
-        <span class="kw">let </span>tls = ClientConfig::builder();
-
         <span class="kw">let </span>just_version3 = <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>rustls::version::TLS13];
         <span class="kw">let </span>supported_versions = <span class="kw">match </span><span class="self">self</span>.min_tls_version {
             TlsVersion::Tlsv10 =&gt; {
@@ -925,50 +932,28 @@
             TlsVersion::Tlsv13 =&gt; just_version3,
         };
 
-        <span class="kw">let </span>tls = tls
-            .with_safe_default_cipher_suites()
-            .with_safe_default_kx_groups()
-            .with_protocol_versions(supported_versions)
-            .map_err(error::tls)<span class="question-mark">?</span>;
+        <span class="kw">let </span>tls = ClientConfig::builder_with_protocol_versions(supported_versions);
 
         <span class="kw">let </span>tls = <span class="kw">if </span><span class="self">self</span>.accept_invalid_certs {
-            tls.with_custom_certificate_verifier(Arc::new(InvalidCertsVerifier {}))
+            tls.dangerous()
+                .with_custom_certificate_verifier(Arc::new(InvalidCertsVerifier {}))
         } <span class="kw">else </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>root_cert_store = RootCertStore::empty();
 
             <span class="attr">#[cfg(feature = <span class="string">&quot;rustls-native-certs&quot;</span>)]
             </span><span class="kw">fn </span>load_native_roots(store: <span class="kw-2">&amp;mut </span>RootCertStore) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
                 <span class="kw">let </span>native_certs = rustls_native_certs::load_native_certs().map_err(error::tls)<span class="question-mark">?</span>;
-                <span class="kw">let </span><span class="kw-2">mut </span>valid_count = <span class="number">0</span>;
-                <span class="kw">let </span><span class="kw-2">mut </span>invalid_count = <span class="number">0</span>;
-                <span class="kw">for </span>cert <span class="kw">in </span>native_certs {
-                    <span class="kw">match </span>store.add(<span class="kw-2">&amp;</span>rustls::Certificate(cert.<span class="number">0</span>)) {
-                        <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; valid_count += <span class="number">1</span>,
-                        <span class="prelude-val">Err</span>(err) =&gt; {
-                            <span class="attr">#[cfg(feature = <span class="string">&quot;tracing&quot;</span>)]
-                            </span><span class="macro">tracing::debug!</span>(<span class="string">&quot;certificate parsing failed: {:?}&quot;</span>, err);
-                            invalid_count += <span class="number">1</span>;
-                        }
-                    }
-                }
+                <span class="kw">let </span>(added, ignored) = store.add_parsable_certificates(native_certs);
                 <span class="attr">#[cfg(feature = <span class="string">&quot;tracing&quot;</span>)]
                 </span><span class="macro">tracing::debug!</span>(
-                    <span class="string">&quot;loaded platform certs with {valid_count} valid and {invalid_count} invalid certs&quot;
+                    <span class="string">&quot;loaded platform certs with {added} valid and {ignored} ignored (invalid) certs&quot;
                 </span>);
                 <span class="prelude-val">Ok</span>(())
             }
 
             <span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
             </span><span class="kw">fn </span>load_webpki_roots(store: <span class="kw-2">&amp;mut </span>RootCertStore) {
-                <span class="comment">// TODO: handle this in the rustls 0.22 upgrade
-                </span><span class="attr">#[allow(deprecated)]
-                </span>store.add_server_trust_anchors(webpki_roots::TLS_SERVER_ROOTS.iter().map(|ta| {
-                    rustls::OwnedTrustAnchor::from_subject_spki_name_constraints(
-                        ta.subject,
-                        ta.spki,
-                        ta.name_constraints,
-                    )
-                }));
+                store.extend(webpki_roots::TLS_SERVER_ROOTS.iter().cloned());
             }
 
             <span class="kw">match </span><span class="self">self</span>.cert_store {
@@ -986,14 +971,11 @@
             }
             <span class="kw">for </span>cert <span class="kw">in </span><span class="self">self</span>.root_certs {
                 <span class="kw">for </span>rustls_cert <span class="kw">in </span>cert.rustls {
-                    root_cert_store.add(<span class="kw-2">&amp;</span>rustls_cert).map_err(error::tls)<span class="question-mark">?</span>;
+                    root_cert_store.add(rustls_cert).map_err(error::tls)<span class="question-mark">?</span>;
                 }
             }
 
-            tls.with_custom_certificate_verifier(Arc::new(WebPkiVerifier::new(
-                root_cert_store,
-                <span class="prelude-val">None</span>,
-            )))
+            tls.with_root_certificates(root_cert_store)
         };
         <span class="kw">let </span>tls = tls.with_no_client_auth();
 
@@ -1067,7 +1049,7 @@
     <span class="attr">#[cfg(feature = <span class="string">&quot;native-tls&quot;</span>)]
     </span>native_tls: native_tls::Certificate,
     <span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
-    </span>rustls: Vec&lt;rustls::Certificate&gt;,
+    </span>rustls: Vec&lt;CertificateDer&lt;<span class="lifetime">&#39;static</span>&gt;&gt;,
     <span class="attr">#[cfg(feature = <span class="string">&quot;boring-tls&quot;</span>)]
     </span>boring_tls: boring::x509::X509,
 }
@@ -1086,7 +1068,7 @@
             <span class="attr">#[cfg(feature = <span class="string">&quot;native-tls&quot;</span>)]
             </span>native_tls: native_tls_cert,
             <span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
-            </span>rustls: <span class="macro">vec!</span>[rustls::Certificate(der)],
+            </span>rustls: <span class="macro">vec!</span>[der.into()],
             <span class="attr">#[cfg(feature = <span class="string">&quot;boring-tls&quot;</span>)]
             </span>boring_tls: boring_tls_cert,
         })
@@ -1106,11 +1088,9 @@
 
             <span class="kw">let </span><span class="kw-2">mut </span>pem = Cursor::new(pem);
             rustls_pemfile::certs(<span class="kw-2">&amp;mut </span>pem)
+                .collect::&lt;io::Result&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;&gt;()
                 .map_err(|<span class="kw">_</span>| error::tls(<span class="string">&quot;invalid certificates&quot;</span>))<span class="question-mark">?
-                </span>.into_iter()
-                .map(rustls::Certificate)
-                .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
-        };
+        </span>};
 
         <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
             <span class="attr">#[cfg(feature = <span class="string">&quot;native-tls&quot;</span>)]
@@ -1130,20 +1110,54 @@
 }
 
 <span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
+#[derive(Debug)]
 </span><span class="kw">struct </span>InvalidCertsVerifier;
 
 <span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
 </span><span class="kw">impl </span>ServerCertVerifier <span class="kw">for </span>InvalidCertsVerifier {
     <span class="kw">fn </span>verify_server_cert(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        _end_entity: <span class="kw-2">&amp;</span>rustls::Certificate,
-        _intermediates: <span class="kw-2">&amp;</span>[rustls::Certificate],
-        _server_name: <span class="kw-2">&amp;</span>ServerName,
-        _scts: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>Iterator&lt;Item = <span class="kw-2">&amp;</span>[u8]&gt;,
+        _end_entity: <span class="kw-2">&amp;</span>CertificateDer&lt;<span class="lifetime">&#39;_</span>&gt;,
+        _intermediates: <span class="kw-2">&amp;</span>[CertificateDer&lt;<span class="lifetime">&#39;_</span>&gt;],
+        _server_name: <span class="kw-2">&amp;</span>ServerName&lt;<span class="lifetime">&#39;_</span>&gt;,
         _ocsp_response: <span class="kw-2">&amp;</span>[u8],
-        _now: SystemTime,
+        _now: UnixTime,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;ServerCertVerified, TlsError&gt; {
         <span class="prelude-val">Ok</span>(ServerCertVerified::assertion())
+    }
+
+    <span class="kw">fn </span>verify_tls12_signature(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        message: <span class="kw-2">&amp;</span>[u8],
+        cert: <span class="kw-2">&amp;</span>CertificateDer&lt;<span class="lifetime">&#39;_</span>&gt;,
+        dss: <span class="kw-2">&amp;</span>DigitallySignedStruct,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;HandshakeSignatureValid, TlsError&gt; {
+        verify_tls12_signature(
+            message,
+            cert,
+            dss,
+            <span class="kw-2">&amp;</span>rustls::crypto::ring::default_provider().signature_verification_algorithms,
+        )
+    }
+
+    <span class="kw">fn </span>verify_tls13_signature(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        message: <span class="kw-2">&amp;</span>[u8],
+        cert: <span class="kw-2">&amp;</span>CertificateDer&lt;<span class="lifetime">&#39;_</span>&gt;,
+        dss: <span class="kw-2">&amp;</span>DigitallySignedStruct,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;HandshakeSignatureValid, TlsError&gt; {
+        verify_tls13_signature(
+            message,
+            cert,
+            dss,
+            <span class="kw-2">&amp;</span>rustls::crypto::ring::default_provider().signature_verification_algorithms,
+        )
+    }
+
+    <span class="kw">fn </span>supported_verify_schemes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;SignatureScheme&gt; {
+        rustls::crypto::ring::default_provider()
+            .signature_verification_algorithms
+            .supported_schemes()
     }
 }
 </code></pre></div></section></main></body></html>

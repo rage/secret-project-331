@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.4.0/src/http/header/accept_encoding.rs`."><title>accept_encoding.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.4.1/src/http/header/accept_encoding.rs`."><title>accept_encoding.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -422,6 +422,42 @@
 <a href="#422" id="422">422</a>
 <a href="#423" id="423">423</a>
 <a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
+<a href="#449" id="449">449</a>
+<a href="#450" id="450">450</a>
+<a href="#451" id="451">451</a>
+<a href="#452" id="452">452</a>
+<a href="#453" id="453">453</a>
+<a href="#454" id="454">454</a>
+<a href="#455" id="455">455</a>
+<a href="#456" id="456">456</a>
+<a href="#457" id="457">457</a>
+<a href="#458" id="458">458</a>
+<a href="#459" id="459">459</a>
+<a href="#460" id="460">460</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashSet;
 
 <span class="kw">use super</span>::{common_header, ContentEncoding, Encoding, Preference, Quality, QualityItem};
@@ -573,7 +609,7 @@
 
     <span class="doccomment">/// Extracts the most preferable encoding, accounting for [q-factor weighting].
     ///
-    /// If no q-factors are provided, the first encoding is chosen. Note that items without
+    /// If no q-factors are provided, we prefer brotli &gt; zstd &gt; gzip. Note that items without
     /// q-factors are given the maximum preference value.
     ///
     /// As per the spec, returns [`Preference::Any`] if acceptable list is empty. Though, if this is
@@ -591,6 +627,7 @@
 
         <span class="kw">let </span><span class="kw-2">mut </span>max_item = <span class="prelude-val">None</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>max_pref = Quality::ZERO;
+        <span class="kw">let </span><span class="kw-2">mut </span>max_rank = <span class="number">0</span>;
 
         <span class="comment">// uses manual max lookup loop since we want the first occurrence in the case of same
         // preference but `Iterator::max_by_key` would give us the last occurrence
@@ -598,9 +635,13 @@
         </span><span class="kw">for </span>pref <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0 </span>{
             <span class="comment">// only change if strictly greater
             // equal items, even while unsorted, still have higher preference if they appear first
-            </span><span class="kw">if </span>pref.quality &gt; max_pref {
+
+            </span><span class="kw">let </span>rank = encoding_rank(pref);
+
+            <span class="kw">if </span>(pref.quality, rank) &gt; (max_pref, max_rank) {
                 max_pref = pref.quality;
                 max_item = <span class="prelude-val">Some</span>(pref.item.clone());
+                max_rank = rank;
             }
         }
 
@@ -627,6 +668,8 @@
     <span class="doccomment">/// Returns a sorted list of encodings from highest to lowest precedence, accounting
     /// for [q-factor weighting].
     ///
+    /// If no q-factors are provided, we prefer brotli &gt; zstd &gt; gzip.
+    ///
     /// [q-factor weighting]: https://datatracker.ietf.org/doc/html/rfc7231#section-5.3.2
     </span><span class="kw">pub fn </span>ranked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;Preference&lt;Encoding&gt;&gt; {
         <span class="self">self</span>.ranked_items().map(|q| q.item).collect()
@@ -634,18 +677,41 @@
 
     <span class="kw">fn </span>ranked_items(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = QualityItem&lt;Preference&lt;Encoding&gt;&gt;&gt; {
         <span class="kw">if </span><span class="self">self</span>.<span class="number">0</span>.is_empty() {
-            <span class="kw">return </span><span class="macro">vec!</span>[].into_iter();
+            <span class="kw">return </span>Vec::new().into_iter();
         }
 
         <span class="kw">let </span><span class="kw-2">mut </span>types = <span class="self">self</span>.<span class="number">0</span>.clone();
 
         <span class="comment">// use stable sort so items with equal q-factor retain listed order
         </span>types.sort_by(|a, b| {
-            <span class="comment">// sort by q-factor descending
-            </span>b.quality.cmp(<span class="kw-2">&amp;</span>a.quality)
+            <span class="comment">// sort by q-factor descending then server ranking descending
+
+            </span>b.quality
+                .cmp(<span class="kw-2">&amp;</span>a.quality)
+                .then(encoding_rank(b).cmp(<span class="kw-2">&amp;</span>encoding_rank(a)))
         });
 
         types.into_iter()
+    }
+}
+
+<span class="doccomment">/// Returns server-defined encoding ranking.
+</span><span class="kw">fn </span>encoding_rank(qv: <span class="kw-2">&amp;</span>QualityItem&lt;Preference&lt;Encoding&gt;&gt;) -&gt; u8 {
+    <span class="comment">// ensure that q=0 items are never sorted above identity encoding
+    // invariant: sorting methods calling this fn use first-on-equal approach
+    </span><span class="kw">if </span>qv.quality == Quality::ZERO {
+        <span class="kw">return </span><span class="number">0</span>;
+    }
+
+    <span class="kw">match </span>qv.item {
+        Preference::Specific(Encoding::Known(ContentEncoding::Brotli)) =&gt; <span class="number">5</span>,
+        Preference::Specific(Encoding::Known(ContentEncoding::Zstd)) =&gt; <span class="number">4</span>,
+        Preference::Specific(Encoding::Known(ContentEncoding::Gzip)) =&gt; <span class="number">3</span>,
+        Preference::Specific(Encoding::Known(ContentEncoding::Deflate)) =&gt; <span class="number">2</span>,
+        Preference::Any =&gt; <span class="number">0</span>,
+        Preference::Specific(Encoding::Known(ContentEncoding::Identity)) =&gt; <span class="number">0</span>,
+        Preference::Specific(Encoding::Known(<span class="kw">_</span>)) =&gt; <span class="number">1</span>,
+        Preference::Specific(Encoding::Unknown(<span class="kw">_</span>)) =&gt; <span class="number">1</span>,
     }
 }
 
@@ -801,11 +867,11 @@
         );
         <span class="macro">assert_eq!</span>(
             test.negotiate([Encoding::gzip(), Encoding::brotli(), Encoding::identity()].iter()),
-            <span class="prelude-val">Some</span>(Encoding::gzip())
+            <span class="prelude-val">Some</span>(Encoding::brotli())
         );
         <span class="macro">assert_eq!</span>(
             test.negotiate([Encoding::brotli(), Encoding::gzip(), Encoding::identity()].iter()),
-            <span class="prelude-val">Some</span>(Encoding::gzip())
+            <span class="prelude-val">Some</span>(Encoding::brotli())
         );
     }
 
@@ -821,6 +887,9 @@
         <span class="macro">assert_eq!</span>(test.ranked(), <span class="macro">vec!</span>[enc(<span class="string">&quot;br&quot;</span>), enc(<span class="string">&quot;gzip&quot;</span>), enc(<span class="string">&quot;*&quot;</span>)]);
 
         <span class="kw">let </span>test = <span class="macro">accept_encoding!</span>(<span class="string">&quot;br&quot;</span>, <span class="string">&quot;gzip&quot;</span>, <span class="string">&quot;*&quot;</span>);
+        <span class="macro">assert_eq!</span>(test.ranked(), <span class="macro">vec!</span>[enc(<span class="string">&quot;br&quot;</span>), enc(<span class="string">&quot;gzip&quot;</span>), enc(<span class="string">&quot;*&quot;</span>)]);
+
+        <span class="kw">let </span>test = <span class="macro">accept_encoding!</span>(<span class="string">&quot;gzip&quot;</span>, <span class="string">&quot;br&quot;</span>, <span class="string">&quot;*&quot;</span>);
         <span class="macro">assert_eq!</span>(test.ranked(), <span class="macro">vec!</span>[enc(<span class="string">&quot;br&quot;</span>), enc(<span class="string">&quot;gzip&quot;</span>), enc(<span class="string">&quot;*&quot;</span>)]);
     }
 
@@ -843,6 +912,9 @@
         <span class="macro">assert_eq!</span>(test.preference().unwrap(), enc(<span class="string">&quot;gzip&quot;</span>));
 
         <span class="kw">let </span>test = <span class="macro">accept_encoding!</span>(<span class="string">&quot;br&quot;</span>, <span class="string">&quot;gzip&quot;</span>, <span class="string">&quot;*&quot;</span>);
+        <span class="macro">assert_eq!</span>(test.preference().unwrap(), enc(<span class="string">&quot;br&quot;</span>));
+
+        <span class="kw">let </span>test = <span class="macro">accept_encoding!</span>(<span class="string">&quot;gzip&quot;</span>, <span class="string">&quot;br&quot;</span>, <span class="string">&quot;*&quot;</span>);
         <span class="macro">assert_eq!</span>(test.preference().unwrap(), enc(<span class="string">&quot;br&quot;</span>));
     }
 }

@@ -7,17 +7,17 @@
 ) -&gt; <a class="type" href="../../../domain/error/type.ControllerResult.html" title="type headless_lms_server::domain::error::ControllerResult">ControllerResult</a>&lt;<a class="struct" href="../../../prelude/web/struct.Json.html" title="struct headless_lms_server::prelude::web::Json">Json</a>&lt;<a class="struct" href="../../../../headless_lms_models/chapters/struct.Chapter.html" title="struct headless_lms_models::chapters::Chapter">Chapter</a>&gt;&gt;</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>DELETE <code>/api/v0/main-frontend/chapters/:chapter_id</code> - Delete a chapter.</p>
 <h3 id="response-typescript-definition"><a href="#response-typescript-definition">Response TypeScript definition</a></h3><div class="example-wrap"><pre class="language-ts"><code>type Chapter = {
   id: string
-  created_at: Date
-  updated_at: Date
+  created_at: string
+  updated_at: string
   name: string
   color: string | null
   course_id: string
-  deleted_at: Date | null
+  deleted_at: string | null
   chapter_image_url: string | null
   chapter_number: number
   front_page_id: string | null
-  opens_at: Date | null
-  deadline: Date | null
+  opens_at: string | null
+  deadline: string | null
   copied_from: string | null
   course_module_id: string
 }

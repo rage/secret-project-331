@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/jpeg-decoder-0.3.0/src/decoder.rs`."><title>decoder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="jpeg_decoder" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/jpeg-decoder-0.3.1/src/decoder.rs`."><title>decoder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="jpeg_decoder" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1491,6 +1491,21 @@
 <a href="#1491" id="1491">1491</a>
 <a href="#1492" id="1492">1492</a>
 <a href="#1493" id="1493">1493</a>
+<a href="#1494" id="1494">1494</a>
+<a href="#1495" id="1495">1495</a>
+<a href="#1496" id="1496">1496</a>
+<a href="#1497" id="1497">1497</a>
+<a href="#1498" id="1498">1498</a>
+<a href="#1499" id="1499">1499</a>
+<a href="#1500" id="1500">1500</a>
+<a href="#1501" id="1501">1501</a>
+<a href="#1502" id="1502">1502</a>
+<a href="#1503" id="1503">1503</a>
+<a href="#1504" id="1504">1504</a>
+<a href="#1505" id="1505">1505</a>
+<a href="#1506" id="1506">1506</a>
+<a href="#1507" id="1507">1507</a>
+<a href="#1508" id="1508">1508</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::error::{Error, <span class="prelude-ty">Result</span>, UnsupportedFeature};
 <span class="kw">use </span><span class="kw">crate</span>::huffman::{fill_default_mjpeg_tables, HuffmanDecoder, HuffmanTable};
 <span class="kw">use </span><span class="kw">crate</span>::marker::Marker;
@@ -1509,7 +1524,6 @@
 <span class="kw">use </span>core::cmp;
 <span class="kw">use </span>core::mem;
 <span class="kw">use </span>core::ops::Range;
-<span class="kw">use </span>std::convert::TryInto;
 <span class="kw">use </span>std::io::Read;
 
 <span class="kw">pub const </span>MAX_COMPONENTS: usize = <span class="number">4</span>;
@@ -1517,7 +1531,7 @@
 <span class="kw">mod </span>lossless;
 <span class="kw">use </span><span class="self">self</span>::lossless::compute_image_lossless;
 
-<span class="attr">#[cfg_attr(rustfmt, rustfmt_skip)]
+<span class="attr">#[rustfmt::skip]
 </span><span class="kw">static </span>UNZIGZAG: [u8; <span class="number">64</span>] = [
      <span class="number">0</span>,  <span class="number">1</span>,  <span class="number">8</span>, <span class="number">16</span>,  <span class="number">9</span>,  <span class="number">2</span>,  <span class="number">3</span>, <span class="number">10</span>,
     <span class="number">17</span>, <span class="number">24</span>, <span class="number">32</span>, <span class="number">25</span>, <span class="number">18</span>, <span class="number">11</span>,  <span class="number">4</span>,  <span class="number">5</span>,
@@ -1611,6 +1625,8 @@
     icc_markers: Vec&lt;IccChunk&gt;,
 
     exif_data: <span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt;,
+    xmp_data: <span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt;,
+    psir_data: <span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt;,
 
     <span class="comment">// Used for progressive JPEGs.
     </span>coefficients: Vec&lt;Vec&lt;i16&gt;&gt;,
@@ -1637,6 +1653,8 @@
             is_mjpeg: <span class="bool-val">false</span>,
             icc_markers: Vec::new(),
             exif_data: <span class="prelude-val">None</span>,
+            xmp_data: <span class="prelude-val">None</span>,
+            psir_data: <span class="prelude-val">None</span>,
             coefficients: Vec::new(),
             coefficients_finished: [<span class="number">0</span>; MAX_COMPONENTS],
             decoding_buffer_size_limit: usize::MAX,
@@ -1663,8 +1681,8 @@
             <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>frame) =&gt; {
                 <span class="kw">let </span>pixel_format = <span class="kw">match </span>frame.components.len() {
                     <span class="number">1 </span>=&gt; <span class="kw">match </span>frame.precision {
-                        <span class="number">8 </span>=&gt; PixelFormat::L8,
-                        <span class="number">16 </span>=&gt; PixelFormat::L16,
+                        <span class="number">2</span>..=<span class="number">8 </span>=&gt; PixelFormat::L8,
+                        <span class="number">9</span>..=<span class="number">16 </span>=&gt; PixelFormat::L16,
                         <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(),
                     },
                     <span class="number">3 </span>=&gt; PixelFormat::RGB24,
@@ -1688,6 +1706,13 @@
     /// The returned value will be `None` until a call to `decode` has returned `Ok`.    
     </span><span class="kw">pub fn </span>exif_data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt; {
         <span class="self">self</span>.exif_data.as_deref()
+    }
+
+    <span class="doccomment">/// Returns the raw XMP packet if there is any.
+    ///
+    /// The returned value will be `None` until a call to `decode` has returned `Ok`.
+    </span><span class="kw">pub fn </span>xmp_data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt; {
+        <span class="self">self</span>.xmp_data.as_deref()
     }
 
     <span class="doccomment">/// Returns the embeded icc profile if the image contains one.
@@ -1843,7 +1868,7 @@
                             frame.precision,
                         )));
                     }
-                    <span class="kw">if </span>frame.precision != <span class="number">8 </span>&amp;&amp; frame.precision != <span class="number">16 </span>{
+                    <span class="kw">if </span>!(<span class="number">2</span>..=<span class="number">16</span>).contains(<span class="kw-2">&amp;</span>frame.precision) {
                         <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Unsupported(UnsupportedFeature::SamplePrecision(
                             frame.precision,
                         )));
@@ -1900,7 +1925,7 @@
                         <span class="kw">for </span>(i, plane) <span class="kw">in </span>data
                             .into_iter()
                             .enumerate()
-                            .filter(|<span class="kw-2">&amp;</span>(<span class="kw">_</span>, <span class="kw-2">ref </span>plane)| !plane.is_empty())
+                            .filter(|(<span class="kw">_</span>, plane)| !plane.is_empty())
                         {
                             planes_u16[i] = plane;
                         }
@@ -1949,7 +1974,7 @@
                             <span class="kw">for </span>(i, plane) <span class="kw">in </span>data
                                 .into_iter()
                                 .enumerate()
-                                .filter(|<span class="kw-2">&amp;</span>(<span class="kw">_</span>, <span class="kw-2">ref </span>plane)| !plane.is_empty())
+                                .filter(|(<span class="kw">_</span>, plane)| !plane.is_empty())
                             {
                                 <span class="kw">if </span><span class="self">self</span>.coefficients_finished[i] == !<span class="number">0 </span>{
                                     planes[i] = plane;
@@ -1988,14 +2013,14 @@
                     <span class="kw">let </span>current_dc_tables = mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.dc_huffman_tables);
                     <span class="self">self</span>.dc_huffman_tables = dc_tables
                         .into_iter()
-                        .zip(current_dc_tables.into_iter())
+                        .zip(current_dc_tables)
                         .map(|(a, b)| a.or(b))
                         .collect();
 
                     <span class="kw">let </span>current_ac_tables = mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.ac_huffman_tables);
                     <span class="self">self</span>.ac_huffman_tables = ac_tables
                         .into_iter()
-                        .zip(current_ac_tables.into_iter())
+                        .zip(current_ac_tables)
                         .map(|(a, b)| a.or(b))
                         .collect();
                 }
@@ -2035,6 +2060,8 @@
                             AppData::Avi1 =&gt; <span class="self">self</span>.is_mjpeg = <span class="bool-val">true</span>,
                             AppData::Icc(icc) =&gt; <span class="self">self</span>.icc_markers.push(icc),
                             AppData::Exif(data) =&gt; <span class="self">self</span>.exif_data = <span class="prelude-val">Some</span>(data),
+                            AppData::Xmp(data) =&gt; <span class="self">self</span>.xmp_data = <span class="prelude-val">Some</span>(data),
+                            AppData::Psir(data) =&gt; <span class="self">self</span>.psir_data = <span class="prelude-val">Some</span>(data),
                         }
                     }
                 }
@@ -2088,7 +2115,7 @@
         }
 
         <span class="kw">let </span>frame = <span class="self">self</span>.frame.as_ref().unwrap();
-        <span class="kw">let </span>preference = <span class="self">Self</span>::select_worker(<span class="kw-2">&amp;</span>frame, PreferWorkerKind::Multithreaded);
+        <span class="kw">let </span>preference = <span class="self">Self</span>::select_worker(frame, PreferWorkerKind::Multithreaded);
 
         worker_scope.get_or_init_worker(preference, |worker| {
             <span class="self">self</span>.decode_planes(worker, planes, planes_u16)
@@ -2109,14 +2136,13 @@
 
         <span class="kw">let </span>frame = <span class="self">self</span>.frame.as_ref().unwrap();
 
-        <span class="kw">if </span>{
-            <span class="kw">let </span>required_mem = frame
-                .components
-                .len()
-                .checked_mul(frame.output_size.width.into())
-                .and_then(|m| m.checked_mul(frame.output_size.height.into()));
-            required_mem.map_or(<span class="bool-val">true</span>, |m| <span class="self">self</span>.decoding_buffer_size_limit &lt; m)
-        } {
+        <span class="kw">if </span>frame
+            .components
+            .len()
+            .checked_mul(frame.output_size.width.into())
+            .and_then(|m| m.checked_mul(frame.output_size.height.into()))
+            .map_or(<span class="bool-val">true</span>, |m| <span class="self">self</span>.decoding_buffer_size_limit &lt; m)
+        {
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(
                 <span class="string">&quot;size of decoded image exceeds maximum allowed size&quot;</span>.to_owned(),
             ));
@@ -2272,7 +2298,8 @@
         }
     }
 
-    <span class="kw">fn </span>decode_scan(
+<span class="attr">#[allow(clippy::type_complexity)]
+    </span><span class="kw">fn </span>decode_scan(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         frame: <span class="kw-2">&amp;</span>FrameInfo,
         scan: <span class="kw-2">&amp;</span>ScanInfo,
@@ -2502,10 +2529,11 @@
                     <span class="comment">// In the event of non-interleaved streams, if we&#39;re still building the buffer out,
                     // keep going; don&#39;t send it yet. We also need to ensure we don&#39;t skip over the last
                     // row(s) of the image.
-                    </span><span class="kw">if </span>!is_interleaved &amp;&amp; (mcu_y + <span class="number">1</span>) * <span class="number">8 </span>&lt; frame.image_size.height {
-                        <span class="kw">if </span>(mcu_y + <span class="number">1</span>) % component.vertical_sampling_factor <span class="kw">as </span>u16 &gt; <span class="number">0 </span>{
-                            <span class="kw">continue</span>;
-                        }
+                    </span><span class="kw">if </span>!is_interleaved
+                        &amp;&amp; (mcu_y + <span class="number">1</span>) * <span class="number">8 </span>&lt; frame.image_size.height
+                        &amp;&amp; (mcu_y + <span class="number">1</span>) % component.vertical_sampling_factor <span class="kw">as </span>u16 &gt; <span class="number">0
+                    </span>{
+                        <span class="kw">continue</span>;
                     }
 
                     <span class="kw">let </span>coefficients_per_mcu_row = component.block_size.width <span class="kw">as </span>usize
@@ -2562,7 +2590,8 @@
     }
 }
 
-<span class="kw">fn </span>decode_block&lt;R: Read&gt;(
+<span class="attr">#[allow(clippy::too_many_arguments)]
+</span><span class="kw">fn </span>decode_block&lt;R: Read&gt;(
     reader: <span class="kw-2">&amp;mut </span>R,
     coefficients: <span class="kw-2">&amp;mut </span>[i16; <span class="number">64</span>],
     huffman: <span class="kw-2">&amp;mut </span>HuffmanDecoder,
@@ -2814,7 +2843,8 @@
     }
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>choose_color_convert_func(
+<span class="attr">#[allow(clippy::type_complexity)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>choose_color_convert_func(
     component_count: usize,
     color_transform: ColorTransform,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">fn</span>(<span class="kw-2">&amp;</span>[Vec&lt;u8&gt;], <span class="kw-2">&amp;mut </span>[u8])&gt; {

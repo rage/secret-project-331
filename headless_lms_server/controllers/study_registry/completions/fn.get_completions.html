@@ -29,9 +29,9 @@ Authorization: Basic documentationOnlyExampleSecretKey-12345
 <div class="example-wrap"><pre class="language-http"><code>GET /api/v0/study-registry/completions/BSCS1001?exlcude_already_registered=true HTTP/1.1
 Authorization: Basic documentationOnlyExampleSecretKey-12345
 </code></pre></div><h3 id="response-typescript-definition"><a href="#response-typescript-definition">Response TypeScript definition</a></h3><div class="example-wrap"><pre class="language-ts"><code>type Vec&lt;StudyRegistryCompletion&gt; = Array&lt;{
-  completion_date: Date
+  completion_date: string
   completion_language: string
-  completion_registration_attempt_date: Date | null
+  completion_registration_attempt_date: string | null
   email: string
   grade: StudyRegistryGrade
   id: string

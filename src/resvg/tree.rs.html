@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/resvg-0.36.0/src/tree.rs`."><title>tree.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="resvg" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/resvg-0.37.0/src/tree.rs`."><title>tree.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="resvg" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -283,6 +283,12 @@
 <a href="#283" id="283">283</a>
 <a href="#284" id="284">284</a>
 <a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
 </pre></div><pre class="rust"><code><span class="comment">// This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -302,7 +308,7 @@
     <span class="kw">pub </span>mask: <span class="prelude-ty">Option</span>&lt;Mask&gt;,
     <span class="kw">pub </span>filters: Vec&lt;<span class="kw">crate</span>::filter::Filter&gt;,
     <span class="kw">pub </span>isolate: bool,
-    <span class="doccomment">/// Group&#39;s layer bounding box in canvas coordinates.
+    <span class="doccomment">/// Group&#39;s layer bounding box in object coordinates.
     </span><span class="kw">pub </span>bbox: tiny_skia::Rect,
 
     <span class="kw">pub </span>children: Vec&lt;Node&gt;,
@@ -366,10 +372,6 @@
     /// Text nodes should be already converted into paths using
     /// [`usvg::TreeTextToPath::convert_text`].
     </span><span class="kw">pub fn </span>from_usvg(tree: <span class="kw-2">&amp;</span>usvg::Tree) -&gt; <span class="self">Self </span>{
-        <span class="kw">if </span>tree.has_text_nodes() {
-            <span class="macro">log::warn!</span>(<span class="string">&quot;Text nodes should be already converted into paths.&quot;</span>);
-        }
-
         <span class="kw">let </span>(children, layer_bbox) = convert_node(tree.root.clone());
 
         <span class="self">Self </span>{
@@ -413,7 +415,7 @@
 
 <span class="kw">pub fn </span>convert_node(node: usvg::Node) -&gt; (Vec&lt;Node&gt;, <span class="prelude-ty">Option</span>&lt;tiny_skia::Rect&gt;) {
     <span class="kw">let </span><span class="kw-2">mut </span>children = Vec::new();
-    <span class="kw">let </span>bboxes = convert_node_inner(node, <span class="kw-2">&amp;mut </span>children);
+    <span class="kw">let </span>bboxes = convert_node_inner(node, <span class="prelude-val">None</span>, <span class="kw-2">&amp;mut </span>children);
     (children, bboxes.and_then(|b| b.layer.to_rect()))
 }
 
@@ -424,35 +426,45 @@
     /// Just a shape/image bbox as per SVG spec.
     </span><span class="kw">pub </span>object: usvg::BBox,
 
-    <span class="doccomment">/// The same as above, but transformed using object&#39;s transform.
-    </span><span class="kw">pub </span>transformed_object: usvg::BBox,
-
     <span class="doccomment">/// Similar to `object`, but expanded to fit the stroke as well.
     </span><span class="kw">pub </span>layer: usvg::BBox,
 }
 
-<span class="kw">fn </span>convert_node_inner(node: usvg::Node, children: <span class="kw-2">&amp;mut </span>Vec&lt;Node&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;BBoxes&gt; {
+<span class="kw">fn </span>convert_node_inner(
+    node: usvg::Node,
+    text_bbox: <span class="prelude-ty">Option</span>&lt;tiny_skia::NonZeroRect&gt;,
+    children: <span class="kw-2">&amp;mut </span>Vec&lt;Node&gt;,
+) -&gt; <span class="prelude-ty">Option</span>&lt;BBoxes&gt; {
     <span class="kw">match </span><span class="kw-2">&amp;*</span>node.borrow() {
-        usvg::NodeKind::Group(<span class="kw-2">ref </span>ugroup) =&gt; convert_group(node.clone(), ugroup, children),
-        usvg::NodeKind::Path(<span class="kw-2">ref </span>upath) =&gt; <span class="kw">crate</span>::path::convert(upath, children),
+        usvg::NodeKind::Group(<span class="kw-2">ref </span>ugroup) =&gt; {
+            convert_group(node.clone(), ugroup, text_bbox, children)
+        }
+        usvg::NodeKind::Path(<span class="kw-2">ref </span>upath) =&gt; <span class="kw">crate</span>::path::convert(upath, text_bbox, children),
         usvg::NodeKind::Image(<span class="kw-2">ref </span>uimage) =&gt; <span class="kw">crate</span>::image::convert(uimage, children),
-        usvg::NodeKind::Text(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>, <span class="comment">// should be already converted into paths
-    </span>}
+        usvg::NodeKind::Text(<span class="kw-2">ref </span>utext) =&gt; {
+            <span class="kw">if let </span>(<span class="prelude-val">Some</span>(bbox), <span class="prelude-val">Some</span>(flattened)) = (utext.bounding_box, <span class="kw-2">&amp;</span>utext.flattened) {
+                convert_node_inner(flattened.clone(), <span class="prelude-val">Some</span>(bbox), children)
+            } <span class="kw">else </span>{
+                <span class="macro">log::warn!</span>(<span class="string">&quot;Text nodes should be flattened before rendering.&quot;</span>);
+                <span class="prelude-val">None
+            </span>}
+        }
+    }
 }
 
 <span class="kw">fn </span>convert_group(
     node: usvg::Node,
     ugroup: <span class="kw-2">&amp;</span>usvg::Group,
+    text_bbox: <span class="prelude-ty">Option</span>&lt;tiny_skia::NonZeroRect&gt;,
     children: <span class="kw-2">&amp;mut </span>Vec&lt;Node&gt;,
 ) -&gt; <span class="prelude-ty">Option</span>&lt;BBoxes&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>group_children = Vec::new();
-    <span class="kw">let </span><span class="kw-2">mut </span>bboxes = <span class="kw">match </span>convert_children(node, <span class="kw-2">&amp;mut </span>group_children) {
+    <span class="kw">let </span><span class="kw-2">mut </span>bboxes = <span class="kw">match </span>convert_children(node, text_bbox, <span class="kw-2">&amp;mut </span>group_children) {
         <span class="prelude-val">Some</span>(v) =&gt; v,
         <span class="prelude-val">None </span>=&gt; <span class="kw">return </span>convert_empty_group(ugroup, children),
     };
 
-    <span class="kw">let </span>(filters, filter_bbox) =
-        <span class="kw">crate</span>::filter::convert(<span class="kw-2">&amp;</span>ugroup.filters, bboxes.transformed_object.to_rect());
+    <span class="kw">let </span>(filters, filter_bbox) = <span class="kw">crate</span>::filter::convert(<span class="kw-2">&amp;</span>ugroup.filters, bboxes.object.to_rect());
 
     <span class="comment">// TODO: figure out a nicer solution
     // Ignore groups with filters but invalid filter bboxes.
@@ -477,7 +489,6 @@
     };
 
     bboxes.object = bboxes.object.transform(ugroup.transform)<span class="question-mark">?</span>;
-    bboxes.transformed_object = bboxes.transformed_object.transform(ugroup.transform)<span class="question-mark">?</span>;
     bboxes.layer = bboxes.layer.transform(ugroup.transform)<span class="question-mark">?</span>;
 
     children.push(Node::Group(group));
@@ -507,7 +518,6 @@
     <span class="kw">let </span>bboxes = BBoxes {
         <span class="comment">// TODO: find a better solution
         </span>object: usvg::BBox::default(),
-        transformed_object: usvg::BBox::default(),
         layer: usvg::BBox::from(layer_bbox),
     };
 
@@ -515,14 +525,16 @@
     <span class="prelude-val">Some</span>(bboxes)
 }
 
-<span class="kw">fn </span>convert_children(parent: usvg::Node, children: <span class="kw-2">&amp;mut </span>Vec&lt;Node&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;BBoxes&gt; {
+<span class="kw">fn </span>convert_children(
+    parent: usvg::Node,
+    text_bbox: <span class="prelude-ty">Option</span>&lt;tiny_skia::NonZeroRect&gt;,
+    children: <span class="kw-2">&amp;mut </span>Vec&lt;Node&gt;,
+) -&gt; <span class="prelude-ty">Option</span>&lt;BBoxes&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>bboxes = BBoxes::default();
 
     <span class="kw">for </span>node <span class="kw">in </span>parent.children() {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(bboxes2) = convert_node_inner(node, children) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(bboxes2) = convert_node_inner(node, text_bbox, children) {
             bboxes.object = bboxes.object.expand(bboxes2.object);
-            bboxes.transformed_object =
-                bboxes.transformed_object.expand(bboxes2.transformed_object);
             bboxes.layer = bboxes.layer.expand(bboxes2.layer);
         }
     }

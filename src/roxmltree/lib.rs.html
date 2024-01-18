@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/roxmltree-0.18.1/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="roxmltree" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/roxmltree-0.19.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="roxmltree" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1661,6 +1661,35 @@
 <a href="#1661" id="1661">1661</a>
 <a href="#1662" id="1662">1662</a>
 <a href="#1663" id="1663">1663</a>
+<a href="#1664" id="1664">1664</a>
+<a href="#1665" id="1665">1665</a>
+<a href="#1666" id="1666">1666</a>
+<a href="#1667" id="1667">1667</a>
+<a href="#1668" id="1668">1668</a>
+<a href="#1669" id="1669">1669</a>
+<a href="#1670" id="1670">1670</a>
+<a href="#1671" id="1671">1671</a>
+<a href="#1672" id="1672">1672</a>
+<a href="#1673" id="1673">1673</a>
+<a href="#1674" id="1674">1674</a>
+<a href="#1675" id="1675">1675</a>
+<a href="#1676" id="1676">1676</a>
+<a href="#1677" id="1677">1677</a>
+<a href="#1678" id="1678">1678</a>
+<a href="#1679" id="1679">1679</a>
+<a href="#1680" id="1680">1680</a>
+<a href="#1681" id="1681">1681</a>
+<a href="#1682" id="1682">1682</a>
+<a href="#1683" id="1683">1683</a>
+<a href="#1684" id="1684">1684</a>
+<a href="#1685" id="1685">1685</a>
+<a href="#1686" id="1686">1686</a>
+<a href="#1687" id="1687">1687</a>
+<a href="#1688" id="1688">1688</a>
+<a href="#1689" id="1689">1689</a>
+<a href="#1690" id="1690">1690</a>
+<a href="#1691" id="1691">1691</a>
+<a href="#1692" id="1692">1692</a>
 </pre></div><pre class="rust"><code><span class="doccomment">/*!
 Represent an [XML 1.0](https://www.w3.org/TR/xml/) document as a read-only tree.
 
@@ -1681,8 +1710,6 @@ License: ISC.
 #![warn(missing_docs)]
 #![warn(missing_copy_implementations)]
 #![warn(missing_debug_implementations)]
-</span><span class="comment">// `matches!` available since 1.42, but we target 1.36 for now.
-</span><span class="attr">#![allow(clippy::match_like_matches_macro)]
 
 </span><span class="kw">extern crate </span>alloc;
 
@@ -1697,9 +1724,12 @@ License: ISC.
 
 <span class="kw">use </span>alloc::vec::Vec;
 
-<span class="kw">pub use </span>xmlparser::TextPos;
-
 <span class="kw">mod </span>parse;
+<span class="kw">mod </span>tokenizer;
+
+<span class="attr">#[cfg(test)]
+</span><span class="kw">mod </span>tokenizer_tests;
+
 <span class="kw">pub use </span><span class="kw">crate</span>::parse::<span class="kw-2">*</span>;
 
 <span class="doccomment">/// The &lt;http://www.w3.org/XML/1998/namespace&gt; URI.
@@ -1711,6 +1741,29 @@ License: ISC.
 </span><span class="kw">pub const </span>NS_XMLNS_URI: <span class="kw-2">&amp;</span>str = <span class="string">&quot;http://www.w3.org/2000/xmlns/&quot;</span>;
 <span class="doccomment">/// The string &#39;xmlns&#39;, which is used to declare new namespaces
 </span><span class="kw">const </span>XMLNS: <span class="kw-2">&amp;</span>str = <span class="string">&quot;xmlns&quot;</span>;
+
+<span class="doccomment">/// Position in text.
+///
+/// Position indicates a row/line and a column in the original text. Starting from 1:1.
+</span><span class="attr">#[allow(missing_docs)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+</span><span class="kw">pub struct </span>TextPos {
+    <span class="kw">pub </span>row: u32,
+    <span class="kw">pub </span>col: u32,
+}
+
+<span class="kw">impl </span>TextPos {
+    <span class="doccomment">/// Constructs a new `TextPos`.
+    </span><span class="kw">pub fn </span>new(row: u32, col: u32) -&gt; TextPos {
+        TextPos { row, col }
+    }
+}
+
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>TextPos {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">&quot;{}:{}&quot;</span>, <span class="self">self</span>.row, <span class="self">self</span>.col)
+    }
+}
 
 <span class="doccomment">/// An XML tree container.
 ///
@@ -1838,7 +1891,7 @@ License: ISC.
     /// ```
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>text_pos_at(<span class="kw-2">&amp;</span><span class="self">self</span>, pos: usize) -&gt; TextPos {
-        xmlparser::Stream::from(<span class="self">self</span>.text).gen_text_pos_from(pos)
+        tokenizer::Stream::new(<span class="self">self</span>.text).gen_text_pos_from(pos)
     }
 
     <span class="doccomment">/// Returns the input text of the original document.
@@ -2063,26 +2116,34 @@ License: ISC.
     </span>range: Range&lt;usize&gt;,
 }
 
+<span class="attr">#[cfg(target_has_atomic = <span class="string">&quot;ptr&quot;</span>)]
+</span><span class="kw">type </span>OwnedSharedString = alloc::sync::Arc&lt;str&gt;;
+
+<span class="attr">#[cfg(not(target_has_atomic = <span class="string">&quot;ptr&quot;</span>))]
+</span><span class="kw">type </span>OwnedSharedString = alloc::rc::Rc&lt;str&gt;;
+
 <span class="doccomment">/// A string storage.
 ///
 /// Used by text nodes and attributes values.
 ///
-/// We try our best to keep parsed strings as `&amp;str`, but in some cases post-processing
-/// is necessary and we have to allocates them.
+/// We try our best not to allocate strings, referencing the input string as much as possible.
+/// But in some cases post-processing is necessary and we have to allocate them.
 ///
-/// All owned, allocated strings are stored as `Arc&lt;str&gt;`.
+/// All owned, allocated strings are stored as `Arc&lt;str&gt;` or as `Rc&lt;str&gt;` on targets
+/// were `Arc` isn&#39;t available.
+/// And unlike `Cow&lt;&amp;str&gt;`, `StringStorage` is immutable and can be cheaply cloned.
 </span><span class="attr">#[derive(Clone, Eq, Debug)]
 </span><span class="kw">pub enum </span>StringStorage&lt;<span class="lifetime">&#39;input</span>&gt; {
     <span class="doccomment">/// A raw slice of the input string.
     </span>Borrowed(<span class="kw-2">&amp;</span><span class="lifetime">&#39;input </span>str),
 
     <span class="doccomment">/// A reference-counted string.
-    </span>Owned(alloc::sync::Arc&lt;str&gt;),
+    </span>Owned(OwnedSharedString),
 }
 
 <span class="kw">impl </span>StringStorage&lt;<span class="lifetime">&#39;_</span>&gt; {
     <span class="doccomment">/// Creates a new owned string from `&amp;str` or `String`.
-    </span><span class="kw">pub fn </span>new_owned&lt;T: Into&lt;alloc::sync::Arc&lt;str&gt;&gt;&gt;(s: T) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new_owned&lt;T: Into&lt;OwnedSharedString&gt;&gt;(s: T) -&gt; <span class="self">Self </span>{
         StringStorage::Owned(s.into())
     }
 
@@ -2288,10 +2349,10 @@ License: ISC.
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;input</span>&gt; Namespaces&lt;<span class="lifetime">&#39;input</span>&gt; {
-    <span class="kw">fn </span>push_ns&lt;<span class="lifetime">&#39;temp</span>&gt;(
+    <span class="kw">fn </span>push_ns(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         name: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;input </span>str&gt;,
-        uri: BorrowedText&lt;<span class="lifetime">&#39;input</span>, <span class="lifetime">&#39;temp</span>&gt;,
+        uri: StringStorage&lt;<span class="lifetime">&#39;input</span>&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="macro">debug_assert_ne!</span>(name, <span class="prelude-val">Some</span>(<span class="string">&quot;&quot;</span>));
 
@@ -2306,10 +2367,7 @@ License: ISC.
                     <span class="kw">return </span><span class="prelude-val">Err</span>(Error::NamespacesLimitReached);
                 }
                 <span class="kw">let </span>idx = NamespaceIdx(<span class="self">self</span>.values.len() <span class="kw">as </span>u16);
-                <span class="self">self</span>.values.push(Namespace {
-                    name,
-                    uri: uri.to_storage(),
-                });
+                <span class="self">self</span>.values.push(Namespace { name, uri });
                 <span class="self">self</span>.sorted_order.insert(sorted_idx, idx);
                 idx
             }

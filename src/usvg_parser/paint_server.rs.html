@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-parser-0.36.0/src/paint_server.rs`."><title>paint_server.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-parser-0.37.0/src/paint_server.rs`."><title>paint_server.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -519,12 +519,6 @@
 <a href="#519" id="519">519</a>
 <a href="#520" id="520">520</a>
 <a href="#521" id="521">521</a>
-<a href="#522" id="522">522</a>
-<a href="#523" id="523">523</a>
-<a href="#524" id="524">524</a>
-<a href="#525" id="525">525</a>
-<a href="#526" id="526">526</a>
-<a href="#527" id="527">527</a>
 </pre></div><pre class="rust"><code><span class="comment">// This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -536,9 +530,9 @@
 <span class="kw">use </span>svgtypes::{Length, LengthUnit <span class="kw">as </span>Unit};
 <span class="kw">use </span>usvg_tree::<span class="kw-2">*</span>;
 
-<span class="kw">use </span><span class="kw">crate</span>::converter::SvgColorExt;
+<span class="kw">use </span><span class="kw">crate</span>::converter::{<span class="self">self</span>, SvgColorExt};
 <span class="kw">use </span><span class="kw">crate</span>::svgtree::{AId, EId, SvgNode};
-<span class="kw">use crate</span>::{converter, OptionLog};
+<span class="kw">use </span><span class="kw">crate</span>::OptionLog;
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>ServerOrColor {
     Server(Paint),
@@ -580,12 +574,9 @@
     }
 
     <span class="kw">let </span>units = convert_units(node, AId::GradientUnits, Units::ObjectBoundingBox);
-    <span class="kw">let </span>transform = resolve_attr(node, AId::GradientTransform)
-        .attribute(AId::GradientTransform)
-        .unwrap_or_default();
+    <span class="kw">let </span>transform = node.resolve_transform(AId::GradientTransform, state);
 
     <span class="kw">let </span>gradient = LinearGradient {
-        id: node.element_id().to_string(),
         x1: resolve_number(node, AId::X1, units, state, Length::zero()),
         y1: resolve_number(node, AId::Y1, units, state, Length::zero()),
         x2: resolve_number(
@@ -597,6 +588,7 @@
         ),
         y2: resolve_number(node, AId::Y2, units, state, Length::zero()),
         base: BaseGradient {
+            id: node.element_id().to_string(),
             units,
             transform,
             spread_method: convert_spread_method(node),
@@ -648,18 +640,16 @@
     );
     <span class="kw">let </span>fx = resolve_number(node, AId::Fx, units, state, Length::new_number(cx <span class="kw">as </span>f64));
     <span class="kw">let </span>fy = resolve_number(node, AId::Fy, units, state, Length::new_number(cy <span class="kw">as </span>f64));
-    <span class="kw">let </span>transform = resolve_attr(node, AId::GradientTransform)
-        .attribute(AId::GradientTransform)
-        .unwrap_or_default();
+    <span class="kw">let </span>transform = node.resolve_transform(AId::GradientTransform, state);
 
     <span class="kw">let </span>gradient = RadialGradient {
-        id: node.element_id().to_string(),
         cx,
         cy,
         r: PositiveF32::new(r).unwrap(),
         fx,
         fy,
         base: BaseGradient {
+            id: node.element_id().to_string(),
             units,
             transform,
             spread_method,
@@ -692,9 +682,7 @@
     <span class="kw">let </span>units = convert_units(node, AId::PatternUnits, Units::ObjectBoundingBox);
     <span class="kw">let </span>content_units = convert_units(node, AId::PatternContentUnits, Units::UserSpaceOnUse);
 
-    <span class="kw">let </span>transform = resolve_attr(node, AId::PatternTransform)
-        .attribute(AId::PatternTransform)
-        .unwrap_or_default();
+    <span class="kw">let </span>transform = node.resolve_transform(AId::PatternTransform, state);
 
     <span class="kw">let </span>rect = NonZeroRect::from_xywh(
         resolve_number(node, AId::X, units, state, Length::zero()),

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.1/src/read/coff/symbol.rs`."><title>symbol.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/read/coff/symbol.rs`."><title>symbol.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -624,6 +624,15 @@
 <a href="#624" id="624">624</a>
 <a href="#625" id="625">625</a>
 <a href="#626" id="626">626</a>
+<a href="#627" id="627">627</a>
+<a href="#628" id="628">628</a>
+<a href="#629" id="629">629</a>
+<a href="#630" id="630">630</a>
+<a href="#631" id="631">631</a>
+<a href="#632" id="632">632</a>
+<a href="#633" id="633">633</a>
+<a href="#634" id="634">634</a>
+<a href="#635" id="635">635</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>alloc::fmt;
 <span class="kw">use </span>alloc::vec::Vec;
 <span class="kw">use </span>core::convert::TryInto;
@@ -643,6 +652,9 @@
 <span class="doccomment">/// A table of symbol entries in a COFF or PE file.
 ///
 /// Also includes the string table used for the symbol names.
+///
+/// Returned by [`CoffHeader::symbols`] and
+/// [`ImageNtHeaders::symbols`](crate::read::pe::ImageNtHeaders::symbols).
 </span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>SymbolTable&lt;<span class="lifetime">&#39;data</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8], Coff = pe::ImageFileHeader&gt;
 <span class="kw">where
@@ -813,11 +825,12 @@
     }
 }
 
-<span class="doccomment">/// A symbol table of a `CoffBigFile`.
+<span class="doccomment">/// A symbol table in a [`CoffBigFile`](super::CoffBigFile).
 </span><span class="kw">pub type </span>CoffBigSymbolTable&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; =
     CoffSymbolTable&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R, pe::AnonObjectHeaderBigobj&gt;;
 
-<span class="doccomment">/// A symbol table of a `CoffFile`.
+<span class="doccomment">/// A symbol table in a [`CoffFile`](super::CoffFile)
+/// or [`PeFile`](crate::read::pe::PeFile).
 </span><span class="attr">#[derive(Debug, Clone, Copy)]
 </span><span class="kw">pub struct </span>CoffSymbolTable&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8], Coff = pe::ImageFileHeader&gt;
 <span class="kw">where
@@ -855,11 +868,12 @@
     }
 }
 
-<span class="doccomment">/// An iterator over the symbols of a `CoffBigFile`.
+<span class="doccomment">/// An iterator for the symbols in a [`CoffBigFile`](super::CoffBigFile).
 </span><span class="kw">pub type </span>CoffBigSymbolIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; =
     CoffSymbolIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R, pe::AnonObjectHeaderBigobj&gt;;
 
-<span class="doccomment">/// An iterator over the symbols of a `CoffFile`.
+<span class="doccomment">/// An iterator for the symbols in a [`CoffFile`](super::CoffFile)
+/// or [`PeFile`](crate::read::pe::PeFile).
 </span><span class="kw">pub struct </span>CoffSymbolIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8], Coff = pe::ImageFileHeader&gt;
 <span class="kw">where
     </span>R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
@@ -894,11 +908,15 @@
     }
 }
 
-<span class="doccomment">/// A symbol of a `CoffBigFile`.
+<span class="doccomment">/// A symbol in a [`CoffBigFile`](super::CoffBigFile).
+///
+/// Most functionality is provided by the [`ObjectSymbol`] trait implementation.
 </span><span class="kw">pub type </span>CoffBigSymbol&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; =
     CoffSymbol&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R, pe::AnonObjectHeaderBigobj&gt;;
 
-<span class="doccomment">/// A symbol of a `CoffFile`.
+<span class="doccomment">/// A symbol in a [`CoffFile`](super::CoffFile) or [`PeFile`](crate::read::pe::PeFile).
+///
+/// Most functionality is provided by the [`ObjectSymbol`] trait implementation.
 </span><span class="attr">#[derive(Debug, Clone, Copy)]
 </span><span class="kw">pub struct </span>CoffSymbol&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8], Coff = pe::ImageFileHeader&gt;
 <span class="kw">where
@@ -1010,7 +1028,7 @@
         };
         <span class="kw">match </span><span class="self">self</span>.symbol.storage_class() {
             pe::IMAGE_SYM_CLASS_STATIC =&gt; {
-                <span class="kw">if </span><span class="self">self</span>.symbol.value() == <span class="number">0 </span>&amp;&amp; <span class="self">self</span>.symbol.number_of_aux_symbols() &gt; <span class="number">0 </span>{
+                <span class="kw">if </span><span class="self">self</span>.symbol.has_aux_section() {
                     SymbolKind::Section
                 } <span class="kw">else </span>{
                     derived_kind
@@ -1027,12 +1045,16 @@
     <span class="kw">fn </span>section(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; SymbolSection {
         <span class="kw">match </span><span class="self">self</span>.symbol.section_number() {
             pe::IMAGE_SYM_UNDEFINED =&gt; {
-                <span class="kw">if </span><span class="self">self</span>.symbol.storage_class() == pe::IMAGE_SYM_CLASS_EXTERNAL
-                    &amp;&amp; <span class="self">self</span>.symbol.value() == <span class="number">0
-                </span>{
+                <span class="kw">if </span><span class="self">self</span>.symbol.storage_class() == pe::IMAGE_SYM_CLASS_EXTERNAL {
+                    <span class="kw">if </span><span class="self">self</span>.symbol.value() == <span class="number">0 </span>{
+                        SymbolSection::Undefined
+                    } <span class="kw">else </span>{
+                        SymbolSection::Common
+                    }
+                } <span class="kw">else if </span><span class="self">self</span>.symbol.storage_class() == pe::IMAGE_SYM_CLASS_SECTION {
                     SymbolSection::Undefined
                 } <span class="kw">else </span>{
-                    SymbolSection::Common
+                    SymbolSection::Unknown
                 }
             }
             pe::IMAGE_SYM_ABSOLUTE =&gt; SymbolSection::Absolute,
@@ -1118,7 +1140,7 @@
     }
 }
 
-<span class="doccomment">/// A trait for generic access to `ImageSymbol` and `ImageSymbolEx`.
+<span class="doccomment">/// A trait for generic access to [`pe::ImageSymbol`] and [`pe::ImageSymbolEx`].
 </span><span class="attr">#[allow(missing_docs)]
 </span><span class="kw">pub trait </span>ImageSymbol: Debug + Pod {
     <span class="kw">fn </span>raw_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8; <span class="number">8</span>];
@@ -1164,15 +1186,11 @@
 
     <span class="doccomment">/// Return true if the symbol is a definition of a function or data object.
     </span><span class="kw">fn </span>is_definition(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="kw">let </span>section_number = <span class="self">self</span>.section_number();
-        <span class="kw">if </span>section_number == pe::IMAGE_SYM_UNDEFINED {
+        <span class="kw">if </span><span class="self">self</span>.section_number() &lt;= <span class="number">0 </span>{
             <span class="kw">return </span><span class="bool-val">false</span>;
         }
         <span class="kw">match </span><span class="self">self</span>.storage_class() {
-            pe::IMAGE_SYM_CLASS_STATIC =&gt; {
-                <span class="comment">// Exclude section symbols.
-                </span>!(<span class="self">self</span>.value() == <span class="number">0 </span>&amp;&amp; <span class="self">self</span>.number_of_aux_symbols() &gt; <span class="number">0</span>)
-            }
+            pe::IMAGE_SYM_CLASS_STATIC =&gt; !<span class="self">self</span>.has_aux_section(),
             pe::IMAGE_SYM_CLASS_EXTERNAL | pe::IMAGE_SYM_CLASS_WEAK_EXTERNAL =&gt; <span class="bool-val">true</span>,
             <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
         }
@@ -1192,7 +1210,7 @@
     </span><span class="kw">fn </span>has_aux_section(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.number_of_aux_symbols() &gt; <span class="number">0
             </span>&amp;&amp; <span class="self">self</span>.storage_class() == pe::IMAGE_SYM_CLASS_STATIC
-            &amp;&amp; <span class="self">self</span>.value() == <span class="number">0
+            &amp;&amp; <span class="self">self</span>.typ() == <span class="number">0
     </span>}
 
     <span class="kw">fn </span>base_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u16 {

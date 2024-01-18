@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"trait":["TextToPath","TreeTextToPath"]};
+window.SIDEBAR_ITEMS = {"trait":["TreeTextToPath"]};

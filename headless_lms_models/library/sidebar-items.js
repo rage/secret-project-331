@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["content_management","copying","course_instances","grading","page_visit_stats","peer_reviewing","progressing","regrading","user_exercise_state_updater"]};
+window.SIDEBAR_ITEMS = {"mod":["content_management","copying","course_instances","global_stats","grading","page_visit_stats","peer_reviewing","progressing","regrading","user_exercise_state_updater"]};

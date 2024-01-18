@@ -2,6 +2,7 @@
 "jwt":[],
 "libgit2_sys":[],
 "libssh2_sys":[],
+"linux_raw_sys":[],
 "nix":[],
 "openssl_sys":[],
 "rustix":[],

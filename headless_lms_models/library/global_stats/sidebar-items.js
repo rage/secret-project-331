@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["get_number_of_people_completed_a_course","get_number_of_people_done_at_least_one_exercise","get_number_of_people_registered_completion_to_study_registry","get_number_of_people_started_course"],"struct":["GlobalStatEntry"]};

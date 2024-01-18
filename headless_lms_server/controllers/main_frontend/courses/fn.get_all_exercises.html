@@ -5,15 +5,15 @@
 ) -&gt; <a class="type" href="../../../domain/error/type.ControllerResult.html" title="type headless_lms_server::domain::error::ControllerResult">ControllerResult</a>&lt;<a class="struct" href="../../../prelude/web/struct.Json.html" title="struct headless_lms_server::prelude::web::Json">Json</a>&lt;<a class="struct" href="https://doc.rust-lang.org/1.75.0/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="struct" href="../../../../headless_lms_models/exercises/struct.Exercise.html" title="struct headless_lms_models::exercises::Exercise">Exercise</a>&gt;&gt;&gt;</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>GET <code>/api/v0/main-frontend/courses/:id/exercises</code> - Returns all exercises for the course.</p>
 <h3 id="response-typescript-definition"><a href="#response-typescript-definition">Response TypeScript definition</a></h3><div class="example-wrap"><pre class="language-ts"><code>type Vec&lt;Exercise&gt; = Array&lt;{
   id: string
-  created_at: Date
-  updated_at: Date
+  created_at: string
+  updated_at: string
   name: string
   course_id: string | null
   exam_id: string | null
   page_id: string
   chapter_id: string | null
-  deadline: Date | null
-  deleted_at: Date | null
+  deadline: string | null
+  deleted_at: string | null
   score_maximum: number
   order_number: number
   copied_from: string | null

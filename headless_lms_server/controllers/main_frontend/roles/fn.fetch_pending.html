@@ -5,7 +5,12 @@
 ) -&gt; <a class="type" href="../../../domain/error/type.ControllerResult.html" title="type headless_lms_server::domain::error::ControllerResult">ControllerResult</a>&lt;<a class="struct" href="../../../prelude/web/struct.Json.html" title="struct headless_lms_server::prelude::web::Json">Json</a>&lt;<a class="struct" href="https://doc.rust-lang.org/1.75.0/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="struct" href="../../../../headless_lms_models/pending_roles/struct.PendingRole.html" title="struct headless_lms_models::pending_roles::PendingRole">PendingRole</a>&gt;&gt;&gt;</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><ul>
 <li>GET /api/v0/main-frontend/roles - Get all pending roles for the given domain.</li>
 </ul>
-<h3 id="response-typescript-definition"><a href="#response-typescript-definition">Response TypeScript definition</a></h3><div class="example-wrap"><pre class="language-ts"><code>type Vec&lt;PendingRole&gt; = Array&lt;{ id: string; user_email: string; role: UserRole; expires_at: Date }&gt;
+<h3 id="response-typescript-definition"><a href="#response-typescript-definition">Response TypeScript definition</a></h3><div class="example-wrap"><pre class="language-ts"><code>type Vec&lt;PendingRole&gt; = Array&lt;{
+  id: string
+  user_email: string
+  role: UserRole
+  expires_at: string
+}&gt;
 
 </code></pre></div><h3 id="example-response"><a href="#example-response">Example response</a></h3><div class="example-wrap"><pre class="language-json"><code>[
   {

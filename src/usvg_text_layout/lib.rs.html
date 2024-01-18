@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-text-layout-0.36.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg_text_layout" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-text-layout-0.37.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg_text_layout" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1875,31 +1875,6 @@
 <a href="#1875" id="1875">1875</a>
 <a href="#1876" id="1876">1876</a>
 <a href="#1877" id="1877">1877</a>
-<a href="#1878" id="1878">1878</a>
-<a href="#1879" id="1879">1879</a>
-<a href="#1880" id="1880">1880</a>
-<a href="#1881" id="1881">1881</a>
-<a href="#1882" id="1882">1882</a>
-<a href="#1883" id="1883">1883</a>
-<a href="#1884" id="1884">1884</a>
-<a href="#1885" id="1885">1885</a>
-<a href="#1886" id="1886">1886</a>
-<a href="#1887" id="1887">1887</a>
-<a href="#1888" id="1888">1888</a>
-<a href="#1889" id="1889">1889</a>
-<a href="#1890" id="1890">1890</a>
-<a href="#1891" id="1891">1891</a>
-<a href="#1892" id="1892">1892</a>
-<a href="#1893" id="1893">1893</a>
-<a href="#1894" id="1894">1894</a>
-<a href="#1895" id="1895">1895</a>
-<a href="#1896" id="1896">1896</a>
-<a href="#1897" id="1897">1897</a>
-<a href="#1898" id="1898">1898</a>
-<a href="#1899" id="1899">1899</a>
-<a href="#1900" id="1900">1900</a>
-<a href="#1901" id="1901">1901</a>
-<a href="#1902" id="1902">1902</a>
 </pre></div><pre class="rust"><code><span class="comment">// This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -1946,36 +1921,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
 <span class="kw">impl </span>TreeTextToPath <span class="kw">for </span>usvg_tree::Tree {
     <span class="kw">fn </span>convert_text(<span class="kw-2">&amp;mut </span><span class="self">self</span>, fontdb: <span class="kw-2">&amp;</span>fontdb::Database) {
         convert_text(<span class="self">self</span>.root.clone(), fontdb);
-    }
-}
-
-<span class="doccomment">/// A `usvg::Text` extension trait.
-</span><span class="kw">pub trait </span>TextToPath {
-    <span class="doccomment">/// Converts the text node into path(s).
-    ///
-    /// `absolute_ts` is node&#39;s absolute transform. Used primarily during text-on-path resolving.
-    </span><span class="kw">fn </span>convert(<span class="kw-2">&amp;</span><span class="self">self</span>, fontdb: <span class="kw-2">&amp;</span>fontdb::Database, absolute_ts: Transform) -&gt; <span class="prelude-ty">Option</span>&lt;Node&gt;;
-}
-
-<span class="kw">impl </span>TextToPath <span class="kw">for </span>Text {
-    <span class="kw">fn </span>convert(<span class="kw-2">&amp;</span><span class="self">self</span>, fontdb: <span class="kw-2">&amp;</span>fontdb::Database, absolute_ts: Transform) -&gt; <span class="prelude-ty">Option</span>&lt;Node&gt; {
-        <span class="kw">let </span>(new_paths, bbox) = text_to_paths(<span class="self">self</span>, fontdb, absolute_ts)<span class="question-mark">?</span>;
-
-        <span class="comment">// Create a group will all paths that was created during text-to-path conversion.
-        </span><span class="kw">let </span>group = Node::new(NodeKind::Group(Group {
-            id: <span class="self">self</span>.id.clone(),
-            transform: <span class="self">self</span>.transform,
-            ..Group::default()
-        }));
-
-        <span class="kw">let </span>rendering_mode = resolve_rendering_mode(<span class="self">self</span>);
-        <span class="kw">for </span><span class="kw-2">mut </span>path <span class="kw">in </span>new_paths {
-            fix_obj_bounding_box(<span class="kw-2">&amp;mut </span>path, bbox);
-            path.rendering_mode = rendering_mode;
-            group.append_kind(NodeKind::Path(path));
-        }
-
-        <span class="prelude-val">Some</span>(group)
+        <span class="self">self</span>.calculate_abs_transforms();
     }
 }
 
@@ -1987,6 +1933,12 @@ An [SVG] text layout implementation on top of [usvg] crate.
             text_nodes.push(node.clone());
         }
 
+        <span class="kw">if let </span>NodeKind::Image(<span class="kw-2">ref mut </span>image) = <span class="kw-2">*</span>node.borrow_mut() {
+            <span class="kw">if let </span>ImageKind::SVG(<span class="kw-2">ref mut </span>tree) = image.kind {
+                tree.convert_text(fontdb);
+            }
+        }
+
         node.subroots(|subroot| convert_text(subroot, fontdb))
     }
 
@@ -1995,19 +1947,36 @@ An [SVG] text layout implementation on top of [usvg] crate.
     }
 
     <span class="kw">for </span>node <span class="kw">in </span><span class="kw-2">&amp;</span>text_nodes {
-        <span class="kw">let </span><span class="kw-2">mut </span>new_node = <span class="prelude-val">None</span>;
-        <span class="kw">if let </span>NodeKind::Text(<span class="kw-2">ref </span>text) = <span class="kw-2">*</span>node.borrow() {
-            <span class="kw">let </span><span class="kw-2">mut </span>absolute_ts = node.parent().unwrap().abs_transform();
-            absolute_ts = absolute_ts.pre_concat(text.transform);
-            new_node = text.convert(fontdb, absolute_ts);
-        }
-
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(new_node) = new_node {
-            node.insert_after(new_node);
+        <span class="kw">let </span>absolute_ts = node.parent().unwrap().abs_transform();
+        <span class="kw">if let </span>NodeKind::Text(<span class="kw-2">ref mut </span>text) = <span class="kw-2">*</span>node.borrow_mut() {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>((node, bbox)) = convert_node(text, fontdb, absolute_ts) {
+                text.bounding_box = <span class="prelude-val">Some</span>(bbox);
+                text.flattened = <span class="prelude-val">Some</span>(node);
+            }
         }
     }
+}
 
-    text_nodes.iter().for_each(|n| n.detach());
+<span class="kw">fn </span>convert_node(
+    text: <span class="kw-2">&amp;</span>Text,
+    fontdb: <span class="kw-2">&amp;</span>fontdb::Database,
+    absolute_ts: Transform,
+) -&gt; <span class="prelude-ty">Option</span>&lt;(Node, NonZeroRect)&gt; {
+    <span class="kw">let </span>(new_paths, bbox) = text_to_paths(text, fontdb, absolute_ts)<span class="question-mark">?</span>;
+
+    <span class="kw">let </span>group = Node::new(NodeKind::Group(Group {
+        id: text.id.clone(),
+        ..Group::default()
+    }));
+
+    <span class="kw">let </span>rendering_mode = resolve_rendering_mode(text);
+    <span class="kw">for </span><span class="kw-2">mut </span>path <span class="kw">in </span>new_paths {
+        fix_obj_bounding_box(<span class="kw-2">&amp;mut </span>path, bbox);
+        path.rendering_mode = rendering_mode;
+        group.append_kind(NodeKind::Path(path));
+    }
+
+    <span class="prelude-val">Some</span>((group, bbox))
 }
 
 <span class="kw">trait </span>DatabaseExt {
@@ -2361,7 +2330,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
     text_node: <span class="kw-2">&amp;</span>Text,
     fontdb: <span class="kw-2">&amp;</span>fontdb::Database,
     abs_ts: Transform,
-) -&gt; <span class="prelude-ty">Option</span>&lt;(Vec&lt;Path&gt;, Rect)&gt; {
+) -&gt; <span class="prelude-ty">Option</span>&lt;(Vec&lt;Path&gt;, NonZeroRect)&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>fonts_cache: FontsCache = HashMap::new();
     <span class="kw">for </span>chunk <span class="kw">in </span><span class="kw-2">&amp;</span>text_node.chunks {
         <span class="kw">for </span>span <span class="kw">in </span><span class="kw-2">&amp;</span>chunk.spans {
@@ -2395,10 +2364,9 @@ An [SVG] text layout implementation on top of [usvg] crate.
         apply_word_spacing(chunk, <span class="kw-2">&amp;mut </span>clusters);
         apply_length_adjust(chunk, <span class="kw-2">&amp;mut </span>clusters);
         <span class="kw">let </span><span class="kw-2">mut </span>curr_pos = resolve_clusters_positions(
+            text_node,
             chunk,
             char_offset,
-            <span class="kw-2">&amp;</span>text_node.positions,
-            <span class="kw-2">&amp;</span>text_node.rotate,
             text_node.writing_mode,
             abs_ts,
             <span class="kw-2">&amp;</span>fonts_cache,
@@ -2463,12 +2431,8 @@ An [SVG] text layout implementation on top of [usvg] crate.
                 }
             }
 
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(path) = convert_span(span, <span class="kw-2">&amp;mut </span>clusters, span_ts) {
-                <span class="comment">// Use `text_bbox` here and not `path.data.bbox()`.
-                </span><span class="kw">if let </span><span class="prelude-val">Some</span>(r) = path.text_bbox {
-                    bbox = bbox.expand(r);
-                }
-
+            <span class="kw">if let </span><span class="prelude-val">Some</span>((path, span_bbox)) = convert_span(span, <span class="kw-2">&amp;mut </span>clusters, span_ts) {
+                bbox = bbox.expand(span_bbox);
                 new_paths.push(path);
             }
 
@@ -2499,7 +2463,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
         last_y = y + curr_pos.<span class="number">1</span>;
     }
 
-    <span class="kw">let </span>bbox = bbox.to_rect()<span class="question-mark">?</span>;
+    <span class="kw">let </span>bbox = bbox.to_non_zero_rect()<span class="question-mark">?</span>;
     <span class="prelude-val">Some</span>((new_paths, bbox))
 }
 
@@ -2556,7 +2520,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
     span: <span class="kw-2">&amp;</span>TextSpan,
     clusters: <span class="kw-2">&amp;mut </span>[OutlinedCluster],
     text_ts: Transform,
-) -&gt; <span class="prelude-ty">Option</span>&lt;Path&gt; {
+) -&gt; <span class="prelude-ty">Option</span>&lt;(Path, NonZeroRect)&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>path_builder = tiny_skia_path::PathBuilder::new();
     <span class="kw">let </span><span class="kw-2">mut </span>bboxes_builder = tiny_skia_path::PathBuilder::new();
 
@@ -2607,19 +2571,19 @@ An [SVG] text layout implementation on top of [usvg] crate.
         </span>fill.rule = FillRule::NonZero;
     }
 
+    <span class="kw">let </span>bbox = bboxes.compute_tight_bounds()<span class="question-mark">?</span>.to_non_zero_rect()<span class="question-mark">?</span>;
+
     <span class="kw">let </span>path = Path {
         id: String::new(),
-        transform: Transform::default(),
         visibility: span.visibility,
         fill,
         stroke: span.stroke.clone(),
         paint_order: span.paint_order,
         rendering_mode: ShapeRendering::default(),
-        text_bbox: <span class="prelude-val">Some</span>(bboxes.bounds().to_non_zero_rect()<span class="question-mark">?</span>),
         data: Rc::new(path),
     };
 
-    <span class="prelude-val">Some</span>(path)
+    <span class="prelude-val">Some</span>((path, bbox))
 }
 
 <span class="kw">fn </span>collect_decoration_spans(span: <span class="kw-2">&amp;</span>TextSpan, clusters: <span class="kw-2">&amp;</span>[OutlinedCluster]) -&gt; Vec&lt;DecorationSpan&gt; {
@@ -2701,7 +2665,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
 <span class="doccomment">/// By the SVG spec, `tspan` doesn&#39;t have a bbox and uses the parent `text` bbox.
 /// Since we converted `text` and `tspan` to `path`, we have to update
 /// all linked paint servers (gradients and patterns) too.
-</span><span class="kw">fn </span>fix_obj_bounding_box(path: <span class="kw-2">&amp;mut </span>Path, bbox: Rect) {
+</span><span class="kw">fn </span>fix_obj_bounding_box(path: <span class="kw-2">&amp;mut </span>Path, bbox: NonZeroRect) {
     <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>fill) = path.fill {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(new_paint) = paint_server_to_user_space_on_use(fill.paint.clone(), bbox) {
             fill.paint = new_paint;
@@ -2720,28 +2684,27 @@ An [SVG] text layout implementation on top of [usvg] crate.
 /// Creates a deep copy of a selected paint server and returns its ID.
 ///
 /// Returns `None` if a paint server already uses `UserSpaceOnUse`.
-</span><span class="kw">fn </span>paint_server_to_user_space_on_use(paint: Paint, bbox: Rect) -&gt; <span class="prelude-ty">Option</span>&lt;Paint&gt; {
+</span><span class="kw">fn </span>paint_server_to_user_space_on_use(paint: Paint, bbox: NonZeroRect) -&gt; <span class="prelude-ty">Option</span>&lt;Paint&gt; {
     <span class="kw">if </span>paint.units() != <span class="prelude-val">Some</span>(Units::ObjectBoundingBox) {
         <span class="kw">return </span><span class="prelude-val">None</span>;
     }
 
     <span class="comment">// TODO: is `pattern` copying safe? Maybe we should reset id&#39;s on all `pattern` children.
     // We have to clone a paint server, in case some other element is already using it.
-    // If not, the `convert` module will remove unused defs anyway.
 
     // Update id, transform and units.
-    </span><span class="kw">let </span>ts = Transform::from_bbox(bbox.to_non_zero_rect()<span class="question-mark">?</span>);
+    </span><span class="kw">let </span>ts = Transform::from_bbox(bbox);
     <span class="kw">let </span>paint = <span class="kw">match </span>paint {
         Paint::Color(<span class="kw">_</span>) =&gt; paint,
         Paint::LinearGradient(<span class="kw-2">ref </span>lg) =&gt; {
             <span class="kw">let </span>transform = lg.transform.post_concat(ts);
             Paint::LinearGradient(Rc::new(LinearGradient {
-                id: String::new(),
                 x1: lg.x1,
                 y1: lg.y1,
                 x2: lg.x2,
                 y2: lg.y2,
                 base: BaseGradient {
+                    id: String::new(),
                     units: Units::UserSpaceOnUse,
                     transform,
                     spread_method: lg.spread_method,
@@ -2752,13 +2715,13 @@ An [SVG] text layout implementation on top of [usvg] crate.
         Paint::RadialGradient(<span class="kw-2">ref </span>rg) =&gt; {
             <span class="kw">let </span>transform = rg.transform.post_concat(ts);
             Paint::RadialGradient(Rc::new(RadialGradient {
-                id: String::new(),
                 cx: rg.cx,
                 cy: rg.cy,
                 r: rg.r,
                 fx: rg.fx,
                 fy: rg.fy,
                 base: BaseGradient {
+                    id: String::new(),
                     units: Units::UserSpaceOnUse,
                     transform,
                     spread_method: rg.spread_method,
@@ -3269,30 +3232,23 @@ An [SVG] text layout implementation on top of [usvg] crate.
 ///
 /// Returns the last text position. The next text chunk should start from that position.
 </span><span class="kw">fn </span>resolve_clusters_positions(
+    text: <span class="kw-2">&amp;</span>Text,
     chunk: <span class="kw-2">&amp;</span>TextChunk,
     char_offset: usize,
-    pos_list: <span class="kw-2">&amp;</span>[CharacterPosition],
-    rotate_list: <span class="kw-2">&amp;</span>[f32],
     writing_mode: WritingMode,
     ts: Transform,
     fonts_cache: <span class="kw-2">&amp;</span>FontsCache,
     clusters: <span class="kw-2">&amp;mut </span>[OutlinedCluster],
 ) -&gt; (f32, f32) {
     <span class="kw">match </span>chunk.text_flow {
-        TextFlow::Linear =&gt; resolve_clusters_positions_horizontal(
-            chunk,
-            char_offset,
-            pos_list,
-            rotate_list,
-            writing_mode,
-            clusters,
-        ),
+        TextFlow::Linear =&gt; {
+            resolve_clusters_positions_horizontal(text, chunk, char_offset, writing_mode, clusters)
+        }
         TextFlow::Path(<span class="kw-2">ref </span>path) =&gt; resolve_clusters_positions_path(
+            text,
             chunk,
             char_offset,
             path,
-            pos_list,
-            rotate_list,
             writing_mode,
             ts,
             fonts_cache,
@@ -3302,10 +3258,9 @@ An [SVG] text layout implementation on top of [usvg] crate.
 }
 
 <span class="kw">fn </span>resolve_clusters_positions_horizontal(
+    text: <span class="kw-2">&amp;</span>Text,
     chunk: <span class="kw-2">&amp;</span>TextChunk,
     offset: usize,
-    pos_list: <span class="kw-2">&amp;</span>[CharacterPosition],
-    rotate_list: <span class="kw-2">&amp;</span>[f32],
     writing_mode: WritingMode,
     clusters: <span class="kw-2">&amp;mut </span>[OutlinedCluster],
 ) -&gt; (f32, f32) {
@@ -3314,20 +3269,20 @@ An [SVG] text layout implementation on top of [usvg] crate.
 
     <span class="kw">for </span>cluster <span class="kw">in </span>clusters {
         <span class="kw">let </span>cp = offset + cluster.byte_idx.code_point_at(<span class="kw-2">&amp;</span>chunk.text);
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(pos) = pos_list.get(cp) {
+        <span class="kw">if let </span>(<span class="prelude-val">Some</span>(dx), <span class="prelude-val">Some</span>(dy)) = (text.dx.get(cp), text.dy.get(cp)) {
             <span class="kw">if </span>writing_mode == WritingMode::LeftToRight {
-                x += pos.dx.unwrap_or(<span class="number">0.0</span>);
-                y += pos.dy.unwrap_or(<span class="number">0.0</span>);
+                x += dx;
+                y += dy;
             } <span class="kw">else </span>{
-                y -= pos.dx.unwrap_or(<span class="number">0.0</span>);
-                x += pos.dy.unwrap_or(<span class="number">0.0</span>);
+                y -= dx;
+                x += dy;
             }
-            cluster.has_relative_shift = pos.dx.is_some() || pos.dy.is_some();
+            cluster.has_relative_shift = !dx.approx_zero_ulps(<span class="number">4</span>) || !dy.approx_zero_ulps(<span class="number">4</span>);
         }
 
         cluster.transform = cluster.transform.pre_translate(x, y);
 
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(angle) = rotate_list.get(cp).cloned() {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(angle) = text.rotate.get(cp).cloned() {
             <span class="kw">if </span>!angle.approx_zero_ulps(<span class="number">4</span>) {
                 cluster.transform = cluster.transform.pre_rotate(angle);
                 cluster.has_relative_shift = <span class="bool-val">true</span>;
@@ -3341,11 +3296,10 @@ An [SVG] text layout implementation on top of [usvg] crate.
 }
 
 <span class="kw">fn </span>resolve_clusters_positions_path(
+    text: <span class="kw-2">&amp;</span>Text,
     chunk: <span class="kw-2">&amp;</span>TextChunk,
     char_offset: usize,
     path: <span class="kw-2">&amp;</span>TextPath,
-    pos_list: <span class="kw-2">&amp;</span>[CharacterPosition],
-    rotate_list: <span class="kw-2">&amp;</span>[f32],
     writing_mode: WritingMode,
     ts: Transform,
     fonts_cache: <span class="kw-2">&amp;</span>FontsCache,
@@ -3367,10 +3321,10 @@ An [SVG] text layout implementation on top of [usvg] crate.
         chunk_offset + path.start_offset + process_anchor(chunk.anchor, clusters_length(clusters));
 
     <span class="kw">let </span>normals = collect_normals(
+        text,
         chunk,
         clusters,
         <span class="kw-2">&amp;</span>path.path,
-        pos_list,
         char_offset,
         start_offset,
         ts,
@@ -3397,9 +3351,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
         cluster.transform = cluster.transform.pre_rotate_at(angle, half_width, <span class="number">0.0</span>);
 
         <span class="kw">let </span>cp = char_offset + cluster.byte_idx.code_point_at(<span class="kw-2">&amp;</span>chunk.text);
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(pos) = pos_list.get(cp) {
-            dy += pos.dy.unwrap_or(<span class="number">0.0</span>);
-        }
+        dy += text.dy.get(cp).cloned().unwrap_or(<span class="number">0.0</span>);
 
         <span class="kw">let </span>baseline_shift = chunk_span_at(chunk, cluster.byte_idx)
             .map(|span| {
@@ -3420,7 +3372,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
                 .pre_translate(shift.x <span class="kw">as </span>f32, shift.y <span class="kw">as </span>f32);
         }
 
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(angle) = rotate_list.get(cp).cloned() {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(angle) = text.rotate.get(cp).cloned() {
             <span class="kw">if </span>!angle.approx_zero_ulps(<span class="number">4</span>) {
                 cluster.transform = cluster.transform.pre_rotate(angle);
             }
@@ -3455,10 +3407,10 @@ An [SVG] text layout implementation on top of [usvg] crate.
 }
 
 <span class="kw">fn </span>collect_normals(
+    text: <span class="kw-2">&amp;</span>Text,
     chunk: <span class="kw-2">&amp;</span>TextChunk,
     clusters: <span class="kw-2">&amp;</span>[OutlinedCluster],
     path: <span class="kw-2">&amp;</span>tiny_skia_path::Path,
-    pos_list: <span class="kw-2">&amp;</span>[CharacterPosition],
     char_offset: usize,
     offset: f32,
     ts: Transform,
@@ -3473,9 +3425,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
 
             <span class="comment">// Include relative position.
             </span><span class="kw">let </span>cp = char_offset + cluster.byte_idx.code_point_at(<span class="kw-2">&amp;</span>chunk.text);
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(pos) = pos_list.get(cp) {
-                advance += pos.dx.unwrap_or(<span class="number">0.0</span>);
-            }
+            advance += text.dx.get(cp).cloned().unwrap_or(<span class="number">0.0</span>);
 
             <span class="kw">let </span>offset = advance + half_width;
 

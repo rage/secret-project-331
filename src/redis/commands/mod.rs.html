@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.23.3/src/commands/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.24.0/src/commands/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -2137,6 +2137,32 @@
 <a href="#2137" id="2137">2137</a>
 <a href="#2138" id="2138">2138</a>
 <a href="#2139" id="2139">2139</a>
+<a href="#2140" id="2140">2140</a>
+<a href="#2141" id="2141">2141</a>
+<a href="#2142" id="2142">2142</a>
+<a href="#2143" id="2143">2143</a>
+<a href="#2144" id="2144">2144</a>
+<a href="#2145" id="2145">2145</a>
+<a href="#2146" id="2146">2146</a>
+<a href="#2147" id="2147">2147</a>
+<a href="#2148" id="2148">2148</a>
+<a href="#2149" id="2149">2149</a>
+<a href="#2150" id="2150">2150</a>
+<a href="#2151" id="2151">2151</a>
+<a href="#2152" id="2152">2152</a>
+<a href="#2153" id="2153">2153</a>
+<a href="#2154" id="2154">2154</a>
+<a href="#2155" id="2155">2155</a>
+<a href="#2156" id="2156">2156</a>
+<a href="#2157" id="2157">2157</a>
+<a href="#2158" id="2158">2158</a>
+<a href="#2159" id="2159">2159</a>
+<a href="#2160" id="2160">2160</a>
+<a href="#2161" id="2161">2161</a>
+<a href="#2162" id="2162">2162</a>
+<a href="#2163" id="2163">2163</a>
+<a href="#2164" id="2164">2164</a>
+<a href="#2165" id="2165">2165</a>
 </pre></div><pre class="rust"><code><span class="comment">// can&#39;t use rustfmt here because it screws up the file.
 </span><span class="attr">#![cfg_attr(rustfmt, rustfmt_skip)]
 </span><span class="kw">use </span><span class="kw">crate</span>::cmd::{cmd, Cmd, Iter};
@@ -2219,12 +2245,12 @@
     }
 
     <span class="doccomment">/// Set the value and expiration of a key.
-    </span><span class="kw">fn </span>set_ex&lt;K: ToRedisArgs, V: ToRedisArgs&gt;(key: K, value: V, seconds: usize) {
+    </span><span class="kw">fn </span>set_ex&lt;K: ToRedisArgs, V: ToRedisArgs&gt;(key: K, value: V, seconds: u64) {
         cmd(<span class="string">&quot;SETEX&quot;</span>).arg(key).arg(seconds).arg(value)
     }
 
     <span class="doccomment">/// Set the value and expiration in milliseconds of a key.
-    </span><span class="kw">fn </span>pset_ex&lt;K: ToRedisArgs, V: ToRedisArgs&gt;(key: K, value: V, milliseconds: usize) {
+    </span><span class="kw">fn </span>pset_ex&lt;K: ToRedisArgs, V: ToRedisArgs&gt;(key: K, value: V, milliseconds: u64) {
         cmd(<span class="string">&quot;PSETEX&quot;</span>).arg(key).arg(milliseconds).arg(value)
     }
 
@@ -2269,22 +2295,22 @@
     }
 
     <span class="doccomment">/// Set a key&#39;s time to live in seconds.
-    </span><span class="kw">fn </span>expire&lt;K: ToRedisArgs&gt;(key: K, seconds: usize) {
+    </span><span class="kw">fn </span>expire&lt;K: ToRedisArgs&gt;(key: K, seconds: i64) {
         cmd(<span class="string">&quot;EXPIRE&quot;</span>).arg(key).arg(seconds)
     }
 
     <span class="doccomment">/// Set the expiration for a key as a UNIX timestamp.
-    </span><span class="kw">fn </span>expire_at&lt;K: ToRedisArgs&gt;(key: K, ts: usize) {
+    </span><span class="kw">fn </span>expire_at&lt;K: ToRedisArgs&gt;(key: K, ts: i64) {
         cmd(<span class="string">&quot;EXPIREAT&quot;</span>).arg(key).arg(ts)
     }
 
     <span class="doccomment">/// Set a key&#39;s time to live in milliseconds.
-    </span><span class="kw">fn </span>pexpire&lt;K: ToRedisArgs&gt;(key: K, ms: usize) {
+    </span><span class="kw">fn </span>pexpire&lt;K: ToRedisArgs&gt;(key: K, ms: i64) {
         cmd(<span class="string">&quot;PEXPIRE&quot;</span>).arg(key).arg(ms)
     }
 
     <span class="doccomment">/// Set the expiration for a key as a UNIX timestamp in milliseconds.
-    </span><span class="kw">fn </span>pexpire_at&lt;K: ToRedisArgs&gt;(key: K, ts: usize) {
+    </span><span class="kw">fn </span>pexpire_at&lt;K: ToRedisArgs&gt;(key: K, ts: i64) {
         cmd(<span class="string">&quot;PEXPIREAT&quot;</span>).arg(key).arg(ts)
     }
 
@@ -2472,29 +2498,29 @@
 
     </span><span class="doccomment">/// Pop an element from a list, push it to another list
     /// and return it; or block until one is available
-    </span><span class="kw">fn </span>blmove&lt;S: ToRedisArgs, D: ToRedisArgs&gt;(srckey: S, dstkey: D, src_dir: Direction, dst_dir: Direction, timeout: usize) {
+    </span><span class="kw">fn </span>blmove&lt;S: ToRedisArgs, D: ToRedisArgs&gt;(srckey: S, dstkey: D, src_dir: Direction, dst_dir: Direction, timeout: f64) {
         cmd(<span class="string">&quot;BLMOVE&quot;</span>).arg(srckey).arg(dstkey).arg(src_dir).arg(dst_dir).arg(timeout)
     }
 
     <span class="doccomment">/// Pops `count` elements from the first non-empty list key from the list of
     /// provided key names; or blocks until one is available.
-    </span><span class="kw">fn </span>blmpop&lt;K: ToRedisArgs&gt;(timeout: usize, numkeys: usize, key: K, dir: Direction, count: usize){
+    </span><span class="kw">fn </span>blmpop&lt;K: ToRedisArgs&gt;(timeout: f64, numkeys: usize, key: K, dir: Direction, count: usize){
         cmd(<span class="string">&quot;BLMPOP&quot;</span>).arg(timeout).arg(numkeys).arg(key).arg(dir).arg(<span class="string">&quot;COUNT&quot;</span>).arg(count)
     }
 
     <span class="doccomment">/// Remove and get the first element in a list, or block until one is available.
-    </span><span class="kw">fn </span>blpop&lt;K: ToRedisArgs&gt;(key: K, timeout: usize) {
+    </span><span class="kw">fn </span>blpop&lt;K: ToRedisArgs&gt;(key: K, timeout: f64) {
         cmd(<span class="string">&quot;BLPOP&quot;</span>).arg(key).arg(timeout)
     }
 
     <span class="doccomment">/// Remove and get the last element in a list, or block until one is available.
-    </span><span class="kw">fn </span>brpop&lt;K: ToRedisArgs&gt;(key: K, timeout: usize) {
+    </span><span class="kw">fn </span>brpop&lt;K: ToRedisArgs&gt;(key: K, timeout: f64) {
         cmd(<span class="string">&quot;BRPOP&quot;</span>).arg(key).arg(timeout)
     }
 
     <span class="doccomment">/// Pop a value from a list, push it to another list and return it;
     /// or block until one is available.
-    </span><span class="kw">fn </span>brpoplpush&lt;S: ToRedisArgs, D: ToRedisArgs&gt;(srckey: S, dstkey: D, timeout: usize) {
+    </span><span class="kw">fn </span>brpoplpush&lt;S: ToRedisArgs, D: ToRedisArgs&gt;(srckey: S, dstkey: D, timeout: f64) {
         cmd(<span class="string">&quot;BRPOPLPUSH&quot;</span>).arg(srckey).arg(dstkey).arg(timeout)
     }
 
@@ -2751,9 +2777,21 @@
         cmd(<span class="string">&quot;ZLEXCOUNT&quot;</span>).arg(key).arg(min).arg(max)
     }
 
+    <span class="doccomment">/// Removes and returns the member with the highest score in a sorted set.
+    /// Blocks until a member is available otherwise.
+    </span><span class="kw">fn </span>bzpopmax&lt;K: ToRedisArgs&gt;(key: K, timeout: f64) {
+        cmd(<span class="string">&quot;BZPOPMAX&quot;</span>).arg(key).arg(timeout)
+    }
+
     <span class="doccomment">/// Removes and returns up to count members with the highest scores in a sorted set
     </span><span class="kw">fn </span>zpopmax&lt;K: ToRedisArgs&gt;(key: K, count: isize) {
         cmd(<span class="string">&quot;ZPOPMAX&quot;</span>).arg(key).arg(count)
+    }
+
+    <span class="doccomment">/// Removes and returns the member with the lowest score in a sorted set.
+    /// Blocks until a member is available otherwise.
+    </span><span class="kw">fn </span>bzpopmin&lt;K: ToRedisArgs&gt;(key: K, timeout: f64) {
+        cmd(<span class="string">&quot;BZPOPMIN&quot;</span>).arg(key).arg(timeout)
     }
 
     <span class="doccomment">/// Removes and returns up to count members with the lowest scores in a sorted set
@@ -2763,8 +2801,22 @@
 
     <span class="doccomment">/// Removes and returns up to count members with the highest scores,
     /// from the first non-empty sorted set in the provided list of key names.
+    /// Blocks until a member is available otherwise.
+    </span><span class="kw">fn </span>bzmpop_max&lt;K: ToRedisArgs&gt;(timeout: f64, keys: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[K], count: isize) {
+        cmd(<span class="string">&quot;BZMPOP&quot;</span>).arg(timeout).arg(keys.len()).arg(keys).arg(<span class="string">&quot;MAX&quot;</span>).arg(<span class="string">&quot;COUNT&quot;</span>).arg(count)
+    }
+
+    <span class="doccomment">/// Removes and returns up to count members with the highest scores,
+    /// from the first non-empty sorted set in the provided list of key names.
     </span><span class="kw">fn </span>zmpop_max&lt;K: ToRedisArgs&gt;(keys: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[K], count: isize) {
         cmd(<span class="string">&quot;ZMPOP&quot;</span>).arg(keys.len()).arg(keys).arg(<span class="string">&quot;MAX&quot;</span>).arg(<span class="string">&quot;COUNT&quot;</span>).arg(count)
+    }
+
+    <span class="doccomment">/// Removes and returns up to count members with the lowest scores,
+    /// from the first non-empty sorted set in the provided list of key names.
+    /// Blocks until a member is available otherwise.
+    </span><span class="kw">fn </span>bzmpop_min&lt;K: ToRedisArgs&gt;(timeout: f64, keys: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[K], count: isize) {
+        cmd(<span class="string">&quot;BZMPOP&quot;</span>).arg(timeout).arg(keys.len()).arg(keys).arg(<span class="string">&quot;MIN&quot;</span>).arg(<span class="string">&quot;COUNT&quot;</span>).arg(count)
     }
 
     <span class="doccomment">/// Removes and returns up to count members with the lowest scores,
@@ -3899,7 +3951,7 @@
     ///     STREAMS key_1 key_2 ... key_N
     ///     ID_1 ID_2 ... ID_N
     ///
-    /// XREADGROUP [BLOCK &lt;milliseconds&gt;] [COUNT &lt;count&gt;] [NOACK] [GROUP group-name consumer-name]
+    /// XREADGROUP [GROUP group-name consumer-name] [BLOCK &lt;milliseconds&gt;] [COUNT &lt;count&gt;] [NOACK] 
     ///     STREAMS key_1 key_2 ... key_N
     ///     ID_1 ID_2 ... ID_N
     /// ```

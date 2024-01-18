@@ -16,12 +16,12 @@ Content-Type: application/json
 </code></pre></div><h3 id="response-typescript-definition"><a href="#response-typescript-definition">Response TypeScript definition</a></h3><div class="example-wrap"><pre class="language-ts"><code>type Course = {
   id: string
   slug: string
-  created_at: Date
-  updated_at: Date
+  created_at: string
+  updated_at: string
   name: string
   description: string | null
   organization_id: string
-  deleted_at: Date | null
+  deleted_at: string | null
   language_code: string
   copied_from: string | null
   content_search_language: string | null

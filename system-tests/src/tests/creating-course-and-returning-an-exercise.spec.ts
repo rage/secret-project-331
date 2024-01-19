@@ -173,5 +173,6 @@ test("Creating a course an returning an exercise works", async ({ page }) => {
 
   await page.locator("#content >> text=Submit").click()
 
+  await page.locator("text=Points").waitFor()
   await page.waitForSelector("text=1/1")
 })

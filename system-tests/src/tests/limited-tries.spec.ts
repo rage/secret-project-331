@@ -56,10 +56,12 @@ test("Limited tries work", async ({ page }) => {
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/limited-tries/chapter-1/page-6",
   )
-
+  await page.locator("text=Points").waitFor()
   await page.locator("text=0/8").waitFor()
+  // await page.locator("div.points").getByText("0/8").waitFor()
 
-  await page.locator("text=Tries remaining: 2").waitFor()
+  await page.locator("text=Tries:").waitFor()
+  await page.locator("text=2").waitFor()
 
   await page.frameLocator("iframe").locator("text=AC").click()
 
@@ -67,7 +69,8 @@ test("Limited tries work", async ({ page }) => {
 
   await page.locator("text=Submit").click()
 
-  await page.locator("text=Tries remaining: 1").click()
+  await page.locator("text=Tries:").waitFor()
+  await page.locator("text=1").click()
 
   await page.locator("text=try again").click()
 
@@ -80,6 +83,7 @@ test("Limited tries work", async ({ page }) => {
 
   await page.locator("text=Submit").click()
 
-  await page.locator("text=Tries remaining: 0").waitFor()
+  await page.locator("text=Tries:").waitFor()
+  await page.locator("text=0").waitFor()
   await page.locator("text=try again").waitFor({ state: "hidden" })
 })

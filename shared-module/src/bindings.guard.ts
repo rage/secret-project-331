@@ -2791,7 +2791,8 @@ export function isUserRole(obj: unknown): obj is UserRole {
     typedObj === "Admin" ||
     typedObj === "CourseOrExamCreator" ||
     typedObj === "MaterialViewer" ||
-    typedObj === "TeachingAndLearningServices"
+    typedObj === "TeachingAndLearningServices" ||
+    typedObj === "StatsViewer"
   )
 }
 

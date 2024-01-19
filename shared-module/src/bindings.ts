@@ -1557,6 +1557,7 @@ export type UserRole =
   | "CourseOrExamCreator"
   | "MaterialViewer"
   | "TeachingAndLearningServices"
+  | "StatsViewer"
 
 export interface StudentCountry {
   id: string

@@ -331,7 +331,7 @@ const ExerciseBlock: React.FC<
                       font-weight: 500;
                       font-size: 18px;
                       line-height: 19px;
-                      opacity: 0.95;
+                      color: #ffffff;
                     `}
                   >
                     {t("label-exercise")}:

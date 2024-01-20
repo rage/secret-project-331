@@ -404,6 +404,10 @@ const ExerciseBlock: React.FC<
                       font-weight: 500;
                       line-height: 0.8;
                     }
+
+                    p {
+                      font-size: 16px;
+                    }
                   `}
                 >
                   {limit_number_of_tries && maxTries !== null && triesRemaining !== null && (
@@ -412,7 +416,7 @@ const ExerciseBlock: React.FC<
                         display: block;
                       `}
                     >
-                      <p className="heading">{t("tries")}</p>
+                      <span className="heading">{t("tries")}</span>
                       <div className="tries">
                         <PlusHeart size={16} weight="bold" color="#394F77" />
                         <p>{triesRemaining}</p>
@@ -426,7 +430,9 @@ const ExerciseBlock: React.FC<
                   ) : (
                     <div>
                       <span className="heading">{t("points-label")}</span>
-                      <div className="points">
+                      <div
+                      className="points"
+                      >
                         <CheckCircle size={16} weight="bold" color="#394F77" />
                         <sup>{points ?? 0}</sup>&frasl;
                         <sub>{getCourseMaterialExercise.data.exercise.score_maximum}</sub>

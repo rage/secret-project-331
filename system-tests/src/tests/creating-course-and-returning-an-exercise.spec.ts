@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test"
+import { test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectUrlPathWithRandomUuid from "../utils/expect"
@@ -173,11 +173,10 @@ test("Creating a course an returning an exercise works", async ({ page }) => {
 
   await page.locator("#content >> text=Submit").click()
 
-
   // await page.waitForSelector("text=POINTS")
   // await page.waitForSelector("text=1⁄1")
   await Promise.all([
     page.waitForSelector('span.heading:has-text("POINTS")'),
-    page.waitForSelector('div.points:has-text("1⁄1")')
-  ]);
+    page.waitForSelector('div.points:has-text("1⁄1")'),
+  ])
 })

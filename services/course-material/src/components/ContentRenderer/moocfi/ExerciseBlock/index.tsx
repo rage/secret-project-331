@@ -430,9 +430,7 @@ const ExerciseBlock: React.FC<
                   ) : (
                     <div>
                       <span className="heading">{t("points-label")}</span>
-                      <div
-                      className="points"
-                      >
+                      <div className="points">
                         <CheckCircle size={16} weight="bold" color="#394F77" />
                         <sup>{points ?? 0}</sup>&frasl;
                         <sub>{getCourseMaterialExercise.data.exercise.score_maximum}</sub>

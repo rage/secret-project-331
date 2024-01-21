@@ -61,12 +61,11 @@ test("Limited tries work", async ({ page }) => {
   // await page.locator("div.points").getByText("0/8").waitFor()
   await Promise.all([
     page.waitForSelector('span.heading:has-text("POINTS")'),
-    page.waitForSelector('div.points:has-text("0⁄8")')
-  ]);
+    page.waitForSelector('div.points:has-text("0⁄8")'),
+  ])
 
   // await page.locator("text=Tries remaining: 2").waitFor()
   await page.waitForSelector('div.tries:has-text("2")')
-
 
   await page.frameLocator("iframe").locator("text=AC").click()
 
@@ -76,7 +75,6 @@ test("Limited tries work", async ({ page }) => {
 
   // await page.locator("text=Tries remaining: 1").click()
   await page.waitForSelector('div.tries:has-text("1")')
-
 
   await page.locator("text=try again").click()
 

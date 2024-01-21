@@ -31,12 +31,13 @@ test("quizzes open feedback", async ({ page, headless }, testInfo) => {
   )
   await page
     .frameLocator("iframe")
-    .locator('text=What is this? 12345 >> [aria-label="\\34 "]')
-    .check()
-  await page.frameLocator("iframe").locator('text=12345678 >> [aria-label="\\33 "]').check()
+    .locator('text=What is this? 12345 >> span:has-text("4")')
+    .click()
+  // ('text=What is this? 12345 >> input:has-text("4")')
+  await page.frameLocator("iframe").locator('text=12345678 >> span:has-text("3")').check()
   await page
     .frameLocator("iframe")
-    .locator('text=Please rate this 12 >> [aria-label="\\31 "]')
+    .locator('text=Please rate this 12 >> span:has-text("1")')
     .check()
   await page.locator("text=Submit").click()
   await page.frameLocator("iframe").locator(`input[aria-label="3"]:disabled`).first().waitFor()

@@ -6,7 +6,7 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test.only("Limited tries work", async ({ page }) => {
+test("Limited tries work", async ({ page }) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([

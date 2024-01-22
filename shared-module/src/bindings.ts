@@ -795,12 +795,24 @@ export interface ExerciseStatusSummaryForUser {
 }
 
 export interface GlobalStatEntry {
-  name: string
+  course_name: string
   course_id: string
   organization_id: string
   organization_name: string
   year: string
   value: number
+}
+
+export interface GlobalCourseModuleStatEntry {
+  course_name: string
+  course_id: string
+  course_module_id: string
+  course_module_name: string | null
+  organization_id: string
+  organization_name: string
+  year: string
+  value: number
+  course_module_ects_credits: number | null
 }
 
 export interface ExerciseGradingStatus {

@@ -120,6 +120,8 @@ test("manage course structure works", async ({ page, headless }, testInfo) => {
 
   await page.waitForSelector("text=Operation successful!")
 
+  await page.reload()
+
   await page.click('text=Chapter 1: The Basics >> [aria-label="Dropdown\\ menu"]')
 
   await page.locator("text=Move down").click()

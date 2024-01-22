@@ -1,5 +1,8 @@
-import { GlobalStatEntry } from "../../shared-module/bindings"
-import { isGlobalStatEntry } from "../../shared-module/bindings.guard"
+import { GlobalCourseModuleStatEntry, GlobalStatEntry } from "../../shared-module/bindings"
+import {
+  isGlobalCourseModuleStatEntry,
+  isGlobalStatEntry,
+} from "../../shared-module/bindings.guard"
 import { isArray, validateResponse } from "../../shared-module/utils/fetching"
 import { mainFrontendClient } from "../mainFrontendClient"
 
@@ -27,4 +30,13 @@ export const getNumberOfPeopleDoneAtLeastOneExercise = async (): Promise<GlobalS
 export const getnumberOfPeopleStartedCourse = async (): Promise<GlobalStatEntry[]> => {
   const response = await mainFrontendClient.get(`/global-stats/number-of-people-started-course`)
   return validateResponse(response, isArray(isGlobalStatEntry))
+}
+
+export const getCourseModuleStatsByCompletionsRegisteredToStudyRegistry = async (): Promise<
+  GlobalCourseModuleStatEntry[]
+> => {
+  const response = await mainFrontendClient.get(
+    `/global-stats/course-module-stats-by-completions-registered-to-study-registry`,
+  )
+  return validateResponse(response, isArray(isGlobalCourseModuleStatEntry))
 }

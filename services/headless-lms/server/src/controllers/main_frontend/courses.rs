@@ -484,7 +484,7 @@ async fn get_daily_submission_counts(
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
-        Act::Teach,
+        Act::ViewStats,
         Some(user.id),
         Res::Course(*course_id),
     )
@@ -510,7 +510,7 @@ async fn get_daily_user_counts_with_submissions(
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
-        Act::Teach,
+        Act::ViewStats,
         Some(user.id),
         Res::Course(*course_id),
     )
@@ -537,7 +537,7 @@ async fn get_weekday_hour_submission_counts(
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
-        Act::Teach,
+        Act::ViewStats,
         Some(user.id),
         Res::Course(*course_id),
     )
@@ -564,7 +564,7 @@ async fn get_submission_counts_by_exercise(
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
-        Act::Teach,
+        Act::ViewStats,
         Some(user.id),
         Res::Course(*course_id),
     )
@@ -745,7 +745,13 @@ pub async fn get_course_users_counts_by_exercise(
 ) -> ControllerResult<web::Json<Vec<ExerciseUserCounts>>> {
     let mut conn = pool.acquire().await?;
     let course_id = course_id.into_inner();
-    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewStats,
+        Some(user.id),
+        Res::Course(course_id),
+    )
+    .await?;
 
     let res =
         models::user_exercise_states::get_course_users_counts_by_exercise(&mut conn, course_id)
@@ -1087,7 +1093,13 @@ pub async fn get_page_visit_datum_summary(
 ) -> ControllerResult<web::Json<Vec<PageVisitDatumSummaryByCourse>>> {
     let mut conn = pool.acquire().await?;
     let course_id = course_id.into_inner();
-    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewStats,
+        Some(user.id),
+        Res::Course(course_id),
+    )
+    .await?;
 
     let res = models::page_visit_datum_summary_by_courses::get_all_for_course(&mut conn, course_id)
         .await?;
@@ -1106,7 +1118,13 @@ pub async fn get_page_visit_datum_summary_by_pages(
 ) -> ControllerResult<web::Json<Vec<PageVisitDatumSummaryByPages>>> {
     let mut conn = pool.acquire().await?;
     let course_id = course_id.into_inner();
-    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewStats,
+        Some(user.id),
+        Res::Course(course_id),
+    )
+    .await?;
 
     let res =
         models::page_visit_datum_summary_by_pages::get_all_for_course(&mut conn, course_id).await?;
@@ -1125,7 +1143,13 @@ pub async fn get_page_visit_datum_summary_by_device_types(
 ) -> ControllerResult<web::Json<Vec<PageVisitDatumSummaryByCourseDeviceTypes>>> {
     let mut conn = pool.acquire().await?;
     let course_id = course_id.into_inner();
-    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewStats,
+        Some(user.id),
+        Res::Course(course_id),
+    )
+    .await?;
 
     let res = models::page_visit_datum_summary_by_courses_device_types::get_all_for_course(
         &mut conn, course_id,
@@ -1146,7 +1170,13 @@ pub async fn get_page_visit_datum_summary_by_countries(
 ) -> ControllerResult<web::Json<Vec<PageVisitDatumSummaryByCoursesCountries>>> {
     let mut conn = pool.acquire().await?;
     let course_id = course_id.into_inner();
-    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewStats,
+        Some(user.id),
+        Res::Course(course_id),
+    )
+    .await?;
 
     let res = models::page_visit_datum_summary_by_courses_countries::get_all_for_course(
         &mut conn, course_id,

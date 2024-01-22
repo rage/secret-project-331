@@ -24,6 +24,7 @@ const ChapterPointsDashboard: React.FC<ChapterPointDashboardProps> = ({
     <div
       className={css`
         margin-top: 51px;
+        margin-bottom: 67px;
         padding: 44px 57px 49px 57px;
 
         background: #ffffff;

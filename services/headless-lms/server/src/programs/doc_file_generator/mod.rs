@@ -124,7 +124,7 @@ use headless_lms_models::{
     courses::CourseBreadcrumbInfo,
     exercise_task_submissions::PeerReviewsRecieved,
     exercises::ExerciseStatusSummaryForUser,
-    library::global_stats::GlobalStatEntry,
+    library::global_stats::{GlobalCourseModuleStatEntry, GlobalStatEntry},
     page_audio_files::PageAudioFile,
     page_visit_datum_summary_by_courses::PageVisitDatumSummaryByCourse,
     page_visit_datum_summary_by_courses_countries::PageVisitDatumSummaryByCoursesCountries,
@@ -1788,9 +1788,23 @@ fn models() {
     doc!(
         Vec,
         GlobalStatEntry {
-            name: "Introduction to everything".to_string(),
+            course_name: "Introduction to everything".to_string(),
             course_id,
             organization_id,
+            organization_name: "University of Helsinki, Department of Computer Science".to_string(),
+            year: "2024".to_string(),
+            value: 632,
+        }
+    );
+    doc!(
+        Vec,
+        GlobalCourseModuleStatEntry {
+            course_name: "Introduction to everything".to_string(),
+            course_id,
+            organization_id,
+            course_module_id,
+            course_module_name: Some("Bonus module 1".to_string()),
+            course_module_ects_credits: Some(5),
             organization_name: "University of Helsinki, Department of Computer Science".to_string(),
             year: "2024".to_string(),
             value: 632,

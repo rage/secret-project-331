@@ -11,6 +11,7 @@ pub enum UserRole {
     CourseOrExamCreator,
     MaterialViewer,
     TeachingAndLearningServices,
+    StatsViewer,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]

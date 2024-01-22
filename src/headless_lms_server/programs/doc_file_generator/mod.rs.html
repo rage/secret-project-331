@@ -1818,6 +1818,20 @@
 <a href="#1818" id="1818">1818</a>
 <a href="#1819" id="1819">1819</a>
 <a href="#1820" id="1820">1820</a>
+<a href="#1821" id="1821">1821</a>
+<a href="#1822" id="1822">1822</a>
+<a href="#1823" id="1823">1823</a>
+<a href="#1824" id="1824">1824</a>
+<a href="#1825" id="1825">1825</a>
+<a href="#1826" id="1826">1826</a>
+<a href="#1827" id="1827">1827</a>
+<a href="#1828" id="1828">1828</a>
+<a href="#1829" id="1829">1829</a>
+<a href="#1830" id="1830">1830</a>
+<a href="#1831" id="1831">1831</a>
+<a href="#1832" id="1832">1832</a>
+<a href="#1833" id="1833">1833</a>
+<a href="#1834" id="1834">1834</a>
 </pre></div><pre class="rust"><code><span class="doccomment">/*! The doc file generator is used to write example JSON and TypeScript definitions for the docs of return values of API endpoints.
 
 This is done by writing .json and .ts files that can be discovered by the #[generated_doc] attribute macro that is used by API endpoints.
@@ -1944,7 +1958,7 @@ This method is mainly useful for external/std types. For example, we cannot writ
     courses::CourseBreadcrumbInfo,
     exercise_task_submissions::PeerReviewsRecieved,
     exercises::ExerciseStatusSummaryForUser,
-    library::global_stats::GlobalStatEntry,
+    library::global_stats::{GlobalCourseModuleStatEntry, GlobalStatEntry},
     page_audio_files::PageAudioFile,
     page_visit_datum_summary_by_courses::PageVisitDatumSummaryByCourse,
     page_visit_datum_summary_by_courses_countries::PageVisitDatumSummaryByCoursesCountries,
@@ -3608,9 +3622,23 @@ This method is mainly useful for external/std types. For example, we cannot writ
     <span class="macro">doc!</span>(
         Vec,
         GlobalStatEntry {
-            name: <span class="string">&quot;Introduction to everything&quot;</span>.to_string(),
+            course_name: <span class="string">&quot;Introduction to everything&quot;</span>.to_string(),
             course_id,
             organization_id,
+            organization_name: <span class="string">&quot;University of Helsinki, Department of Computer Science&quot;</span>.to_string(),
+            year: <span class="string">&quot;2024&quot;</span>.to_string(),
+            value: <span class="number">632</span>,
+        }
+    );
+    <span class="macro">doc!</span>(
+        Vec,
+        GlobalCourseModuleStatEntry {
+            course_name: <span class="string">&quot;Introduction to everything&quot;</span>.to_string(),
+            course_id,
+            organization_id,
+            course_module_id,
+            course_module_name: <span class="prelude-val">Some</span>(<span class="string">&quot;Bonus module 1&quot;</span>.to_string()),
+            course_module_ects_credits: <span class="prelude-val">Some</span>(<span class="number">5</span>),
             organization_name: <span class="string">&quot;University of Helsinki, Department of Computer Science&quot;</span>.to_string(),
             year: <span class="string">&quot;2024&quot;</span>.to_string(),
             value: <span class="number">632</span>,

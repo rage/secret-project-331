@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["_add_routes","get_number_of_people_completed_a_course","get_number_of_people_done_at_least_one_exercise","get_number_of_people_registered_completion_to_study_registry","get_number_of_people_started_course"]};
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","get_course_module_stats_by_completions_registered_to_study_registry","get_number_of_people_completed_a_course","get_number_of_people_done_at_least_one_exercise","get_number_of_people_registered_completion_to_study_registry","get_number_of_people_started_course"]};

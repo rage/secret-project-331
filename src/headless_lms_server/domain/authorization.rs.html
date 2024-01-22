@@ -1035,6 +1035,8 @@
 <a href="#1035" id="1035">1035</a>
 <a href="#1036" id="1036">1036</a>
 <a href="#1037" id="1037">1037</a>
+<a href="#1038" id="1038">1038</a>
+<a href="#1039" id="1039">1039</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Common functionality related to authorization
 
 </span><span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
@@ -1669,12 +1671,13 @@ token.authorized_ok(web::Json(cms_page_info))
                 | Grade
                 | Duplicate
                 | DeleteAnswer
-                | EditRole(Teacher | Assistant | Reviewer | MaterialViewer)
+                | EditRole(Teacher | Assistant | Reviewer | MaterialViewer | StatsViewer)
                 | CreateCoursesOrExams
                 | ViewMaterial
                 | UploadFile
                 | ViewUserProgressOrDetails
                 | ViewInternalCourseStructure
+                | ViewStats
         ),
         Assistant =&gt; <span class="macro">matches!</span>(
             action,
@@ -1699,6 +1702,7 @@ token.authorized_ok(web::Json(cms_page_info))
                 View | ViewMaterial | ViewUserProgressOrDetails | ViewInternalCourseStructure
             )
         }
+        StatsViewer =&gt; <span class="macro">matches!</span>(action, ViewStats),
     }
 }
 

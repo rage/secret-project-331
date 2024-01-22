@@ -5,7 +5,7 @@
 <li>GET <code>/api/v0/main-frontend/global-stats/number-of-people-done-at-least-one-exercise</code></li>
 </ul>
 <h3 id="response-typescript-definition"><a href="#response-typescript-definition">Response TypeScript definition</a></h3><div class="example-wrap"><pre class="language-ts"><code>type Vec&lt;GlobalStatEntry&gt; = Array&lt;{
-  name: string
+  course_name: string
   course_id: string
   organization_id: string
   organization_name: string
@@ -15,7 +15,7 @@
 
 </code></pre></div><h3 id="example-response"><a href="#example-response">Example response</a></h3><div class="example-wrap"><pre class="language-json"><code>[
   {
-    &quot;name&quot;: &quot;Introduction to everything&quot;,
+    &quot;course_name&quot;: &quot;Introduction to everything&quot;,
     &quot;course_id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
     &quot;organization_id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
     &quot;organization_name&quot;: &quot;University of Helsinki, Department of Computer Science&quot;,

@@ -155,17 +155,96 @@
 <a href="#155" id="155">155</a>
 <a href="#156" id="156">156</a>
 <a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>GlobalStatEntry {
-    <span class="kw">pub </span>name: String,
+    <span class="kw">pub </span>course_name: String,
     <span class="kw">pub </span>course_id: Uuid,
     <span class="kw">pub </span>organization_id: Uuid,
     <span class="kw">pub </span>organization_name: String,
     <span class="kw">pub </span>year: String,
     <span class="kw">pub </span>value: i64,
+}
+
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>GlobalCourseModuleStatEntry {
+    <span class="kw">pub </span>course_name: String,
+    <span class="kw">pub </span>course_id: Uuid,
+    <span class="kw">pub </span>course_module_id: Uuid,
+    <span class="kw">pub </span>course_module_name: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>organization_id: Uuid,
+    <span class="kw">pub </span>organization_name: String,
+    <span class="kw">pub </span>year: String,
+    <span class="kw">pub </span>value: i64,
+    <span class="kw">pub </span>course_module_ects_credits: <span class="prelude-ty">Option</span>&lt;i32&gt;,
 }
 
 <span class="kw">pub async fn </span>get_number_of_people_completed_a_course(
@@ -174,7 +253,7 @@
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         GlobalStatEntry,
         <span class="string">r#&quot;
-SELECT c.name,
+SELECT c.name AS course_name,
   q.year as &quot;year!&quot;,
   q.value as &quot;value!&quot;,
   q.course_id as &quot;course_id!&quot;,
@@ -196,7 +275,9 @@ FROM (
   ) q
   JOIN courses c ON q.course_id = c.id
   JOIN organizations o ON c.organization_id = o.id
-  AND c.is_draft = FALSE;
+WHERE c.is_draft = FALSE
+  AND c.deleted_at IS NULL
+  AND c.is_test_mode = FALSE
 &quot;#</span>,
     )
     .fetch_all(conn)
@@ -210,7 +291,7 @@ FROM (
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         GlobalStatEntry,
         <span class="string">r#&quot;
-SELECT c.name,
+SELECT c.name AS course_name,
   q.year as &quot;year!&quot;,
   q.value as &quot;value!&quot;,
   q.course_id as &quot;course_id!&quot;,
@@ -232,8 +313,10 @@ FROM (
       year
   ) q
   JOIN courses c ON q.course_id = c.id
-  AND c.is_draft = FALSE
   JOIN organizations o ON c.organization_id = o.id
+WHERE c.is_draft = FALSE
+  AND c.deleted_at IS NULL
+  AND c.is_test_mode = FALSE
 &quot;#</span>,
     )
     .fetch_all(conn)
@@ -247,7 +330,7 @@ FROM (
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         GlobalStatEntry,
         <span class="string">r#&quot;
-SELECT c.name,
+SELECT c.name AS course_name,
   q.year as &quot;year!&quot;,
   q.value as &quot;value!&quot;,
   q.course_id as &quot;course_id!&quot;,
@@ -268,8 +351,10 @@ FROM (
       year
   ) q
   JOIN courses c ON q.course_id = c.id
-  AND c.is_draft = FALSE
   JOIN organizations o ON c.organization_id = o.id
+WHERE c.is_draft = FALSE
+  AND c.deleted_at IS NULL
+  AND c.is_test_mode = FALSE
 &quot;#</span>,
     )
     .fetch_all(conn)
@@ -283,7 +368,7 @@ FROM (
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         GlobalStatEntry,
         <span class="string">r#&quot;
-SELECT c.name,
+SELECT c.name AS course_name,
   q.year as &quot;year!&quot;,
   q.value as &quot;value!&quot;,
   q.course_id as &quot;course_id!&quot;,
@@ -304,8 +389,53 @@ FROM (
       year
   ) q
   JOIN courses c ON q.course_id = c.id
-  AND c.is_draft = FALSE
   JOIN organizations o ON c.organization_id = o.id
+WHERE c.is_draft = FALSE
+  AND c.deleted_at IS NULL
+  AND c.is_test_mode = FALSE
+&quot;#</span>,
+    )
+    .fetch_all(conn)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(res)
+}
+
+<span class="kw">pub async fn </span>get_course_module_stats_by_completions_registered_to_study_registry(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+) -&gt; ModelResult&lt;Vec&lt;GlobalCourseModuleStatEntry&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        GlobalCourseModuleStatEntry,
+        <span class="string">r#&quot;
+SELECT c.name as course_name,
+  q.year as &quot;year!&quot;,
+  q.value as &quot;value!&quot;,
+  q.course_module_id as &quot;course_module_id!&quot;,
+  c.id as &quot;course_id&quot;,
+  cm.name as &quot;course_module_name&quot;,
+  cm.ects_credits as &quot;course_module_ects_credits&quot;,
+  o.id as &quot;organization_id&quot;,
+  o.name as &quot;organization_name&quot;
+FROM (
+    SELECT cmcrtsr.course_module_id,
+      EXTRACT(
+        &#39;year&#39;
+        FROM cms.completion_date
+      )::VARCHAR as year,
+      COUNT(DISTINCT cmcrtsr.user_id) as value
+    FROM course_module_completion_registered_to_study_registries cmcrtsr
+      JOIN course_module_completions cms ON cmcrtsr.course_module_completion_id = cms.id
+    WHERE cmcrtsr.deleted_at IS NULL
+    GROUP BY cmcrtsr.course_module_id,
+      year
+    ORDER BY cmcrtsr.course_module_id,
+      year
+  ) q
+  JOIN course_modules cm ON q.course_module_id = cm.id
+  JOIN courses c ON cm.course_id = c.id
+  JOIN organizations o ON c.organization_id = o.id
+WHERE c.is_draft = FALSE
+  AND c.deleted_at IS NULL
+  AND c.is_test_mode = FALSE
 &quot;#</span>,
     )
     .fetch_all(conn)

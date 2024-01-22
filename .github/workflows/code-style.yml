@@ -16,7 +16,5 @@ jobs:
         run: npm run eslint:ci
       - name: Stylelint
         run: npm run lint:css
-      - name: Update rust to get edition 2021 support
-        run: rustup update stable
       - name: Cargo fmt
         run: cargo fmt --manifest-path services/headless-lms/Cargo.toml --all -- --files-with-diff --check

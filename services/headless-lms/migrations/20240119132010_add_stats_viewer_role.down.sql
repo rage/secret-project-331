@@ -1,5 +1,5 @@
 DELETE FROM roles
-WHERE role = 'teaching_and_learning_services';
+WHERE role = 'stats_viewer';
 ALTER TYPE user_role
 RENAME TO user_role_old;
 CREATE TYPE user_role AS ENUM(

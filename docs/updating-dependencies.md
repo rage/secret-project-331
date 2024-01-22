@@ -27,6 +27,8 @@ Start by upgrading the dependencies in the root of the repo and run `npm run esl
 
 ## Update rust dependencies
 
+Update the `channel` in `rust-toolchain.toml` to the latest stable version (https://forge.rust-lang.org/).
+
 Make sure you have [cargo-edit](https://github.com/killercup/cargo-edit) installed. After that, run the following commands:
 
 ```bash

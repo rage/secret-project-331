@@ -187,7 +187,7 @@ const MultipleChoiceSubmission: React.FC<
                             font-weight: bold;
                             padding: 0.3125rem 0.375rem 0.25rem 0.375rem;
                             border-radius: 0.125rem;
-                            color: #fff;
+                            color: #14261C;
                           `}
                         >
                           {t("correct-option")}
@@ -202,7 +202,7 @@ const MultipleChoiceSubmission: React.FC<
                             font-weight: bold;
                             padding: 0.3125rem 0.375rem 0.25rem 0.375rem;
                             border-radius: 0.125rem;
-                            color: #d85762;
+                            color: #B12632;
                           `}
                         >
                           {t("incorrect-option")}

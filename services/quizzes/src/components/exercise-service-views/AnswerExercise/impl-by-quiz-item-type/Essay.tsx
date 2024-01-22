@@ -128,7 +128,6 @@ const Essay: React.FunctionComponent<
             color: #4c5868;
             font-family: ${headingFont};
             font-weight: 500;
-            opacity: 0.8;
           `}
         >
           {t("word-count")}:

@@ -67,7 +67,7 @@ const SelectMenu = ({
             min-height: 40px;
             grid-template-areas: "select";
             align-items: center;
-            color: #7e8894;
+            color: #4C5868;
             appearance: none;
             background: transparent;
 

@@ -56,7 +56,7 @@ export const optionButton = css`
     rgba(45, 35, 66, 0) 0 2px 4px,
     rgba(45, 35, 66, 0) 0 7px 13px -3px,
     #69af8a 0 -3px 0 inset;
-  color: #ffffff;
+  color: #313B49;
   font-weight: medium;
   cursor: pointer;
   display: flex;
@@ -361,7 +361,7 @@ const ExerciseBlock: React.FC<
                     min-width: 80px;
                     padding: 8px 16px 6px 16px;
                     width: auto;
-                    color: #949aa3;
+                    color: #57606f;
                     display: flex;
                     flex-direction: columns;
                     gap: 16px;

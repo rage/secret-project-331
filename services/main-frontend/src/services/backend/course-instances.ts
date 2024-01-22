@@ -29,9 +29,7 @@ import { isArray, validateResponse } from "../../shared-module/utils/fetching"
 import { mainFrontendClient } from "../mainFrontendClient"
 
 export const fetchCourseInstance = async (courseInstanceId: string): Promise<CourseInstance> => {
-  const response = await mainFrontendClient.get(`/course-instances/${courseInstanceId}`, {
-    responseType: "json",
-  })
+  const response = await mainFrontendClient.get(`/course-instances/${courseInstanceId}`)
   return validateResponse(response, isCourseInstance)
 }
 
@@ -42,9 +40,6 @@ export const postNewEmailTemplateForCourseInstance = async (
   const response = await mainFrontendClient.post(
     `/course-instances/${courseInstanceId}/email-templates`,
     data,
-    {
-      headers: { "Content-Type": "application/json" },
-    },
   )
   return validateResponse(response, isEmailTemplate)
 }
@@ -63,9 +58,6 @@ export const fetchCourseInstanceEmailTemplates = async (
 ): Promise<EmailTemplate[]> => {
   const response = await mainFrontendClient.get(
     `/course-instances/${courseInstanceId}/email-templates`,
-    {
-      responseType: "json",
-    },
   )
   return validateResponse(response, isArray(isEmailTemplate))
 }
@@ -73,12 +65,7 @@ export const fetchCourseInstanceEmailTemplates = async (
 export const getCompletions = async (
   courseInstanceId: string,
 ): Promise<CourseInstanceCompletionSummary> => {
-  const response = await mainFrontendClient.get(
-    `/course-instances/${courseInstanceId}/completions`,
-    {
-      responseType: "json",
-    },
-  )
+  const response = await mainFrontendClient.get(`/course-instances/${courseInstanceId}/completions`)
   return validateResponse(response, isCourseInstanceCompletionSummary)
 }
 
@@ -105,9 +92,7 @@ export const postCompletions = async (
 }
 
 export const getPoints = async (courseInstanceId: string): Promise<Points> => {
-  const response = await mainFrontendClient.get(`/course-instances/${courseInstanceId}/points`, {
-    responseType: "json",
-  })
+  const response = await mainFrontendClient.get(`/course-instances/${courseInstanceId}/points`)
   return validateResponse(response, isPoints)
 }
 
@@ -117,9 +102,6 @@ export const getAllExerciseStatusSummariesForUserAndCourseInstance = async (
 ): Promise<ExerciseStatusSummaryForUser[]> => {
   const response = await mainFrontendClient.get(
     `/course-instances/${courseInstanceId}/status-for-all-exercises/${userId}`,
-    {
-      responseType: "json",
-    },
   )
   return validateResponse(response, isArray(isExerciseStatusSummaryForUser))
 }
@@ -130,9 +112,6 @@ export const getAllCourseModuleCompletionsForUserAndCourseInstance = async (
 ): Promise<CourseModuleCompletion[]> => {
   const response = await mainFrontendClient.get(
     `/course-instances/${courseInstanceId}/course-module-completions/${userId}`,
-    {
-      responseType: "json",
-    },
   )
   return validateResponse(response, isArray(isCourseModuleCompletion))
 }
@@ -143,9 +122,6 @@ export const getUserProgressForCourseInstance = async (
 ): Promise<UserCourseInstanceProgress[]> => {
   const response = await mainFrontendClient.get(
     `/course-instances/${courseInstanceId}/progress/${userId}`,
-    {
-      responseType: "json",
-    },
   )
   return validateResponse(response, isArray(isUserCourseInstanceProgress))
 }
@@ -154,9 +130,7 @@ export const editCourseInstance = async (
   courseInstanceId: string,
   update: CourseInstanceForm,
 ): Promise<void> => {
-  await mainFrontendClient.post(`/course-instances/${courseInstanceId}/edit`, update, {
-    responseType: "json",
-  })
+  await mainFrontendClient.post(`/course-instances/${courseInstanceId}/edit`, update)
 }
 
 export const deleteCourseInstance = async (courseInstanceId: string): Promise<void> => {

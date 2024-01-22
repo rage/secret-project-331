@@ -17,6 +17,7 @@ pub mod exercise_services;
 pub mod exercise_slide_submissions;
 pub mod exercises;
 pub mod feedback;
+pub mod global_stats;
 pub mod glossary;
 pub mod org;
 pub mod organizations;
@@ -60,5 +61,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .service(web::scope("/playground-views").configure(playground_views::_add_routes))
         .service(web::scope("/page_audio").configure(page_audio_files::_add_routes))
         .service(web::scope("/user-details").configure(user_details::_add_routes))
-        .service(web::scope("/certificates").configure(certificates::_add_routes));
+        .service(web::scope("/certificates").configure(certificates::_add_routes))
+        .service(web::scope("/global-stats").configure(global_stats::_add_routes));
 }

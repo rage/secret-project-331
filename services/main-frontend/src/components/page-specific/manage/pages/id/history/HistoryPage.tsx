@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
+import { parseISO } from "date-fns"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -61,7 +62,7 @@ const HistoryPage: React.FC<React.PropsWithChildren<Props>> = ({
           >
             <hr />
             <div>
-              {h.id} ({h.created_at.toDateString()})
+              {h.id} ({parseISO(h.created_at).toDateString()})
             </div>
             <div>
               {h.history_change_reason === "PageSaved" &&

@@ -1,1 +1,1 @@
-type i64 = bigint
+type i64 = number

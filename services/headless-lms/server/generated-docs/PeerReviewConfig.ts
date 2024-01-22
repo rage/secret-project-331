@@ -1,8 +1,8 @@
 type PeerReviewConfig = {
   id: string
-  created_at: Date
-  updated_at: Date
-  deleted_at: Date | null
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
   course_id: string
   exercise_id: string | null
   peer_reviews_to_give: number

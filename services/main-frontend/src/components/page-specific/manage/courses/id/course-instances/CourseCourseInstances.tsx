@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
+import { parseISO } from "date-fns"
 import Link from "next/link"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -60,7 +61,7 @@ const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPa
           </h2>
           <ul>
             {getCourseInstances.data
-              .sort((a, b) => b.created_at.getTime() - a.created_at.getTime())
+              .sort((a, b) => parseISO(b.created_at).getTime() - parseISO(a.created_at).getTime())
               .map((instance) => {
                 const name = instance.name ?? t("default-course-instance-name")
                 return (

@@ -1,8 +1,8 @@
 type Vec<PageVisitDatumSummaryByCourseDeviceTypes> = Array<{
   id: string
-  created_at: Date
-  updated_at: Date
-  deleted_at: Date | null
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
   browser: string | null
   browser_version: string | null
   operating_system: string | null

@@ -77,6 +77,8 @@ test("manage course structure works", async ({ page, headless }, testInfo) => {
   await page.locator("text=Delete").click()
 
   await page.click('button:text-is("Save")')
+  await page.waitForSelector("text=Operation successful!")
+  await page.reload()
 
   await page
     .getByRole("heading", { name: "Chapter 2: The intermediaries Dropdown menu" })
@@ -119,8 +121,6 @@ test("manage course structure works", async ({ page, headless }, testInfo) => {
   await page.click('button:text-is("Save")')
 
   await page.waitForSelector("text=Operation successful!")
-
-  await page.reload()
 
   await page.click('text=Chapter 1: The Basics >> [aria-label="Dropdown\\ menu"]')
 

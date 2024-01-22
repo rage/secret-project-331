@@ -118,6 +118,8 @@ test("manage course structure works", async ({ page, headless }, testInfo) => {
 
   await page.waitForSelector("text=Successfully deleted")
 
+  await page.reload()
+
   await page.click('button:text-is("Save")')
 
   await page.waitForSelector("text=Operation successful!")

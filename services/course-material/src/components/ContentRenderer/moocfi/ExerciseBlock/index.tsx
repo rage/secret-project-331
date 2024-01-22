@@ -56,7 +56,7 @@ export const optionButton = css`
     rgba(45, 35, 66, 0) 0 2px 4px,
     rgba(45, 35, 66, 0) 0 7px 13px -3px,
     #69af8a 0 -3px 0 inset;
-  color: #313B49;
+  color: #313b49;
   font-weight: medium;
   cursor: pointer;
   display: flex;

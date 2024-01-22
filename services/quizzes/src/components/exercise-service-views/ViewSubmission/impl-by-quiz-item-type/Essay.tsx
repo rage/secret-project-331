@@ -30,7 +30,7 @@ const EssayFeedback: React.FC<
           className={css`
             display: flex;
             font-family: Raleway, sans-serif;
-            color: #676E7B;
+            color: #676e7b;
             font-weight: 500;
             white-space: pre-wrap;
           `}

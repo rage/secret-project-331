@@ -1,5 +1,5 @@
 type Vec<GlobalStatEntry> = Array<{
-  name: string
+  course_name: string
   course_id: string
   organization_id: string
   organization_name: string

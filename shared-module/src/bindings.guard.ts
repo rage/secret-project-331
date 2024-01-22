@@ -114,6 +114,7 @@ import {
   GeneratedCertificate,
   GetEditProposalsQuery,
   GetFeedbackQuery,
+  GlobalCourseModuleStatEntry,
   GlobalStatEntry,
   GradingProgress,
   HistoryChangeReason,
@@ -1518,12 +1519,30 @@ export function isGlobalStatEntry(obj: unknown): obj is GlobalStatEntry {
   const typedObj = obj as GlobalStatEntry
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    typeof typedObj["name"] === "string" &&
+    typeof typedObj["course_name"] === "string" &&
     typeof typedObj["course_id"] === "string" &&
     typeof typedObj["organization_id"] === "string" &&
     typeof typedObj["organization_name"] === "string" &&
     typeof typedObj["year"] === "string" &&
     typeof typedObj["value"] === "number"
+  )
+}
+
+export function isGlobalCourseModuleStatEntry(obj: unknown): obj is GlobalCourseModuleStatEntry {
+  const typedObj = obj as GlobalCourseModuleStatEntry
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["course_name"] === "string" &&
+    typeof typedObj["course_id"] === "string" &&
+    typeof typedObj["course_module_id"] === "string" &&
+    (typedObj["course_module_name"] === null ||
+      typeof typedObj["course_module_name"] === "string") &&
+    typeof typedObj["organization_id"] === "string" &&
+    typeof typedObj["organization_name"] === "string" &&
+    typeof typedObj["year"] === "string" &&
+    typeof typedObj["value"] === "number" &&
+    (typedObj["course_module_ects_credits"] === null ||
+      typeof typedObj["course_module_ects_credits"] === "number")
   )
 }
 
@@ -2791,7 +2810,8 @@ export function isUserRole(obj: unknown): obj is UserRole {
     typedObj === "Admin" ||
     typedObj === "CourseOrExamCreator" ||
     typedObj === "MaterialViewer" ||
-    typedObj === "TeachingAndLearningServices"
+    typedObj === "TeachingAndLearningServices" ||
+    typedObj === "StatsViewer"
   )
 }
 

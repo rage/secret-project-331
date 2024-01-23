@@ -6,8 +6,8 @@ import ConditionalBlockEditor from "./ConditionalBlockEditor"
 import ConditionalBlockSave from "./ConditionalBlockSave"
 
 export interface ConditionAttributes {
-  module_completion: boolean
-  instance_enrollment: boolean
+  module_completion: string[]
+  instance_enrollment: string[]
 }
 
 const ConditionalBlockConfiguration: BlockConfiguration<ConditionAttributes> = {
@@ -16,12 +16,12 @@ const ConditionalBlockConfiguration: BlockConfiguration<ConditionAttributes> = {
   category: MOOCFI_CATEGORY_SLUG,
   attributes: {
     module_completion: {
-      type: "boolean",
-      default: false,
+      type: "array",
+      default: [],
     },
     instance_enrollment: {
-      type: "boolean",
-      default: false,
+      type: "array",
+      default: [],
     },
   },
   edit: ConditionalBlockEditor,

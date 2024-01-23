@@ -6,7 +6,6 @@ import {
   Course,
   CourseBackgroundQuestionsAndAnswers,
   CourseInstance,
-  CourseInstanceEnrollmentsInfo,
   CourseMaterialExercise,
   CourseMaterialPeerReviewDataWithToken,
   CourseMaterialPeerReviewSubmission,
@@ -48,7 +47,6 @@ import {
   isCourse,
   isCourseBackgroundQuestionsAndAnswers,
   isCourseInstance,
-  isCourseInstanceEnrollmentsInfo,
   isCourseMaterialExercise,
   isCourseMaterialPeerReviewDataWithToken,
   isCoursePageWithUserData,
@@ -560,11 +558,4 @@ export const postResearchFormUserAnswer = async (
     answer,
   )
   return validateResponse(response, isString)
-}
-
-export async function getCourseInstanceEnrollmentsInfo(
-  userId: string,
-): Promise<CourseInstanceEnrollmentsInfo> {
-  const response = await courseMaterialClient.get(`/users/${userId}/course-instance-enrollments`)
-  return validateResponse(response, isCourseInstanceEnrollmentsInfo)
 }

@@ -1,13 +1,15 @@
-//! Controllers for requests starting with `/api/v0/cms/organizations`.
+//! Controllers for requests starting with `/api/v0/cms/courses`.
 
 use crate::prelude::*;
 
 use models::{
+    course_instances::CourseInstance,
     pages::{Page, PageVisibility},
     peer_review_configs::{self, CmsPeerReviewConfiguration},
     peer_review_questions::normalize_cms_peer_review_questions,
 };
 
+use crate::prelude::models::course_modules::CourseModule;
 use models::research_forms::{
     NewResearchForm, NewResearchFormQuestion, ResearchForm, ResearchFormQuestion,
 };
@@ -204,6 +206,40 @@ async fn upsert_course_research_form_question(
 }
 
 /**
+GET `/api/v0/cms/courses/:course_id/modules`
+
+Returns modules in the course.
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_course_modules(
+    course_id: web::Path<Uuid>,
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<Vec<CourseModule>>> {
+    let mut conn = pool.acquire().await?;
+    let course_modules = models::course_modules::get_by_course_id(&mut conn, *course_id).await?;
+    //let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(course_id)).await?;
+    let token = skip_authorize();
+    token.authorized_ok(web::Json(course_modules))
+}
+
+/**
+GET `/api/v0/cms/courses/:course_id/course-instances` - Returns all course instances for given course id.
+*/
+#[generated_doc]
+async fn get_course_instances(
+    pool: web::Data<PgPool>,
+    course_id: web::Path<Uuid>,
+) -> ControllerResult<web::Json<Vec<CourseInstance>>> {
+    let mut conn = pool.acquire().await?;
+    let instances =
+        models::course_instances::get_course_instances_for_course(&mut conn, *course_id).await?;
+    let token = skip_authorize();
+    token.authorized_ok(web::Json(instances))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -232,5 +268,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/research-consent-form",
             web::put().to(upsert_course_research_form),
+        )
+        .route("/{course_id}/modules", web::get().to(get_course_modules))
+        .route(
+            "/{course_id}/course-instances",
+            web::get().to(get_course_instances),
         );
 }

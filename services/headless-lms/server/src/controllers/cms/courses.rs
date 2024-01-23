@@ -207,10 +207,8 @@ async fn upsert_course_research_form_question(
 
 /**
 GET `/api/v0/cms/courses/:course_id/modules`
-
 Returns modules in the course.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_course_modules(
     course_id: web::Path<Uuid>,
@@ -219,23 +217,23 @@ async fn get_course_modules(
 ) -> ControllerResult<web::Json<Vec<CourseModule>>> {
     let mut conn = pool.acquire().await?;
     let course_modules = models::course_modules::get_by_course_id(&mut conn, *course_id).await?;
-    //let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(course_id)).await?;
-    let token = skip_authorize();
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
     token.authorized_ok(web::Json(course_modules))
 }
 
 /**
 GET `/api/v0/cms/courses/:course_id/course-instances` - Returns all course instances for given course id.
 */
-#[generated_doc]
+#[instrument(skip(pool))]
 async fn get_course_instances(
-    pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
+    user: AuthUser,
+    pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<Vec<CourseInstance>>> {
     let mut conn = pool.acquire().await?;
     let instances =
         models::course_instances::get_course_instances_for_course(&mut conn, *course_id).await?;
-    let token = skip_authorize();
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
     token.authorized_ok(web::Json(instances))
 }
 

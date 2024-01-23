@@ -1,3 +1,4 @@
+import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import { InnerBlocks, InspectorControls } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
@@ -6,12 +7,22 @@ import React, { useContext, useState } from "react"
 import PageContext from "../../contexts/PageContext"
 import { fetchCourseInstances } from "../../services/backend/course-instances"
 import { fetchCourseModulesByCourseId } from "../../services/backend/courses"
-import SelectField from "../../shared-module/components/InputFields/SelectField"
+import CheckBox from "../../shared-module/components/InputFields/CheckBox"
+import { assertNotNullOrUndefined } from "../../shared-module/utils/nullability"
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
 import { ConditionAttributes } from "."
 
 const ALLOWED_NESTED_BLOCKS = ["core/heading", "core/buttons", "core/button", "core/paragraph"]
+
+const Wrapper = styled.div`
+  margin-left: 1rem;
+  margin-right: 1rem;
+  height: auto;
+`
+const Text = styled.p`
+  padding-bottom: 1rem;
+`
 
 const ConditionalBlockEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ConditionAttributes>>
@@ -19,16 +30,15 @@ const ConditionalBlockEditor: React.FC<
   const courseId = useContext(PageContext)?.page.course_id
   const courseModules = useQuery({
     queryKey: [`/courses/${courseId}/modules`],
-    queryFn: () => fetchCourseModulesByCourseId(courseId as NonNullable<typeof courseId>),
+    queryFn: () => fetchCourseModulesByCourseId(assertNotNullOrUndefined(courseId)),
     enabled: !!courseId,
   })
 
   const courseInstances = useQuery({
     queryKey: [`/courses/${courseId}/course-instances`],
-    queryFn: () => fetchCourseInstances(courseId as NonNullable<typeof courseId>),
+    queryFn: () => fetchCourseInstances(assertNotNullOrUndefined(courseId)),
     enabled: !!courseId,
   })
-  console.log(courseInstances, attributes)
   const [requiredModules, setRequiredModules] = useState<string[]>(attributes.module_completion)
   const [requiredInstanceEnrollment, setRequiredInstanceEnrollment] = useState<string[]>(
     attributes.instance_enrollment,
@@ -37,74 +47,60 @@ const ConditionalBlockEditor: React.FC<
     <BlockPlaceholderWrapper
       id={clientId}
       title={`Conditional Block`}
-      explanation={`This block will be rendered to the student if the student meets given condition.`}
+      explanation={`This block will be rendered to the student if the student meets all the given condition.`}
     >
       <InspectorControls>
         {courseModules.data && (
-          <>
-            <SelectField
-              options={courseModules.data.map((mod) => {
-                return {
-                  label: mod.name ?? "Default",
-                  value: mod.id,
-                }
-              })}
-              onChange={(e) => {
-                const previuoslyChecked = requiredModules.some(
-                  (element) => element == e.target.value,
-                )
-                const newRequiredModules = requiredModules.filter((i) => i != e.target.value)
-                if (!previuoslyChecked) {
-                  newRequiredModules.push(e.target.value)
-                }
-                setAttributes({ module_completion: newRequiredModules })
-                setRequiredModules(newRequiredModules)
-              }}
-            ></SelectField>
-            <h3>{"Required module completions:"}</h3>
-            <ul>
-              {requiredModules.map((moduleId) => {
-                const moduleName = courseModules.data.find((mod) => {
-                  return mod.id == moduleId
-                })?.name
-                return <li key={moduleId}> {moduleName ?? "Default"} </li>
-              })}
-            </ul>
-          </>
+          <Wrapper>
+            <Text>{`Student has completed any of the following modules:`}</Text>
+            {courseModules.data.map((mod) => {
+              return (
+                <CheckBox
+                  key={mod.id}
+                  label={mod.name ?? "Default"}
+                  value={mod.id}
+                  onChange={() => {
+                    const previuoslyChecked = requiredModules.some((modId) => modId == mod.id)
+                    const newRequiredModules = requiredModules.filter((i) => i != mod.id)
+                    if (!previuoslyChecked) {
+                      newRequiredModules.push(mod.id)
+                    }
+                    setAttributes({ module_completion: newRequiredModules })
+                    setRequiredModules(newRequiredModules)
+                  }}
+                  checked={requiredModules.some((modId) => modId == mod.id)}
+                ></CheckBox>
+              )
+            })}
+          </Wrapper>
         )}
         {courseInstances.data && (
-          <>
-            <SelectField
-              options={courseInstances.data.map((inst) => {
-                return {
-                  label: inst.name ?? "Default",
-                  value: inst.id,
-                }
-              })}
-              onChange={(e) => {
-                const previuoslyChecked = requiredInstanceEnrollment.some(
-                  (element) => element == e.target.value,
-                )
-                const newRequiredInstEnrl = requiredInstanceEnrollment.filter(
-                  (i) => i != e.target.value,
-                )
-                if (!previuoslyChecked) {
-                  newRequiredInstEnrl.push(e.target.value)
-                }
-                setAttributes({ instance_enrollment: newRequiredInstEnrl })
-                setRequiredInstanceEnrollment(newRequiredInstEnrl)
-              }}
-            ></SelectField>
-            <h3>{"Required course instance enrollment:"}</h3>
-            <ul>
-              {requiredInstanceEnrollment.map((instanceId) => {
-                const instanceName = courseInstances.data.find((inst) => {
-                  return inst.id == instanceId
-                })?.name
-                return <li key={instanceId}> {instanceName ?? "Default"} </li>
-              })}
-            </ul>
-          </>
+          <Wrapper>
+            <Text>{`Student has enrolled to any of the following course instances:`}</Text>
+            {courseInstances.data.map((inst) => {
+              return (
+                <CheckBox
+                  key={inst.id}
+                  label={inst.name ?? "Default"}
+                  value={inst.id}
+                  onChange={() => {
+                    const previuoslyChecked = requiredInstanceEnrollment.some(
+                      (instId) => instId == inst.id,
+                    )
+                    const newRequiredInstEnrl = requiredInstanceEnrollment.filter(
+                      (i) => i != inst.id,
+                    )
+                    if (!previuoslyChecked) {
+                      newRequiredInstEnrl.push(inst.id)
+                    }
+                    setAttributes({ instance_enrollment: newRequiredInstEnrl })
+                    setRequiredInstanceEnrollment(newRequiredInstEnrl)
+                  }}
+                  checked={requiredInstanceEnrollment.some((instId) => instId == inst.id)}
+                ></CheckBox>
+              )
+            })}
+          </Wrapper>
         )}
       </InspectorControls>
       <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />

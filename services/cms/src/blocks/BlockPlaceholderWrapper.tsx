@@ -5,8 +5,8 @@
 
 interface BlockPlaceholderWrapperProps {
   id: string
-  title?: string
-  explanation?: string
+  title: string
+  explanation: string
 }
 
 const BlockPlaceholderWrapper: React.FC<React.PropsWithChildren<BlockPlaceholderWrapperProps>> = ({

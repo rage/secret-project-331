@@ -1,0 +1,34 @@
+{
+  "name": "storybook",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "keywords": [],
+  "author": "Henrik Nygren <nygrenh@gmail.com>",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@storybook/addon-essentials": "^7.6.10",
+    "@storybook/addon-interactions": "^7.6.10",
+    "@storybook/addon-links": "^7.6.10",
+    "@storybook/addon-onboarding": "^1.0.10",
+    "@storybook/blocks": "^7.6.10",
+    "@storybook/react": "^7.6.10",
+    "@storybook/react-vite": "^7.6.10",
+    "@storybook/test": "^7.6.10",
+    "prop-types": "^15.8.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "storybook": "^7.6.10"
+  },
+  "scripts": {
+    "storybook": "storybook dev -p 6006 --docs",
+    "build-storybook": "storybook build --docs"
+  },
+  "dependencies": {
+    "@emotion/css": "^11.11.2",
+    "@emotion/styled": "^11.11.0",
+    "@vectopus/atlas-icons-react": "github:rage/Atlas-icons-react#d310057c60f4f011306c35ae9caf025c5a09e41b",
+    "i18next": "^23.7.18",
+    "react-i18next": "^14.0.1"
+  }
+}

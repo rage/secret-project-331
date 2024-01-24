@@ -16,6 +16,7 @@ const ALL_SERVICES_TARGETS = [
   "services/quizzes/src/shared-module-v2",
   "services/tmc/src/shared-module-v2",
   "system-tests/src/shared-module-v2",
+  "storybook/src/shared-module",
 ]
 
 const SYNC_TARGETS = [
@@ -57,11 +58,11 @@ async function runSync(restarted: boolean) {
   if (restarted) {
     console.log(
       "Restarted syncing at " +
-        new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
-          .toISOString()
-          .replace("T", " ")
-          .replace("Z", "")
-          .split(".")[0],
+      new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+        .toISOString()
+        .replace("T", " ")
+        .replace("Z", "")
+        .split(".")[0],
     )
   }
   await syncEverything()

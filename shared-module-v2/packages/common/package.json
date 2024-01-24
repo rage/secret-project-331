@@ -1,0 +1,14 @@
+{
+  "name": "common",
+  "version": "1.0.0",
+  "private": true,
+  "keywords": [],
+  "author": "Henrik Nygren <nygrenh@gmail.com>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "react": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.48"
+  }
+}

@@ -6,13 +6,14 @@ import { fetchFeedback, markAsRead } from "../../../../../../services/backend/fe
 import { Feedback } from "../../../../../../shared-module/bindings"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../../shared-module/components/Spinner"
+import { PaginationInfo } from "../../../../../../shared-module/hooks/usePaginationInfo"
 
 import FeedbackView from "./FeedbackView"
 
 interface Props {
   courseId: string
   page: number
-  limit: number
+  paginationInfo: PaginationInfo
   read: boolean
   onChange: () => Promise<unknown>
 }
@@ -20,10 +21,11 @@ interface Props {
 const FeedbackPage: React.FC<React.PropsWithChildren<Props>> = ({
   courseId,
   page,
-  limit,
+  paginationInfo,
   read,
   onChange,
 }) => {
+  const limit = paginationInfo.limit
   const getFeedbackList = useQuery({
     queryKey: [`feedback-list-${courseId}-${read}-${page}-${limit}`],
     queryFn: () => fetchFeedback(courseId, read, page, limit),

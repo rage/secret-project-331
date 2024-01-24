@@ -81,6 +81,7 @@
   "column-passed": "Hyv.",
   "column-pending": "Tulossa",
   "completion-registration-link": "Suoritusten rekisteröimislinkki",
+  "completion-registration-link-not-found": "Tämän kurssin ilmoittautuminen ei ole auki tällä hetkellä. Jos epäilet että ilmoittautumisen tulisi olla auki, ota yhteyttä mooc@cs.helsinki.fi",
   "completions": "Suoritukset",
   "completions-submitted-successfully": "Suoritukset lähetetty onnistuneesti.",
   "configure-completion-requirements": "Aseta suoritus vaatimukset",

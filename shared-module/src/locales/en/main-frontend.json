@@ -85,6 +85,7 @@
   "column-passed": "Pass",
   "column-pending": "Pending",
   "completion-registration-link": "Completion registration link",
+  "completion-registration-link-not-found": "Enrollment for this course is not currently open. If you think this is a mistake, please contact mooc@cs.helsinki.fi",
   "completions": "Completions",
   "completions-submitted-successfully": "Completions submitted successfully.",
   "configure-completion-requirements": "Configure completion requirements",

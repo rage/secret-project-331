@@ -761,7 +761,7 @@
     <span class="kw">pub </span>is_test_mode: bool,
 }
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>Course {
     <span class="kw">pub </span>id: Uuid,
@@ -781,7 +781,7 @@
     <span class="kw">pub </span>base_module_completion_requires_n_submodule_completions: i32,
 }
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>CourseBreadcrumbInfo {
     <span class="kw">pub </span>course_id: Uuid,
@@ -792,7 +792,7 @@
 }
 
 <span class="doccomment">/// Represents the subset of page fields that are required to create a new course.
-</span><span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+</span><span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>NewCourse {
     <span class="kw">pub </span>name: String,
@@ -857,7 +857,7 @@ RETURNING id
     <span class="prelude-val">Ok</span>(res.id)
 }
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>CourseStructure {
     <span class="kw">pub </span>course: Course,
@@ -1163,7 +1163,7 @@ WHERE organization_id = $1
     })
 }
 <span class="comment">// Represents the subset of page fields that one is allowed to update in a course
-</span><span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+</span><span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>CourseUpdate {
     name: String,

@@ -307,8 +307,8 @@ Content-Type: application/json
 }
 ```
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool, file_store, app_conf))]
+
+</span><span class="attr">#[instrument(skip(pool, file_store, app_conf))]
 </span><span class="kw">async fn </span>post_new_chapter(
     request_id: RequestId,
     pool: web::Data&lt;PgPool&gt;,
@@ -350,8 +350,8 @@ Content-Type: application/json
 <span class="doccomment">/**
 DELETE `/api/v0/main-frontend/chapters/:chapter_id` - Delete a chapter.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool, file_store, app_conf))]
+
+</span><span class="attr">#[instrument(skip(pool, file_store, app_conf))]
 </span><span class="kw">async fn </span>delete_chapter(
     chapter_id: web::Path&lt;String&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -394,8 +394,8 @@ Content-Type: application/json
 
 ```
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(payload, pool, file_store, app_conf))]
+
+</span><span class="attr">#[instrument(skip(payload, pool, file_store, app_conf))]
 </span><span class="kw">async fn </span>update_chapter(
     payload: web::Json&lt;ChapterUpdate&gt;,
     chapter_id: web::Path&lt;String&gt;,
@@ -429,8 +429,8 @@ Content-Type: multipart/form-data
 BINARY_DATA
 ```
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(request, payload, pool, file_store, app_conf))]
+
+</span><span class="attr">#[instrument(skip(request, payload, pool, file_store, app_conf))]
 </span><span class="kw">async fn </span>set_chapter_image(
     request: HttpRequest,
     payload: Multipart,
@@ -500,8 +500,8 @@ Request:
 DELETE /api/v0/main-frontend/chapters/d332f3d9-39a5-4a18-80f4-251727693c37/image HTTP/1.1
 ```
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool, file_store))]
+
+</span><span class="attr">#[instrument(skip(pool, file_store))]
 </span><span class="kw">async fn </span>remove_chapter_image(
     chapter_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,

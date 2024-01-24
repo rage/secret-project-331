@@ -303,12 +303,6 @@
 <a href="#303" id="303">303</a>
 <a href="#304" id="304">304</a>
 <a href="#305" id="305">305</a>
-<a href="#306" id="306">306</a>
-<a href="#307" id="307">307</a>
-<a href="#308" id="308">308</a>
-<a href="#309" id="309">309</a>
-<a href="#310" id="310">310</a>
-<a href="#311" id="311">311</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/exercises`.
 
 </span><span class="kw">use crate</span>::{
@@ -342,8 +336,7 @@ relevant context so that doing the exercise is possible based on the response.
 This endpoint does not expose exercise&#39;s private spec because it would
 expose the correct answers to the user.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_exercise(
     pool: web::Data&lt;PgPool&gt;,
     exercise_id: web::Path&lt;Uuid&gt;,
@@ -400,8 +393,7 @@ GET `/api/v0/course-material/exercises/:exercise_id/peer-review` - Get peer revi
 
 This request will fail if the user is not in the peer review stage yet because the information included in the peer review often exposes the correct solution to the exercise.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_peer_review_for_exercise(
     pool: web::Data&lt;PgPool&gt;,
     exercise_id: web::Path&lt;Uuid&gt;,
@@ -447,8 +439,7 @@ This request will fail if the user is not in the peer review stage yet because t
 <span class="doccomment">/**
 GET `/api/v0/course-material/exercises/:exercise_id/peer-review-received` - Get peer review recieved from other student for an exercise. This includes peer review submitted and the question asociated with it.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_peer_reviews_received(
     pool: web::Data&lt;PgPool&gt;,
     params: web::Path&lt;(Uuid, Uuid)&gt;,
@@ -487,8 +478,7 @@ Content-Type: application/json
 }
 ```
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>post_submission(
     pool: web::Data&lt;PgPool&gt;,
     jwt_key: web::Data&lt;JwtKey&gt;,
@@ -523,8 +513,7 @@ Content-Type: application/json
  * This operation is only valid for exercises marked for peer reviews. No further submissions will be
  * accepted after posting to this endpoint.
  */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>start_peer_review(
     pool: web::Data&lt;PgPool&gt;,
     exercise_id: web::Path&lt;Uuid&gt;,
@@ -553,8 +542,7 @@ Content-Type: application/json
  * POST `/api/v0/course-material/exercises/:exercise_id/peer-reviews - Post a peer review for an
  * exercise submission.
  */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>submit_peer_review(
     pool: web::Data&lt;PgPool&gt;,
     exercise_id: web::Path&lt;Uuid&gt;,

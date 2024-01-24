@@ -558,7 +558,7 @@
     <span class="kw">pub </span>order_number: i32,
 }
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 </span><span class="kw">pub struct </span>NewExerciseTask {
     <span class="kw">pub </span>exercise_slide_id: Uuid,
     <span class="kw">pub </span>exercise_type: String,
@@ -577,7 +577,7 @@
     <span class="kw">pub </span>private_spec: <span class="prelude-ty">Option</span>&lt;serde_json::Value&gt;,
 }
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>ExerciseTask {
     <span class="kw">pub </span>id: Uuid,

@@ -460,7 +460,7 @@
     }
 }
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>OrgExam {
     <span class="kw">pub </span>id: Uuid,
@@ -537,7 +537,7 @@ WHERE course_exams.exam_id = $1
     })
 }
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>CourseExam {
     <span class="kw">pub </span>id: Uuid,
@@ -546,7 +546,7 @@ WHERE course_exams.exam_id = $1
     <span class="kw">pub </span>name: String,
 }
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>NewExam {
     <span class="kw">pub </span>name: String,

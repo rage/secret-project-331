@@ -503,12 +503,6 @@
 <a href="#503" id="503">503</a>
 <a href="#504" id="504">504</a>
 <a href="#505" id="505">505</a>
-<a href="#506" id="506">506</a>
-<a href="#507" id="507">507</a>
-<a href="#508" id="508">508</a>
-<a href="#509" id="509">509</a>
-<a href="#510" id="510">510</a>
-<a href="#511" id="511">511</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/course-instances`.
 
 </span><span class="kw">use </span>chrono::Utc;
@@ -540,8 +534,7 @@
 <span class="doccomment">/**
 GET /course-instances/:id
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_course_instance(
     course_instance_id: web::Path&lt;Uuid&gt;,
     user: AuthUser,
@@ -560,8 +553,7 @@ GET /course-instances/:id
     token.authorized_ok(web::Json(course_instance))
 }
 
-<span class="attr">#[generated_doc]
-#[instrument(skip(payload, pool))]
+<span class="attr">#[instrument(skip(payload, pool))]
 </span><span class="kw">async fn </span>post_new_email_template(
     course_instance_id: web::Path&lt;Uuid&gt;,
     payload: web::Json&lt;EmailTemplateNew&gt;,
@@ -592,8 +584,8 @@ POST `/api/v0/main-frontend/course-instances/{course_instance_id}/reprocess-comp
 
 Reprocesses all module completions for the given course instance. Only available to admins.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool, user))]
+
+</span><span class="attr">#[instrument(skip(pool, user))]
 </span><span class="kw">async fn </span>post_reprocess_module_completions(
     pool: web::Data&lt;PgPool&gt;,
     user: AuthUser,
@@ -609,8 +601,7 @@ Reprocesses all module completions for the given course instance. Only available
     token.authorized_ok(web::Json(<span class="bool-val">true</span>))
 }
 
-<span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+<span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_email_templates_by_course_instance_id(
     course_instance_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -668,8 +659,7 @@ GET `/api/v0/main-frontend/course-instances/${courseInstanceId}/export-points` -
     .<span class="kw">await
 </span>}
 
-<span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+<span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>points(
     course_instance_id: web::Path&lt;Uuid&gt;,
     pagination: web::Query&lt;Pagination&gt;,
@@ -691,8 +681,7 @@ GET `/api/v0/main-frontend/course-instances/${courseInstanceId}/export-points` -
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/course-instances/{course_instance_id}/completions`
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>completions(
     course_instance_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -874,7 +863,7 @@ GET /course-instances/:id/default-certificate-configurations - gets default cert
 GET /course-instances/:id/status-for-all-exercises/:user_id - Returns a status for all exercises in a course instance for a given user.
 */
 </span><span class="attr">#[instrument(skip(pool))]
-#[generated_doc]
+
 </span><span class="kw">async fn </span>get_all_exercise_statuses_by_course_instance_id(
     params: web::Path&lt;(Uuid, Uuid)&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -904,7 +893,7 @@ GET /course-instances/:id/status-for-all-exercises/:user_id - Returns a status f
 GET /course-instances/:id/course-module-completions/:user_id - Returns a list of all course module completions for a given user for this course instance.
 */
 </span><span class="attr">#[instrument(skip(pool))]
-#[generated_doc]
+
 </span><span class="kw">async fn </span>get_all_get_all_course_module_completions_for_user_by_course_instance_id(
     params: web::Path&lt;(Uuid, Uuid)&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -933,8 +922,7 @@ GET /course-instances/:id/course-module-completions/:user_id - Returns a list of
 <span class="doccomment">/**
  GET /api/v0/main-frontend/course-instance/:course_instance_id/progress/:user_id - returns user progress information.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_user_progress_for_course_instance(
     user: AuthUser,
     params: web::Path&lt;(Uuid, Uuid)&gt;,

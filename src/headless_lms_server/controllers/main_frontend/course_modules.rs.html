@@ -132,9 +132,6 @@
 <a href="#132" id="132">132</a>
 <a href="#133" id="133">133</a>
 <a href="#134" id="134">134</a>
-<a href="#135" id="135">135</a>
-<a href="#136" id="136">136</a>
-<a href="#137" id="137">137</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>models::{
     course_modules::{<span class="self">self</span>, CourseModule},
     library::progressing::{CompletionRegistrationLink, UserCompletionInformation},
@@ -147,8 +144,7 @@ GET `/api/v0/main-frontend/course-modules/{course_module_id}`
 
 Returns information about the course module.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_course_module(
     course_module_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -171,8 +167,7 @@ GET `/api/v0/main-frontend/course-modules/{course_module_id}/user-completion`
 
 Gets active users&#39;s completion for the course, if it exists.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_course_module_completion_information_for_user(
     course_module_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -200,8 +195,7 @@ Gets active users&#39;s completion for the course, if it exists.
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/course-modules/{course_slug}/completion-registration-link`
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_course_module_completion_registration_link(
     course_module_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,

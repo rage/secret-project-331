@@ -78,8 +78,8 @@ Content-Type: multipart/form-data
 BINARY_DATA
 ```
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(payload, request, pool, file_store, app_conf))]
+
+</span><span class="attr">#[instrument(skip(payload, request, pool, file_store, app_conf))]
 </span><span class="kw">async fn </span>add_media(
     organization_id: web::Path&lt;Uuid&gt;,
     payload: Multipart,

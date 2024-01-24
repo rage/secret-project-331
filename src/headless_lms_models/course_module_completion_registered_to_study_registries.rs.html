@@ -164,7 +164,7 @@
 <a href="#164" id="164">164</a>
 </pre></div><pre class="rust"><code><span class="kw">use crate</span>::{course_module_completions, prelude::<span class="kw-2">*</span>};
 
-<span class="attr">#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+<span class="attr">#[derive(Clone, PartialEq, Deserialize, Serialize)]
 </span><span class="kw">pub struct </span>CourseModuleCompletionRegisteredToStudyRegistry {
     <span class="kw">pub </span>id: Uuid,
     <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
@@ -178,7 +178,7 @@
     <span class="kw">pub </span>real_student_number: String,
 }
 
-<span class="attr">#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+<span class="attr">#[derive(Clone, PartialEq, Deserialize, Serialize)]
 </span><span class="kw">pub struct </span>NewCourseModuleCompletionRegisteredToStudyRegistry {
     <span class="kw">pub </span>course_id: Uuid,
     <span class="kw">pub </span>course_module_completion_id: Uuid,

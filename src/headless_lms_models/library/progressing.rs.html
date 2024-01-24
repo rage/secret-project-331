@@ -1428,14 +1428,14 @@
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>CourseInstanceCompletionSummary {
     <span class="kw">pub </span>course_modules: Vec&lt;CourseModule&gt;,
     <span class="kw">pub </span>users_with_course_module_completions: Vec&lt;UserWithModuleCompletions&gt;,
 }
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>UserWithModuleCompletions {
     <span class="kw">pub </span>completed_modules: Vec&lt;CourseModuleCompletionWithRegistrationInfo&gt;,
@@ -1445,7 +1445,7 @@
     <span class="kw">pub </span>user_id: Uuid,
 }
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>UserCourseModuleCompletion {
     <span class="kw">pub </span>course_module_id: Uuid,
@@ -1521,7 +1521,7 @@
     })
 }
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>TeacherManualCompletionRequest {
     <span class="kw">pub </span>course_module_id: Uuid,
@@ -1529,7 +1529,7 @@
     <span class="kw">pub </span>skip_duplicate_completions: bool,
 }
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>TeacherManualCompletion {
     <span class="kw">pub </span>user_id: Uuid,
@@ -1612,7 +1612,7 @@
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>ManualCompletionPreview {
     <span class="kw">pub </span>already_completed_users: Vec&lt;ManualCompletionPreviewUser&gt;,
@@ -1620,7 +1620,7 @@
     <span class="kw">pub </span>non_enrolled_users: Vec&lt;ManualCompletionPreviewUser&gt;,
 }
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>ManualCompletionPreviewUser {
     <span class="kw">pub </span>user_id: Uuid,
@@ -1689,14 +1689,14 @@
     })
 }
 
-<span class="attr">#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+<span class="attr">#[derive(Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>UserCompletionInformation {
     <span class="kw">pub </span>course_module_completion_id: Uuid,
     <span class="kw">pub </span>course_name: String,
     <span class="kw">pub </span>uh_course_code: String,
     <span class="kw">pub </span>email: String,
-    <span class="kw">pub </span>ects_credits: <span class="prelude-ty">Option</span>&lt;i32&gt;,
+    <span class="kw">pub </span>ects_credits: <span class="prelude-ty">Option</span>&lt;f32&gt;,
     <span class="kw">pub </span>enable_registering_completion_to_uh_open_university: bool,
 }
 
@@ -1747,7 +1747,7 @@
     })
 }
 
-<span class="attr">#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+<span class="attr">#[derive(Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>UserModuleCompletionStatus {
     <span class="kw">pub </span>completed: bool,
@@ -1825,7 +1825,7 @@
     <span class="prelude-val">Ok</span>(course_module_completion_statuses)
 }
 
-<span class="attr">#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+<span class="attr">#[derive(Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>CompletionRegistrationLink {
     <span class="kw">pub </span>url: String,

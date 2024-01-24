@@ -221,9 +221,6 @@
 <a href="#221" id="221">221</a>
 <a href="#222" id="222">222</a>
 <a href="#223" id="223">223</a>
-<a href="#224" id="224">224</a>
-<a href="#225" id="225">225</a>
-<a href="#226" id="226">226</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>chrono::{DateTime, Duration, Utc};
 <span class="kw">use </span>models::{
     exams::{<span class="self">self</span>, ExamEnrollment},
@@ -235,8 +232,7 @@
 <span class="doccomment">/**
 GET /api/v0/course-material/exams/:id/enrollment
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">pub async fn </span>enrollment(
     pool: web::Data&lt;PgPool&gt;,
     exam_id: web::Path&lt;Uuid&gt;,
@@ -251,8 +247,7 @@ GET /api/v0/course-material/exams/:id/enrollment
 <span class="doccomment">/**
 POST /api/v0/course-material/exams/:id/enroll
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">pub async fn </span>enroll(
     pool: web::Data&lt;PgPool&gt;,
     exam_id: web::Path&lt;Uuid&gt;,
@@ -331,8 +326,7 @@ POST /api/v0/course-material/exams/:id/enroll
 <span class="doccomment">/**
 GET /api/v0/course-material/exams/:id
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">pub async fn </span>fetch_exam_for_user(
     pool: web::Data&lt;PgPool&gt;,
     exam_id: web::Path&lt;Uuid&gt;,

@@ -141,11 +141,6 @@
 <a href="#141" id="141">141</a>
 <a href="#142" id="142">142</a>
 <a href="#143" id="143">143</a>
-<a href="#144" id="144">144</a>
-<a href="#145" id="145">145</a>
-<a href="#146" id="146">146</a>
-<a href="#147" id="147">147</a>
-<a href="#148" id="148">148</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/global-stats`.
 
 </span><span class="kw">use </span>models::library::global_stats::{GlobalCourseModuleStatEntry, GlobalStatEntry};
@@ -155,8 +150,7 @@
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/global-stats/number-of-people-completed-a-course`
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_number_of_people_completed_a_course(
     pool: web::Data&lt;PgPool&gt;,
     user: AuthUser,
@@ -178,8 +172,7 @@ GET `/api/v0/main-frontend/global-stats/number-of-people-completed-a-course`
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/global-stats/number-of-people-registered-completion-to-study-registry`
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_number_of_people_registered_completion_to_study_registry(
     pool: web::Data&lt;PgPool&gt;,
     user: AuthUser,
@@ -200,8 +193,7 @@ GET `/api/v0/main-frontend/global-stats/number-of-people-registered-completion-t
 <span class="doccomment">/**
  * GET `/api/v0/main-frontend/global-stats/number-of-people-done-at-least-one-exercise`
  */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_number_of_people_done_at_least_one_exercise(
     pool: web::Data&lt;PgPool&gt;,
     user: AuthUser,
@@ -224,8 +216,7 @@ GET `/api/v0/main-frontend/global-stats/number-of-people-registered-completion-t
 <span class="doccomment">/**
  * GET `/api/v0/main-frontend/global-stats/number-of-people-started-course`
  */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_number_of_people_started_course(
     pool: web::Data&lt;PgPool&gt;,
     user: AuthUser,
@@ -246,8 +237,7 @@ GET `/api/v0/main-frontend/global-stats/number-of-people-registered-completion-t
 <span class="doccomment">/**
  * GET `/api/v0/main-frontend/global-stats/course-module-stats-by-completions-registered-to-study-registry`
  */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_course_module_stats_by_completions_registered_to_study_registry(
     pool: web::Data&lt;PgPool&gt;,
     user: AuthUser,

@@ -787,7 +787,7 @@
     <span class="kw">pub </span>submission_id: Uuid,
     <span class="kw">pub </span>exercise_id: Uuid,
 }
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>NewExerciseSlideSubmission {
     <span class="kw">pub </span>exercise_slide_id: Uuid,
@@ -799,7 +799,7 @@
     <span class="kw">pub </span>user_points_update_strategy: UserPointsUpdateStrategy,
 }
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>ExerciseSlideSubmission {
     <span class="kw">pub </span>id: Uuid,
@@ -827,7 +827,7 @@
     }
 }
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>ExerciseAnswersInCourseRequiringAttentionCount {
     <span class="kw">pub </span>id: Uuid,
@@ -838,14 +838,14 @@
     <span class="kw">pub </span>count: <span class="prelude-ty">Option</span>&lt;i32&gt;,
 }
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>ExerciseSlideSubmissionCount {
     <span class="kw">pub </span>date: <span class="prelude-ty">Option</span>&lt;NaiveDate&gt;,
     <span class="kw">pub </span>count: <span class="prelude-ty">Option</span>&lt;i32&gt;,
 }
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>ExerciseSlideSubmissionCountByExercise {
     <span class="kw">pub </span>exercise_id: Uuid,
@@ -853,7 +853,7 @@
     <span class="kw">pub </span>exercise_name: String,
 }
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>ExerciseSlideSubmissionCountByWeekAndHour {
     <span class="kw">pub </span>isodow: <span class="prelude-ty">Option</span>&lt;i32&gt;,

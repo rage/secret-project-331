@@ -130,8 +130,6 @@
 <a href="#130" id="130">130</a>
 <a href="#131" id="131">131</a>
 <a href="#132" id="132">132</a>
-<a href="#133" id="133">133</a>
-<a href="#134" id="134">134</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span>models::proposed_page_edits::{<span class="self">self</span>, EditProposalInfo, PageProposal, ProposalCount};
@@ -155,8 +153,7 @@
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/proposed-edits/course/:id?pending=true` - Returns feedback for the given course.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">pub async fn </span>get_edit_proposals(
     course_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -186,8 +183,7 @@ GET `/api/v0/main-frontend/proposed-edits/course/:id?pending=true` - Returns fee
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/proposed-edits/course/:id/count` - Returns the amount of feedback for the given course.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">pub async fn </span>get_edit_proposal_count(
     course_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,

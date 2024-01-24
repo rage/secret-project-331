@@ -627,7 +627,7 @@
 <span class="kw">use </span><span class="kw">super</span>::user_exercise_state_updater;
 
 <span class="doccomment">/// Contains data sent by the student when they make a submission for an exercise slide.
-</span><span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+</span><span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>StudentExerciseSlideSubmission {
     <span class="kw">pub </span>exercise_slide_id: Uuid,
@@ -663,7 +663,7 @@
     }
 }
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>StudentExerciseTaskSubmission {
     <span class="kw">pub </span>exercise_task_id: Uuid,

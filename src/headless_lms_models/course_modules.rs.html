@@ -879,14 +879,14 @@
     automatic_completion_number_of_points_treshold: <span class="prelude-ty">Option</span>&lt;i32&gt;,
     automatic_completion_requires_exam: bool,
     completion_registration_link_override: <span class="prelude-ty">Option</span>&lt;String&gt;,
-    ects_credits: <span class="prelude-ty">Option</span>&lt;i32&gt;,
+    ects_credits: <span class="prelude-ty">Option</span>&lt;f32&gt;,
     enable_registering_completion_to_uh_open_university: bool,
     certification_enabled: bool,
 }
 <span class="doccomment">/**
  * Based on [CourseModulesSchema] but completion_policy parsed and addded (and some not needeed fields removed).
  */
-</span><span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+</span><span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>CourseModule {
     <span class="kw">pub </span>id: Uuid,
@@ -901,7 +901,7 @@
     <span class="kw">pub </span>completion_policy: CompletionPolicy,
     <span class="doccomment">/// If set, use this link rather than the default one when registering course completions.
     </span><span class="kw">pub </span>completion_registration_link_override: <span class="prelude-ty">Option</span>&lt;String&gt;,
-    <span class="kw">pub </span>ects_credits: <span class="prelude-ty">Option</span>&lt;i32&gt;,
+    <span class="kw">pub </span>ects_credits: <span class="prelude-ty">Option</span>&lt;f32&gt;,
     <span class="kw">pub </span>enable_registering_completion_to_uh_open_university: bool,
     <span class="kw">pub </span>certification_enabled: bool,
 }
@@ -952,7 +952,7 @@
     <span class="kw">pub fn </span>set_registration_info(
         <span class="kw-2">mut </span><span class="self">self</span>,
         uh_course_code: <span class="prelude-ty">Option</span>&lt;String&gt;,
-        ects_credits: <span class="prelude-ty">Option</span>&lt;i32&gt;,
+        ects_credits: <span class="prelude-ty">Option</span>&lt;f32&gt;,
         completion_registration_link_override: <span class="prelude-ty">Option</span>&lt;String&gt;,
         enable_registering_completion_to_uh_open_university: bool,
     ) -&gt; <span class="self">Self </span>{
@@ -1007,13 +1007,13 @@
     }
 }
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>NewCourseModule {
     completion_policy: CompletionPolicy,
     completion_registration_link_override: <span class="prelude-ty">Option</span>&lt;String&gt;,
     course_id: Uuid,
-    ects_credits: <span class="prelude-ty">Option</span>&lt;i32&gt;,
+    ects_credits: <span class="prelude-ty">Option</span>&lt;f32&gt;,
     name: <span class="prelude-ty">Option</span>&lt;String&gt;,
     order_number: i32,
     uh_course_code: <span class="prelude-ty">Option</span>&lt;String&gt;,
@@ -1056,7 +1056,7 @@
         <span class="self">self
     </span>}
 
-    <span class="kw">pub fn </span>set_ects_credits(<span class="kw-2">mut </span><span class="self">self</span>, ects_credits: <span class="prelude-ty">Option</span>&lt;i32&gt;) -&gt; <span class="self">Self </span>{
+    <span class="kw">pub fn </span>set_ects_credits(<span class="kw-2">mut </span><span class="self">self</span>, ects_credits: <span class="prelude-ty">Option</span>&lt;f32&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.ects_credits = ects_credits;
         <span class="self">self
     </span>}
@@ -1293,7 +1293,7 @@ WHERE uh_course_code IS NOT NULL
     <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>AutomaticCompletionRequirements {
     <span class="doccomment">/// Course module associated with these requirements.
@@ -1332,7 +1332,7 @@ WHERE uh_course_code IS NOT NULL
     }
 }
 
-<span class="attr">#[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]
+<span class="attr">#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 #[serde(tag = <span class="string">&quot;policy&quot;</span>, rename_all = <span class="string">&quot;kebab-case&quot;</span>)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub enum </span>CompletionPolicy {
@@ -1436,14 +1436,14 @@ RETURNING *
     <span class="prelude-val">Ok</span>(res.into())
 }
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>NewModule {
     name: String,
     order_number: i32,
     chapters: Vec&lt;Uuid&gt;,
     uh_course_code: <span class="prelude-ty">Option</span>&lt;String&gt;,
-    ects_credits: <span class="prelude-ty">Option</span>&lt;i32&gt;,
+    ects_credits: <span class="prelude-ty">Option</span>&lt;f32&gt;,
     completion_policy: CompletionPolicy,
     completion_registration_link_override: <span class="prelude-ty">Option</span>&lt;String&gt;,
     enable_registering_completion_to_uh_open_university: bool,
@@ -1456,7 +1456,7 @@ RETURNING *
     name: <span class="prelude-ty">Option</span>&lt;String&gt;,
     order_number: i32,
     uh_course_code: <span class="prelude-ty">Option</span>&lt;String&gt;,
-    ects_credits: <span class="prelude-ty">Option</span>&lt;i32&gt;,
+    ects_credits: <span class="prelude-ty">Option</span>&lt;f32&gt;,
     completion_policy: CompletionPolicy,
     completion_registration_link_override: <span class="prelude-ty">Option</span>&lt;String&gt;,
     enable_registering_completion_to_uh_open_university: bool,

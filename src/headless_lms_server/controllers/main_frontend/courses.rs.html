@@ -1405,37 +1405,6 @@
 <a href="#1405" id="1405">1405</a>
 <a href="#1406" id="1406">1406</a>
 <a href="#1407" id="1407">1407</a>
-<a href="#1408" id="1408">1408</a>
-<a href="#1409" id="1409">1409</a>
-<a href="#1410" id="1410">1410</a>
-<a href="#1411" id="1411">1411</a>
-<a href="#1412" id="1412">1412</a>
-<a href="#1413" id="1413">1413</a>
-<a href="#1414" id="1414">1414</a>
-<a href="#1415" id="1415">1415</a>
-<a href="#1416" id="1416">1416</a>
-<a href="#1417" id="1417">1417</a>
-<a href="#1418" id="1418">1418</a>
-<a href="#1419" id="1419">1419</a>
-<a href="#1420" id="1420">1420</a>
-<a href="#1421" id="1421">1421</a>
-<a href="#1422" id="1422">1422</a>
-<a href="#1423" id="1423">1423</a>
-<a href="#1424" id="1424">1424</a>
-<a href="#1425" id="1425">1425</a>
-<a href="#1426" id="1426">1426</a>
-<a href="#1427" id="1427">1427</a>
-<a href="#1428" id="1428">1428</a>
-<a href="#1429" id="1429">1429</a>
-<a href="#1430" id="1430">1430</a>
-<a href="#1431" id="1431">1431</a>
-<a href="#1432" id="1432">1432</a>
-<a href="#1433" id="1433">1433</a>
-<a href="#1434" id="1434">1434</a>
-<a href="#1435" id="1435">1435</a>
-<a href="#1436" id="1436">1436</a>
-<a href="#1437" id="1437">1437</a>
-<a href="#1438" id="1438">1438</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/courses`.
 
 </span><span class="kw">use </span>chrono::Utc;
@@ -1482,8 +1451,7 @@
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/courses/:course_id` - Get course.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_course(
     course_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -1498,8 +1466,7 @@ GET `/api/v0/main-frontend/courses/:course_id` - Get course.
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/courses/:course_id/breadcrumb-info` - Get information to display breadcrumbs on the manage course pages.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_course_breadcrumb_info(
     course_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -1528,8 +1495,8 @@ Content-Type: application/json
 }
 ```
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool, app_conf))]
+
+</span><span class="attr">#[instrument(skip(pool, app_conf))]
 </span><span class="kw">async fn </span>post_new_course(
     request_id: RequestId,
     pool: web::Data&lt;PgPool&gt;,
@@ -1596,8 +1563,7 @@ Content-Type: application/json
 
 ```
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>update_course(
     payload: web::Json&lt;CourseUpdate&gt;,
     course_id: web::Path&lt;Uuid&gt;,
@@ -1614,8 +1580,7 @@ Content-Type: application/json
 <span class="doccomment">/**
 DELETE `/api/v0/main-frontend/courses/:course_id` - Delete a course.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>delete_course(
     course_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -1680,8 +1645,8 @@ GET `/api/v0/main-frontend/courses/:course_id/structure` - Returns the structure
 }
 ```
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool, file_store, app_conf))]
+
+</span><span class="attr">#[instrument(skip(pool, file_store, app_conf))]
 </span><span class="kw">async fn </span>get_course_structure(
     course_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -1722,8 +1687,8 @@ Content-Type: multipart/form-data
 BINARY_DATA
 ```
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(payload, request, pool, file_store, app_conf))]
+
+</span><span class="attr">#[instrument(skip(payload, request, pool, file_store, app_conf))]
 </span><span class="kw">async fn </span>add_media_for_course(
     course_id: web::Path&lt;Uuid&gt;,
     payload: Multipart,
@@ -1753,8 +1718,7 @@ BINARY_DATA
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/courses/:id/exercises` - Returns all exercises for the course.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_all_exercises(
     pool: web::Data&lt;PgPool&gt;,
     course_id: web::Path&lt;Uuid&gt;,
@@ -1770,8 +1734,7 @@ GET `/api/v0/main-frontend/courses/:id/exercises` - Returns all exercises for th
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/courses/:id/exercises-and-count-of-answers-requiring-attention` - Returns all exercises for the course and count of answers requiring attention in them.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_all_exercises_and_count_of_answers_requiring_attention(
     pool: web::Data&lt;PgPool&gt;,
     course_id: web::Path&lt;Uuid&gt;,
@@ -1795,8 +1758,7 @@ GET /api/v0/main-frontend/courses/fd484707-25b6-4c51-a4ff-32d8259e3e47/language-
 Content-Type: application/json
 ```
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_all_course_language_versions(
     pool: web::Data&lt;PgPool&gt;,
     course_id: web::Path&lt;Uuid&gt;,
@@ -1829,8 +1791,7 @@ Content-Type: application/json
 }
 ```
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">pub async fn </span>post_new_course_language_version(
     pool: web::Data&lt;PgPool&gt;,
     course_id: web::Path&lt;Uuid&gt;,
@@ -1878,9 +1839,7 @@ Content-Type: application/json
 }
 ```
 */
-
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">pub async fn </span>post_new_course_duplicate(
     pool: web::Data&lt;PgPool&gt;,
     course_id: web::Path&lt;Uuid&gt;,
@@ -1912,8 +1871,7 @@ Content-Type: application/json
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/courses/:id/daily-submission-counts` - Returns submission counts grouped by day.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_daily_submission_counts(
     pool: web::Data&lt;PgPool&gt;,
     course_id: web::Path&lt;Uuid&gt;,
@@ -1938,8 +1896,7 @@ GET `/api/v0/main-frontend/courses/:id/daily-submission-counts` - Returns submis
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/courses/:id/daily-users-who-have-submitted-something` - Returns a count of users who have submitted something grouped by day.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_daily_user_counts_with_submissions(
     pool: web::Data&lt;PgPool&gt;,
     course_id: web::Path&lt;Uuid&gt;,
@@ -1965,8 +1922,7 @@ GET `/api/v0/main-frontend/courses/:id/daily-users-who-have-submitted-something`
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/courses/:id/weekday-hour-submission-counts` - Returns submission counts grouped by weekday and hour.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_weekday_hour_submission_counts(
     pool: web::Data&lt;PgPool&gt;,
     course_id: web::Path&lt;Uuid&gt;,
@@ -1992,8 +1948,7 @@ GET `/api/v0/main-frontend/courses/:id/weekday-hour-submission-counts` - Returns
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/courses/:id/submission-counts-by-exercise` - Returns submission counts grouped by weekday and hour.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_submission_counts_by_exercise(
     pool: web::Data&lt;PgPool&gt;,
     course_id: web::Path&lt;Uuid&gt;,
@@ -2019,8 +1974,7 @@ GET `/api/v0/main-frontend/courses/:id/submission-counts-by-exercise` - Returns 
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/courses/:id/course-instances` - Returns all course instances for given course id.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_course_instances(
     pool: web::Data&lt;PgPool&gt;,
     course_id: web::Path&lt;Uuid&gt;,
@@ -2051,8 +2005,7 @@ GET `/api/v0/main-frontend/courses/:id/course-instances` - Returns all course in
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/courses/:id/feedback?read=true` - Returns feedback for the given course.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">pub async fn </span>get_feedback(
     course_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -2077,8 +2030,7 @@ GET `/api/v0/main-frontend/courses/:id/feedback?read=true` - Returns feedback fo
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/courses/:id/feedback-count` - Returns the amount of feedback for the given course.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">pub async fn </span>get_feedback_count(
     course_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -2101,8 +2053,7 @@ GET `/api/v0/main-frontend/courses/:id/feedback-count` - Returns the amount of f
 <span class="doccomment">/**
 POST `/api/v0/main-frontend/courses/:id/new-course-instance`
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>new_course_instance(
     form: web::Json&lt;CourseInstanceForm&gt;,
     course_id: web::Path&lt;Uuid&gt;,
@@ -2127,8 +2078,7 @@ POST `/api/v0/main-frontend/courses/:id/new-course-instance`
     token.authorized_ok(web::Json(ci.id))
 }
 
-<span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+<span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>glossary(
     pool: web::Data&lt;PgPool&gt;,
     course_id: web::Path&lt;Uuid&gt;,
@@ -2142,8 +2092,8 @@ POST `/api/v0/main-frontend/courses/:id/new-course-instance`
 }
 
 <span class="comment">// unused?
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>_new_term(
     pool: web::Data&lt;PgPool&gt;,
     course_id: web::Path&lt;Uuid&gt;,
@@ -2156,8 +2106,7 @@ POST `/api/v0/main-frontend/courses/:id/new-course-instance`
     token.authorized_ok(web::Json(glossary))
 }
 
-<span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+<span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>new_glossary_term(
     pool: web::Data&lt;PgPool&gt;,
     course_id: web::Path&lt;Uuid&gt;,
@@ -2242,8 +2191,7 @@ Creates redirects if url_path changes.
     token.authorized_ok(web::Json(()))
 }
 
-<span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+<span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_material_references_by_course_id(
     course_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -2257,8 +2205,7 @@ Creates redirects if url_path changes.
     token.authorized_ok(web::Json(res))
 }
 
-<span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+<span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>insert_material_references(
     course_id: web::Path&lt;Uuid&gt;,
     payload: web::Json&lt;Vec&lt;NewMaterialReference&gt;&gt;,
@@ -2273,8 +2220,7 @@ Creates redirects if url_path changes.
     token.authorized_ok(web::Json(()))
 }
 
-<span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+<span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>update_material_reference(
     path: web::Path&lt;(Uuid, Uuid)&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -2294,8 +2240,7 @@ Creates redirects if url_path changes.
     token.authorized_ok(web::Json(()))
 }
 
-<span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+<span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>delete_material_reference_by_id(
     path: web::Path&lt;(Uuid, Uuid)&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -2309,8 +2254,7 @@ Creates redirects if url_path changes.
     token.authorized_ok(web::Json(()))
 }
 
-<span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+<span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">pub async fn </span>update_modules(
     course_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -2352,8 +2296,8 @@ POST `/api/v0/main-frontend/courses/{course_id}/update-peer-review-queue-reviews
 
 Updates reviews received for all the students in the peer review queue for a specific course. Updates only entries that have not received enough peer reviews in the table. Only available to admins.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool, user))]
+
+</span><span class="attr">#[instrument(skip(pool, user))]
 </span><span class="kw">async fn </span>post_update_peer_review_queue_reviews_received(
     pool: web::Data&lt;PgPool&gt;,
     user: AuthUser,
@@ -2523,7 +2467,6 @@ gets SCV course instances for course
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary` - Gets aggregated statistics for page visits for the course.
 */
-</span><span class="attr">#[generated_doc]
 </span><span class="kw">pub async fn </span>get_page_visit_datum_summary(
     course_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -2548,7 +2491,6 @@ GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary` - Gets
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary-by-pages` - Gets aggregated statistics for page visits for the course.
 */
-</span><span class="attr">#[generated_doc]
 </span><span class="kw">pub async fn </span>get_page_visit_datum_summary_by_pages(
     course_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -2573,7 +2515,6 @@ GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary-by-page
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary-by-device-types` - Gets aggregated statistics for page visits for the course.
 */
-</span><span class="attr">#[generated_doc]
 </span><span class="kw">pub async fn </span>get_page_visit_datum_summary_by_device_types(
     course_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -2600,7 +2541,6 @@ GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary-by-devi
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary-by-countries` - Gets aggregated statistics for page visits for the course.
 */
-</span><span class="attr">#[generated_doc]
 </span><span class="kw">pub async fn </span>get_page_visit_datum_summary_by_countries(
     course_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -2629,7 +2569,6 @@ DELETE `/api/v0/main-frontend/courses/${course.id}/teacher-reset-course-progress
 
 Deletes submissions, user exercise states, and peer reviews etc. for all the course instances of this course.
 */
-</span><span class="attr">#[generated_doc]
 </span><span class="kw">pub async fn </span>teacher_reset_course_progress_for_themselves(
     course_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -2660,7 +2599,6 @@ DELETE `/api/v0/main-frontend/courses/${course.id}/teacher-reset-course-progress
 
 Deletes submissions, user exercise states, and peer reviews etc. for all the course instances of this course.
 */
-</span><span class="attr">#[generated_doc]
 </span><span class="kw">pub async fn </span>teacher_reset_course_progress_for_everyone(
     course_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,

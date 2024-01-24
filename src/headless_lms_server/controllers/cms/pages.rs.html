@@ -143,8 +143,6 @@
 <a href="#143" id="143">143</a>
 <a href="#144" id="144">144</a>
 <a href="#145" id="145">145</a>
-<a href="#146" id="146">146</a>
-<a href="#147" id="147">147</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/cms/pages`.
 
 </span><span class="kw">use </span>models::{
@@ -168,8 +166,7 @@ GET `/api/v0/cms/pages/:page_id` - Get a page with exercises and exercise tasks 
 
 Request: `GET /api/v0/cms/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02`
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_page(
     page_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -187,7 +184,7 @@ GET `/api/v0/cms/pages/:page_id/info` - Get a pages&#39;s course id, course name
 
 Request: `GET /api/v0/cms/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02/info`
 */
-</span><span class="attr">#[generated_doc]
+
 </span><span class="kw">async fn </span>get_page_info(
     page_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -223,8 +220,8 @@ Content-Type: application/json
 }
 ```
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool, app_conf))]
+
+</span><span class="attr">#[instrument(skip(pool, app_conf))]
 </span><span class="kw">async fn </span>update_page(
     request_id: RequestId,
     payload: web::Json&lt;CmsPageUpdate&gt;,
@@ -264,8 +261,7 @@ Content-Type: application/json
 <span class="doccomment">/**
 GET /api/v0/cms/pages/:page_id/page-navigation - tells what&#39;s the next page, previous page, and the chapter front page given a page id.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_page_navigation(
     page_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,

@@ -185,10 +185,6 @@
 <a href="#185" id="185">185</a>
 <a href="#186" id="186">186</a>
 <a href="#187" id="187">187</a>
-<a href="#188" id="188">188</a>
-<a href="#189" id="189">189</a>
-<a href="#190" id="190">190</a>
-<a href="#191" id="191">191</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::ops::Deref;
 
 <span class="kw">use </span>models::{
@@ -210,8 +206,8 @@
 <span class="doccomment">/**
 POST `/api/v0/main-frontend/exercise-repositories/new
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool, file_store, app_conf))]
+
+</span><span class="attr">#[instrument(skip(pool, file_store, app_conf))]
 </span><span class="kw">async fn </span>new(
     pool: web::Data&lt;PgPool&gt;,
     file_store: web::Data&lt;<span class="kw">dyn </span>FileStore&gt;,
@@ -262,8 +258,7 @@ POST `/api/v0/main-frontend/exercise-repositories/new
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/exercise-repositories/course/:id`
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_for_course(
     pool: web::Data&lt;PgPool&gt;,
     course_id: web::Path&lt;Uuid&gt;,
@@ -288,8 +283,7 @@ GET `/api/v0/main-frontend/exercise-repositories/course/:id`
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/exercise-repositories/exam/:id`
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_for_exam(
     pool: web::Data&lt;PgPool&gt;,
     exam_id: web::Path&lt;Uuid&gt;,
@@ -314,8 +308,7 @@ GET `/api/v0/main-frontend/exercise-repositories/exam/:id`
 <span class="doccomment">/**
 DELETE `/api/v0/main-frontend/exercise-repositories/:id`
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>delete(
     pool: web::Data&lt;PgPool&gt;,
     id: web::Path&lt;Uuid&gt;,
@@ -343,8 +336,7 @@ DELETE `/api/v0/main-frontend/exercise-repositories/:id`
 <span class="doccomment">/**
 PUT `/api/v0/main-frontend/exercise-repositories/:id`
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>update(
     pool: web::Data&lt;PgPool&gt;,
     id: web::Path&lt;Uuid&gt;,

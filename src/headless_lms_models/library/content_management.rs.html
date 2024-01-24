@@ -285,7 +285,7 @@
     </span><span class="kw">let </span>default_module = <span class="kw">crate</span>::course_modules::insert(
         <span class="kw-2">&amp;mut </span>tx,
         PKeyPolicy::Generate,
-        <span class="kw-2">&amp;</span>NewCourseModule::new_course_default(course.id).set_ects_credits(<span class="prelude-val">Some</span>(<span class="number">5</span>)),
+        <span class="kw-2">&amp;</span>NewCourseModule::new_course_default(course.id).set_ects_credits(<span class="prelude-val">Some</span>(<span class="number">5.0</span>)),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 

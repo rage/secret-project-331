@@ -506,9 +506,6 @@
 <a href="#506" id="506">506</a>
 <a href="#507" id="507">507</a>
 <a href="#508" id="508">508</a>
-<a href="#509" id="509">509</a>
-<a href="#510" id="510">510</a>
-<a href="#511" id="511">511</a>
 </pre></div><pre class="rust"><code><span class="kw">use crate</span>::{controllers::helpers::file_uploading, prelude::<span class="kw-2">*</span>};
 <span class="kw">use </span>actix_multipart::form::{tempfile::TempFile, MultipartForm};
 <span class="kw">use </span>chrono::Utc;
@@ -560,8 +557,8 @@ POST `/api/v0/main-frontend/certificates/`
 
 Updates the certificate configuration for a given module.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool, payload, file_store))]
+
+</span><span class="attr">#[instrument(skip(pool, payload, file_store))]
 </span><span class="kw">pub async fn </span>update_certificate_configuration(
     pool: web::Data&lt;PgPool&gt;,
     payload: MultipartForm&lt;CertificateConfigurationUpdateForm&gt;,
@@ -820,8 +817,7 @@ POST `/api/v0/main-frontend/certificates/generate`
 
 Generates a certificate for a given certificate configuration id.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">pub async fn </span>generate_generated_certificate(
     request: web::Json&lt;CertificateGenerationRequest&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -864,8 +860,7 @@ GET `/api/v0/main-frontend/certificates/get-by-configuration-id/{certificate_con
 
 Fetches the user&#39;s certificate for the given course module and course instance.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">pub async fn </span>get_generated_certificate(
     certificate_configuration_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -961,8 +956,7 @@ DELETE `/api/v0/main-frontend/certificates/configuration/{configuration_id}`
 
 Deletes the given configuration.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">pub async fn </span>delete_certificate_configuration(
     configuration_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,

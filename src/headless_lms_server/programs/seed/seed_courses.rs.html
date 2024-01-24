@@ -4931,7 +4931,7 @@
         <span class="kw-2">&amp;mut </span>conn,
         PKeyPolicy::Generate,
         <span class="kw-2">&amp;</span>NewCourseModule::new(course.id, <span class="prelude-val">Some</span>(<span class="string">&quot;Another module&quot;</span>.to_string()), <span class="number">1</span>)
-            .set_ects_credits(<span class="prelude-val">Some</span>(<span class="number">5</span>)),
+            .set_ects_credits(<span class="prelude-val">Some</span>(<span class="number">5.0</span>)),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>new_chapter = NewChapter {

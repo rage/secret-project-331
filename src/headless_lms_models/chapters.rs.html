@@ -661,7 +661,7 @@
     ApplicationConfiguration,
 };
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>DatabaseChapter {
     <span class="kw">pub </span>id: Uuid,
@@ -689,7 +689,7 @@
     }
 }
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>Chapter {
     <span class="kw">pub </span>id: Uuid,
@@ -751,7 +751,7 @@
     }
 }
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 </span><span class="kw">pub struct </span>ChapterPagesWithExercises {
     <span class="kw">pub </span>id: Uuid,
     <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
@@ -764,7 +764,7 @@
 }
 
 <span class="comment">// Represents the subset of page fields that are required to create a new course.
-</span><span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+</span><span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>NewChapter {
     <span class="kw">pub </span>name: String,
@@ -779,7 +779,7 @@
     </span><span class="kw">pub </span>course_module_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
 }
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>ChapterUpdate {
     <span class="kw">pub </span>name: String,
@@ -963,7 +963,7 @@ RETURNING *;&quot;</span>,
     <span class="prelude-val">Ok</span>(updated_chapter)
 }
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>ChapterWithStatus {
     <span class="kw">pub </span>id: Uuid,

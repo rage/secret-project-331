@@ -470,7 +470,7 @@
     CourseOrExamId,
 };
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>ExerciseTaskSubmission {
     <span class="kw">pub </span>id: Uuid,
@@ -492,7 +492,7 @@
     <span class="kw">pub </span>peer_review_question_submissions: Vec&lt;PeerReviewQuestionSubmission&gt;,
 }
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>SubmissionData {
     <span class="kw">pub </span>exercise_id: Uuid,

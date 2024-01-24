@@ -82,10 +82,6 @@
 <a href="#82" id="82">82</a>
 <a href="#83" id="83">83</a>
 <a href="#84" id="84">84</a>
-<a href="#85" id="85">85</a>
-<a href="#86" id="86">86</a>
-<a href="#87" id="87">87</a>
-<a href="#88" id="88">88</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>models::playground_examples::{PlaygroundExample, PlaygroundExampleData};
 
 <span class="kw">use crate</span>::{domain::authorization::skip_authorize, prelude::<span class="kw-2">*</span>};
@@ -93,8 +89,7 @@
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/playground_examples` - Returns all playground examples that are not deleted.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_playground_examples(
     pool: web::Data&lt;PgPool&gt;,
 ) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;PlaygroundExample&gt;&gt;&gt; {
@@ -108,8 +103,7 @@ GET `/api/v0/main-frontend/playground_examples` - Returns all playground example
 <span class="doccomment">/**
 POST `/api/v0/main-frontend/playground_examples` - Saves a playground example.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>insert_playground_example(
     pool: web::Data&lt;PgPool&gt;,
     payload: web::Json&lt;PlaygroundExampleData&gt;,
@@ -127,8 +121,7 @@ POST `/api/v0/main-frontend/playground_examples` - Saves a playground example.
 <span class="doccomment">/**
 PUT `/api/v0/main-frontend/playground_examples` - Updates existing playground example.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>update_playground_example(
     pool: web::Data&lt;PgPool&gt;,
     payload: web::Json&lt;PlaygroundExample&gt;,
@@ -146,8 +139,7 @@ PUT `/api/v0/main-frontend/playground_examples` - Updates existing playground ex
 <span class="doccomment">/**
 DELETE `/api/v0/main-frontend/playground_examples` - Deletes a playground example if exists.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>delete_playground_example(
     pool: web::Data&lt;PgPool&gt;,
     playground_example_id: web::Path&lt;Uuid&gt;,

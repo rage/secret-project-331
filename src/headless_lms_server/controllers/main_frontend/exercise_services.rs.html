@@ -120,11 +120,6 @@
 <a href="#120" id="120">120</a>
 <a href="#121" id="121">121</a>
 <a href="#122" id="122">122</a>
-<a href="#123" id="123">123</a>
-<a href="#124" id="124">124</a>
-<a href="#125" id="125">125</a>
-<a href="#126" id="126">126</a>
-<a href="#127" id="127">127</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/exercise-services/`.
 
 </span><span class="kw">use </span>models::exercise_services::{ExerciseService, ExerciseServiceNewOrUpdate};
@@ -134,8 +129,7 @@
 <span class="doccomment">/**
 DELETE `/api/v0/main-frontend/exercise-services/:id`
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>delete_exercise_service(
     exercise_service_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -153,8 +147,7 @@ DELETE `/api/v0/main-frontend/exercise-services/:id`
 <span class="doccomment">/**
 POST `/api/v0/main-frontend/exercise-services`
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>add_exercise_service(
     pool: web::Data&lt;PgPool&gt;,
     user: AuthUser,
@@ -173,8 +166,7 @@ POST `/api/v0/main-frontend/exercise-services`
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/exercise-services/:id`
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_exercise_service_by_id(
     exercise_service_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -191,8 +183,7 @@ GET `/api/v0/main-frontend/exercise-services/:id`
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/exercise-services`
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_exercise_services(
     pool: web::Data&lt;PgPool&gt;,
     user: AuthUser,
@@ -207,8 +198,7 @@ GET `/api/v0/main-frontend/exercise-services`
 <span class="doccomment">/**
 PUT `/api/v0/main-frontend/exercise-services/:id`
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>update_exercise_service(
     payload: web::Json&lt;ExerciseServiceNewOrUpdate&gt;,
     exercise_service_id: web::Path&lt;Uuid&gt;,

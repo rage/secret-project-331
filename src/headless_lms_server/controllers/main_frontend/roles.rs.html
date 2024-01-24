@@ -326,7 +326,7 @@
  * GET /api/v0/main-frontend/roles - Get all roles for the given domain.
  */
 </span><span class="attr">#[instrument(skip(pool))]
-#[generated_doc]
+
 </span><span class="kw">pub async fn </span>fetch(
     pool: web::Data&lt;PgPool&gt;,
     query: web::Query&lt;RoleQuery&gt;,
@@ -346,7 +346,7 @@
  * GET /api/v0/main-frontend/roles - Get all pending roles for the given domain.
  */
 </span><span class="attr">#[instrument(skip(pool))]
-#[generated_doc]
+
 </span><span class="kw">pub async fn </span>fetch_pending(
     pool: web::Data&lt;PgPool&gt;,
     query: web::Query&lt;RoleQuery&gt;,

@@ -1382,14 +1382,14 @@ Tells what stage of reviewing the user is currently in. Used for for peer review
     <span class="kw">pub </span>attempted_exercises: <span class="prelude-ty">Option</span>&lt;i64&gt;,
 }
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 </span><span class="kw">pub struct </span>CourseInstanceExerciseMetrics {
     course_module_id: Uuid,
     total_exercises: <span class="prelude-ty">Option</span>&lt;i64&gt;,
     score_maximum: <span class="prelude-ty">Option</span>&lt;i64&gt;,
 }
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>ExerciseUserCounts {
     exercise_name: String,
@@ -2351,7 +2351,7 @@ WHERE exercises.deleted_at IS NULL
             Uuid::parse_str(<span class="string">&quot;3fa4bee6-7390-415e-968f-ecdc5f28330e&quot;</span>).unwrap(),
         )
         .set_timestamps(timestamp, timestamp, <span class="prelude-val">None</span>)
-        .set_registration_info(<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="number">5</span>), <span class="prelude-val">None</span>, <span class="bool-val">false</span>)];
+        .set_registration_info(<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="number">5.0</span>), <span class="prelude-val">None</span>, <span class="bool-val">false</span>)];
         <span class="kw">let </span>course_metrics_by_course_module_id = HashMap::from([(
             module_id,
             CourseInstanceExerciseMetrics {

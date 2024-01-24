@@ -285,7 +285,7 @@
     prelude::<span class="kw-2">*</span>,
 };
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>ExerciseService {
     <span class="kw">pub </span>id: Uuid,
@@ -301,7 +301,7 @@
 }
 
 <span class="doccomment">/// Exercise service definition that the CMS can use to render the editor view.
-</span><span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+</span><span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>ExerciseServiceIframeRenderingInfo {
     <span class="kw">pub </span>id: Uuid,
@@ -310,7 +310,7 @@
     <span class="kw">pub </span>public_iframe_url: String,
 }
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>ExerciseServiceNewOrUpdate {
     <span class="kw">pub </span>name: String,

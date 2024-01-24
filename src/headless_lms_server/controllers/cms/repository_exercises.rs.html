@@ -30,12 +30,10 @@
 <a href="#30" id="30">30</a>
 <a href="#31" id="31">31</a>
 <a href="#32" id="32">32</a>
-<a href="#33" id="33">33</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span>models::repository_exercises::{<span class="self">self</span>, RepositoryExercise};
 
-<span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+<span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">pub async fn </span>get_for_course(
     course_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,

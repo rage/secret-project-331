@@ -961,23 +961,6 @@
 <a href="#961" id="961">961</a>
 <a href="#962" id="962">962</a>
 <a href="#963" id="963">963</a>
-<a href="#964" id="964">964</a>
-<a href="#965" id="965">965</a>
-<a href="#966" id="966">966</a>
-<a href="#967" id="967">967</a>
-<a href="#968" id="968">968</a>
-<a href="#969" id="969">969</a>
-<a href="#970" id="970">970</a>
-<a href="#971" id="971">971</a>
-<a href="#972" id="972">972</a>
-<a href="#973" id="973">973</a>
-<a href="#974" id="974">974</a>
-<a href="#975" id="975">975</a>
-<a href="#976" id="976">976</a>
-<a href="#977" id="977">977</a>
-<a href="#978" id="978">978</a>
-<a href="#979" id="979">979</a>
-<a href="#980" id="980">980</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/courses`.
 
 </span><span class="kw">use </span>std::{collections::HashMap, net::IpAddr, path::Path};
@@ -1022,8 +1005,7 @@
 <span class="doccomment">/**
 GET `/api/v0/course-material/courses/:course_id` - Get course.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_course(
     course_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -1043,8 +1025,8 @@ If the page has moved and there&#39;s a redirection, this will still return the 
 # Example
 GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//part-2/hello-world
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool, ip_to_country_mapper, req))]
+
+</span><span class="attr">#[instrument(skip(pool, ip_to_country_mapper, req))]
 </span><span class="kw">async fn </span>get_course_page_by_path(
     params: web::Path&lt;(String, String)&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -1295,8 +1277,7 @@ GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//par
 <span class="doccomment">/**
 GET `/api/v0/course-material/courses/:course_id/current-instance` - Returns the instance of a course for the current user, if there is one.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_current_course_instance(
     pool: web::Data&lt;PgPool&gt;,
     course_id: web::Path&lt;Uuid&gt;,
@@ -1322,7 +1303,7 @@ GET `/api/v0/course-material/courses/:course_id/current-instance` - Returns the 
 <span class="doccomment">/**
 GET `/api/v0/course-material/courses/:course_id/course-instances` - Returns all course instances for given course id.
 */
-</span><span class="attr">#[generated_doc]
+
 </span><span class="kw">async fn </span>get_course_instances(
     pool: web::Data&lt;PgPool&gt;,
     course_id: web::Path&lt;Uuid&gt;,
@@ -1339,8 +1320,7 @@ GET `/api/v0/course-material/courses/:course_id/pages` - Returns a list of publi
 
 Since anyone can access this endpoint, any unlisted pages are omited from these results.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_public_course_pages(
     course_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -1356,14 +1336,14 @@ Since anyone can access this endpoint, any unlisted pages are omited from these 
     token.authorized_ok(web::Json(pages))
 }
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>ChaptersWithStatus {
     <span class="kw">pub </span>is_previewable: bool,
     <span class="kw">pub </span>modules: Vec&lt;CourseMaterialCourseModule&gt;,
 }
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>CourseMaterialCourseModule {
     <span class="kw">pub </span>chapters: Vec&lt;ChapterWithStatus&gt;,
@@ -1376,8 +1356,8 @@ Since anyone can access this endpoint, any unlisted pages are omited from these 
 <span class="doccomment">/**
 GET `/api/v0/course-material/courses/:course_id/chapters` - Returns a list of chapters in a course.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool, file_store, app_conf))]
+
+</span><span class="attr">#[instrument(skip(pool, file_store, app_conf))]
 </span><span class="kw">async fn </span>get_chapters(
     course_id: web::Path&lt;Uuid&gt;,
     user: <span class="prelude-ty">Option</span>&lt;AuthUser&gt;,
@@ -1455,8 +1435,7 @@ GET `/api/v0/course-material/courses/:course_id/chapters` - Returns a list of ch
 <span class="doccomment">/**
 GET `/api/v0/course-material/courses/:course_id/user-settings` - Returns user settings for the current course.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_user_course_settings(
     pool: web::Data&lt;PgPool&gt;,
     course_id: web::Path&lt;Uuid&gt;,
@@ -1497,8 +1476,7 @@ Content-Type: application/json
 }
 ```
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>search_pages_with_phrase(
     course_id: web::Path&lt;Uuid&gt;,
     payload: web::Json&lt;SearchRequest&gt;,
@@ -1529,8 +1507,7 @@ Content-Type: application/json
 }
 ```
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>search_pages_with_words(
     course_id: web::Path&lt;Uuid&gt;,
     payload: web::Json&lt;SearchRequest&gt;,
@@ -1546,7 +1523,7 @@ Content-Type: application/json
 <span class="doccomment">/**
 POST `/api/v0/course-material/courses/:course_id/feedback` - Creates new feedback.
 */
-</span><span class="attr">#[generated_doc]
+
 </span><span class="kw">pub async fn </span>feedback(
     course_id: web::Path&lt;Uuid&gt;,
     new_feedback: web::Json&lt;Vec&lt;NewFeedback&gt;&gt;,
@@ -1598,7 +1575,7 @@ POST `/api/v0/course-material/courses/:course_id/feedback` - Creates new feedbac
 <span class="doccomment">/**
 POST `/api/v0/course-material/courses/:course_slug/edit` - Creates a new edit proposal.
 */
-</span><span class="attr">#[generated_doc]
+
 </span><span class="kw">async fn </span>propose_edit(
     course_slug: web::Path&lt;String&gt;,
     edits: web::Json&lt;NewProposedPageEdits&gt;,
@@ -1619,8 +1596,7 @@ POST `/api/v0/course-material/courses/:course_slug/edit` - Creates a new edit pr
     token.authorized_ok(web::Json(id))
 }
 
-<span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+<span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>glossary(
     pool: web::Data&lt;PgPool&gt;,
     course_id: web::Path&lt;Uuid&gt;,
@@ -1631,8 +1607,7 @@ POST `/api/v0/course-material/courses/:course_slug/edit` - Creates a new edit pr
     token.authorized_ok(web::Json(glossary))
 }
 
-<span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+<span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_material_references_by_course_id(
     course_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -1650,8 +1625,7 @@ POST `/api/v0/course-material/courses/:course_slug/edit` - Creates a new edit pr
 <span class="doccomment">/**
 GET /api/v0/course-material/courses/:course_id/top-level-pages
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_public_top_level_pages(
     course_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -1670,8 +1644,7 @@ GET /api/v0/course-material/courses/:course_id/top-level-pages
 <span class="doccomment">/**
 GET `/api/v0/course-material/courses/:id/language-versions` - Returns all language versions of the same course. Since this is for course material, this does not include draft courses.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_all_course_language_versions(
     pool: web::Data&lt;PgPool&gt;,
     course_id: web::Path&lt;Uuid&gt;,
@@ -1691,8 +1664,7 @@ GET `/api/v0/course-material/courses/:id/language-versions` - Returns all langua
 <span class="doccomment">/**
 GET `/api/v0/{course_id}/pages/by-language-group-id/{page_language_group_id} - Returns a page with the given course id and language group id.
  */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_page_by_course_id_and_language_group(
     info: web::Path&lt;(Uuid, Uuid)&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -1713,8 +1685,7 @@ GET `/api/v0/{course_id}/pages/by-language-group-id/{page_language_group_id} - R
 <span class="doccomment">/**
 POST `/api/v0/{course_id}/course-instances/{course_instance_id}/student-countries/{country_code}` - Add a new student&#39;s country entry.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>student_country(
     query: web::Path&lt;(Uuid, Uuid, String)&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -1739,8 +1710,7 @@ POST `/api/v0/{course_id}/course-instances/{course_instance_id}/student-countrie
 <span class="doccomment">/**
 GET `/api/v0/{course_id}/course-instances/{course_instance_id}/student-countries - Returns countries of student registered in a course.
  */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_student_countries(
     query: web::Path&lt;(Uuid, Uuid)&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -1768,8 +1738,7 @@ GET `/api/v0/{course_id}/course-instances/{course_instance_id}/student-countries
 <span class="doccomment">/**
 GET `/api/v0/{course_id}/student-country - Returns country of a student registered in a course.
  */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_student_country(
     course_instance_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -1790,8 +1759,7 @@ GET `/api/v0/{course_id}/student-country - Returns country of a student register
 <span class="doccomment">/**
 GET `/api/v0/course-material/courses/:course_id/research-consent-form` - Fetches courses research form with course id.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_research_form_with_course_id(
     course_id: web::Path&lt;Uuid&gt;,
     user: AuthUser,
@@ -1812,8 +1780,7 @@ GET `/api/v0/course-material/courses/:course_id/research-consent-form` - Fetches
 <span class="doccomment">/**
 GET `/api/v0/course-material/courses/:course_id/research-consent-form-questions` - Fetches courses research form questions with course id.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_research_form_questions_with_course_id(
     course_id: web::Path&lt;Uuid&gt;,
     user: AuthUser,
@@ -1833,8 +1800,8 @@ GET `/api/v0/course-material/courses/:course_id/research-consent-form-questions`
 <span class="doccomment">/**
 POST `/api/v0/course-material/courses/:course_id/research-consent-form-questions-answer` - Upserts users consent for a courses research form question.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool, payload))]
+
+</span><span class="attr">#[instrument(skip(pool, payload))]
 </span><span class="kw">async fn </span>upsert_course_research_form_answer(
     payload: web::Json&lt;NewResearchFormQuestionAnswer&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -1855,8 +1822,7 @@ POST `/api/v0/course-material/courses/:course_id/research-consent-form-questions
 <span class="doccomment">/**
 GET `/api/v0/course/courses/:course_id/research-consent-form-users-answers` - Fetches users answers for courses research form.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_research_form_answers_with_user_id(
     course_id: web::Path&lt;Uuid&gt;,
     user: AuthUser,

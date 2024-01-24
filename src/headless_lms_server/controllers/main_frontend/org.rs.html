@@ -47,8 +47,8 @@
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/org/:slug
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool, file_store, app_conf))]
+
+</span><span class="attr">#[instrument(skip(pool, file_store, app_conf))]
 </span><span class="kw">async fn </span>get_organization_by_slug(
     pool: web::Data&lt;PgPool&gt;,
     organization_slug: web::Path&lt;String&gt;,

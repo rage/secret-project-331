@@ -98,7 +98,7 @@ This documents all endpoints. Select a module below for a namespace.
 </span><span class="kw">use </span>ts_rs::TS;
 
 <span class="doccomment">/// Result of a image upload. Tells where the uploaded image can be retrieved from.
-</span><span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+</span><span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>UploadResult {
     <span class="kw">pub </span>url: String,

@@ -106,10 +106,6 @@
 <a href="#106" id="106">106</a>
 <a href="#107" id="107">107</a>
 <a href="#108" id="108">108</a>
-<a href="#109" id="109">109</a>
-<a href="#110" id="110">110</a>
-<a href="#111" id="111">111</a>
-<a href="#112" id="112">112</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>models::{pages::SearchRequest, user_details::UserDetail};
 
 <span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
@@ -117,8 +113,7 @@
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/user-details/[id]` - Find user details by user id
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">pub async fn </span>get_user_details(
     user: AuthUser,
     pool: web::Data&lt;PgPool&gt;,
@@ -140,8 +135,7 @@ GET `/api/v0/main-frontend/user-details/[id]` - Find user details by user id
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/user-details/search-by-email` - Allows to search user by their email
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">pub async fn </span>search_users_by_email(
     user: AuthUser,
     pool: web::Data&lt;PgPool&gt;,
@@ -164,8 +158,7 @@ GET `/api/v0/main-frontend/user-details/search-by-email` - Allows to search user
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/user-details/search-by-other-details` - Allows to search user by their names etc.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">pub async fn </span>search_users_by_other_details(
     user: AuthUser,
     pool: web::Data&lt;PgPool&gt;,
@@ -189,8 +182,7 @@ GET `/api/v0/main-frontend/user-details/search-by-other-details` - Allows to sea
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/user-details/search-fuzzy-match` - Allows to find the right user details in cases where there is a small typing error in the search query
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">pub async fn </span>search_users_fuzzy_match(
     user: AuthUser,
     pool: web::Data&lt;PgPool&gt;,

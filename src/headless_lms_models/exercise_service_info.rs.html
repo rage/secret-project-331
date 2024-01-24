@@ -278,7 +278,7 @@
     prelude::<span class="kw-2">*</span>,
 };
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 </span><span class="kw">pub struct </span>ExerciseServiceInfo {
     <span class="kw">pub </span>exercise_service_id: Uuid,
     <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
@@ -289,7 +289,7 @@
     <span class="kw">pub </span>model_solution_spec_endpoint_path: String,
 }
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 </span><span class="kw">pub struct </span>PathInfo {
     <span class="kw">pub </span>exercise_service_id: Uuid,
     <span class="kw">pub </span>user_interface_iframe_path: String,
@@ -298,13 +298,13 @@
     <span class="kw">pub </span>model_solution_spec_endpoint_path: String,
 }
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>CourseMaterialExerciseServiceInfo {
     <span class="kw">pub </span>exercise_iframe_url: String,
 }
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>ExerciseServiceInfoApi {
     <span class="kw">pub </span>service_name: String,

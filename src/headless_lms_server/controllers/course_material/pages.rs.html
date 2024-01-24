@@ -114,11 +114,6 @@
 <a href="#114" id="114">114</a>
 <a href="#115" id="115">115</a>
 <a href="#116" id="116">116</a>
-<a href="#117" id="117">117</a>
-<a href="#118" id="118">118</a>
-<a href="#119" id="119">119</a>
-<a href="#120" id="120">120</a>
-<a href="#121" id="121">121</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/pages`.
 
 </span><span class="kw">use crate</span>::{domain::authorization::skip_authorize, prelude::<span class="kw-2">*</span>};
@@ -129,8 +124,7 @@
 <span class="doccomment">/**
 GET /api/v0/course-material/pages/exam/{page_id}
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_by_exam_id(
     exam_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -144,8 +138,7 @@ GET /api/v0/course-material/pages/exam/{page_id}
 <span class="doccomment">/**
 GET /api/v0/course-material/page/{page_id}
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_chapter_front_page(
     page_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -160,8 +153,7 @@ GET /api/v0/course-material/page/{page_id}
 <span class="doccomment">/**
 GET /api/v0/course-material/pages/:page_id/page-navigation - tells what&#39;s the next page, previous page, and the chapter front page given a page id.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_page_navigation(
     page_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -176,8 +168,7 @@ GET /api/v0/course-material/pages/:page_id/page-navigation - tells what&#39;s th
 <span class="doccomment">/**
  GET /api/v0/course-material/pages/:page_id/chapter-and-course-information - gives the page&#39;s chapter and course information -- useful for the breadcrumbs
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_chapter_and_course_information(
     page_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -208,8 +199,7 @@ GET /api/v0/course-material/pages/:page_id/page-navigation - tells what&#39;s th
     token.authorized_ok(page.url_path)
 }
 
-<span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+<span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>is_chapter_front_page(
     page_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,

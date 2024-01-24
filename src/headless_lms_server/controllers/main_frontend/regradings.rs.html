@@ -94,8 +94,8 @@
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/regradings` - Returns a paginated list of all the regradings.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool, user))]
+
+</span><span class="attr">#[instrument(skip(pool, user))]
 </span><span class="kw">async fn </span>get_regradings(
     pool: web::Data&lt;PgPool&gt;,
     user: AuthUser,
@@ -110,8 +110,8 @@ GET `/api/v0/main-frontend/regradings` - Returns a paginated list of all the reg
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/regradings/count` - Counts regradings
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool, user))]
+
+</span><span class="attr">#[instrument(skip(pool, user))]
 </span><span class="kw">async fn </span>get_regradings_count(
     pool: web::Data&lt;PgPool&gt;,
     user: AuthUser,
@@ -125,8 +125,8 @@ GET `/api/v0/main-frontend/regradings/count` - Counts regradings
 <span class="doccomment">/**
 POST `/api/v0/main-frontend/regradings` - Creates a new regrading for the supplied exercise task submission ids and returns the new regrading id.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool, user))]
+
+</span><span class="attr">#[instrument(skip(pool, user))]
 </span><span class="kw">async fn </span>create_by_exercise_task_submission_ids(
     pool: web::Data&lt;PgPool&gt;,
     user: AuthUser,
@@ -146,8 +146,8 @@ POST `/api/v0/main-frontend/regradings` - Creates a new regrading for the suppli
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/regradings/{id}` - Returns relevant information about a regrading.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool, user))]
+
+</span><span class="attr">#[instrument(skip(pool, user))]
 </span><span class="kw">async fn </span>get_regrading_info_by_id(
     pool: web::Data&lt;PgPool&gt;,
     user: AuthUser,

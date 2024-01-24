@@ -2,16 +2,4 @@
     auth_user: <a class="enum" href="https://doc.rust-lang.org/1.75.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="struct" href="../../domain/authorization/struct.AuthUser.html" title="struct headless_lms_server::domain::authorization::AuthUser">AuthUser</a>&gt;,
     pool: <a class="struct" href="../../prelude/web/struct.Data.html" title="struct headless_lms_server::prelude::web::Data">Data</a>&lt;<a class="type" href="../../prelude/type.PgPool.html" title="type headless_lms_server::prelude::PgPool">PgPool</a>&gt;
 ) -&gt; <a class="type" href="../../domain/error/type.ControllerResult.html" title="type headless_lms_server::domain::error::ControllerResult">ControllerResult</a>&lt;<a class="struct" href="../../prelude/web/struct.Json.html" title="struct headless_lms_server::prelude::web::Json">Json</a>&lt;<a class="enum" href="https://doc.rust-lang.org/1.75.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="struct" href="struct.UserInfo.html" title="struct headless_lms_server::controllers::auth::UserInfo">UserInfo</a>&gt;&gt;&gt;</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>GET <code>/api/v0/auth/user-info</code> Returns the current user’s info.</p>
-<h3 id="response-typescript-definition"><a href="#response-typescript-definition">Response TypeScript definition</a></h3><div class="example-wrap"><pre class="language-ts"><code>type Option&lt;UserInfo&gt; = {
-  user_id: string
-  first_name: string | null
-  last_name: string | null
-} | null
-
-</code></pre></div><h3 id="example-response"><a href="#example-response">Example response</a></h3><div class="example-wrap"><pre class="language-json"><code>{
-  &quot;user_id&quot;: &quot;cebcb32b-aa7e-40ad-bc79-9d5c534a8a5a&quot;,
-  &quot;first_name&quot;: &quot;Example&quot;,
-  &quot;last_name&quot;: &quot;User&quot;
-}
-
-</code></pre></div></div></details></section></div></main></body></html>
+</div></details></section></div></main></body></html>

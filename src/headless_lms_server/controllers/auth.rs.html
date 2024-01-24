@@ -368,8 +368,8 @@ Handlers for HTTP requests to `/api/v0/auth`.
 <span class="doccomment">/**
 POST `/api/v0/auth/authorize` checks whether user can perform specified action on specified resource.
 **/
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool, payload,))]
+
+</span><span class="attr">#[instrument(skip(pool, payload,))]
 </span><span class="kw">pub async fn </span>authorize_action_on_resource(
     pool: web::Data&lt;PgPool&gt;,
     user: <span class="prelude-ty">Option</span>&lt;AuthUser&gt;,
@@ -468,8 +468,8 @@ Content-Type: application/json
 POST `/api/v0/auth/authorize-multiple` checks whether user can perform specified action on specified resource.
 Returns booleans for the authorizations in the same order as the input.
 **/
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool, payload,))]
+
+</span><span class="attr">#[instrument(skip(pool, payload,))]
 </span><span class="kw">pub async fn </span>authorize_multiple_actions_on_resources(
     pool: web::Data&lt;PgPool&gt;,
     user: <span class="prelude-ty">Option</span>&lt;AuthUser&gt;,
@@ -587,8 +587,8 @@ GET `/api/v0/auth/logged-in` Returns the current user&#39;s login status.
 <span class="doccomment">/**
 GET `/api/v0/auth/user-info` Returns the current user&#39;s info.
 **/
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(auth_user, pool))]
+
+</span><span class="attr">#[instrument(skip(auth_user, pool))]
 </span><span class="kw">pub async fn </span>user_info(
     auth_user: <span class="prelude-ty">Option</span>&lt;AuthUser&gt;,
     pool: web::Data&lt;PgPool&gt;,

@@ -381,13 +381,6 @@
 <a href="#381" id="381">381</a>
 <a href="#382" id="382">382</a>
 <a href="#383" id="383">383</a>
-<a href="#384" id="384">384</a>
-<a href="#385" id="385">385</a>
-<a href="#386" id="386">386</a>
-<a href="#387" id="387">387</a>
-<a href="#388" id="388">388</a>
-<a href="#389" id="389">389</a>
-<a href="#390" id="390">390</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/organizations`.
 
 </span><span class="kw">use </span>std::{path::PathBuf, str::FromStr};
@@ -408,8 +401,8 @@
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/organizations` - Returns a list of all organizations.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool, file_store, app_conf))]
+
+</span><span class="attr">#[instrument(skip(pool, file_store, app_conf))]
 </span><span class="kw">async fn </span>get_all_organizations(
     pool: web::Data&lt;PgPool&gt;,
     file_store: web::Data&lt;<span class="kw">dyn </span>FileStore&gt;,
@@ -429,8 +422,7 @@ GET `/api/v0/main-frontend/organizations` - Returns a list of all organizations.
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/organizations/{organization_id}/courses&quot;` - Returns a list of all courses in a organization.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_organization_courses(
     organization_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -452,8 +444,7 @@ GET `/api/v0/main-frontend/organizations/{organization_id}/courses&quot;` - Retu
     token.authorized_ok(web::Json(courses))
 }
 
-<span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+<span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_organization_course_count(
     request_organization_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -466,8 +457,7 @@ GET `/api/v0/main-frontend/organizations/{organization_id}/courses&quot;` - Retu
     token.authorized_ok(Json(result))
 }
 
-<span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+<span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_organization_active_courses(
     request_organization_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -485,8 +475,7 @@ GET `/api/v0/main-frontend/organizations/{organization_id}/courses&quot;` - Retu
     token.authorized_ok(Json(courses))
 }
 
-<span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+<span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_organization_active_courses_count(
     request_organization_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -515,8 +504,8 @@ Content-Type: multipart/form-data
 BINARY_DATA
 ```
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(request, payload, pool, file_store, app_conf))]
+
+</span><span class="attr">#[instrument(skip(request, payload, pool, file_store, app_conf))]
 </span><span class="kw">async fn </span>set_organization_image(
     request: HttpRequest,
     payload: Multipart,
@@ -589,8 +578,8 @@ Request:
 DELETE /api/v0/main-frontend/organizations/d332f3d9-39a5-4a18-80f4-251727693c37/image HTTP/1.1
 ```
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool, file_store))]
+
+</span><span class="attr">#[instrument(skip(pool, file_store))]
 </span><span class="kw">async fn </span>remove_organization_image(
     organization_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -631,8 +620,8 @@ DELETE /api/v0/main-frontend/organizations/d332f3d9-39a5-4a18-80f4-251727693c37/
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/organizations/{organization_id}` - Returns an organizations with id.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool, file_store, app_conf))]
+
+</span><span class="attr">#[instrument(skip(pool, file_store, app_conf))]
 </span><span class="kw">async fn </span>get_organization(
     organization_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -652,8 +641,7 @@ GET `/api/v0/main-frontend/organizations/{organization_id}` - Returns an organiz
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/organizations/{organization_id}/course_exams` - Returns an organizations exams in CourseExam form.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_course_exams(
     pool: web::Data&lt;PgPool&gt;,
     organization: web::Path&lt;Uuid&gt;,
@@ -668,8 +656,7 @@ GET `/api/v0/main-frontend/organizations/{organization_id}/course_exams` - Retur
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/organizations/{organization_id}/exams` - Returns an organizations exams in Exam form.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_org_exams(
     pool: web::Data&lt;PgPool&gt;,
     organization: web::Path&lt;Uuid&gt;,
@@ -684,8 +671,7 @@ GET `/api/v0/main-frontend/organizations/{organization_id}/exams` - Returns an o
 <span class="doccomment">/**
 POST `/api/v0/main-frontend/organizations/{organization_id}/exams` - Creates new exam for the organization.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>create_exam(
     pool: web::Data&lt;PgPool&gt;,
     payload: web::Json&lt;NewExam&gt;,

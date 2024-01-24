@@ -621,7 +621,7 @@
     <span class="kw">pub </span>completion_granter_user_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
 }
 
-<span class="attr">#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+<span class="attr">#[derive(Clone, PartialEq, Deserialize, Serialize)]
 </span><span class="kw">pub enum </span>CourseModuleCompletionGranter {
     Automatic,
     User(Uuid),
@@ -636,7 +636,7 @@
     }
 }
 
-<span class="attr">#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+<span class="attr">#[derive(Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>NewCourseModuleCompletion {
     <span class="kw">pub </span>course_id: Uuid,
@@ -777,7 +777,7 @@ WHERE course_instance_id = $1
     <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>CourseModuleCompletionWithRegistrationInfo {
     <span class="doccomment">/// When the student has attempted to register the completion.
@@ -1030,7 +1030,7 @@ WHERE id = $2 AND deleted_at IS NULL
 }
 
 <span class="doccomment">/// Completion in the form that is recognized by authorized third party study registry registrars.
-</span><span class="attr">#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+</span><span class="attr">#[derive(Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>StudyRegistryCompletion {
     <span class="doccomment">/// The date when the student completed the course. The value of this field is the date that will
@@ -1111,7 +1111,7 @@ WHERE id = $2 AND deleted_at IS NULL
 ///   }
 /// }
 /// ```
-</span><span class="attr">#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+</span><span class="attr">#[derive(Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>StudyRegistryGrade {
     <span class="kw">pub </span>scale: String,

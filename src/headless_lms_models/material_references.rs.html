@@ -123,7 +123,7 @@
 <span class="kw">use </span>sqlx::PgConnection;
 <span class="kw">use </span>uuid::Uuid;
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>MaterialReference {
     <span class="kw">pub </span>id: Uuid,
@@ -135,7 +135,7 @@
     <span class="kw">pub </span>deleted_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
 }
 
-<span class="attr">#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+<span class="attr">#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>NewMaterialReference {
     <span class="kw">pub </span>citation_key: String,

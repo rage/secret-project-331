@@ -99,9 +99,6 @@
 <a href="#99" id="99">99</a>
 <a href="#100" id="100">100</a>
 <a href="#101" id="101">101</a>
-<a href="#102" id="102">102</a>
-<a href="#103" id="103">103</a>
-<a href="#104" id="104">104</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/course_material/chapters`.
 
 </span><span class="kw">use </span>models::pages::{Page, PageVisibility, PageWithExercises};
@@ -111,8 +108,7 @@
 <span class="doccomment">/**
 GET `/api/v0/course-material/chapters/:chapter_id/pages` - Returns a list of pages in chapter.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_public_chapter_pages(
     chapter_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -138,8 +134,7 @@ GET `/api/v0/course-material/chapters/:chapter_id/pages` - Returns a list of pag
 <span class="doccomment">/**
 GET `/api/v0/course-material/chapters/:chapter_id/exercises` - Returns a list of pages and its exercises in chapter.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_chapters_exercises(
     chapter_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -162,8 +157,7 @@ GET `/api/v0/course-material/chapters/:chapter_id/exercises` - Returns a list of
 <span class="doccomment">/**
 GET `/api/v0/course-material/chapters/:chapter_id/pages-exclude-mainfrontpage` - Returns a list of pages in chapter mainfrontpage excluded.
 */
-</span><span class="attr">#[generated_doc]
-#[instrument(skip(pool))]
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_chapters_pages_without_main_frontpage(
     chapter_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,

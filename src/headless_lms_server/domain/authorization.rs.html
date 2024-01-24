@@ -1083,7 +1083,7 @@
     upstream_id: <span class="prelude-ty">Option</span>&lt;i32&gt;,
 }
 
-<span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+<span class="attr">#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 #[serde(rename_all = <span class="string">&quot;snake_case&quot;</span>)]
 </span><span class="kw">pub struct </span>ActionOnResource {
@@ -1230,7 +1230,7 @@
 }
 
 <span class="doccomment">/// The target of an action.
-</span><span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+</span><span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 #[serde(rename_all = <span class="string">&quot;snake_case&quot;</span>, tag = <span class="string">&quot;type&quot;</span>, content = <span class="string">&quot;id&quot;</span>)]
 </span><span class="kw">pub enum </span>Resource {

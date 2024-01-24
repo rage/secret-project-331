@@ -197,8 +197,6 @@
 <a href="#197" id="197">197</a>
 <a href="#198" id="198">198</a>
 <a href="#199" id="199">199</a>
-<a href="#200" id="200">200</a>
-<a href="#201" id="201">201</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::time::Duration;
 
 <span class="kw">use </span>headless_lms_utils::url_to_oembed_endpoint::{
@@ -352,8 +350,7 @@ Response:
     token.authorized_ok(web::Json(response))
 }
 
-<span class="attr">#[generated_doc]
-#[instrument(skip(app_conf))]
+<span class="attr">#[instrument(skip(app_conf))]
 </span><span class="kw">async fn </span>get_mentimeter_oembed_data(
     query_params: web::Query&lt;OEmbedRequest&gt;,
     app_conf: web::Data&lt;ApplicationConfiguration&gt;,
@@ -365,8 +362,7 @@ Response:
     token.authorized_ok(web::Json(response))
 }
 
-<span class="attr">#[generated_doc]
-#[instrument(skip(app_conf))]
+<span class="attr">#[instrument(skip(app_conf))]
 </span><span class="kw">async fn </span>get_thinglink_oembed_data(
     query_params: web::Query&lt;OEmbedRequest&gt;,
     app_conf: web::Data&lt;ApplicationConfiguration&gt;,

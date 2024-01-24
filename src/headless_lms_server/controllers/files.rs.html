@@ -345,7 +345,7 @@ Used to upload data from exercise service iframes.
 The randomly generated paths to each uploaded file in a `file_name =&gt; file_path` hash map.
 */
 </span><span class="attr">#[instrument(skip(payload, file_store, app_conf, upload_claim))]
-#[generated_doc]
+
 </span><span class="kw">async fn </span>upload_from_exercise_service(
     pool: web::Data&lt;PgPool&gt;,
     exercise_service_slug: web::Path&lt;String&gt;,

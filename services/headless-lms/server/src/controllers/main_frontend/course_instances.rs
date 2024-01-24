@@ -29,7 +29,6 @@ use crate::{
 /**
 GET /course-instances/:id
 */
-
 #[instrument(skip(pool))]
 async fn get_course_instance(
     course_instance_id: web::Path<Uuid>,
@@ -177,7 +176,6 @@ async fn points(
 /**
 GET `/api/v0/main-frontend/course-instances/{course_instance_id}/completions`
 */
-
 #[instrument(skip(pool))]
 async fn completions(
     course_instance_id: web::Path<Uuid>,
@@ -419,7 +417,6 @@ async fn get_all_get_all_course_module_completions_for_user_by_course_instance_i
 /**
  GET /api/v0/main-frontend/course-instance/:course_instance_id/progress/:user_id - returns user progress information.
 */
-
 #[instrument(skip(pool))]
 async fn get_user_progress_for_course_instance(
     user: AuthUser,

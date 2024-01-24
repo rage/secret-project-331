@@ -21,7 +21,6 @@ GET `/api/v0/cms/pages/:page_id` - Get a page with exercises and exercise tasks 
 
 Request: `GET /api/v0/cms/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02`
 */
-
 #[instrument(skip(pool))]
 async fn get_page(
     page_id: web::Path<Uuid>,
@@ -117,7 +116,6 @@ async fn update_page(
 /**
 GET /api/v0/cms/pages/:page_id/page-navigation - tells what's the next page, previous page, and the chapter front page given a page id.
 */
-
 #[instrument(skip(pool))]
 async fn get_page_navigation(
     page_id: web::Path<Uuid>,

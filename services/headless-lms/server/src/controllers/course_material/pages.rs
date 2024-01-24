@@ -8,7 +8,6 @@ use models::pages::{
 /**
 GET /api/v0/course-material/pages/exam/{page_id}
 */
-
 #[instrument(skip(pool))]
 async fn get_by_exam_id(
     exam_id: web::Path<Uuid>,
@@ -23,7 +22,6 @@ async fn get_by_exam_id(
 /**
 GET /api/v0/course-material/page/{page_id}
 */
-
 #[instrument(skip(pool))]
 async fn get_chapter_front_page(
     page_id: web::Path<Uuid>,
@@ -39,7 +37,6 @@ async fn get_chapter_front_page(
 /**
 GET /api/v0/course-material/pages/:page_id/page-navigation - tells what's the next page, previous page, and the chapter front page given a page id.
 */
-
 #[instrument(skip(pool))]
 async fn get_page_navigation(
     page_id: web::Path<Uuid>,
@@ -55,7 +52,6 @@ async fn get_page_navigation(
 /**
  GET /api/v0/course-material/pages/:page_id/chapter-and-course-information - gives the page's chapter and course information -- useful for the breadcrumbs
 */
-
 #[instrument(skip(pool))]
 async fn get_chapter_and_course_information(
     page_id: web::Path<Uuid>,

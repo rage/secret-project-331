@@ -7,7 +7,6 @@ use crate::{domain::authorization::authorize, prelude::*};
 /**
 GET `/api/v0/main-frontend/global-stats/number-of-people-completed-a-course`
 */
-
 #[instrument(skip(pool))]
 async fn get_number_of_people_completed_a_course(
     pool: web::Data<PgPool>,
@@ -30,7 +29,6 @@ async fn get_number_of_people_completed_a_course(
 /**
 GET `/api/v0/main-frontend/global-stats/number-of-people-registered-completion-to-study-registry`
 */
-
 #[instrument(skip(pool))]
 async fn get_number_of_people_registered_completion_to_study_registry(
     pool: web::Data<PgPool>,
@@ -52,7 +50,6 @@ async fn get_number_of_people_registered_completion_to_study_registry(
 /**
  * GET `/api/v0/main-frontend/global-stats/number-of-people-done-at-least-one-exercise`
  */
-
 #[instrument(skip(pool))]
 async fn get_number_of_people_done_at_least_one_exercise(
     pool: web::Data<PgPool>,
@@ -76,7 +73,6 @@ async fn get_number_of_people_done_at_least_one_exercise(
 /**
  * GET `/api/v0/main-frontend/global-stats/number-of-people-started-course`
  */
-
 #[instrument(skip(pool))]
 async fn get_number_of_people_started_course(
     pool: web::Data<PgPool>,
@@ -98,7 +94,6 @@ async fn get_number_of_people_started_course(
 /**
  * GET `/api/v0/main-frontend/global-stats/course-module-stats-by-completions-registered-to-study-registry`
  */
-
 #[instrument(skip(pool))]
 async fn get_course_module_stats_by_completions_registered_to_study_registry(
     pool: web::Data<PgPool>,

@@ -39,7 +39,6 @@ async fn get_all_organizations(
 /**
 GET `/api/v0/main-frontend/organizations/{organization_id}/courses"` - Returns a list of all courses in a organization.
 */
-
 #[instrument(skip(pool))]
 async fn get_organization_courses(
     organization_id: web::Path<Uuid>,
@@ -259,7 +258,6 @@ async fn get_organization(
 /**
 GET `/api/v0/main-frontend/organizations/{organization_id}/course_exams` - Returns an organizations exams in CourseExam form.
 */
-
 #[instrument(skip(pool))]
 async fn get_course_exams(
     pool: web::Data<PgPool>,
@@ -275,7 +273,6 @@ async fn get_course_exams(
 /**
 GET `/api/v0/main-frontend/organizations/{organization_id}/exams` - Returns an organizations exams in Exam form.
 */
-
 #[instrument(skip(pool))]
 async fn get_org_exams(
     pool: web::Data<PgPool>,
@@ -291,7 +288,6 @@ async fn get_org_exams(
 /**
 POST `/api/v0/main-frontend/organizations/{organization_id}/exams` - Creates new exam for the organization.
 */
-
 #[instrument(skip(pool))]
 async fn create_exam(
     pool: web::Data<PgPool>,

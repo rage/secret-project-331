@@ -115,7 +115,6 @@ async fn put_course_default_peer_review_configuration(
 /**
 GET `/api/v0/cms/courses/:course_id/pages` - Gets all pages for a course.
 */
-
 #[instrument(skip(pool))]
 async fn get_all_pages(
     course_id: web::Path<Uuid>,
@@ -163,7 +162,6 @@ async fn upsert_course_research_form(
 /**
 GET `/api/v0/cms/courses/:course_id/research-consent-form` - Fetches courses research form with course id.
 */
-
 #[instrument(skip(pool))]
 async fn get_research_form_with_course_id(
     course_id: web::Path<Uuid>,

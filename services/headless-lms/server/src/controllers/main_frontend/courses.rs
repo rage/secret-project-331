@@ -44,7 +44,6 @@ use crate::{
 /**
 GET `/api/v0/main-frontend/courses/:course_id` - Get course.
 */
-
 #[instrument(skip(pool))]
 async fn get_course(
     course_id: web::Path<Uuid>,
@@ -60,7 +59,6 @@ async fn get_course(
 /**
 GET `/api/v0/main-frontend/courses/:course_id/breadcrumb-info` - Get information to display breadcrumbs on the manage course pages.
 */
-
 #[instrument(skip(pool))]
 async fn get_course_breadcrumb_info(
     course_id: web::Path<Uuid>,
@@ -158,7 +156,6 @@ Content-Type: application/json
 
 ```
 */
-
 #[instrument(skip(pool))]
 async fn update_course(
     payload: web::Json<CourseUpdate>,
@@ -176,7 +173,6 @@ async fn update_course(
 /**
 DELETE `/api/v0/main-frontend/courses/:course_id` - Delete a course.
 */
-
 #[instrument(skip(pool))]
 async fn delete_course(
     course_id: web::Path<Uuid>,
@@ -315,7 +311,6 @@ async fn add_media_for_course(
 /**
 GET `/api/v0/main-frontend/courses/:id/exercises` - Returns all exercises for the course.
 */
-
 #[instrument(skip(pool))]
 async fn get_all_exercises(
     pool: web::Data<PgPool>,
@@ -332,7 +327,6 @@ async fn get_all_exercises(
 /**
 GET `/api/v0/main-frontend/courses/:id/exercises-and-count-of-answers-requiring-attention` - Returns all exercises for the course and count of answers requiring attention in them.
 */
-
 #[instrument(skip(pool))]
 async fn get_all_exercises_and_count_of_answers_requiring_attention(
     pool: web::Data<PgPool>,
@@ -357,7 +351,6 @@ GET /api/v0/main-frontend/courses/fd484707-25b6-4c51-a4ff-32d8259e3e47/language-
 Content-Type: application/json
 ```
 */
-
 #[instrument(skip(pool))]
 async fn get_all_course_language_versions(
     pool: web::Data<PgPool>,
@@ -391,7 +384,6 @@ Content-Type: application/json
 }
 ```
 */
-
 #[instrument(skip(pool))]
 pub async fn post_new_course_language_version(
     pool: web::Data<PgPool>,
@@ -440,7 +432,6 @@ Content-Type: application/json
 }
 ```
 */
-
 #[instrument(skip(pool))]
 pub async fn post_new_course_duplicate(
     pool: web::Data<PgPool>,
@@ -473,7 +464,6 @@ pub async fn post_new_course_duplicate(
 /**
 GET `/api/v0/main-frontend/courses/:id/daily-submission-counts` - Returns submission counts grouped by day.
 */
-
 #[instrument(skip(pool))]
 async fn get_daily_submission_counts(
     pool: web::Data<PgPool>,
@@ -499,7 +489,6 @@ async fn get_daily_submission_counts(
 /**
 GET `/api/v0/main-frontend/courses/:id/daily-users-who-have-submitted-something` - Returns a count of users who have submitted something grouped by day.
 */
-
 #[instrument(skip(pool))]
 async fn get_daily_user_counts_with_submissions(
     pool: web::Data<PgPool>,
@@ -526,7 +515,6 @@ async fn get_daily_user_counts_with_submissions(
 /**
 GET `/api/v0/main-frontend/courses/:id/weekday-hour-submission-counts` - Returns submission counts grouped by weekday and hour.
 */
-
 #[instrument(skip(pool))]
 async fn get_weekday_hour_submission_counts(
     pool: web::Data<PgPool>,
@@ -553,7 +541,6 @@ async fn get_weekday_hour_submission_counts(
 /**
 GET `/api/v0/main-frontend/courses/:id/submission-counts-by-exercise` - Returns submission counts grouped by weekday and hour.
 */
-
 #[instrument(skip(pool))]
 async fn get_submission_counts_by_exercise(
     pool: web::Data<PgPool>,
@@ -580,7 +567,6 @@ async fn get_submission_counts_by_exercise(
 /**
 GET `/api/v0/main-frontend/courses/:id/course-instances` - Returns all course instances for given course id.
 */
-
 #[instrument(skip(pool))]
 async fn get_course_instances(
     pool: web::Data<PgPool>,
@@ -612,7 +598,6 @@ pub struct GetFeedbackQuery {
 /**
 GET `/api/v0/main-frontend/courses/:id/feedback?read=true` - Returns feedback for the given course.
 */
-
 #[instrument(skip(pool))]
 pub async fn get_feedback(
     course_id: web::Path<Uuid>,
@@ -638,7 +623,6 @@ pub async fn get_feedback(
 /**
 GET `/api/v0/main-frontend/courses/:id/feedback-count` - Returns the amount of feedback for the given course.
 */
-
 #[instrument(skip(pool))]
 pub async fn get_feedback_count(
     course_id: web::Path<Uuid>,
@@ -662,7 +646,6 @@ pub async fn get_feedback_count(
 /**
 POST `/api/v0/main-frontend/courses/:id/new-course-instance`
 */
-
 #[instrument(skip(pool))]
 async fn new_course_instance(
     form: web::Json<CourseInstanceForm>,
@@ -1077,7 +1060,6 @@ pub async fn course_instances_export(
 /**
 GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary` - Gets aggregated statistics for page visits for the course.
 */
-
 pub async fn get_page_visit_datum_summary(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -1102,7 +1084,6 @@ pub async fn get_page_visit_datum_summary(
 /**
 GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary-by-pages` - Gets aggregated statistics for page visits for the course.
 */
-
 pub async fn get_page_visit_datum_summary_by_pages(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -1127,7 +1108,6 @@ pub async fn get_page_visit_datum_summary_by_pages(
 /**
 GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary-by-device-types` - Gets aggregated statistics for page visits for the course.
 */
-
 pub async fn get_page_visit_datum_summary_by_device_types(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -1154,7 +1134,6 @@ pub async fn get_page_visit_datum_summary_by_device_types(
 /**
 GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary-by-countries` - Gets aggregated statistics for page visits for the course.
 */
-
 pub async fn get_page_visit_datum_summary_by_countries(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -1183,7 +1162,6 @@ DELETE `/api/v0/main-frontend/courses/${course.id}/teacher-reset-course-progress
 
 Deletes submissions, user exercise states, and peer reviews etc. for all the course instances of this course.
 */
-
 pub async fn teacher_reset_course_progress_for_themselves(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -1214,7 +1192,6 @@ DELETE `/api/v0/main-frontend/courses/${course.id}/teacher-reset-course-progress
 
 Deletes submissions, user exercise states, and peer reviews etc. for all the course instances of this course.
 */
-
 pub async fn teacher_reset_course_progress_for_everyone(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,

@@ -71,7 +71,6 @@ async fn new(
 /**
 GET `/api/v0/main-frontend/exercise-repositories/course/:id`
 */
-
 #[instrument(skip(pool))]
 async fn get_for_course(
     pool: web::Data<PgPool>,
@@ -97,7 +96,6 @@ async fn get_for_course(
 /**
 GET `/api/v0/main-frontend/exercise-repositories/exam/:id`
 */
-
 #[instrument(skip(pool))]
 async fn get_for_exam(
     pool: web::Data<PgPool>,
@@ -123,7 +121,6 @@ async fn get_for_exam(
 /**
 DELETE `/api/v0/main-frontend/exercise-repositories/:id`
 */
-
 #[instrument(skip(pool))]
 async fn delete(
     pool: web::Data<PgPool>,
@@ -152,7 +149,6 @@ async fn delete(
 /**
 PUT `/api/v0/main-frontend/exercise-repositories/:id`
 */
-
 #[instrument(skip(pool))]
 async fn update(
     pool: web::Data<PgPool>,

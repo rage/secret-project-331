@@ -42,7 +42,6 @@ use crate::{
 /**
 GET `/api/v0/course-material/courses/:course_id` - Get course.
 */
-
 #[instrument(skip(pool))]
 async fn get_course(
     course_id: web::Path<Uuid>,
@@ -315,7 +314,6 @@ async fn derive_information_from_requester(
 /**
 GET `/api/v0/course-material/courses/:course_id/current-instance` - Returns the instance of a course for the current user, if there is one.
 */
-
 #[instrument(skip(pool))]
 async fn get_current_course_instance(
     pool: web::Data<PgPool>,
@@ -359,7 +357,6 @@ GET `/api/v0/course-material/courses/:course_id/pages` - Returns a list of publi
 
 Since anyone can access this endpoint, any unlisted pages are omited from these results.
 */
-
 #[instrument(skip(pool))]
 async fn get_public_course_pages(
     course_id: web::Path<Uuid>,
@@ -475,7 +472,6 @@ fn collect_course_modules(
 /**
 GET `/api/v0/course-material/courses/:course_id/user-settings` - Returns user settings for the current course.
 */
-
 #[instrument(skip(pool))]
 async fn get_user_course_settings(
     pool: web::Data<PgPool>,
@@ -517,7 +513,6 @@ Content-Type: application/json
 }
 ```
 */
-
 #[instrument(skip(pool))]
 async fn search_pages_with_phrase(
     course_id: web::Path<Uuid>,
@@ -549,7 +544,6 @@ Content-Type: application/json
 }
 ```
 */
-
 #[instrument(skip(pool))]
 async fn search_pages_with_words(
     course_id: web::Path<Uuid>,
@@ -668,7 +662,6 @@ async fn get_material_references_by_course_id(
 /**
 GET /api/v0/course-material/courses/:course_id/top-level-pages
 */
-
 #[instrument(skip(pool))]
 async fn get_public_top_level_pages(
     course_id: web::Path<Uuid>,
@@ -688,7 +681,6 @@ async fn get_public_top_level_pages(
 /**
 GET `/api/v0/course-material/courses/:id/language-versions` - Returns all language versions of the same course. Since this is for course material, this does not include draft courses.
 */
-
 #[instrument(skip(pool))]
 async fn get_all_course_language_versions(
     pool: web::Data<PgPool>,
@@ -709,7 +701,6 @@ async fn get_all_course_language_versions(
 /**
 GET `/api/v0/{course_id}/pages/by-language-group-id/{page_language_group_id} - Returns a page with the given course id and language group id.
  */
-
 #[instrument(skip(pool))]
 async fn get_page_by_course_id_and_language_group(
     info: web::Path<(Uuid, Uuid)>,
@@ -731,7 +722,6 @@ async fn get_page_by_course_id_and_language_group(
 /**
 POST `/api/v0/{course_id}/course-instances/{course_instance_id}/student-countries/{country_code}` - Add a new student's country entry.
 */
-
 #[instrument(skip(pool))]
 async fn student_country(
     query: web::Path<(Uuid, Uuid, String)>,
@@ -757,7 +747,6 @@ async fn student_country(
 /**
 GET `/api/v0/{course_id}/course-instances/{course_instance_id}/student-countries - Returns countries of student registered in a course.
  */
-
 #[instrument(skip(pool))]
 async fn get_student_countries(
     query: web::Path<(Uuid, Uuid)>,
@@ -786,7 +775,6 @@ async fn get_student_countries(
 /**
 GET `/api/v0/{course_id}/student-country - Returns country of a student registered in a course.
  */
-
 #[instrument(skip(pool))]
 async fn get_student_country(
     course_instance_id: web::Path<Uuid>,
@@ -808,7 +796,6 @@ async fn get_student_country(
 /**
 GET `/api/v0/course-material/courses/:course_id/research-consent-form` - Fetches courses research form with course id.
 */
-
 #[instrument(skip(pool))]
 async fn get_research_form_with_course_id(
     course_id: web::Path<Uuid>,
@@ -830,7 +817,6 @@ async fn get_research_form_with_course_id(
 /**
 GET `/api/v0/course-material/courses/:course_id/research-consent-form-questions` - Fetches courses research form questions with course id.
 */
-
 #[instrument(skip(pool))]
 async fn get_research_form_questions_with_course_id(
     course_id: web::Path<Uuid>,
@@ -873,7 +859,6 @@ async fn upsert_course_research_form_answer(
 /**
 GET `/api/v0/course/courses/:course_id/research-consent-form-users-answers` - Fetches users answers for courses research form.
 */
-
 #[instrument(skip(pool))]
 async fn get_research_form_answers_with_user_id(
     course_id: web::Path<Uuid>,

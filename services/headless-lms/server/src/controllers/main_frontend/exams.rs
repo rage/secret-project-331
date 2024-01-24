@@ -15,7 +15,6 @@ use crate::{
 /**
 GET `/api/v0/main-frontend/exams/:id
 */
-
 #[instrument(skip(pool))]
 pub async fn get_exam(
     pool: web::Data<PgPool>,
@@ -39,7 +38,6 @@ pub struct ExamCourseInfo {
 /**
 POST `/api/v0/main-frontend/exams/:id/set`
 */
-
 #[instrument(skip(pool))]
 pub async fn set_course(
     pool: web::Data<PgPool>,
@@ -58,7 +56,6 @@ pub async fn set_course(
 /**
 POST `/api/v0/main-frontend/exams/:id/unset`
 */
-
 #[instrument(skip(pool))]
 pub async fn unset_course(
     pool: web::Data<PgPool>,
@@ -131,7 +128,6 @@ pub async fn export_submissions(
 /**
  * POST `/api/v0/cms/exams/:exam_id/duplicate` - duplicates existing exam.
  */
-
 #[instrument(skip(pool))]
 async fn duplicate_exam(
     pool: web::Data<PgPool>,

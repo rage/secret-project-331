@@ -8,7 +8,6 @@ use models::{
 /**
 GET `/api/v0/main-frontend/users/:id`
 */
-
 #[instrument(skip(pool))]
 pub async fn get_user(
     user_id: web::Path<Uuid>,
@@ -24,7 +23,6 @@ pub async fn get_user(
 /**
 GET `/api/v0/main-frontend/users/:id/course-instance-enrollments`
 */
-
 #[instrument(skip(pool))]
 pub async fn get_course_instance_enrollments_for_user(
     user_id: web::Path<Uuid>,
@@ -60,7 +58,6 @@ pub struct ConsentData {
 /**
 POST `/api/v0/main-frontend/users/user-research-consents` - Adds a research consent for a student.
 */
-
 #[instrument(skip(pool))]
 pub async fn post_user_consents(
     payload: web::Json<ConsentData>,
@@ -83,7 +80,6 @@ pub async fn post_user_consents(
 /**
 GET `/api/v0/main-frontend/users/get-user-research-consent` - Gets users research consent.
 */
-
 #[instrument(skip(pool))]
 pub async fn get_research_consent_by_user_id(
     user: AuthUser,
@@ -101,7 +97,6 @@ pub async fn get_research_consent_by_user_id(
 /**
 GET `/api/v0/main-frontend/users/get-user-research-consents` - Gets all users research consents for a course specific research form.
 */
-
 #[instrument(skip(pool))]
 async fn get_all_research_form_answers_with_user_id(
     user: AuthUser,

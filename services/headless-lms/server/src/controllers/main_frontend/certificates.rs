@@ -309,7 +309,6 @@ POST `/api/v0/main-frontend/certificates/generate`
 
 Generates a certificate for a given certificate configuration id.
 */
-
 #[instrument(skip(pool))]
 pub async fn generate_generated_certificate(
     request: web::Json<CertificateGenerationRequest>,
@@ -353,7 +352,6 @@ GET `/api/v0/main-frontend/certificates/get-by-configuration-id/{certificate_con
 
 Fetches the user's certificate for the given course module and course instance.
 */
-
 #[instrument(skip(pool))]
 pub async fn get_generated_certificate(
     certificate_configuration_id: web::Path<Uuid>,
@@ -450,7 +448,6 @@ DELETE `/api/v0/main-frontend/certificates/configuration/{configuration_id}`
 
 Deletes the given configuration.
 */
-
 #[instrument(skip(pool))]
 pub async fn delete_certificate_configuration(
     configuration_id: web::Path<Uuid>,

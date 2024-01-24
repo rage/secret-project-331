@@ -7,7 +7,6 @@ POST `/api/v0/exercise-services/grading/grading-update/:submission_id`
 
 Receives a grading update from an exercise service.
 */
-
 #[instrument(skip(pool))]
 async fn grading_update(
     submission_id: web::Path<Uuid>,

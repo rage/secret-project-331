@@ -48,7 +48,6 @@ async fn add_media(
 /**
 GET `/api/v0/cms/exams/:exam_id/edit` - Get the exam instructions for Gutenberg Editor.
 */
-
 #[instrument(skip(pool))]
 async fn get_exam_instructions(
     pool: web::Data<PgPool>,

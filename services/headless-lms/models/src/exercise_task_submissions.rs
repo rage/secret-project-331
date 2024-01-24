@@ -14,7 +14,7 @@ use crate::{
     CourseOrExamId,
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseTaskSubmission {
     pub id: Uuid,
@@ -36,7 +36,7 @@ pub struct PeerReviewsRecieved {
     pub peer_review_question_submissions: Vec<PeerReviewQuestionSubmission>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct SubmissionData {
     pub exercise_id: Uuid,

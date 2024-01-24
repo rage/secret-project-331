@@ -19,7 +19,7 @@ pub struct NewExerciseRepository {
 /**
 POST `/api/v0/main-frontend/exercise-repositories/new
 */
-#[generated_doc]
+
 #[instrument(skip(pool, file_store, app_conf))]
 async fn new(
     pool: web::Data<PgPool>,
@@ -71,7 +71,6 @@ async fn new(
 /**
 GET `/api/v0/main-frontend/exercise-repositories/course/:id`
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_for_course(
     pool: web::Data<PgPool>,
@@ -97,7 +96,6 @@ async fn get_for_course(
 /**
 GET `/api/v0/main-frontend/exercise-repositories/exam/:id`
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_for_exam(
     pool: web::Data<PgPool>,
@@ -123,7 +121,6 @@ async fn get_for_exam(
 /**
 DELETE `/api/v0/main-frontend/exercise-repositories/:id`
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn delete(
     pool: web::Data<PgPool>,
@@ -152,7 +149,6 @@ async fn delete(
 /**
 PUT `/api/v0/main-frontend/exercise-repositories/:id`
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn update(
     pool: web::Data<PgPool>,

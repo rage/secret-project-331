@@ -44,7 +44,7 @@ pub struct AuthUser {
     upstream_id: Option<i32>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 #[serde(rename_all = "snake_case")]
 pub struct ActionOnResource {
@@ -191,7 +191,7 @@ pub enum Action {
 }
 
 /// The target of an action.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 #[serde(rename_all = "snake_case", tag = "type", content = "id")]
 pub enum Resource {

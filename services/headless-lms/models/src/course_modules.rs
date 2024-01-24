@@ -18,14 +18,14 @@ struct CourseModulesSchema {
     automatic_completion_number_of_points_treshold: Option<i32>,
     automatic_completion_requires_exam: bool,
     completion_registration_link_override: Option<String>,
-    ects_credits: Option<i32>,
+    ects_credits: Option<f32>,
     enable_registering_completion_to_uh_open_university: bool,
     certification_enabled: bool,
 }
 /**
  * Based on [CourseModulesSchema] but completion_policy parsed and addded (and some not needeed fields removed).
  */
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseModule {
     pub id: Uuid,
@@ -40,7 +40,7 @@ pub struct CourseModule {
     pub completion_policy: CompletionPolicy,
     /// If set, use this link rather than the default one when registering course completions.
     pub completion_registration_link_override: Option<String>,
-    pub ects_credits: Option<i32>,
+    pub ects_credits: Option<f32>,
     pub enable_registering_completion_to_uh_open_university: bool,
     pub certification_enabled: bool,
 }
@@ -91,7 +91,7 @@ impl CourseModule {
     pub fn set_registration_info(
         mut self,
         uh_course_code: Option<String>,
-        ects_credits: Option<i32>,
+        ects_credits: Option<f32>,
         completion_registration_link_override: Option<String>,
         enable_registering_completion_to_uh_open_university: bool,
     ) -> Self {
@@ -146,13 +146,13 @@ impl From<CourseModulesSchema> for CourseModule {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewCourseModule {
     completion_policy: CompletionPolicy,
     completion_registration_link_override: Option<String>,
     course_id: Uuid,
-    ects_credits: Option<i32>,
+    ects_credits: Option<f32>,
     name: Option<String>,
     order_number: i32,
     uh_course_code: Option<String>,
@@ -195,7 +195,7 @@ impl NewCourseModule {
         self
     }
 
-    pub fn set_ects_credits(mut self, ects_credits: Option<i32>) -> Self {
+    pub fn set_ects_credits(mut self, ects_credits: Option<f32>) -> Self {
         self.ects_credits = ects_credits;
         self
     }
@@ -432,7 +432,7 @@ WHERE uh_course_code IS NOT NULL
     Ok(res)
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct AutomaticCompletionRequirements {
     /// Course module associated with these requirements.
@@ -471,7 +471,7 @@ impl AutomaticCompletionRequirements {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 #[serde(tag = "policy", rename_all = "kebab-case")]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub enum CompletionPolicy {
@@ -575,14 +575,14 @@ RETURNING *
     Ok(res.into())
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewModule {
     name: String,
     order_number: i32,
     chapters: Vec<Uuid>,
     uh_course_code: Option<String>,
-    ects_credits: Option<i32>,
+    ects_credits: Option<f32>,
     completion_policy: CompletionPolicy,
     completion_registration_link_override: Option<String>,
     enable_registering_completion_to_uh_open_university: bool,
@@ -595,7 +595,7 @@ pub struct ModifiedModule {
     name: Option<String>,
     order_number: i32,
     uh_course_code: Option<String>,
-    ects_credits: Option<i32>,
+    ects_credits: Option<f32>,
     completion_policy: CompletionPolicy,
     completion_registration_link_override: Option<String>,
     enable_registering_completion_to_uh_open_university: bool,

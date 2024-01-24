@@ -376,14 +376,14 @@ async fn get_public_course_pages(
     token.authorized_ok(web::Json(pages))
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ChaptersWithStatus {
     pub is_previewable: bool,
     pub modules: Vec<CourseMaterialCourseModule>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseMaterialCourseModule {
     pub chapters: Vec<ChapterWithStatus>,

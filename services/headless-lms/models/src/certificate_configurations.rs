@@ -52,14 +52,14 @@ impl fmt::Display for CertificateTextAnchor {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CertificateConfigurationAndRequirements {
     pub certificate_configuration: CertificateConfiguration,
     pub requirements: CertificateAllRequirements,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CertificateConfiguration {
     pub id: Uuid,
@@ -280,7 +280,7 @@ WHERE cctr.course_instance_id = $1
     Ok(res)
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct DatabaseCertificateConfiguration {
     pub id: Uuid,

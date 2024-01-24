@@ -189,14 +189,14 @@ pub struct UserCourseInstanceMetrics {
     pub attempted_exercises: Option<i64>,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 pub struct CourseInstanceExerciseMetrics {
     course_module_id: Uuid,
     total_exercises: Option<i64>,
     score_maximum: Option<i64>,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseUserCounts {
     exercise_name: String,
@@ -1158,7 +1158,7 @@ mod tests {
             Uuid::parse_str("3fa4bee6-7390-415e-968f-ecdc5f28330e").unwrap(),
         )
         .set_timestamps(timestamp, timestamp, None)
-        .set_registration_info(None, Some(5), None, false)];
+        .set_registration_info(None, Some(5.0), None, false)];
         let course_metrics_by_course_module_id = HashMap::from([(
             module_id,
             CourseInstanceExerciseMetrics {

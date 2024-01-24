@@ -48,7 +48,7 @@ pub enum BlockAttributes {
     },
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct EmailGutenbergBlock {
     #[serde(rename = "clientId")]
     pub client_id: Uuid,

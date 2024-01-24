@@ -1308,7 +1308,7 @@ fn models() {
         course_name: "Course".to_string(),
         email: "student@example.com".to_string(),
         uh_course_code: "ABC123".to_string(),
-        ects_credits: Some(5),
+        ects_credits: Some(5.0),
         enable_registering_completion_to_uh_open_university: true,
     });
     doc!(
@@ -1804,7 +1804,7 @@ fn models() {
             organization_id,
             course_module_id,
             course_module_name: Some("Bonus module 1".to_string()),
-            course_module_ects_credits: Some(5),
+            course_module_ects_credits: Some(5.0),
             organization_name: "University of Helsinki, Department of Computer Science".to_string(),
             year: "2024".to_string(),
             value: 632,

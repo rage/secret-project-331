@@ -11,6 +11,7 @@ use crate::courses::NewCourse;
 use crate::exams;
 use crate::exams::Exam;
 use crate::exams::NewExam;
+use crate::pages;
 use crate::prelude::*;
 
 use crate::ModelResult;
@@ -114,6 +115,47 @@ RETURNING id,
                         })?
                         .to_string();
                     block["attributes"]["id"] = Value::String(new_id);
+                }
+            }
+            sqlx::query!(
+                "
+UPDATE pages
+SET content = $1
+WHERE id = $2;
+                ",
+                Value::Array(blocks),
+                page_id,
+            )
+            .execute(&mut *tx)
+            .await?;
+        }
+    }
+
+    let pages_contents: HashMap<Uuid, Value> = crate::pages::get_all_by_course_id_and_visibility(
+        tx.as_mut(),
+        copied_course.id,
+        pages::PageVisibility::Any,
+    )
+    .await
+    .unwrap()
+    .into_iter()
+    .map(|page| (page.id, page.content))
+    .collect();
+
+    // Replace course slugs from internal links in page contents
+    for (page_id, content) in pages_contents {
+        if let Value::Array(mut blocks) = content {
+            for block in blocks.iter_mut() {
+                let content = block["attributes"]["content"].as_str();
+
+                if let Some(content) = content {
+                    if content.contains("<a href=") {
+                        let content_with_new_slug = content.replace(
+                            &parent_course.slug.to_string(),
+                            &new_course.slug.to_string(),
+                        );
+                        block["attributes"]["content"] = Value::String(content_with_new_slug);
+                    }
                 }
             }
             sqlx::query!(
@@ -715,7 +757,7 @@ INSERT INTO peer_review_configs (
     exercise_id,
     peer_reviews_to_give,
     peer_reviews_to_receive,
-    accepting_strategy,
+    processing_strategy,
     accepting_threshold
   )
 SELECT uuid_generate_v5($1, id::text),
@@ -723,7 +765,7 @@ SELECT uuid_generate_v5($1, id::text),
   uuid_generate_v5($1, exercise_id::text),
   peer_reviews_to_give,
   peer_reviews_to_receive,
-  accepting_strategy,
+  processing_strategy,
   accepting_threshold
 FROM peer_review_configs
 WHERE course_id = $2
@@ -843,7 +885,7 @@ mod tests {
                 .await
                 .unwrap();
             assert_eq!(copied_chapters.len(), 1);
-            assert_eq!(copied_chapters.get(0).unwrap().copied_from, Some(chapter));
+            assert_eq!(copied_chapters.first().unwrap().copied_from, Some(chapter));
         }
 
         #[tokio::test]
@@ -859,7 +901,7 @@ mod tests {
             let copied_chapters = crate::chapters::course_chapters(tx.as_mut(), copied_course.id)
                 .await
                 .unwrap();
-            let copied_chapter = copied_chapters.get(0).unwrap();
+            let copied_chapter = copied_chapters.first().unwrap();
             let copied_chapter_front_page =
                 crate::pages::get_page(tx.as_mut(), copied_chapter.front_page_id.unwrap())
                     .await
@@ -906,6 +948,53 @@ mod tests {
             assert!(original_pages_by_id.is_empty());
         }
 
+        #[tokio::test]
+        async fn updates_course_slugs_in_internal_links_in_pages_contents() {
+            insert_data!(:tx, :user, :org, :course, instance: _instance, course_module: _course_module, :chapter, :page);
+            let course = crate::courses::get_course(tx.as_mut(), course)
+                .await
+                .unwrap();
+            crate::pages::update_page_content(
+                tx.as_mut(),
+                page,
+                &serde_json::json!([{
+                    "name": "core/paragraph",
+                    "isValid": true,
+                    "clientId": "b2ecb473-38cc-4df1-84f7-45709cc63e95",
+                    "attributes": {
+                        "content": format!("Internal link <a href=\"http://project-331.local/org/uh-cs/courses/{slug2}\">http://project-331.local/org/uh-cs/courses/{slug1}</a>", slug2 = course.slug, slug1 = course.slug)
+                        ,
+                        "dropCap":false
+                    },
+                    "innerBlocks": []
+                }]),
+            )
+            .await
+            .unwrap();
+
+            let new_course = create_new_course(org, "fi-FI".to_string());
+            let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true, user)
+                .await
+                .unwrap();
+
+            let copied_pages = crate::pages::get_all_by_course_id_and_visibility(
+                tx.as_mut(),
+                copied_course.id,
+                crate::pages::PageVisibility::Any,
+            )
+            .await
+            .unwrap();
+            let copied_page = copied_pages
+                .into_iter()
+                .find(|copied_page| copied_page.copied_from == Some(page))
+                .unwrap();
+            let copied_content_in_page = copied_page.content[0]["attributes"]["content"]
+                .as_str()
+                .unwrap();
+            let content_with_updated_course_slug =
+            "Internal link <a href=\"http://project-331.local/org/uh-cs/courses/copied-course\">http://project-331.local/org/uh-cs/courses/copied-course</a>";
+            assert_eq!(copied_content_in_page, content_with_updated_course_slug);
+        }
         #[tokio::test]
         async fn updates_exercise_id_in_content() {
             insert_data!(:tx, :user, :org, :course, instance: _instance, course_module: _course_module, :chapter, :page, :exercise);

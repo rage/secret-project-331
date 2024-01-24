@@ -3,7 +3,7 @@ type Vec<ResearchFormQuestion> = Array<{
   course_id: string
   research_consent_form_id: string
   question: string
-  created_at: Date
-  updated_at: Date
-  deleted_at: Date | null
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
 }>

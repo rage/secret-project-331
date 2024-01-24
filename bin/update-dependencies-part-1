@@ -1,0 +1,70 @@
+#!/bin/bash
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
+FOLDER_PATH="$BASEDIR/../"
+RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
+
+run_command cd "$RELATIVE_PATH"
+
+if [[ $(git status --porcelain) ]]; then
+  echo "You have uncommitted changes. Please commit them before running this script."
+  exit 1
+fi
+
+run_command npm ci
+run_command bin/npm-ci-all
+
+function update_node_deps() {
+  folder=$1
+  target_name=$2
+  run_command command cd  "$folder"
+
+  set +e
+  if ! run_command npx npm-check --update; then
+    echo "Updating dependencies for $target_name failed. Please do the dependency update manually."
+    echo "Press enter when you're ready. The script will then commit your changes."
+    read -r
+  fi
+  set -e
+
+  # check if there are any uncommitted changes
+  if [[ $(git status --porcelain) ]]; then
+    git add package.json package-lock.json
+    git commit -m "Update dependencies for $target_name " --no-verify
+  fi
+  set +e
+  run_command npm audit fix
+  run_command npm audit fix
+  run_command npm audit fix
+  set -e
+  if [[ $(git status --porcelain) ]]; then
+    git add package-lock.json
+    git commit -am "npm audit for $target_name" --no-verify
+  fi
+  cd -
+}
+
+update_node_deps "$RELATIVE_PATH" "repo root"
+update_node_deps "$RELATIVE_PATH/system-tests" "system-tests"
+update_node_deps "$RELATIVE_PATH/services/cms" "cms"
+update_node_deps "$RELATIVE_PATH/services/course-material" "course-material"
+update_node_deps "$RELATIVE_PATH/services/example-exercise" "example-exercise"
+update_node_deps "$RELATIVE_PATH/services/main-frontend" "main-frontend"
+update_node_deps "$RELATIVE_PATH/services/quizzes" "quizzes"
+update_node_deps "$RELATIVE_PATH/services/tmc" "tmc"
+update_node_deps "$RELATIVE_PATH/shared-module" "shared-module"
+
+# Update rust deps
+run_command cd services/headless-lms
+run_command cargo upgrade --incompatible allow --pinned allow --recursive true
+if [[ $(git status --porcelain) ]]; then
+  git add .
+  git commit -m "Cargo upgrade" --no-verify
+fi
+run_command cargo update --recursive
+if [[ $(git status --porcelain) ]]; then
+  git add .
+  git commit -m "Cargo update" --no-verify
+fi

@@ -124,6 +124,7 @@ use headless_lms_models::{
     courses::CourseBreadcrumbInfo,
     exercise_task_submissions::PeerReviewsRecieved,
     exercises::ExerciseStatusSummaryForUser,
+    library::global_stats::{GlobalCourseModuleStatEntry, GlobalStatEntry},
     page_audio_files::PageAudioFile,
     page_visit_datum_summary_by_courses::PageVisitDatumSummaryByCourse,
     page_visit_datum_summary_by_courses_countries::PageVisitDatumSummaryByCoursesCountries,
@@ -417,8 +418,8 @@ fn models() {
             PageWithExercises,
         },
         peer_review_configs::{
-            CmsPeerReviewConfig, CmsPeerReviewConfiguration, PeerReviewAcceptingStrategy,
-            PeerReviewConfig,
+            CmsPeerReviewConfig, CmsPeerReviewConfiguration, PeerReviewConfig,
+            PeerReviewProcessingStrategy,
         },
         peer_review_question_submissions::PeerReviewWithQuestionsAndAnswers,
         peer_review_questions::{
@@ -564,12 +565,14 @@ fn models() {
     });
     example!(CmsPeerReviewConfig {
         id,
-        accepting_strategy: PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage,
+        processing_strategy:
+            PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage,
         accepting_threshold: 0.5,
         course_id,
         exercise_id: None,
         peer_reviews_to_give: 2,
         peer_reviews_to_receive: 1,
+        points_are_all_or_nothing: true
     });
     example!(CmsPeerReviewQuestion {
         id,
@@ -577,7 +580,8 @@ fn models() {
         order_number: 1,
         peer_review_config_id,
         question: "what?".to_string(),
-        question_type: PeerReviewQuestionType::Essay
+        question_type: PeerReviewQuestionType::Essay,
+        weight: 0.0,
     });
     example!(CourseMaterialExerciseSlide { id, exercise_tasks });
     example!(ExerciseStatus {
@@ -764,8 +768,10 @@ fn models() {
         peer_reviews_to_give: 3,
         peer_reviews_to_receive: 2,
         accepting_threshold: 3.0,
-        accepting_strategy: PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage,
+        processing_strategy:
+            PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage,
         manual_review_cutoff_in_days: 21,
+        points_are_all_or_nothing: true,
     });
     doc!(
         T,
@@ -780,6 +786,7 @@ fn models() {
             question: "Was the answer well thought out?".to_string(),
             question_type: PeerReviewQuestionType::Essay,
             answer_required: true,
+            weight: 0.0,
         }
     );
     doc!(Vec, PageWithExercises { page, exercises });
@@ -1776,6 +1783,31 @@ fn models() {
             created_at,
             updated_at,
             deleted_at,
+        }
+    );
+    doc!(
+        Vec,
+        GlobalStatEntry {
+            course_name: "Introduction to everything".to_string(),
+            course_id,
+            organization_id,
+            organization_name: "University of Helsinki, Department of Computer Science".to_string(),
+            year: "2024".to_string(),
+            value: 632,
+        }
+    );
+    doc!(
+        Vec,
+        GlobalCourseModuleStatEntry {
+            course_name: "Introduction to everything".to_string(),
+            course_id,
+            organization_id,
+            course_module_id,
+            course_module_name: Some("Bonus module 1".to_string()),
+            course_module_ects_credits: Some(5),
+            organization_name: "University of Helsinki, Department of Computer Science".to_string(),
+            year: "2024".to_string(),
+            value: 632,
         }
     );
 }

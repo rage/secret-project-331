@@ -1,11 +1,11 @@
 type CourseInstance = {
   id: string
-  created_at: Date
-  updated_at: Date
-  deleted_at: Date | null
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
   course_id: string
-  starts_at: Date | null
-  ends_at: Date | null
+  starts_at: string | null
+  ends_at: string | null
   name: string | null
   description: string | null
   teacher_in_charge_name: string

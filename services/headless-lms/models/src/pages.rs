@@ -21,7 +21,7 @@ use crate::{
     exercises::Exercise,
     page_history::{self, HistoryChangeReason, PageHistoryContent},
     peer_review_configs::CmsPeerReviewConfig,
-    peer_review_questions::CmsPeerReviewQuestion,
+    peer_review_questions::{normalize_cms_peer_review_questions, CmsPeerReviewQuestion},
     prelude::*,
     user_course_settings::{self, UserCourseSettings},
     CourseOrExamId, SpecFetcher,
@@ -1039,8 +1039,14 @@ pub async fn update_page(
     spec_fetcher: impl SpecFetcher,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<ContentManagementPage> {
-    let cms_page_update = page_update.cms_page_update;
+    let mut cms_page_update = page_update.cms_page_update;
     cms_page_update.validate_exercise_data()?;
+
+    for exercise in cms_page_update.exercises.iter_mut() {
+        if let Some(peer_review_questions) = exercise.peer_review_questions.as_mut() {
+            normalize_cms_peer_review_questions(peer_review_questions);
+        }
+    }
 
     let parsed_content: Vec<GutenbergBlock> = serde_json::from_value(cms_page_update.content)?;
     if !page_update.is_exam_page
@@ -1604,8 +1610,9 @@ pub async fn upsert_peer_review_configs(
         exercise_id,
         peer_reviews_to_give,
         peer_reviews_to_receive,
-        accepting_strategy,
+        processing_strategy,
         accepting_threshold,
+        points_are_all_or_nothing,
         deleted_at
       ) ",
         );
@@ -1636,8 +1643,9 @@ pub async fn upsert_peer_review_configs(
                 .push_bind(safe_for_db_exercise_id)
                 .push_bind(pr.peer_reviews_to_give)
                 .push_bind(pr.peer_reviews_to_receive)
-                .push_bind(pr.accepting_strategy)
+                .push_bind(pr.processing_strategy)
                 .push_bind(pr.accepting_threshold)
+                .push_bind(pr.points_are_all_or_nothing)
                 .push("NULL");
         });
 
@@ -1656,8 +1664,9 @@ SET course_id = excluded.course_id,
   exercise_id = excluded.exercise_id,
   peer_reviews_to_give = excluded.peer_reviews_to_give,
   peer_reviews_to_receive = excluded.peer_reviews_to_receive,
-  accepting_strategy = excluded.accepting_strategy,
+  processing_strategy = excluded.processing_strategy,
   accepting_threshold = excluded.accepting_threshold,
+  points_are_all_or_nothing = excluded.points_are_all_or_nothing,
   deleted_at = NULL
 RETURNING id;
 ",
@@ -1679,8 +1688,9 @@ SELECT id as "id!",
   exercise_id,
   peer_reviews_to_give as "peer_reviews_to_give!",
   peer_reviews_to_receive as "peer_reviews_to_receive!",
-  accepting_strategy AS "accepting_strategy!: _",
-  accepting_threshold "accepting_threshold!"
+  processing_strategy AS "processing_strategy!: _",
+  accepting_threshold "accepting_threshold!",
+  points_are_all_or_nothing "points_are_all_or_nothing!"
 FROM peer_review_configs
 WHERE id IN (
     SELECT UNNEST($1::uuid [])
@@ -1731,6 +1741,7 @@ pub async fn upsert_peer_review_questions(
         question,
         question_type,
         answer_required,
+        weight,
         deleted_at
       ) ",
         );
@@ -1773,6 +1784,7 @@ pub async fn upsert_peer_review_questions(
                     .push_bind(prq.question.as_str())
                     .push_bind(prq.question_type)
                     .push_bind(prq.answer_required)
+                    .push_bind(prq.weight)
                     .push("NULL");
             },
         );
@@ -1785,6 +1797,7 @@ SET peer_review_config_id = excluded.peer_review_config_id,
     question = excluded.question,
     question_type = excluded.question_type,
     answer_required = excluded.answer_required,
+    weight = excluded.weight,
     deleted_at = NULL
 RETURNING id;
 ",
@@ -1806,7 +1819,8 @@ SELECT id AS "id!",
   order_number AS "order_number!",
   peer_review_config_id AS "peer_review_config_id!",
   question AS "question!",
-  question_type AS "question_type!: _"
+  question_type AS "question_type!: _",
+  weight AS "weight!"
 FROM peer_review_questions
 WHERE id IN (
     SELECT UNNEST($1::uuid [])
@@ -3355,10 +3369,11 @@ mod test {
             id:pr_id,
             exercise_id: Some(exercise_id),
             course_id: course,
-            accepting_strategy: crate::peer_review_configs::PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage,
-            accepting_threshold:0.5,
-            peer_reviews_to_give:2,
-            peer_reviews_to_receive:1
+            processing_strategy: crate::peer_review_configs::PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage,
+            accepting_threshold: 0.5,
+            peer_reviews_to_give: 2,
+            peer_reviews_to_receive: 1,
+            points_are_all_or_nothing: false,
         };
         let prq = CmsPeerReviewQuestion {
             id: prq_id,
@@ -3367,6 +3382,7 @@ mod test {
             order_number: 0,
             question: "juu".to_string(),
             question_type: crate::peer_review_questions::PeerReviewQuestionType::Essay,
+            weight: 0.31,
         };
         let mut remapped_exercises = HashMap::new();
         remapped_exercises.insert(exercise_id, exercise);
@@ -3381,6 +3397,8 @@ mod test {
         assert!(pr_res.get(&pr_id).unwrap().accepting_threshold == 0.5);
 
         assert!(prq_res.get(&prq_id).unwrap().question == *"juu");
+        assert_eq!(pr_res.get(&pr_id).unwrap().points_are_all_or_nothing, false);
+        assert_eq!(prq_res.get(&prq_id).unwrap().weight, 0.31);
     }
 
     #[tokio::test]
@@ -3395,10 +3413,11 @@ mod test {
             id:pr_id,
             exercise_id: Some(exercise_id),
             course_id: course,
-            accepting_strategy: crate::peer_review_configs::PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage,
-            accepting_threshold:0.5,
-            peer_reviews_to_give:2,
-            peer_reviews_to_receive:1
+            processing_strategy: crate::peer_review_configs::PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage,
+            accepting_threshold: 0.5,
+            peer_reviews_to_give: 2,
+            peer_reviews_to_receive: 1,
+            points_are_all_or_nothing: true,
         };
         let prq = CmsPeerReviewQuestion {
             id: prq_id,
@@ -3407,6 +3426,7 @@ mod test {
             order_number: 0,
             question: "juu".to_string(),
             question_type: crate::peer_review_questions::PeerReviewQuestionType::Essay,
+            weight: 0.0,
         };
         let mut remapped_exercises = HashMap::new();
         remapped_exercises.insert(exercise_id, exercise);

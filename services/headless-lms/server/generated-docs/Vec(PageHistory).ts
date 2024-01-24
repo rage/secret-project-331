@@ -1,6 +1,6 @@
 type Vec<PageHistory> = Array<{
   id: string
-  created_at: Date
+  created_at: string
   title: string
   content: unknown
   history_change_reason: HistoryChangeReason

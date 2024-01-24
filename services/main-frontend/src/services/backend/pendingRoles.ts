@@ -6,7 +6,6 @@ import { mainFrontendClient } from "../mainFrontendClient"
 export const fetchPendingRoles = async (query: RoleQuery): Promise<PendingRole[]> => {
   const response = await mainFrontendClient.get(`/roles/pending`, {
     params: query,
-    responseType: "json",
   })
   return validateResponse(response, isArray(isPendingRole))
 }

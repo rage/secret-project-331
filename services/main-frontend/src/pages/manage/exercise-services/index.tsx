@@ -12,6 +12,7 @@ import { ExerciseServiceNewOrUpdate } from "../../../shared-module/bindings"
 import Button from "../../../shared-module/components/Button"
 import ErrorBanner from "../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../shared-module/components/Spinner"
+import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
 import useToastMutation from "../../../shared-module/hooks/useToastMutation"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import { canSave } from "../../../utils/canSaveExerciseService"
@@ -135,4 +136,4 @@ const ExerciseServicePage: React.FC<React.PropsWithChildren<unknown>> = () => {
   )
 }
 
-export default withErrorBoundary(ExerciseServicePage)
+export default withErrorBoundary(withSignedIn(ExerciseServicePage))

@@ -187,6 +187,7 @@ pub enum Action {
     UploadFile,
     ViewUserProgressOrDetails,
     ViewInternalCourseStructure,
+    ViewStats,
 }
 
 /// The target of an action.
@@ -631,12 +632,13 @@ fn has_permission(user_role: UserRole, action: Action) -> bool {
                 | Grade
                 | Duplicate
                 | DeleteAnswer
-                | EditRole(Teacher | Assistant | Reviewer | MaterialViewer)
+                | EditRole(Teacher | Assistant | Reviewer | MaterialViewer | StatsViewer)
                 | CreateCoursesOrExams
                 | ViewMaterial
                 | UploadFile
                 | ViewUserProgressOrDetails
                 | ViewInternalCourseStructure
+                | ViewStats
         ),
         Assistant => matches!(
             action,
@@ -661,6 +663,7 @@ fn has_permission(user_role: UserRole, action: Action) -> bool {
                 View | ViewMaterial | ViewUserProgressOrDetails | ViewInternalCourseStructure
             )
         }
+        StatsViewer => matches!(action, ViewStats),
     }
 }
 

@@ -6,7 +6,7 @@ type Vec<Feedback> = Array<{
   feedback_given: string
   selected_text: string | null
   marked_as_read: boolean
-  created_at: Date
+  created_at: string
   blocks: Array<FeedbackBlock>
   page_title: string
   page_url_path: string

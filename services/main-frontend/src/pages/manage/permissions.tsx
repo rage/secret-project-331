@@ -3,6 +3,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { PermissionPage } from "../../components/PermissionPage"
+import { withSignedIn } from "../../shared-module/contexts/LoginStateContext"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
 
 const GlobalPermissions: React.FC<React.PropsWithChildren<unknown>> = () => {
@@ -28,4 +29,4 @@ const GlobalPermissions: React.FC<React.PropsWithChildren<unknown>> = () => {
   )
 }
 
-export default GlobalPermissions
+export default withSignedIn(GlobalPermissions)

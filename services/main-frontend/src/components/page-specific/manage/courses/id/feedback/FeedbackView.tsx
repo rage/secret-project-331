@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
+import { parseISO } from "date-fns"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -77,7 +78,11 @@ const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
           testPlaceholder="Sent by: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
         />
         <div>
-          <TimeComponent boldLabel={false} label={t("label-created")} date={feedback.created_at} />
+          <TimeComponent
+            boldLabel={false}
+            label={t("label-created")}
+            date={parseISO(feedback.created_at)}
+          />
         </div>
       </TextInformationWrapper>
 

@@ -1,6 +1,7 @@
 import { keyframes } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
+import { parseISO } from "date-fns"
 import { groupBy } from "lodash"
 import * as React from "react"
 import { useMemo } from "react"
@@ -115,7 +116,7 @@ const PeerReviewsReceived: React.FunctionComponent<PeerReviewProps> = ({ id, sub
 
   const data = useMemo(() => {
     const ordered = getPeerReviewReceived.data?.peer_review_question_submissions.sort(
-      (a, b) => b.created_at.getTime() - a.created_at.getTime(),
+      (a, b) => parseISO(b.created_at).getTime() - parseISO(a.created_at).getTime(),
     )
 
     const groupByPeerReviewSubmissionId = groupBy(
@@ -131,7 +132,7 @@ const PeerReviewsReceived: React.FunctionComponent<PeerReviewProps> = ({ id, sub
       if (b.length === 0) {
         return -1
       }
-      return b[0].created_at.getTime() - a[0].created_at.getTime()
+      return parseISO(b[0].created_at).getTime() - parseISO(a[0].created_at).getTime()
     })
     return res
   }, [getPeerReviewReceived.data?.peer_review_question_submissions])

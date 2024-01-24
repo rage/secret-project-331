@@ -20,3 +20,6 @@ run_command find server/generated-docs/ -name '*.json' -exec jq --sort-keys . -M
 
 # Fix formatting
 run_command npm run eslint:format-generated-docs
+
+echo ""
+echo -e "${GREEN}✅ New examples have been generated for the backend documentation.${RESET_EVERYTHING}"

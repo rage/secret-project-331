@@ -3,7 +3,7 @@ use crate::{
     courses::Course, prelude::*, user_course_settings::UserCourseSettings,
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseInstanceEnrollment {
     pub user_id: Uuid,
@@ -14,7 +14,7 @@ pub struct CourseInstanceEnrollment {
     pub deleted_at: Option<DateTime<Utc>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseInstanceEnrollmentsInfo {
     pub course_instance_enrollments: Vec<CourseInstanceEnrollment>,
@@ -44,7 +44,7 @@ VALUES ($1, $2, $3)
     Ok(())
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct NewCourseInstanceEnrollment {
     pub user_id: Uuid,
     pub course_id: Uuid,

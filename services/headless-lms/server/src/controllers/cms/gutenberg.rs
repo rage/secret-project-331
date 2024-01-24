@@ -151,7 +151,6 @@ async fn get_theme_settings(
     token.authorized_ok(web::Json(response))
 }
 
-#[generated_doc]
 #[instrument(skip(app_conf))]
 async fn get_mentimeter_oembed_data(
     query_params: web::Query<OEmbedRequest>,
@@ -164,7 +163,6 @@ async fn get_mentimeter_oembed_data(
     token.authorized_ok(web::Json(response))
 }
 
-#[generated_doc]
 #[instrument(skip(app_conf))]
 async fn get_thinglink_oembed_data(
     query_params: web::Query<OEmbedRequest>,

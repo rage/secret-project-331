@@ -7,7 +7,7 @@ use crate::prelude::*;
 /**
 GET `/api/v0/main-frontend/regradings` - Returns a paginated list of all the regradings.
 */
-#[generated_doc]
+
 #[instrument(skip(pool, user))]
 async fn get_regradings(
     pool: web::Data<PgPool>,
@@ -23,7 +23,7 @@ async fn get_regradings(
 /**
 GET `/api/v0/main-frontend/regradings/count` - Counts regradings
 */
-#[generated_doc]
+
 #[instrument(skip(pool, user))]
 async fn get_regradings_count(
     pool: web::Data<PgPool>,
@@ -38,7 +38,7 @@ async fn get_regradings_count(
 /**
 POST `/api/v0/main-frontend/regradings` - Creates a new regrading for the supplied exercise task submission ids and returns the new regrading id.
 */
-#[generated_doc]
+
 #[instrument(skip(pool, user))]
 async fn create_by_exercise_task_submission_ids(
     pool: web::Data<PgPool>,
@@ -59,7 +59,7 @@ async fn create_by_exercise_task_submission_ids(
 /**
 GET `/api/v0/main-frontend/regradings/{id}` - Returns relevant information about a regrading.
 */
-#[generated_doc]
+
 #[instrument(skip(pool, user))]
 async fn get_regrading_info_by_id(
     pool: web::Data<PgPool>,

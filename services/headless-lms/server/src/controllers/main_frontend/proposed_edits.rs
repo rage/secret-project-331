@@ -21,7 +21,6 @@ pub struct GetEditProposalsQuery {
 /**
 GET `/api/v0/main-frontend/proposed-edits/course/:id?pending=true` - Returns feedback for the given course.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 pub async fn get_edit_proposals(
     course_id: web::Path<Uuid>,
@@ -52,7 +51,6 @@ pub async fn get_edit_proposals(
 /**
 GET `/api/v0/main-frontend/proposed-edits/course/:id/count` - Returns the amount of feedback for the given course.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 pub async fn get_edit_proposal_count(
     course_id: web::Path<Uuid>,

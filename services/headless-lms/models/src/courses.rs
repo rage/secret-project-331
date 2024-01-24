@@ -26,7 +26,7 @@ pub struct CourseContextData {
     pub is_test_mode: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Course {
     pub id: Uuid,
@@ -46,7 +46,7 @@ pub struct Course {
     pub base_module_completion_requires_n_submodule_completions: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseBreadcrumbInfo {
     pub course_id: Uuid,
@@ -57,7 +57,7 @@ pub struct CourseBreadcrumbInfo {
 }
 
 /// Represents the subset of page fields that are required to create a new course.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewCourse {
     pub name: String,
@@ -122,7 +122,7 @@ RETURNING id
     Ok(res.id)
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseStructure {
     pub course: Course,
@@ -428,7 +428,7 @@ WHERE organization_id = $1
     })
 }
 // Represents the subset of page fields that one is allowed to update in a course
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseUpdate {
     name: String,

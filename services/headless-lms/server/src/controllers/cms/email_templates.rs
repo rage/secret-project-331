@@ -7,7 +7,6 @@ use crate::prelude::*;
 /**
 GET `/api/v0/cms/email-templates/:id`
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_email_template(
     email_template_id: web::Path<Uuid>,
@@ -24,7 +23,6 @@ async fn get_email_template(
 /**
 PUT `/api/v0/cms/email-templates/:id
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn update_email_template(
     email_template_id: web::Path<Uuid>,

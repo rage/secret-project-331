@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct GlobalStatEntry {
     pub course_name: String,
@@ -11,7 +11,7 @@ pub struct GlobalStatEntry {
     pub value: i64,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct GlobalCourseModuleStatEntry {
     pub course_name: String,
@@ -22,7 +22,7 @@ pub struct GlobalCourseModuleStatEntry {
     pub organization_name: String,
     pub year: String,
     pub value: i64,
-    pub course_module_ects_credits: Option<i32>,
+    pub course_module_ects_credits: Option<f32>,
 }
 
 pub async fn get_number_of_people_completed_a_course(

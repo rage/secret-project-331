@@ -1,6 +1,6 @@
 use crate::{course_background_questions::CourseBackgroundQuestion, prelude::*};
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseBackgroundQuestionAnswer {
     pub id: Uuid,
@@ -12,7 +12,7 @@ pub struct CourseBackgroundQuestionAnswer {
     pub user_id: Uuid,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewCourseBackgroundQuestionAnswer {
     pub answer_value: Option<String>,

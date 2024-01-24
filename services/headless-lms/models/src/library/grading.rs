@@ -31,7 +31,7 @@ use crate::{
 use super::user_exercise_state_updater;
 
 /// Contains data sent by the student when they make a submission for an exercise slide.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct StudentExerciseSlideSubmission {
     pub exercise_slide_id: Uuid,
@@ -67,7 +67,7 @@ impl StudentExerciseSlideSubmissionResult {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct StudentExerciseTaskSubmission {
     pub exercise_task_id: Uuid,

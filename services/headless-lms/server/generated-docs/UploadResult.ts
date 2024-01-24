@@ -1,1 +1,0 @@
-type UploadResult = { url: string }

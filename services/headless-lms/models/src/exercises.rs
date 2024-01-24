@@ -24,7 +24,7 @@ use crate::{
 };
 use std::collections::HashMap;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Exercise {
     pub id: Uuid,

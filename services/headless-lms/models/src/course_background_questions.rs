@@ -14,7 +14,7 @@ pub enum CourseBackgroundQuestionType {
     Text,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseBackgroundQuestion {
     pub id: Uuid,
@@ -27,7 +27,7 @@ pub struct CourseBackgroundQuestion {
     pub question_type: CourseBackgroundQuestionType,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseBackgroundQuestionsAndAnswers {
     pub background_questions: Vec<CourseBackgroundQuestion>,

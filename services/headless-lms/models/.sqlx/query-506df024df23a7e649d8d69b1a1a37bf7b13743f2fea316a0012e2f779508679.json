@@ -66,7 +66,7 @@
       {
         "ordinal": 12,
         "name": "ects_credits",
-        "type_info": "Int4"
+        "type_info": "Float4"
       },
       {
         "ordinal": 13,
@@ -90,7 +90,7 @@
       }
     ],
     "parameters": {
-      "Left": ["Uuid", "Uuid", "Varchar", "Int4", "Bool", "Int4", "Int4", "Bool", "Int4", "Bool"]
+      "Left": ["Uuid", "Uuid", "Varchar", "Int4", "Bool", "Int4", "Int4", "Bool", "Float4", "Bool"]
     },
     "nullable": [
       false,

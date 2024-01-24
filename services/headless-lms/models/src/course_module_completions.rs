@@ -26,7 +26,7 @@ pub struct CourseModuleCompletion {
     pub completion_granter_user_id: Option<Uuid>,
 }
 
-#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Clone, PartialEq, Deserialize, Serialize)]
 pub enum CourseModuleCompletionGranter {
     Automatic,
     User(Uuid),
@@ -41,7 +41,7 @@ impl CourseModuleCompletionGranter {
     }
 }
 
-#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewCourseModuleCompletion {
     pub course_id: Uuid,
@@ -182,7 +182,7 @@ WHERE course_instance_id = $1
     Ok(res)
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseModuleCompletionWithRegistrationInfo {
     /// When the student has attempted to register the completion.
@@ -435,7 +435,7 @@ pub async fn user_has_completed_course_module_on_instance(
 }
 
 /// Completion in the form that is recognized by authorized third party study registry registrars.
-#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct StudyRegistryCompletion {
     /// The date when the student completed the course. The value of this field is the date that will
@@ -516,7 +516,7 @@ impl From<CourseModuleCompletion> for StudyRegistryCompletion {
 ///   }
 /// }
 /// ```
-#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct StudyRegistryGrade {
     pub scale: String,

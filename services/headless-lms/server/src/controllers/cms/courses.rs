@@ -26,7 +26,7 @@ Content-Type: multipart/form-data
 BINARY_DATA
 ```
 */
-#[generated_doc]
+
 #[instrument(skip(payload, request, pool, file_store, app_conf))]
 async fn add_media(
     course_id: web::Path<Uuid>,
@@ -55,7 +55,6 @@ async fn add_media(
     token.authorized_ok(web::Json(UploadResult { url: download_url }))
 }
 
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_course_default_peer_review_configuration(
     course_id: web::Path<Uuid>,
@@ -88,7 +87,6 @@ async fn get_course_default_peer_review_configuration(
     }))
 }
 
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn put_course_default_peer_review_configuration(
     course_id: web::Path<Uuid>,
@@ -117,7 +115,6 @@ async fn put_course_default_peer_review_configuration(
 /**
 GET `/api/v0/cms/courses/:course_id/pages` - Gets all pages for a course.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_all_pages(
     course_id: web::Path<Uuid>,
@@ -140,7 +137,7 @@ async fn get_all_pages(
 /**
 PUT `/api/v0/cms/courses/:course_id/research-consent-form` - Upserts courses research form from Gutenberg research form edit.
 */
-#[generated_doc]
+
 #[instrument(skip(pool, payload))]
 async fn upsert_course_research_form(
     payload: web::Json<NewResearchForm>,
@@ -165,7 +162,6 @@ async fn upsert_course_research_form(
 /**
 GET `/api/v0/cms/courses/:course_id/research-consent-form` - Fetches courses research form with course id.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_research_form_with_course_id(
     course_id: web::Path<Uuid>,
@@ -186,7 +182,6 @@ async fn get_research_form_with_course_id(
 PUT `/api/v0/cms/courses/:course_id/research-consent-form-question` - Upserts questions for the courses research form from Gutenberg research form edit.
 */
 
-#[generated_doc]
 #[instrument(skip(pool, payload))]
 async fn upsert_course_research_form_question(
     payload: web::Json<NewResearchFormQuestion>,

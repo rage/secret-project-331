@@ -138,7 +138,7 @@ impl TryFrom<RoleQuery> for RoleDomain {
  * GET /api/v0/main-frontend/roles - Get all roles for the given domain.
  */
 #[instrument(skip(pool))]
-#[generated_doc]
+
 pub async fn fetch(
     pool: web::Data<PgPool>,
     query: web::Query<RoleQuery>,
@@ -158,7 +158,7 @@ pub async fn fetch(
  * GET /api/v0/main-frontend/roles - Get all pending roles for the given domain.
  */
 #[instrument(skip(pool))]
-#[generated_doc]
+
 pub async fn fetch_pending(
     pool: web::Data<PgPool>,
     query: web::Query<RoleQuery>,

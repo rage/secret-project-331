@@ -131,7 +131,7 @@ Used to upload data from exercise service iframes.
 The randomly generated paths to each uploaded file in a `file_name => file_path` hash map.
 */
 #[instrument(skip(payload, file_store, app_conf, upload_claim))]
-#[generated_doc]
+
 async fn upload_from_exercise_service(
     pool: web::Data<PgPool>,
     exercise_service_slug: web::Path<String>,

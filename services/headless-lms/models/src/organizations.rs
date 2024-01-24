@@ -4,7 +4,7 @@ use headless_lms_utils::{file_store::FileStore, ApplicationConfiguration};
 
 use crate::prelude::*;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct DatabaseOrganization {
     pub id: Uuid,
     pub slug: String,
@@ -16,7 +16,7 @@ pub struct DatabaseOrganization {
     pub deleted_at: Option<DateTime<Utc>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Organization {
     pub id: Uuid,

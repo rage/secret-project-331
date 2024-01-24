@@ -12,10 +12,9 @@ import FeedbackPage from "./FeedbackPage"
 interface Props {
   courseId: string
   read: boolean
-  perPage: number
 }
 
-const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read, perPage }) => {
+const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read }) => {
   const { t } = useTranslation()
   const paginationInfo = usePaginationInfo()
 
@@ -36,14 +35,14 @@ const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read
   if (items <= 0) {
     return <div>{t("no-feedback")}</div>
   }
-  const pageCount = Math.ceil(items / perPage)
+  const pageCount = Math.ceil(items / paginationInfo.limit)
   return (
     <div>
       <FeedbackPage
         courseId={courseId}
         page={paginationInfo.page}
         read={read}
-        limit={perPage}
+        paginationInfo={paginationInfo}
         onChange={getFeedbackCount.refetch}
       />
       <Pagination totalPages={pageCount} paginationInfo={paginationInfo} />

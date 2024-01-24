@@ -4,7 +4,7 @@ use futures::Stream;
 
 use crate::{prelude::*, users::User};
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UserDetail {
     pub user_id: Uuid,

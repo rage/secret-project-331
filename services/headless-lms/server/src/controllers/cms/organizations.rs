@@ -16,7 +16,7 @@ Content-Type: multipart/form-data
 BINARY_DATA
 ```
 */
-#[generated_doc]
+
 #[instrument(skip(payload, request, pool, file_store, app_conf))]
 async fn add_media(
     organization_id: web::Path<Uuid>,

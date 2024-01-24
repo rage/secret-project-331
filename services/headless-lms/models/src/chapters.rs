@@ -11,7 +11,7 @@ use headless_lms_utils::{
     ApplicationConfiguration,
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct DatabaseChapter {
     pub id: Uuid,
@@ -39,7 +39,7 @@ impl DatabaseChapter {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Chapter {
     pub id: Uuid,
@@ -101,7 +101,7 @@ impl Default for ChapterStatus {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct ChapterPagesWithExercises {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -114,7 +114,7 @@ pub struct ChapterPagesWithExercises {
 }
 
 // Represents the subset of page fields that are required to create a new course.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewChapter {
     pub name: String,
@@ -129,7 +129,7 @@ pub struct NewChapter {
     pub course_module_id: Option<Uuid>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ChapterUpdate {
     pub name: String,
@@ -313,7 +313,7 @@ RETURNING *;",
     Ok(updated_chapter)
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ChapterWithStatus {
     pub id: Uuid,

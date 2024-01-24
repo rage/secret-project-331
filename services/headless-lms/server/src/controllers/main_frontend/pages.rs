@@ -43,7 +43,7 @@ Content-Type: application/json
 }
 ```
 */
-#[generated_doc]
+
 #[instrument(skip(pool, app_conf))]
 async fn post_new_page(
     request_id: RequestId,
@@ -87,7 +87,6 @@ DELETE `/api/v0/main-frontend/pages/:page_id` - Delete a page, related exercises
 
 Request: `DELETE /api/v0/main-frontend/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02`
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn delete_page(
     page_id: web::Path<Uuid>,
@@ -104,7 +103,6 @@ async fn delete_page(
 /**
 GET /api/v0/main-frontend/pages/:page_id/history
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn history(
     pool: web::Data<PgPool>,
@@ -123,7 +121,6 @@ async fn history(
 /**
 GET /api/v0/main-frontend/pages/:page_id/history_count
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn history_count(
     pool: web::Data<PgPool>,
@@ -140,7 +137,7 @@ async fn history_count(
 /**
 POST /api/v0/main-frontend/pages/:page_id/restore
 */
-#[generated_doc]
+
 #[instrument(skip(pool, app_conf))]
 async fn restore(
     request_id: RequestId,
@@ -175,7 +172,7 @@ GET `/api/v0/main-fronted/pages/:page_id/info` - Get a pages's course id, course
 
 Request: `GET /api/v0/cms/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02/info`
 */
-#[generated_doc]
+
 async fn get_page_info(
     page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -192,7 +189,6 @@ async fn get_page_info(
 /**
 POST `/api/v0/main-frontend/pages/:page_id/page-details` - Update pages title and url_path.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn update_page_details(
     page_id: web::Path<Uuid>,

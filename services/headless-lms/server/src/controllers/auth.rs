@@ -26,7 +26,7 @@ pub struct Login {
 /**
 POST `/api/v0/auth/authorize` checks whether user can perform specified action on specified resource.
 **/
-#[generated_doc]
+
 #[instrument(skip(pool, payload,))]
 pub async fn authorize_action_on_resource(
     pool: web::Data<PgPool>,
@@ -126,7 +126,7 @@ pub async fn signup(
 POST `/api/v0/auth/authorize-multiple` checks whether user can perform specified action on specified resource.
 Returns booleans for the authorizations in the same order as the input.
 **/
-#[generated_doc]
+
 #[instrument(skip(pool, payload,))]
 pub async fn authorize_multiple_actions_on_resources(
     pool: web::Data<PgPool>,
@@ -245,7 +245,7 @@ pub struct UserInfo {
 /**
 GET `/api/v0/auth/user-info` Returns the current user's info.
 **/
-#[generated_doc]
+
 #[instrument(skip(auth_user, pool))]
 pub async fn user_info(
     auth_user: Option<AuthUser>,

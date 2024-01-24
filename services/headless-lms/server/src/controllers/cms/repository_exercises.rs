@@ -1,7 +1,6 @@
 use crate::prelude::*;
 use models::repository_exercises::{self, RepositoryExercise};
 
-#[generated_doc]
 #[instrument(skip(pool))]
 pub async fn get_for_course(
     course_id: web::Path<Uuid>,

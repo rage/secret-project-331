@@ -269,7 +269,7 @@ pub async fn some_endpoint(user: Option<AuthUser>) -> String {
 
 When you have finished coding the endpoint you should add documentations to it so they can be easily read by anyone. Documentation should include short description about the endpoint and an example response data from it.
 
-The binary at `server/src/bin/doc-file-generator.rs` can be used to generate documentation for the response type from Rust code, ensuring they stay up to date. The binary can be called with the `bin/generate-doc-files` script, and the generated files can be used with the doc-macro crate's helper `generated_doc` macro: `#[generated_doc]` or `#[generated_doc(MyType)]`. The macro will attempt to parse the return type from the function signature if omitted from the macro call.
+The binary at `server/src/bin/doc-file-generator.rs` can be used to generate documentation for the response type from Rust code, ensuring they stay up to date. The binary can be called with the `bin/generate-doc-files` script, and the generated files can be used with the doc-macro crate's helper `generated_doc` macro: `#[generated_doc]` or `#[generated_doc(MyType)]`. The macro will attempt to parse the return type from the function signature if omitted from the macro call. This should be used only for public API endpoints, not internal ones.
 
 For example
 

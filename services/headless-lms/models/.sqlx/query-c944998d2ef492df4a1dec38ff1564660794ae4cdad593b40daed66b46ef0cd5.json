@@ -36,7 +36,7 @@
       {
         "ordinal": 6,
         "name": "course_module_ects_credits",
-        "type_info": "Int4"
+        "type_info": "Float4"
       },
       {
         "ordinal": 7,

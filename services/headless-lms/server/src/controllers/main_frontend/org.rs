@@ -7,7 +7,7 @@ use crate::{domain::authorization::skip_authorize, prelude::*};
 /**
 GET `/api/v0/main-frontend/org/:slug
 */
-#[generated_doc]
+
 #[instrument(skip(pool, file_store, app_conf))]
 async fn get_organization_by_slug(
     pool: web::Data<PgPool>,

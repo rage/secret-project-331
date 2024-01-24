@@ -2,7 +2,7 @@ use lettre::transport::smtp::Error;
 
 use crate::prelude::*;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct EmailDelivery {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,

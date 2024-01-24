@@ -42,7 +42,6 @@ use crate::{
 /**
 GET `/api/v0/course-material/courses/:course_id` - Get course.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_course(
     course_id: web::Path<Uuid>,
@@ -63,7 +62,7 @@ If the page has moved and there's a redirection, this will still return the move
 # Example
 GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//part-2/hello-world
 */
-#[generated_doc]
+
 #[instrument(skip(pool, ip_to_country_mapper, req))]
 async fn get_course_page_by_path(
     params: web::Path<(String, String)>,
@@ -315,7 +314,6 @@ async fn derive_information_from_requester(
 /**
 GET `/api/v0/course-material/courses/:course_id/current-instance` - Returns the instance of a course for the current user, if there is one.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_current_course_instance(
     pool: web::Data<PgPool>,
@@ -342,7 +340,7 @@ async fn get_current_course_instance(
 /**
 GET `/api/v0/course-material/courses/:course_id/course-instances` - Returns all course instances for given course id.
 */
-#[generated_doc]
+
 async fn get_course_instances(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
@@ -359,7 +357,6 @@ GET `/api/v0/course-material/courses/:course_id/pages` - Returns a list of publi
 
 Since anyone can access this endpoint, any unlisted pages are omited from these results.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_public_course_pages(
     course_id: web::Path<Uuid>,
@@ -376,14 +373,14 @@ async fn get_public_course_pages(
     token.authorized_ok(web::Json(pages))
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ChaptersWithStatus {
     pub is_previewable: bool,
     pub modules: Vec<CourseMaterialCourseModule>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseMaterialCourseModule {
     pub chapters: Vec<ChapterWithStatus>,
@@ -396,7 +393,7 @@ pub struct CourseMaterialCourseModule {
 /**
 GET `/api/v0/course-material/courses/:course_id/chapters` - Returns a list of chapters in a course.
 */
-#[generated_doc]
+
 #[instrument(skip(pool, file_store, app_conf))]
 async fn get_chapters(
     course_id: web::Path<Uuid>,
@@ -475,7 +472,6 @@ fn collect_course_modules(
 /**
 GET `/api/v0/course-material/courses/:course_id/user-settings` - Returns user settings for the current course.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_user_course_settings(
     pool: web::Data<PgPool>,
@@ -517,7 +513,6 @@ Content-Type: application/json
 }
 ```
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn search_pages_with_phrase(
     course_id: web::Path<Uuid>,
@@ -549,7 +544,6 @@ Content-Type: application/json
 }
 ```
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn search_pages_with_words(
     course_id: web::Path<Uuid>,
@@ -566,7 +560,7 @@ async fn search_pages_with_words(
 /**
 POST `/api/v0/course-material/courses/:course_id/feedback` - Creates new feedback.
 */
-#[generated_doc]
+
 pub async fn feedback(
     course_id: web::Path<Uuid>,
     new_feedback: web::Json<Vec<NewFeedback>>,
@@ -618,7 +612,7 @@ pub async fn feedback(
 /**
 POST `/api/v0/course-material/courses/:course_slug/edit` - Creates a new edit proposal.
 */
-#[generated_doc]
+
 async fn propose_edit(
     course_slug: web::Path<String>,
     edits: web::Json<NewProposedPageEdits>,
@@ -639,7 +633,6 @@ async fn propose_edit(
     token.authorized_ok(web::Json(id))
 }
 
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn glossary(
     pool: web::Data<PgPool>,
@@ -651,7 +644,6 @@ async fn glossary(
     token.authorized_ok(web::Json(glossary))
 }
 
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_material_references_by_course_id(
     course_id: web::Path<Uuid>,
@@ -670,7 +662,6 @@ async fn get_material_references_by_course_id(
 /**
 GET /api/v0/course-material/courses/:course_id/top-level-pages
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_public_top_level_pages(
     course_id: web::Path<Uuid>,
@@ -690,7 +681,6 @@ async fn get_public_top_level_pages(
 /**
 GET `/api/v0/course-material/courses/:id/language-versions` - Returns all language versions of the same course. Since this is for course material, this does not include draft courses.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_all_course_language_versions(
     pool: web::Data<PgPool>,
@@ -711,7 +701,6 @@ async fn get_all_course_language_versions(
 /**
 GET `/api/v0/{course_id}/pages/by-language-group-id/{page_language_group_id} - Returns a page with the given course id and language group id.
  */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_page_by_course_id_and_language_group(
     info: web::Path<(Uuid, Uuid)>,
@@ -733,7 +722,6 @@ async fn get_page_by_course_id_and_language_group(
 /**
 POST `/api/v0/{course_id}/course-instances/{course_instance_id}/student-countries/{country_code}` - Add a new student's country entry.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn student_country(
     query: web::Path<(Uuid, Uuid, String)>,
@@ -759,7 +747,6 @@ async fn student_country(
 /**
 GET `/api/v0/{course_id}/course-instances/{course_instance_id}/student-countries - Returns countries of student registered in a course.
  */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_student_countries(
     query: web::Path<(Uuid, Uuid)>,
@@ -788,7 +775,6 @@ async fn get_student_countries(
 /**
 GET `/api/v0/{course_id}/student-country - Returns country of a student registered in a course.
  */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_student_country(
     course_instance_id: web::Path<Uuid>,
@@ -810,7 +796,6 @@ async fn get_student_country(
 /**
 GET `/api/v0/course-material/courses/:course_id/research-consent-form` - Fetches courses research form with course id.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_research_form_with_course_id(
     course_id: web::Path<Uuid>,
@@ -832,7 +817,6 @@ async fn get_research_form_with_course_id(
 /**
 GET `/api/v0/course-material/courses/:course_id/research-consent-form-questions` - Fetches courses research form questions with course id.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_research_form_questions_with_course_id(
     course_id: web::Path<Uuid>,
@@ -853,7 +837,7 @@ async fn get_research_form_questions_with_course_id(
 /**
 POST `/api/v0/course-material/courses/:course_id/research-consent-form-questions-answer` - Upserts users consent for a courses research form question.
 */
-#[generated_doc]
+
 #[instrument(skip(pool, payload))]
 async fn upsert_course_research_form_answer(
     payload: web::Json<NewResearchFormQuestionAnswer>,
@@ -875,7 +859,6 @@ async fn upsert_course_research_form_answer(
 /**
 GET `/api/v0/course/courses/:course_id/research-consent-form-users-answers` - Fetches users answers for courses research form.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_research_form_answers_with_user_id(
     course_id: web::Path<Uuid>,

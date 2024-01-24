@@ -53,7 +53,7 @@ const CourseFeedback: React.FC<React.PropsWithChildren<CourseManagementPagesProp
         </TabLink>
       </TabLinkNavigation>
       <TabLinkPanel>
-        <FeedbackList courseId={courseId} read={read} perPage={4} />
+        <FeedbackList courseId={courseId} read={read} />
       </TabLinkPanel>
     </div>
   )

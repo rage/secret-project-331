@@ -2,7 +2,7 @@ use chrono::NaiveDate;
 
 use crate::prelude::*;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PageVisitDatumSummaryByCourse {
     pub id: Uuid,

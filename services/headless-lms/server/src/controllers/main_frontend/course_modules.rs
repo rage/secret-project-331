@@ -10,7 +10,6 @@ GET `/api/v0/main-frontend/course-modules/{course_module_id}`
 
 Returns information about the course module.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_course_module(
     course_module_id: web::Path<Uuid>,
@@ -34,7 +33,6 @@ GET `/api/v0/main-frontend/course-modules/{course_module_id}/user-completion`
 
 Gets active users's completion for the course, if it exists.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_course_module_completion_information_for_user(
     course_module_id: web::Path<Uuid>,
@@ -63,7 +61,6 @@ async fn get_course_module_completion_information_for_user(
 /**
 GET `/api/v0/main-frontend/course-modules/{course_slug}/completion-registration-link`
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_course_module_completion_registration_link(
     course_module_id: web::Path<Uuid>,

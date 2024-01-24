@@ -32,7 +32,7 @@ use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
 /// Result of a image upload. Tells where the uploaded image can be retrieved from.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UploadResult {
     pub url: String,

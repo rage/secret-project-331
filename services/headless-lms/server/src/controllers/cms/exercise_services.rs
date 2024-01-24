@@ -7,7 +7,6 @@ use crate::{domain::models_requests, prelude::*};
 /**
 GET `/api/v0/cms/exercise-services` - List all exercise services configured in the system.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_all_exercise_services(
     pool: web::Data<PgPool>,

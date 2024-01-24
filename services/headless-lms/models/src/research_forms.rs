@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ResearchForm {
     pub id: Uuid,
@@ -18,7 +18,7 @@ pub struct NewResearchForm {
     pub content: serde_json::Value,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ResearchFormQuestion {
     pub id: Uuid,
@@ -30,7 +30,7 @@ pub struct ResearchFormQuestion {
     pub deleted_at: Option<DateTime<Utc>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewResearchFormQuestion {
     pub question_id: Uuid,
@@ -39,7 +39,7 @@ pub struct NewResearchFormQuestion {
     pub question: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewResearchFormQuestionAnswer {
     pub user_id: Uuid,
@@ -47,7 +47,7 @@ pub struct NewResearchFormQuestionAnswer {
     pub research_consent: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ResearchFormQuestionAnswer {
     pub id: Uuid,

@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct OpenUniversityRegistrationLink {
     pub uh_course_code: String,
     pub created_at: DateTime<Utc>,

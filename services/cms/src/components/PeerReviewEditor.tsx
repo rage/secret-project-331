@@ -486,11 +486,10 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                           />
                         </StyledQuestionType>
                         <StyledQuestion>
-                          {
+                          {question_type !== "Scale" ? (
                             <CheckBox
                               label={t("answer-required")}
                               checked={answer_required}
-                              disabled={question_type === "Scale"}
                               className={css`
                                 margin-top: 0.5rem;
                               `}
@@ -498,7 +497,15 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                                 handlePeerReviewQuestionValueChange(id, e, "answer_required")
                               }
                             />
-                          }
+                          ) : (
+                            <div
+                              className={css`
+                                min-width: 93px;
+                              `}
+                            >
+                              &nbsp;
+                            </div>
+                          )}
                         </StyledQuestion>
                         <DeleteBtn
                           aria-label={t("delete")}

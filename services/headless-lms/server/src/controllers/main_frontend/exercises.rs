@@ -19,7 +19,7 @@ pub struct ExerciseSubmissions {
 /**
 GET `/api/v0/main-frontend/exercises/:exercise_id/submissions` - Returns an exercise's submissions.
  */
-#[generated_doc]
+
 #[instrument(skip(pool))]
 async fn get_exercise_submissions(
     pool: web::Data<PgPool>,
@@ -61,7 +61,7 @@ async fn get_exercise_submissions(
 /**
 GET `/api/v0/main-frontend/exercises/:exercise_id/answers-requiring-attention` - Returns an exercise's answers requiring attention.
  */
-#[generated_doc]
+
 #[instrument(skip(pool))]
 async fn get_exercise_answers_requiring_attention(
     pool: web::Data<PgPool>,

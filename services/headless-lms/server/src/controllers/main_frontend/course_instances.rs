@@ -29,7 +29,7 @@ use crate::{
 /**
 GET /course-instances/:id
 */
-#[generated_doc]
+
 #[instrument(skip(pool))]
 async fn get_course_instance(
     course_instance_id: web::Path<Uuid>,
@@ -49,7 +49,6 @@ async fn get_course_instance(
     token.authorized_ok(web::Json(course_instance))
 }
 
-#[generated_doc]
 #[instrument(skip(payload, pool))]
 async fn post_new_email_template(
     course_instance_id: web::Path<Uuid>,
@@ -81,7 +80,7 @@ POST `/api/v0/main-frontend/course-instances/{course_instance_id}/reprocess-comp
 
 Reprocesses all module completions for the given course instance. Only available to admins.
 */
-#[generated_doc]
+
 #[instrument(skip(pool, user))]
 async fn post_reprocess_module_completions(
     pool: web::Data<PgPool>,
@@ -98,7 +97,6 @@ async fn post_reprocess_module_completions(
     token.authorized_ok(web::Json(true))
 }
 
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_email_templates_by_course_instance_id(
     course_instance_id: web::Path<Uuid>,
@@ -157,7 +155,6 @@ pub async fn point_export(
     .await
 }
 
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn points(
     course_instance_id: web::Path<Uuid>,
@@ -180,7 +177,7 @@ async fn points(
 /**
 GET `/api/v0/main-frontend/course-instances/{course_instance_id}/completions`
 */
-#[generated_doc]
+
 #[instrument(skip(pool))]
 async fn completions(
     course_instance_id: web::Path<Uuid>,
@@ -363,7 +360,7 @@ pub async fn certificate_configurations(
 GET /course-instances/:id/status-for-all-exercises/:user_id - Returns a status for all exercises in a course instance for a given user.
 */
 #[instrument(skip(pool))]
-#[generated_doc]
+
 async fn get_all_exercise_statuses_by_course_instance_id(
     params: web::Path<(Uuid, Uuid)>,
     pool: web::Data<PgPool>,
@@ -393,7 +390,7 @@ async fn get_all_exercise_statuses_by_course_instance_id(
 GET /course-instances/:id/course-module-completions/:user_id - Returns a list of all course module completions for a given user for this course instance.
 */
 #[instrument(skip(pool))]
-#[generated_doc]
+
 async fn get_all_get_all_course_module_completions_for_user_by_course_instance_id(
     params: web::Path<(Uuid, Uuid)>,
     pool: web::Data<PgPool>,
@@ -422,7 +419,7 @@ async fn get_all_get_all_course_module_completions_for_user_by_course_instance_i
 /**
  GET /api/v0/main-frontend/course-instance/:course_instance_id/progress/:user_id - returns user progress information.
 */
-#[generated_doc]
+
 #[instrument(skip(pool))]
 async fn get_user_progress_for_course_instance(
     user: AuthUser,

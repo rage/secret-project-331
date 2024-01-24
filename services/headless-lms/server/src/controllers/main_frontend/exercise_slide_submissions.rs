@@ -10,7 +10,7 @@ use models::{
 /**
 GET `/api/v0/main-frontend/exercise-slide-submissions/{submission_id}/info"`- Returns data necessary for rendering a submission.
 */
-#[generated_doc]
+
 #[instrument(skip(pool))]
 async fn get_submission_info(
     submission_id: web::Path<Uuid>,
@@ -40,7 +40,7 @@ async fn get_submission_info(
 /**
 PUT `/api/v0/main-frontend/exercise-slide-submissions/update-answer-requiring-attention"` - Given a teacher grading decision, updates an answer by giving it a manual score given.
 */
-#[generated_doc]
+
 #[instrument(skip(pool))]
 async fn update_answer_requiring_attention(
     payload: web::Json<NewTeacherGradingDecision>,

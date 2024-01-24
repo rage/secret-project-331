@@ -15,7 +15,7 @@ use crate::{domain::authorization::skip_authorize, prelude::*};
 /**
  GET /api/v0/course-material/course-instance/:course_intance_id/progress - returns user progress information.
 */
-#[generated_doc]
+
 #[instrument(skip(pool))]
 async fn get_user_progress_for_course_instance(
     user: AuthUser,
@@ -37,7 +37,7 @@ async fn get_user_progress_for_course_instance(
 /**
 GET `/api/v0/course-material/course-instance/:course_instance_id/chapters/:chapter_id/progress - Returns user progress for chapter in course instance.
 */
-#[generated_doc]
+
 #[instrument(skip(pool))]
 async fn get_user_progress_for_course_instance_chapter(
     user: AuthUser,
@@ -61,7 +61,7 @@ async fn get_user_progress_for_course_instance_chapter(
 /**
 GET /api/v0/course-material/course-instance/:course_instance_id/chapters/:chapter_id/exercises/progress - Returns user progress for an exercise in given course instance.
 */
-#[generated_doc]
+
 #[instrument(skip(pool))]
 async fn get_user_progress_for_course_instance_chapter_exercises(
     user: AuthUser,
@@ -97,7 +97,7 @@ async fn get_user_progress_for_course_instance_chapter_exercises(
 /**
 GET `/api/v0/course-material/course-instance/{course_instance_id}/module-completions`
  */
-#[generated_doc]
+
 #[instrument(skip(pool))]
 async fn get_module_completions_for_course_instance(
     user: AuthUser,
@@ -132,7 +132,7 @@ pub struct SaveCourseSettingsPayload {
 /**
 POST /api/v0/course-material/course-instance/:course_instance_id/save-course-settings - enrolls user to the course instance and save background questions.
 */
-#[generated_doc]
+
 #[instrument(skip(pool))]
 async fn save_course_settings(
     pool: web::Data<PgPool>,
@@ -156,7 +156,7 @@ async fn save_course_settings(
 /**
 GET /api/v0/course-material/course-instance/:course_instance_id/background-questions-and-answers - Gets background questions and answers for an course instance.
 */
-#[generated_doc]
+
 #[instrument(skip(pool))]
 async fn get_background_questions_and_answers(
     pool: web::Data<PgPool>,

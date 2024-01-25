@@ -1,6 +1,6 @@
 import watcher from "@parcel/watcher"
 import { exec as execOriginal } from "child_process"
-import { stat } from "fs/promises"
+import { readdir, stat } from "fs/promises"
 import { groupBy } from "lodash"
 import path from "path"
 import { promisify } from "util"
@@ -36,6 +36,8 @@ interface ChangeDescription {
 let subscriptions: watcher.AsyncSubscription[] = []
 
 async function main() {
+  await cleanUpFolders()
+
   let restarted = false
 
   process.once("SIGINT", async function (_signal) {
@@ -197,6 +199,26 @@ async function syncPath(relativeSource: string, pathToTargetSharedModule: string
     console.log(`> ${command}`)
   }
   await exec(command)
+}
+
+async function cleanUpFolders() {
+  for (const target of ALL_SERVICES_TARGETS) {
+    const fullPathToDestination = path.resolve(__dirname, "..", target)
+    // list files and folders in the destination
+    const files = await readdir(fullPathToDestination)
+    const allowedFiles = SYNC_TARGETS.map((target) => target.source)
+    const hasNotAllowedFiles = files.some((file) => !allowedFiles.includes(file))
+    if (!hasNotAllowedFiles) {
+      return
+    }
+    console.info("Cleaning up folders...")
+    try {
+      await exec(`rm -r '${fullPathToDestination}'`)
+    } catch (e) {
+      console.warn(`Could not remove ${fullPathToDestination}`, e)
+    }
+    await exec(`mkdir -p '${fullPathToDestination}'`)
+  }
 }
 
 main()

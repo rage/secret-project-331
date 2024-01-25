@@ -3,9 +3,9 @@ import React, { useContext } from "react"
 
 import { BlockRendererProps } from ".."
 import { GlossaryContext } from "../../../contexts/GlossaryContext"
-import { baseTheme, monospaceFont } from "../../../shared-module/styles"
-import { respondToOrLarger } from "../../../shared-module/styles/respond"
-import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
+import { baseTheme, monospaceFont } from "../../../shared-module/common/styles"
+import { respondToOrLarger } from "../../../shared-module/common/styles/respond"
+import withErrorBoundary from "../../../shared-module/common/utils/withErrorBoundary"
 import { parseText } from "../util/textParsing"
 
 interface HighlightBoxAttributes {

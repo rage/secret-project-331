@@ -2,11 +2,11 @@ import { css } from "@emotion/css"
 import React from "react"
 
 import { BlockRendererProps } from ".."
-import useMedia from "../../../shared-module/hooks/useMedia"
-import { baseTheme, headingFont, primaryFont } from "../../../shared-module/styles"
-import { respondToOrLarger } from "../../../shared-module/styles/respond"
-import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
-import withNoSsr from "../../../shared-module/utils/withNoSsr"
+import useMedia from "../../../shared-module/common/hooks/useMedia"
+import { baseTheme, headingFont, primaryFont } from "../../../shared-module/common/styles"
+import { respondToOrLarger } from "../../../shared-module/common/styles/respond"
+import withErrorBoundary from "../../../shared-module/common/utils/withErrorBoundary"
+import withNoSsr from "../../../shared-module/common/utils/withNoSsr"
 import InnerBlocks from "../util/InnerBlocks"
 
 interface TableBoxAttributes {

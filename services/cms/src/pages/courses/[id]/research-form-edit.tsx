@@ -15,17 +15,17 @@ import {
   NewResearchForm,
   NewResearchFormQuestion,
   ResearchForm,
-} from "../../../shared-module/bindings"
-import Button from "../../../shared-module/components/Button"
-import ErrorBanner from "../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../shared-module/components/Spinner"
-import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
-import useToastMutation from "../../../shared-module/hooks/useToastMutation"
+} from "../../../shared-module/common/bindings"
+import Button from "../../../shared-module/common/components/Button"
+import ErrorBanner from "../../../shared-module/common/components/ErrorBanner"
+import Spinner from "../../../shared-module/common/components/Spinner"
+import { withSignedIn } from "../../../shared-module/common/contexts/LoginStateContext"
+import useToastMutation from "../../../shared-module/common/hooks/useToastMutation"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
-} from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
-import { assertNotNullOrUndefined } from "../../../shared-module/utils/nullability"
-import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
+} from "../../../shared-module/common/utils/dontRenderUntilQueryParametersReady"
+import { assertNotNullOrUndefined } from "../../../shared-module/common/utils/nullability"
+import withErrorBoundary from "../../../shared-module/common/utils/withErrorBoundary"
 
 interface ResearchFormProps {
   query: SimplifiedUrlQuery<"id">
@@ -133,7 +133,7 @@ const ResearchForms: React.FC<React.PropsWithChildren<ResearchFormProps>> = ({ q
           )}
         </>
       )}
-      {getResearchForm.isError && <ErrorBanner error={getResearchForm.error} variant="readOnly" />}
+      {getResearchForm.isError && <ErrorBanner error={getResearchForm.error} />}
     </>
   )
 }

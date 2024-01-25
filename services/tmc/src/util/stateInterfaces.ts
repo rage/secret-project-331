@@ -3,11 +3,11 @@ import {
   ExerciseTaskGradingResult,
   ExerciseTaskSubmission,
   RepositoryExercise,
-} from "../shared-module/bindings"
+} from "../shared-module/common/bindings"
 import {
   CurrentStateMessage,
   MessageFromIframe,
-} from "../shared-module/exercise-service-protocol-types"
+} from "../shared-module/common/exercise-service-protocol-types"
 
 export type IframeState = ExerciseEditorState | AnswerExerciseState | ViewSubmissionState
 

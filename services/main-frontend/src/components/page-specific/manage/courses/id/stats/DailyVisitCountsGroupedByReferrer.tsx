@@ -9,14 +9,14 @@ import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import useCoursePageVisitDatumSummary from "../../../../../../hooks/useCoursePageVisitDatumSummary"
-import { PageVisitDatumSummaryByCourse } from "../../../../../../shared-module/bindings"
-import Accordion from "../../../../../../shared-module/components/Accordion"
-import DebugModal from "../../../../../../shared-module/components/DebugModal"
-import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../../../../shared-module/components/Spinner"
-import { baseTheme } from "../../../../../../shared-module/styles"
-import { dontRenderUntilQueryParametersReady } from "../../../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
-import withErrorBoundary from "../../../../../../shared-module/utils/withErrorBoundary"
+import { PageVisitDatumSummaryByCourse } from "../../../../../../shared-module/common/bindings"
+import Accordion from "../../../../../../shared-module/common/components/Accordion"
+import DebugModal from "../../../../../../shared-module/common/components/DebugModal"
+import ErrorBanner from "../../../../../../shared-module/common/components/ErrorBanner"
+import Spinner from "../../../../../../shared-module/common/components/Spinner"
+import { baseTheme } from "../../../../../../shared-module/common/styles"
+import { dontRenderUntilQueryParametersReady } from "../../../../../../shared-module/common/utils/dontRenderUntilQueryParametersReady"
+import withErrorBoundary from "../../../../../../shared-module/common/utils/withErrorBoundary"
 
 export interface DailyVisitCountsGroupedByReferrerProps {
   courseId: string
@@ -83,7 +83,7 @@ const DailyVisitCountsGroupedByReferrer: React.FC<
   })
 
   if (query.isError) {
-    return <ErrorBanner variant="readOnly" error={query.error} />
+    return <ErrorBanner error={query.error} />
   }
 
   if (query.isPending || !query.data) {

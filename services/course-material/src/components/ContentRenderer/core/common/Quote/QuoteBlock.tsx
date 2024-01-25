@@ -4,7 +4,7 @@ import { useContext } from "react"
 import { BlockRendererProps } from "../../.."
 import { QuoteAttributes } from "../../../../../../types/GutenbergBlockAttributes"
 import { GlossaryContext } from "../../../../../contexts/GlossaryContext"
-import withErrorBoundary from "../../../../../shared-module/utils/withErrorBoundary"
+import withErrorBoundary from "../../../../../shared-module/common/utils/withErrorBoundary"
 import InnerBlocks from "../../../util/InnerBlocks"
 import { parseText } from "../../../util/textParsing"
 

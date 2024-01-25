@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import { useTranslation } from "react-i18next"
 
-import TextArea from "../../../../../../shared-module/components/InputFields/TextAreaField"
+import TextArea from "../../../../../../shared-module/common/components/InputFields/TextAreaField"
 
 import { PeerReviewQuestionProps } from "."
 

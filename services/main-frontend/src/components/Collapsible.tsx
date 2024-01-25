@@ -2,10 +2,10 @@ import { css } from "@emotion/css"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import ArrowDown from "../shared-module/img/caret-arrow-down.svg"
-import ArrowUp from "../shared-module/img/caret-arrow-up.svg"
-import { baseTheme } from "../shared-module/styles"
-import { runCallbackIfEnterPressed } from "../shared-module/utils/accessibility"
+import ArrowDown from "../shared-module/common/img/caret-arrow-down.svg"
+import ArrowUp from "../shared-module/common/img/caret-arrow-up.svg"
+import { baseTheme } from "../shared-module/common/styles"
+import { runCallbackIfEnterPressed } from "../shared-module/common/utils/accessibility"
 
 export interface CollapsibleProps {
   title: string

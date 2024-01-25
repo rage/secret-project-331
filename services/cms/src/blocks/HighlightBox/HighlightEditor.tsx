@@ -4,7 +4,7 @@ import { RichText } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
 import React from "react"
 
-import { baseTheme, monospaceFont } from "../../shared-module/styles"
+import { baseTheme, monospaceFont } from "../../shared-module/common/styles"
 import BlockWrapper from "../BlockWrapper"
 
 import { HighlightAttributes } from "."

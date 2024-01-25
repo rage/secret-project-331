@@ -6,8 +6,8 @@ import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import { EditorContentDispatch } from "../../contexts/EditorContentContext"
-import Button from "../../shared-module/components/Button"
-import { primaryFont, typography } from "../../shared-module/styles"
+import Button from "../../shared-module/common/components/Button"
+import { primaryFont, typography } from "../../shared-module/common/styles"
 import { gutenbergControlsHidden } from "../../styles/EditorStyles"
 
 const ALLOWED_NESTED_BLOCKS = ["moocfi/exercise-task"]

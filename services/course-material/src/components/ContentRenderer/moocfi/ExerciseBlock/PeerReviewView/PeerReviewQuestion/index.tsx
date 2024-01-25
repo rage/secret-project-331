@@ -1,7 +1,7 @@
 import {
   CourseMaterialPeerReviewQuestionAnswer,
   PeerReviewQuestion as PeerReviewQuestionType,
-} from "../../../../../../shared-module/bindings"
+} from "../../../../../../shared-module/common/bindings"
 
 import EssayPeerReviewQuestion from "./EssayPeerReviewQuestion"
 import ScalePeerReviewQuestion from "./ScalePeerReviewQuestion"

@@ -9,9 +9,9 @@ import { temporaryDirectory, temporaryFile } from "tempy"
 import { v4 } from "uuid"
 
 import { ClientErrorResponse, downloadStream, initKubeApi, initKubeConfig } from "../../lib"
-import { ExerciseTaskGradingResult, GradingProgress } from "../../shared-module/bindings"
-import { GradingRequest } from "../../shared-module/exercise-service-protocol-types-2"
-import { EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER } from "../../shared-module/utils/exerciseServices"
+import { ExerciseTaskGradingResult, GradingProgress } from "../../shared-module/common/bindings"
+import { GradingRequest } from "../../shared-module/common/exercise-service-protocol-types-2"
+import { EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER } from "../../shared-module/common/utils/exerciseServices"
 import { isRunResult } from "../../tmc/cli.guard"
 import {
   compressProject,

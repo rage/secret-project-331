@@ -7,10 +7,10 @@ import {
   PeerReviewQuestion,
   PeerReviewQuestionSubmission,
   PeerReviewSubmission,
-} from "../../../../../../../shared-module/bindings"
-import Accordion from "../../../../../../../shared-module/components/Accordion"
-import HideTextInSystemTests from "../../../../../../../shared-module/components/system-tests/HideTextInSystemTests"
-import { baseTheme } from "../../../../../../../shared-module/styles"
+} from "../../../../../../../shared-module/common/bindings"
+import Accordion from "../../../../../../../shared-module/common/components/Accordion"
+import HideTextInSystemTests from "../../../../../../../shared-module/common/components/system-tests/HideTextInSystemTests"
+import { baseTheme } from "../../../../../../../shared-module/common/styles"
 
 export interface PeerReviewSubmissionSummaryAccordionProps {
   peerReviewSubmission: PeerReviewSubmission

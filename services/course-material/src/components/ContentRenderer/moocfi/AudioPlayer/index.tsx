@@ -1,8 +1,8 @@
 import { css } from "@emotion/css"
 import React, { useRef, useState } from "react"
 
-import { respondToOrLarger } from "../../../../shared-module/styles/respond"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
+import { respondToOrLarger } from "../../../../shared-module/common/styles/respond"
+import withErrorBoundary from "../../../../shared-module/common/utils/withErrorBoundary"
 import { AudioFile } from "../../../Page"
 
 import CloseIcon from "./../../../../img/close.svg"

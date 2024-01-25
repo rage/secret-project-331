@@ -3,10 +3,10 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { postFeedback } from "../services/backend"
-import { FeedbackBlock } from "../shared-module/bindings"
-import Button from "../shared-module/components/Button"
-import TextAreaField from "../shared-module/components/InputFields/TextAreaField"
-import useToastMutation from "../shared-module/hooks/useToastMutation"
+import { FeedbackBlock } from "../shared-module/common/bindings"
+import Button from "../shared-module/common/components/Button"
+import TextAreaField from "../shared-module/common/components/InputFields/TextAreaField"
+import useToastMutation from "../shared-module/common/hooks/useToastMutation"
 import { courseMaterialBlockClass } from "../utils/constants"
 
 interface Props {

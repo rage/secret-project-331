@@ -5,8 +5,8 @@ import React from "react"
 
 import { HeadingAttributes, ListAttributes } from "../../../../../types/GutenbergBlockAttributes"
 import { Block } from "../../../../services/backend"
-import { baseTheme } from "../../../../shared-module/styles"
-import { respondToOrLarger } from "../../../../shared-module/styles/respond"
+import { baseTheme } from "../../../../shared-module/common/styles"
+import { respondToOrLarger } from "../../../../shared-module/common/styles/respond"
 import { sanitizeCourseMaterialHtml } from "../../../../utils/sanitizeCourseMaterialHtml"
 
 interface StyledObjectiveProps {

@@ -2,9 +2,9 @@ import { Alert } from "@mui/lab"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import MessageChannelIFrame from "../../../../shared-module/components/MessageChannelIFrame"
-import { IframeState } from "../../../../shared-module/exercise-service-protocol-types"
-import { isMessageFromIframe } from "../../../../shared-module/exercise-service-protocol-types.guard"
+import MessageChannelIFrame from "../../../../shared-module/common/components/MessageChannelIFrame"
+import { IframeState } from "../../../../shared-module/common/exercise-service-protocol-types"
+import { isMessageFromIframe } from "../../../../shared-module/common/exercise-service-protocol-types.guard"
 
 interface ExerciseTaskIframeProps {
   exerciseServiceSlug: string

@@ -2,9 +2,9 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { postReprocessModuleCompletions } from "../../../../../../services/backend/course-instances"
-import Button from "../../../../../../shared-module/components/Button"
-import OnlyRenderIfPermissions from "../../../../../../shared-module/components/OnlyRenderIfPermissions"
-import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
+import Button from "../../../../../../shared-module/common/components/Button"
+import OnlyRenderIfPermissions from "../../../../../../shared-module/common/components/OnlyRenderIfPermissions"
+import useToastMutation from "../../../../../../shared-module/common/hooks/useToastMutation"
 
 interface ModuleCompletionReprocessButtonProps {
   courseInstanceId: string

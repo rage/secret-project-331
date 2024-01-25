@@ -6,18 +6,18 @@ import { useTranslation } from "react-i18next"
 
 import ResearchOnCoursesForm from "../components/forms/ResearchOnCoursesForm"
 import useUserResearchConsentQuery from "../hooks/useUserResearchConsentQuery"
-import Button from "../shared-module/components/Button"
-import TextField from "../shared-module/components/InputFields/TextField"
-import LoginStateContext from "../shared-module/contexts/LoginStateContext"
-import useQueryParameter from "../shared-module/hooks/useQueryParameter"
-import useToastMutation from "../shared-module/hooks/useToastMutation"
-import { login } from "../shared-module/services/backend/auth"
-import { baseTheme } from "../shared-module/styles"
+import Button from "../shared-module/common/components/Button"
+import TextField from "../shared-module/common/components/InputFields/TextField"
+import LoginStateContext from "../shared-module/common/contexts/LoginStateContext"
+import useQueryParameter from "../shared-module/common/hooks/useQueryParameter"
+import useToastMutation from "../shared-module/common/hooks/useToastMutation"
+import { login } from "../shared-module/common/services/backend/auth"
+import { baseTheme } from "../shared-module/common/styles"
 import {
   useCurrentPagePathForReturnTo,
   validateReturnToRouteOrDefault,
-} from "../shared-module/utils/redirectBackAfterLoginOrSignup"
-import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
+} from "../shared-module/common/utils/redirectBackAfterLoginOrSignup"
+import withErrorBoundary from "../shared-module/common/utils/withErrorBoundary"
 
 const Login: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()

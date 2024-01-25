@@ -2,7 +2,7 @@
 import _ from "lodash"
 import React from "react"
 
-import { UploadResultMessage } from "../shared-module/exercise-service-protocol-types"
+import { UploadResultMessage } from "../shared-module/common/exercise-service-protocol-types"
 import { IframeState, PublicSpec } from "../util/stateInterfaces"
 
 import AnswerBrowserExercise from "./AnswerBrowserExercise"

@@ -3,7 +3,7 @@ import axios from "axios"
 import type { NextApiRequest, NextApiResponse } from "next"
 
 import { ClientErrorResponse, ExerciseFeedback } from "../../lib"
-import { GradingResult } from "../../shared-module/exercise-service-protocol-types-2"
+import { GradingResult } from "../../shared-module/common/exercise-service-protocol-types-2"
 
 // Endpoint for the sandbox to report test results
 export default async (

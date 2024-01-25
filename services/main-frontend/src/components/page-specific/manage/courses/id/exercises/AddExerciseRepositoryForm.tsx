@@ -3,10 +3,10 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { addExerciseRepository } from "../../../../../../services/backend/exercise-repositories"
-import Button from "../../../../../../shared-module/components/Button"
-import TextAreaField from "../../../../../../shared-module/components/InputFields/TextAreaField"
-import TextField from "../../../../../../shared-module/components/InputFields/TextField"
-import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
+import Button from "../../../../../../shared-module/common/components/Button"
+import TextAreaField from "../../../../../../shared-module/common/components/InputFields/TextAreaField"
+import TextField from "../../../../../../shared-module/common/components/InputFields/TextField"
+import useToastMutation from "../../../../../../shared-module/common/hooks/useToastMutation"
 
 interface Props {
   courseId: string | null

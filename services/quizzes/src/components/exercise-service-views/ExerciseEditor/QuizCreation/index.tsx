@@ -6,7 +6,7 @@ import { v4 } from "uuid"
 
 import { PrivateSpecQuiz } from "../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../hooks/useQuizzesExerciseServiceOutputState"
-import Button from "../../../../shared-module/components/Button"
+import Button from "../../../../shared-module/common/components/Button"
 import QuizEditor from "../QuizComponents/QuizEditor"
 import { createEmptyQuizItem } from "../utils/general"
 

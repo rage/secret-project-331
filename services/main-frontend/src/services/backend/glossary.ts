@@ -1,4 +1,4 @@
-import { TermUpdate } from "../../shared-module/bindings"
+import { TermUpdate } from "../../shared-module/common/bindings"
 import { mainFrontendClient } from "../mainFrontendClient"
 
 export const updateTerm = async (

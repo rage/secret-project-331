@@ -10,15 +10,15 @@ import {
   searchForUserDetailsByOtherDetails,
   searchForUserDetailsFuzzyMatch,
 } from "../../services/backend/user-details"
-import Button from "../../shared-module/components/Button"
-import ErrorBanner from "../../shared-module/components/ErrorBanner"
-import TextField from "../../shared-module/components/InputFields/TextField"
-import OnlyRenderIfPermissions from "../../shared-module/components/OnlyRenderIfPermissions"
-import { withSignedIn } from "../../shared-module/contexts/LoginStateContext"
-import useQueryParameter from "../../shared-module/hooks/useQueryParameter"
-import dontRenderUntilQueryParametersReady from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
-import { assertNotNullOrUndefined } from "../../shared-module/utils/nullability"
-import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
+import Button from "../../shared-module/common/components/Button"
+import ErrorBanner from "../../shared-module/common/components/ErrorBanner"
+import TextField from "../../shared-module/common/components/InputFields/TextField"
+import OnlyRenderIfPermissions from "../../shared-module/common/components/OnlyRenderIfPermissions"
+import { withSignedIn } from "../../shared-module/common/contexts/LoginStateContext"
+import useQueryParameter from "../../shared-module/common/hooks/useQueryParameter"
+import dontRenderUntilQueryParametersReady from "../../shared-module/common/utils/dontRenderUntilQueryParametersReady"
+import { assertNotNullOrUndefined } from "../../shared-module/common/utils/nullability"
+import withErrorBoundary from "../../shared-module/common/utils/withErrorBoundary"
 
 const SearchUsersPage: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
@@ -57,7 +57,7 @@ const SearchUsersPage: React.FC<React.PropsWithChildren<unknown>> = () => {
     <OnlyRenderIfPermissions
       action={{ type: "view_user_progress_or_details" }}
       resource={{ type: "global_permissions" }}
-      elseRender={<ErrorBanner variant="readOnly" error={t("error-unauthorized")} />}
+      elseRender={<ErrorBanner error={t("error-unauthorized")} />}
     >
       <h1>{t("title-user-search")}</h1>
 

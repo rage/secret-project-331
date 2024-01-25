@@ -9,14 +9,14 @@ import { assert, Equals } from "tsafe"
 
 import { fetchPendingRoles } from "../services/backend/pendingRoles"
 import { fetchRoles, giveRole, removeRole } from "../services/backend/roles"
-import { RoleDomain, RoleQuery, RoleUser, UserRole } from "../shared-module/bindings"
-import Button from "../shared-module/components/Button"
-import ErrorBanner from "../shared-module/components/ErrorBanner"
-import SelectField from "../shared-module/components/InputFields/SelectField"
-import TextField from "../shared-module/components/InputFields/TextField"
-import useToastMutation from "../shared-module/hooks/useToastMutation"
-import CaretArrowDown from "../shared-module/img/caret-arrow-down.svg"
-import { respondToOrLarger } from "../shared-module/styles/respond"
+import { RoleDomain, RoleQuery, RoleUser, UserRole } from "../shared-module/common/bindings"
+import Button from "../shared-module/common/components/Button"
+import ErrorBanner from "../shared-module/common/components/ErrorBanner"
+import SelectField from "../shared-module/common/components/InputFields/SelectField"
+import TextField from "../shared-module/common/components/InputFields/TextField"
+import useToastMutation from "../shared-module/common/hooks/useToastMutation"
+import CaretArrowDown from "../shared-module/common/img/caret-arrow-down.svg"
+import { respondToOrLarger } from "../shared-module/common/styles/respond"
 const SORT_KEY_NAME = "name"
 const SORT_KEY_EMAIL = "email"
 const SORT_KEY_ROLE = "role"
@@ -151,7 +151,7 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
     userList = <div>{t("loading-text")}</div>
   }
   if (roleQuery.isError) {
-    userList = <ErrorBanner variant="readOnly" error={roleQuery.error} />
+    userList = <ErrorBanner error={roleQuery.error} />
   }
   if (roleQuery.isSuccess && roleQuery.data.length == 0) {
     userList = <div>{t("no-roles-found")}</div>
@@ -395,7 +395,7 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
 
   return (
     <>
-      {mutationError && <ErrorBanner variant="readOnly" error={mutationError} />}
+      {mutationError && <ErrorBanner error={mutationError} />}
       <div
         className={css`
           display: flex;

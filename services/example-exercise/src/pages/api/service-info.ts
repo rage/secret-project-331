@@ -1,8 +1,8 @@
 /* eslint-disable i18next/no-literal-string */
 import type { NextApiRequest, NextApiResponse } from "next"
 
-import { ExerciseServiceInfoApi } from "../../shared-module/bindings"
-import basePath from "../../shared-module/utils/base-path"
+import { ExerciseServiceInfoApi } from "../../shared-module/common/bindings"
+import basePath from "../../shared-module/common/utils/base-path"
 import { ClientErrorResponse } from "../../util/stateInterfaces"
 
 export default (

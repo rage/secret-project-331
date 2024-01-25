@@ -1,9 +1,12 @@
-import { ExamInstructions, ExerciseServiceIframeRenderingInfo } from "../../shared-module/bindings"
+import {
+  ExamInstructions,
+  ExerciseServiceIframeRenderingInfo,
+} from "../../shared-module/common/bindings"
 import {
   isExamInstructions,
   isExerciseServiceIframeRenderingInfo,
-} from "../../shared-module/bindings.guard"
-import { isArray, validateResponse } from "../../shared-module/utils/fetching"
+} from "../../shared-module/common/bindings.guard"
+import { isArray, validateResponse } from "../../shared-module/common/utils/fetching"
 
 import { cmsClient } from "./cmsClient"
 

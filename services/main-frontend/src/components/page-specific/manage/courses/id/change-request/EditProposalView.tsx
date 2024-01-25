@@ -12,17 +12,17 @@ import {
   BlockProposalAction,
   BlockProposalInfo,
   PageProposal,
-} from "../../../../../../shared-module/bindings"
-import { isEditedBlockStillExistsData } from "../../../../../../shared-module/bindings.guard"
-import Button from "../../../../../../shared-module/components/Button"
-import DiffFormatter from "../../../../../../shared-module/components/DiffFormatter"
-import RadioButton from "../../../../../../shared-module/components/InputFields/RadioButton"
-import TextArea from "../../../../../../shared-module/components/InputFields/TextAreaField"
-import TimeComponent from "../../../../../../shared-module/components/TimeComponent"
-import HideTextInSystemTests from "../../../../../../shared-module/components/system-tests/HideTextInSystemTests"
-import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
-import { primaryFont, typography } from "../../../../../../shared-module/styles"
-import { pageRoute } from "../../../../../../shared-module/utils/routes"
+} from "../../../../../../shared-module/common/bindings"
+import { isEditedBlockStillExistsData } from "../../../../../../shared-module/common/bindings.guard"
+import Button from "../../../../../../shared-module/common/components/Button"
+import DiffFormatter from "../../../../../../shared-module/common/components/DiffFormatter"
+import RadioButton from "../../../../../../shared-module/common/components/InputFields/RadioButton"
+import TextArea from "../../../../../../shared-module/common/components/InputFields/TextAreaField"
+import TimeComponent from "../../../../../../shared-module/common/components/TimeComponent"
+import HideTextInSystemTests from "../../../../../../shared-module/common/components/system-tests/HideTextInSystemTests"
+import useToastMutation from "../../../../../../shared-module/common/hooks/useToastMutation"
+import { primaryFont, typography } from "../../../../../../shared-module/common/styles"
+import { pageRoute } from "../../../../../../shared-module/common/utils/routes"
 
 const ImportantText = styled.div`
   white-space: pre-wrap;

@@ -41,7 +41,7 @@ import {
   UserCourseInstanceProgress,
   UserCourseSettings,
   UserModuleCompletionStatus,
-} from "../shared-module/bindings"
+} from "../shared-module/common/bindings"
 import {
   isChaptersWithStatus,
   isCourse,
@@ -72,7 +72,7 @@ import {
   isUserCourseInstanceProgress,
   isUserCourseSettings,
   isUserModuleCompletionStatus,
-} from "../shared-module/bindings.guard"
+} from "../shared-module/common/bindings.guard"
 import {
   isArray,
   isNull,
@@ -81,7 +81,7 @@ import {
   isString,
   isUnion,
   validateResponse,
-} from "../shared-module/utils/fetching"
+} from "../shared-module/common/utils/fetching"
 
 import { courseMaterialClient } from "./courseMaterialClient"
 

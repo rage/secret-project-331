@@ -8,9 +8,9 @@ import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { fetchPeerReviewDataReceivedByExerciseId } from "../../../../../../services/backend"
-import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../../../../shared-module/components/Spinner"
-import { baseTheme, headingFont } from "../../../../../../shared-module/styles"
+import ErrorBanner from "../../../../../../shared-module/common/components/ErrorBanner"
+import Spinner from "../../../../../../shared-module/common/components/Spinner"
+import { baseTheme, headingFont } from "../../../../../../shared-module/common/styles"
 
 import ReceivedPeerReview from "./ReceivedPeerReview"
 
@@ -142,7 +142,7 @@ const PeerReviewsReceived: React.FunctionComponent<PeerReviewProps> = ({ id, sub
   }
 
   if (getPeerReviewReceived.isError) {
-    return <ErrorBanner variant={"readOnly"} error={getPeerReviewReceived.error} />
+    return <ErrorBanner error={getPeerReviewReceived.error} />
   }
 
   return (

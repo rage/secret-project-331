@@ -19,19 +19,19 @@ import {
 import {
   CourseMaterialExercise,
   StudentExerciseSlideSubmission,
-} from "../../../../shared-module/bindings"
-import Button from "../../../../shared-module/components/Button"
-import BreakFromCentered from "../../../../shared-module/components/Centering/BreakFromCentered"
-import Centered from "../../../../shared-module/components/Centering/Centered"
-import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../../shared-module/components/Spinner"
-import HideTextInSystemTests from "../../../../shared-module/components/system-tests/HideTextInSystemTests"
-import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
-import { useDateStringAsDateNullable } from "../../../../shared-module/hooks/useDateStringAsDate"
-import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
-import { baseTheme, headingFont, secondaryFont } from "../../../../shared-module/styles"
-import { dateDiffInDays } from "../../../../shared-module/utils/dateUtil"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
+} from "../../../../shared-module/common/bindings"
+import Button from "../../../../shared-module/common/components/Button"
+import BreakFromCentered from "../../../../shared-module/common/components/Centering/BreakFromCentered"
+import Centered from "../../../../shared-module/common/components/Centering/Centered"
+import ErrorBanner from "../../../../shared-module/common/components/ErrorBanner"
+import Spinner from "../../../../shared-module/common/components/Spinner"
+import HideTextInSystemTests from "../../../../shared-module/common/components/system-tests/HideTextInSystemTests"
+import LoginStateContext from "../../../../shared-module/common/contexts/LoginStateContext"
+import { useDateStringAsDateNullable } from "../../../../shared-module/common/hooks/useDateStringAsDate"
+import useToastMutation from "../../../../shared-module/common/hooks/useToastMutation"
+import { baseTheme, headingFont, secondaryFont } from "../../../../shared-module/common/styles"
+import { dateDiffInDays } from "../../../../shared-module/common/utils/dateUtil"
+import withErrorBoundary from "../../../../shared-module/common/utils/withErrorBoundary"
 
 import ExerciseTask from "./ExerciseTask"
 import GradingState from "./GradingState"
@@ -174,7 +174,7 @@ const ExerciseBlock: React.FC<
   }
 
   if (getCourseMaterialExercise.isError) {
-    return <ErrorBanner variant={"readOnly"} error={getCourseMaterialExercise.error} />
+    return <ErrorBanner error={getCourseMaterialExercise.error} />
   }
   if (getCourseMaterialExercise.isPending) {
     return <Spinner variant={"medium"} />
@@ -525,9 +525,7 @@ const ExerciseBlock: React.FC<
                   )}
                 </div>
               )}
-            {postSubmissionMutation.isError && (
-              <ErrorBanner variant={"readOnly"} error={postSubmissionMutation.error} />
-            )}
+            {postSubmissionMutation.isError && <ErrorBanner error={postSubmissionMutation.error} />}
             {limit_number_of_tries && maxTries !== null && triesRemaining !== null && (
               <div
                 className={css`

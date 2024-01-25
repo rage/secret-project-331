@@ -5,9 +5,9 @@ import { hoursToSeconds, secondsToHours, secondsToMinutes } from "date-fns"
 import React from "react"
 import { Trans, useTranslation } from "react-i18next"
 
-import HideTextInSystemTests from "../../shared-module/components/system-tests/HideTextInSystemTests"
-import { baseTheme } from "../../shared-module/styles"
-import { respondToOrLarger } from "../../shared-module/styles/respond"
+import HideTextInSystemTests from "../../shared-module/common/components/system-tests/HideTextInSystemTests"
+import { baseTheme } from "../../shared-module/common/styles"
+import { respondToOrLarger } from "../../shared-module/common/styles/respond"
 
 const SHORT = "short"
 

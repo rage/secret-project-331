@@ -4,16 +4,16 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { fetchExam, setCourse, unsetCourse } from "../../../../services/backend/exams"
-import Button from "../../../../shared-module/components/Button"
-import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
-import TextField from "../../../../shared-module/components/InputFields/TextField"
-import Spinner from "../../../../shared-module/components/Spinner"
-import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
-import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
+import Button from "../../../../shared-module/common/components/Button"
+import ErrorBanner from "../../../../shared-module/common/components/ErrorBanner"
+import TextField from "../../../../shared-module/common/components/InputFields/TextField"
+import Spinner from "../../../../shared-module/common/components/Spinner"
+import { withSignedIn } from "../../../../shared-module/common/contexts/LoginStateContext"
+import useToastMutation from "../../../../shared-module/common/hooks/useToastMutation"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
-} from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
+} from "../../../../shared-module/common/utils/dontRenderUntilQueryParametersReady"
+import withErrorBoundary from "../../../../shared-module/common/utils/withErrorBoundary"
 
 interface OrganizationPageProps {
   query: SimplifiedUrlQuery<"id">
@@ -58,7 +58,7 @@ const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = (
         margin-bottom: 1rem;
       `}
     >
-      {getExam.isError && <ErrorBanner variant={"readOnly"} error={getExam.error} />}
+      {getExam.isError && <ErrorBanner error={getExam.error} />}
       {getExam.isPending && <Spinner variant={"medium"} />}
       {getExam.isSuccess && (
         <>
@@ -133,12 +133,8 @@ const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = (
           >
             {t("add-course")}
           </Button>
-          {setCourseMutation.isError && (
-            <ErrorBanner variant={"readOnly"} error={setCourseMutation.error} />
-          )}
-          {unsetCourseMutation.isError && (
-            <ErrorBanner variant={"readOnly"} error={unsetCourseMutation.error} />
-          )}
+          {setCourseMutation.isError && <ErrorBanner error={setCourseMutation.error} />}
+          {unsetCourseMutation.isError && <ErrorBanner error={unsetCourseMutation.error} />}
         </>
       )}
     </div>

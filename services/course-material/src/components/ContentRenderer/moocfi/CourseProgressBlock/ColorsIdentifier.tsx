@@ -2,7 +2,7 @@ import styled from "@emotion/styled"
 import * as React from "react"
 import { useTranslation } from "react-i18next"
 
-import { baseTheme, headingFont } from "../../../../shared-module/styles"
+import { baseTheme, headingFont } from "../../../../shared-module/common/styles"
 
 interface CircleProps {
   bg: string

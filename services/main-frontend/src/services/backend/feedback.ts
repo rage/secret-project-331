@@ -1,6 +1,11 @@
-import { Feedback, FeedbackCount, GetFeedbackQuery, MarkAsRead } from "../../shared-module/bindings"
-import { isFeedback, isFeedbackCount } from "../../shared-module/bindings.guard"
-import { isArray, validateResponse } from "../../shared-module/utils/fetching"
+import {
+  Feedback,
+  FeedbackCount,
+  GetFeedbackQuery,
+  MarkAsRead,
+} from "../../shared-module/common/bindings"
+import { isFeedback, isFeedbackCount } from "../../shared-module/common/bindings.guard"
+import { isArray, validateResponse } from "../../shared-module/common/utils/fetching"
 import { mainFrontendClient } from "../mainFrontendClient"
 
 export const fetchFeedback = async (

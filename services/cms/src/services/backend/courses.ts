@@ -5,14 +5,19 @@ import {
   Page,
   ResearchForm,
   ResearchFormQuestion,
-} from "../../shared-module/bindings"
+} from "../../shared-module/common/bindings"
 import {
   isCmsPeerReviewConfiguration,
   isPage,
   isResearchForm,
   isResearchFormQuestion,
-} from "../../shared-module/bindings.guard"
-import { isArray, isNull, isUnion, validateResponse } from "../../shared-module/utils/fetching"
+} from "../../shared-module/common/bindings.guard"
+import {
+  isArray,
+  isNull,
+  isUnion,
+  validateResponse,
+} from "../../shared-module/common/utils/fetching"
 
 import { cmsClient } from "./cmsClient"
 

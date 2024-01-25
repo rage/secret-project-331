@@ -4,7 +4,7 @@ import { deepStrictEqual } from "assert"
 import { ExerciseAttributes } from "../../src/blocks/Exercise"
 import { ExerciseSlideAttributes } from "../../src/blocks/ExerciseSlide/ExerciseSlideEditor"
 import { ExerciseTaskAttributes } from "../../src/blocks/ExerciseTask/ExerciseTaskEditor"
-import { CmsPageUpdate } from "../../src/shared-module/bindings"
+import { CmsPageUpdate } from "../../src/shared-module/common/bindings"
 import {
   denormalizeDocument,
   normalizeDocument,

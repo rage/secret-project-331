@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import React from "react"
 
 import { BlockRendererProps } from ".."
-import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
+import withErrorBoundary from "../../../shared-module/common/utils/withErrorBoundary"
 import InnerBlocks from "../util/InnerBlocks"
 
 interface AsideBlockProps {

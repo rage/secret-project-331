@@ -3,15 +3,15 @@ import { UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
 import { uploadFilesFromIframe } from "../../../services/backend/playground-examples"
-import MessageChannelIFrame from "../../../shared-module/components/MessageChannelIFrame"
+import MessageChannelIFrame from "../../../shared-module/common/components/MessageChannelIFrame"
 import {
   CurrentStateMessage,
   IframeState,
   MessageToIframe,
   UserInformation,
-} from "../../../shared-module/exercise-service-protocol-types"
-import { isMessageFromIframe } from "../../../shared-module/exercise-service-protocol-types.guard"
-import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
+} from "../../../shared-module/common/exercise-service-protocol-types"
+import { isMessageFromIframe } from "../../../shared-module/common/exercise-service-protocol-types.guard"
+import withErrorBoundary from "../../../shared-module/common/utils/withErrorBoundary"
 
 interface PlaygroundExerciseIframeProps {
   url: string

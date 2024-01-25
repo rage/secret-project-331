@@ -2,9 +2,9 @@ import { BlockInstance, serialize } from "@wordpress/blocks"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import Button from "../shared-module/components/Button"
-import Dialog from "../shared-module/components/Dialog"
-import MonacoEditor from "../shared-module/components/monaco/MonacoEditor"
+import Button from "../shared-module/common/components/Button"
+import Dialog from "../shared-module/common/components/Dialog"
+import MonacoEditor from "../shared-module/common/components/monaco/MonacoEditor"
 
 export interface SerializeGutenbergModalProps {
   content: BlockInstance[]

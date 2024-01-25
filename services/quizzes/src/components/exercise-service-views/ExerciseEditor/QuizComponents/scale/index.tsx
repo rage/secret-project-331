@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 
 import { PrivateSpecQuizItemScale } from "../../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
-import TextField from "../../../../../shared-module/components/InputFields/TextField"
+import TextField from "../../../../../shared-module/common/components/InputFields/TextField"
 import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"
 

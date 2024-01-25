@@ -9,8 +9,8 @@ import { v4 } from "uuid"
 import { OldNormalizedQuizItemTimelineItem } from "../../../../../../types/oldQuizTypes"
 import { PrivateSpecQuizItemTimeline } from "../../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
-import TextField from "../../../../../shared-module/components/InputFields/TextField"
-import { baseTheme } from "../../../../../shared-module/styles"
+import TextField from "../../../../../shared-module/common/components/InputFields/TextField"
+import { baseTheme } from "../../../../../shared-module/common/styles"
 import findQuizItem from "../../utils/general"
 
 interface TimelineContentProps {

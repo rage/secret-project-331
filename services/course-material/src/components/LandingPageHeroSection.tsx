@@ -4,10 +4,10 @@ import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import { GlossaryContext } from "../contexts/GlossaryContext"
-import Button from "../shared-module/components/Button"
-import DefaultSVG from "../shared-module/img/hero-default-bg-image.svg"
-import { baseTheme } from "../shared-module/styles"
-import { respondToOrLarger } from "../shared-module/styles/respond"
+import Button from "../shared-module/common/components/Button"
+import DefaultSVG from "../shared-module/common/img/hero-default-bg-image.svg"
+import { baseTheme } from "../shared-module/common/styles"
+import { respondToOrLarger } from "../shared-module/common/styles/respond"
 
 import { parseText } from "./ContentRenderer/util/textParsing"
 

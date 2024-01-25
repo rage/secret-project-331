@@ -3,11 +3,11 @@ import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import Button from "../../../../../../shared-module/components/Button"
-import Checkbox from "../../../../../../shared-module/components/InputFields/CheckBox"
-import SelectField from "../../../../../../shared-module/components/InputFields/SelectField"
-import TextField from "../../../../../../shared-module/components/InputFields/TextField"
-import { baseTheme } from "../../../../../../shared-module/styles"
+import Button from "../../../../../../shared-module/common/components/Button"
+import Checkbox from "../../../../../../shared-module/common/components/InputFields/CheckBox"
+import SelectField from "../../../../../../shared-module/common/components/InputFields/SelectField"
+import TextField from "../../../../../../shared-module/common/components/InputFields/TextField"
+import { baseTheme } from "../../../../../../shared-module/common/styles"
 
 interface Props {
   chapters: Array<number>

@@ -11,11 +11,11 @@ import Link from "next/link"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { UserDetail } from "../../../../shared-module/bindings"
-import Button from "../../../../shared-module/components/Button"
-import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../../shared-module/components/Spinner"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
+import { UserDetail } from "../../../../shared-module/common/bindings"
+import Button from "../../../../shared-module/common/components/Button"
+import ErrorBanner from "../../../../shared-module/common/components/ErrorBanner"
+import Spinner from "../../../../shared-module/common/components/Spinner"
+import withErrorBoundary from "../../../../shared-module/common/utils/withErrorBoundary"
 
 export interface SearchUsersResultsProps {
   searchByEmailQuery: UseQueryResult<UserDetail[], unknown>
@@ -81,7 +81,7 @@ const SearchUsersResults: React.FC<React.PropsWithChildren<SearchUsersResultsPro
   })
 
   if (searchByEmailQuery.isError) {
-    return <ErrorBanner variant="readOnly" error={searchByEmailQuery.error} />
+    return <ErrorBanner error={searchByEmailQuery.error} />
   }
 
   if (searchByEmailQuery.isFetching) {

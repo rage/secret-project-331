@@ -5,8 +5,8 @@ import React from "react"
 
 import { UserItemAnswerMatrix } from "../../../../../types/quizTypes/answer"
 import { PublicSpecQuizItemMatrix } from "../../../../../types/quizTypes/publicSpec"
-import { baseTheme } from "../../../../shared-module/styles"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
+import { baseTheme } from "../../../../shared-module/common/styles"
+import withErrorBoundary from "../../../../shared-module/common/utils/withErrorBoundary"
 
 import { QuizItemSubmissionComponentProps } from "."
 

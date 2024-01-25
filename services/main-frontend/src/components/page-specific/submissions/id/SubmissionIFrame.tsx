@@ -5,11 +5,11 @@ import { useTranslation } from "react-i18next"
 import {
   CourseMaterialExerciseTask,
   StudentExerciseTaskSubmissionResult,
-} from "../../../../shared-module/bindings"
-import MessageChannelIFrame from "../../../../shared-module/components/MessageChannelIFrame"
-import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
-import getGuestPseudonymousUserId from "../../../../shared-module/utils/getGuestPseudonymousUserId"
-import { exerciseTaskGradingToExerciseTaskGradingResult } from "../../../../shared-module/utils/typeMappter"
+} from "../../../../shared-module/common/bindings"
+import MessageChannelIFrame from "../../../../shared-module/common/components/MessageChannelIFrame"
+import LoginStateContext from "../../../../shared-module/common/contexts/LoginStateContext"
+import getGuestPseudonymousUserId from "../../../../shared-module/common/utils/getGuestPseudonymousUserId"
+import { exerciseTaskGradingToExerciseTaskGradingResult } from "../../../../shared-module/common/utils/typeMappter"
 
 const VIEW_SUBMISSION = "view-submission"
 const TITLE = "VIEW SUBMISSION"

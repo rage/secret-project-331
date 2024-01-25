@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "types": ["jest"],
+    "typeRoots": ["./src/types", "types", "../node_modules/@types", "node_modules/@types"],
+    "jsx": "preserve",
+    "lib": ["dom", "es2017"],
+    "moduleResolution": "node",
+    "allowJs": true,
+    "noEmit": true,
+    "strict": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "removeComments": false,
+    "preserveConstEnums": true,
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": false,
+    "jsxImportSource": "@emotion/react"
+  },
+  "exclude": ["node_modules"],
+  "include": ["env.d.ts", "**/*.ts", "**/*.tsx"]
+}

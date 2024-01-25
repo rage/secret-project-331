@@ -5,17 +5,17 @@ import { useTranslation } from "react-i18next"
 
 import ExerciseSubmissionList from "../../../../components/page-specific/manage/exercises/id/submissions/ExerciseSubmissionList"
 import { fetchExerciseSubmissions } from "../../../../services/backend/exercises"
-import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
-import Pagination from "../../../../shared-module/components/Pagination"
-import Spinner from "../../../../shared-module/components/Spinner"
-import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
-import usePaginationInfo from "../../../../shared-module/hooks/usePaginationInfo"
-import { fontWeights } from "../../../../shared-module/styles"
+import ErrorBanner from "../../../../shared-module/common/components/ErrorBanner"
+import Pagination from "../../../../shared-module/common/components/Pagination"
+import Spinner from "../../../../shared-module/common/components/Spinner"
+import { withSignedIn } from "../../../../shared-module/common/contexts/LoginStateContext"
+import usePaginationInfo from "../../../../shared-module/common/hooks/usePaginationInfo"
+import { fontWeights } from "../../../../shared-module/common/styles"
 import {
   dontRenderUntilQueryParametersReady,
   SimplifiedUrlQuery,
-} from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
+} from "../../../../shared-module/common/utils/dontRenderUntilQueryParametersReady"
+import withErrorBoundary from "../../../../shared-module/common/utils/withErrorBoundary"
 
 interface SubmissionPageProps {
   query: SimplifiedUrlQuery<"id">
@@ -39,9 +39,7 @@ const SubmissionsPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = 
       >
         {t("header-submissions")}
       </h3>
-      {exerciseSubmissionsQuery.isError && (
-        <ErrorBanner variant={"readOnly"} error={exerciseSubmissionsQuery.error} />
-      )}
+      {exerciseSubmissionsQuery.isError && <ErrorBanner error={exerciseSubmissionsQuery.error} />}
       {exerciseSubmissionsQuery.isPending && <Spinner variant={"medium"} />}
       {exerciseSubmissionsQuery.isSuccess && (
         <>

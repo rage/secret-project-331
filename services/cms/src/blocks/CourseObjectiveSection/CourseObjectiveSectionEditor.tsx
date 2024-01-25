@@ -3,12 +3,12 @@ import { InnerBlocks, RichText } from "@wordpress/block-editor"
 import { BlockEditProps, Template } from "@wordpress/blocks"
 import React from "react"
 
-import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
-import { baseTheme } from "../../shared-module/styles"
+import BreakFromCentered from "../../shared-module/common/components/Centering/BreakFromCentered"
+import { baseTheme } from "../../shared-module/common/styles"
 import {
   CMS_EDITOR_SIDEBAR_THRESHOLD,
   CMS_EDITOR_SIDEBAR_WIDTH,
-} from "../../shared-module/utils/constants"
+} from "../../shared-module/common/utils/constants"
 import BlockWrapper from "../BlockWrapper"
 
 import { CourseObjectiveSectionAttributes } from "."

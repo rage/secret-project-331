@@ -1,4 +1,4 @@
-import LikertScale from "../../../../../../shared-module/components/PeerReview/LikertScale"
+import LikertScale from "../../../../../../shared-module/common/components/PeerReview/LikertScale"
 
 import { PeerReviewQuestionProps } from "."
 

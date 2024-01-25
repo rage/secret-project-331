@@ -3,8 +3,8 @@ import { ExclamationMessage } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import Button from "../shared-module/components/Button"
-import { baseTheme } from "../shared-module/styles"
+import Button from "../shared-module/common/components/Button"
+import { baseTheme } from "../shared-module/common/styles"
 
 interface Props {
   title: string

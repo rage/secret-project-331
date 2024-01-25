@@ -12,14 +12,14 @@ import {
   CmsPeerReviewConfig,
   CmsPeerReviewConfiguration,
   CmsPeerReviewQuestion,
-} from "../../../shared-module/bindings"
-import Button from "../../../shared-module/components/Button"
-import ErrorBanner from "../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../shared-module/components/Spinner"
-import useToastMutation from "../../../shared-module/hooks/useToastMutation"
+} from "../../../shared-module/common/bindings"
+import Button from "../../../shared-module/common/components/Button"
+import ErrorBanner from "../../../shared-module/common/components/ErrorBanner"
+import Spinner from "../../../shared-module/common/components/Spinner"
+import useToastMutation from "../../../shared-module/common/hooks/useToastMutation"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
-} from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
+} from "../../../shared-module/common/utils/dontRenderUntilQueryParametersReady"
 
 interface PeerReviewManagerProps {
   // courseId
@@ -83,7 +83,7 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
   )
 
   if (getCmsPeerReviewConfiguration.isError) {
-    return <ErrorBanner error={getCmsPeerReviewConfiguration.error} variant="text" />
+    return <ErrorBanner error={getCmsPeerReviewConfiguration.error} />
   }
 
   if (getCmsPeerReviewConfiguration.isPending) {

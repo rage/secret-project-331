@@ -6,8 +6,8 @@ import {
   removeOrganizationImage,
   setOrganizationImage,
 } from "../../../../services/backend/organizations"
-import { Organization } from "../../../../shared-module/bindings"
-import Button from "../../../../shared-module/components/Button"
+import { Organization } from "../../../../shared-module/common/bindings"
+import Button from "../../../../shared-module/common/components/Button"
 import UploadImageForm from "../../../forms/UploadImageForm"
 
 export interface OrganizationImageControlsProps {

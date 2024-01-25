@@ -4,7 +4,7 @@ import { RichText } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
 import React from "react"
 
-import CheckBox from "../../shared-module/components/InputFields/CheckBox"
+import CheckBox from "../../shared-module/common/components/InputFields/CheckBox"
 import BlockWrapper from "../BlockWrapper"
 
 import { CheckBoxAttributes } from "."

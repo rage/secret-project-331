@@ -4,8 +4,8 @@ import { css } from "@emotion/css"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import Button from "../../shared-module/components/Button"
-import Dialog from "../../shared-module/components/Dialog"
+import Button from "../../shared-module/common/components/Button"
+import Dialog from "../../shared-module/common/components/Dialog"
 
 export interface ExamTimeOverModalProps {
   disabled: boolean

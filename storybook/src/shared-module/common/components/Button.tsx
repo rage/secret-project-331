@@ -259,7 +259,7 @@ export const LabelButton = styled.label`
   ${BASE_BUTTON_STYLES}
 `
 
-const Button: React.FC<ButtonProps> = forwardRef(
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
     { variant = "primary", size = "medium", transform = "uppercase", ...rest },
     ref?: Ref<HTMLButtonElement>,

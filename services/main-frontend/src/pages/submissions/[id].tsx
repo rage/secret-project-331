@@ -7,16 +7,16 @@ import { useTranslation } from "react-i18next"
 
 import SubmissionIFrame from "../../components/page-specific/submissions/id/SubmissionIFrame"
 import { fetchSubmissionInfo } from "../../services/backend/submissions"
-import DebugModal from "../../shared-module/components/DebugModal"
-import ErrorBanner from "../../shared-module/components/ErrorBanner"
-import Spinner from "../../shared-module/components/Spinner"
-import HideTextInSystemTests from "../../shared-module/components/system-tests/HideTextInSystemTests"
-import { baseTheme } from "../../shared-module/styles"
-import { narrowContainerWidthRem } from "../../shared-module/styles/constants"
+import DebugModal from "../../shared-module/common/components/DebugModal"
+import ErrorBanner from "../../shared-module/common/components/ErrorBanner"
+import Spinner from "../../shared-module/common/components/Spinner"
+import HideTextInSystemTests from "../../shared-module/common/components/system-tests/HideTextInSystemTests"
+import { baseTheme } from "../../shared-module/common/styles"
+import { narrowContainerWidthRem } from "../../shared-module/common/styles/constants"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
-} from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
-import { dateToString } from "../../shared-module/utils/time"
+} from "../../shared-module/common/utils/dontRenderUntilQueryParametersReady"
+import { dateToString } from "../../shared-module/common/utils/time"
 
 interface SubmissionPageProps {
   query: SimplifiedUrlQuery<"id">
@@ -34,9 +34,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
     .reduce((a, b) => (a ?? 0) + (b ?? 0), 0)
   return (
     <div>
-      {getSubmissionInfo.isError && (
-        <ErrorBanner variant={"readOnly"} error={getSubmissionInfo.error} />
-      )}
+      {getSubmissionInfo.isError && <ErrorBanner error={getSubmissionInfo.error} />}
       {getSubmissionInfo.isPending && <Spinner variant={"medium"} />}
       {getSubmissionInfo.isSuccess && (
         <>

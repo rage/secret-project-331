@@ -40,7 +40,7 @@ export const LoginStateContextProvider: React.FC<React.PropsWithChildren<unknown
   }, [isLoggedIn.data, isLoggedIn.isPending, isLoggedIn.refetch])
 
   if (isLoggedIn.isError) {
-    return <ErrorBanner variant={"readOnly"} error={isLoggedIn.error} />
+    return <ErrorBanner error={isLoggedIn.error} />
   }
 
   return <LoginStateContext.Provider value={loginState}>{children}</LoginStateContext.Provider>

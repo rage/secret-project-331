@@ -6,11 +6,11 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { Block } from "../../services/backend"
-import { NewProposedBlockEdit } from "../../shared-module/bindings"
-import useQueryParameter from "../../shared-module/hooks/useQueryParameter"
-import { baseTheme } from "../../shared-module/styles"
-import { linkWithExtraIconClass } from "../../shared-module/styles/constants"
-import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
+import { NewProposedBlockEdit } from "../../shared-module/common/bindings"
+import useQueryParameter from "../../shared-module/common/hooks/useQueryParameter"
+import { baseTheme } from "../../shared-module/common/styles"
+import { linkWithExtraIconClass } from "../../shared-module/common/styles/constants"
+import withErrorBoundary from "../../shared-module/common/utils/withErrorBoundary"
 import {
   COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM,
   courseMaterialBlockClass,

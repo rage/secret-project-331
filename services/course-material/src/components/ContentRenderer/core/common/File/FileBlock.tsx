@@ -3,9 +3,9 @@ import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../../.."
 import { FileAttributes } from "../../../../../../types/GutenbergBlockAttributes"
-import Button from "../../../../../shared-module/components/Button"
-import ExternalLinkSVG from "../../../../../shared-module/img/external-link.svg"
-import withErrorBoundary from "../../../../../shared-module/utils/withErrorBoundary"
+import Button from "../../../../../shared-module/common/components/Button"
+import ExternalLinkSVG from "../../../../../shared-module/common/img/external-link.svg"
+import withErrorBoundary from "../../../../../shared-module/common/utils/withErrorBoundary"
 
 const FileBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FileAttributes>>> = ({
   data,

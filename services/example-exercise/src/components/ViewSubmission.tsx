@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import React from "react"
 
 import { ExerciseFeedback } from "../pages/api/grade"
-import { baseTheme } from "../shared-module/styles"
+import { baseTheme } from "../shared-module/common/styles"
 import { Answer, ModelSolutionApi, PublicAlternative } from "../util/stateInterfaces"
 
 interface SubmissionProps {

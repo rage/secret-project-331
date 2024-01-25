@@ -17,18 +17,18 @@ import {
 } from "../../../../services/backend/course-instances"
 import { setCertificationGeneration } from "../../../../services/backend/course-modules"
 import { fetchCourseStructure } from "../../../../services/backend/courses"
-import { CertificateConfigurationUpdate } from "../../../../shared-module/bindings"
-import Button from "../../../../shared-module/components/Button"
-import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../../shared-module/components/Spinner"
-import HideTextInSystemTests from "../../../../shared-module/components/system-tests/HideTextInSystemTests"
-import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
-import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
-import { baseTheme } from "../../../../shared-module/styles"
+import { CertificateConfigurationUpdate } from "../../../../shared-module/common/bindings"
+import Button from "../../../../shared-module/common/components/Button"
+import ErrorBanner from "../../../../shared-module/common/components/ErrorBanner"
+import Spinner from "../../../../shared-module/common/components/Spinner"
+import HideTextInSystemTests from "../../../../shared-module/common/components/system-tests/HideTextInSystemTests"
+import { withSignedIn } from "../../../../shared-module/common/contexts/LoginStateContext"
+import useToastMutation from "../../../../shared-module/common/hooks/useToastMutation"
+import { baseTheme } from "../../../../shared-module/common/styles"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
-} from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
+} from "../../../../shared-module/common/utils/dontRenderUntilQueryParametersReady"
+import withErrorBoundary from "../../../../shared-module/common/utils/withErrorBoundary"
 
 interface Props {
   query: SimplifiedUrlQuery<"id">
@@ -143,7 +143,7 @@ const CertificationsPage: React.FC<Props> = ({ query }) => {
         {t("certificates")}: {courseInstanceId}
       </h1>
       {defaultCertificateConfigurationsQuery.isError && (
-        <ErrorBanner variant={"readOnly"} error={defaultCertificateConfigurationsQuery.error} />
+        <ErrorBanner error={defaultCertificateConfigurationsQuery.error} />
       )}
       {defaultCertificateConfigurationsQuery.isPending && <Spinner variant="medium" />}
       {getCourse.isSuccess && defaultCertificateConfigurationsQuery.isSuccess && (

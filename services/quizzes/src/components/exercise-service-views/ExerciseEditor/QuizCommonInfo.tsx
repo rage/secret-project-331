@@ -4,9 +4,9 @@ import { useTranslation } from "react-i18next"
 
 import { PrivateSpecQuiz } from "../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../hooks/useQuizzesExerciseServiceOutputState"
-import Accordion from "../../../shared-module/components/Accordion"
-import RadioButton from "../../../shared-module/components/InputFields/RadioButton"
-import { baseTheme, primaryFont } from "../../../shared-module/styles"
+import Accordion from "../../../shared-module/common/components/Accordion"
+import RadioButton from "../../../shared-module/common/components/InputFields/RadioButton"
+import { baseTheme, primaryFont } from "../../../shared-module/common/styles"
 import MarkdownEditor from "../../MarkdownEditor"
 
 const AdvancedOptionsContainer = styled.div`

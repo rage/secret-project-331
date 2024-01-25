@@ -8,8 +8,8 @@ import {
   PublicSpecQuizItemTimeline,
   PublicSpecQuizItemTimelineItem,
 } from "../../../../../types/quizTypes/publicSpec"
-import SelectMenu from "../../../../shared-module/components/SelectMenu"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
+import SelectMenu from "../../../../shared-module/common/components/SelectMenu"
+import withErrorBoundary from "../../../../shared-module/common/utils/withErrorBoundary"
 
 import { QuizItemComponentProps } from "."
 

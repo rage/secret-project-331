@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import { useRouter } from "next/router"
 import React, { RefObject } from "react"
 
-import { headingFont } from "../../../../shared-module/styles"
+import { headingFont } from "../../../../shared-module/common/styles"
 import { AudioFile } from "../../../Page"
 
 interface DisplayTrackProps {

@@ -14,15 +14,15 @@ import {
   PeerReviewProcessingStrategy,
   PeerReviewQuestion,
   PeerReviewQuestionType,
-} from "../shared-module/bindings"
-import Button from "../shared-module/components/Button"
-import ErrorBanner from "../shared-module/components/ErrorBanner"
-import CheckBox from "../shared-module/components/InputFields/CheckBox"
-import SelectField from "../shared-module/components/InputFields/SelectField"
-import TextAreaField from "../shared-module/components/InputFields/TextAreaField"
-import TextField from "../shared-module/components/InputFields/TextField"
-import Spinner from "../shared-module/components/Spinner"
-import { baseTheme } from "../shared-module/styles"
+} from "../shared-module/common/bindings"
+import Button from "../shared-module/common/components/Button"
+import ErrorBanner from "../shared-module/common/components/ErrorBanner"
+import CheckBox from "../shared-module/common/components/InputFields/CheckBox"
+import SelectField from "../shared-module/common/components/InputFields/SelectField"
+import TextAreaField from "../shared-module/common/components/InputFields/TextAreaField"
+import TextField from "../shared-module/common/components/InputFields/TextField"
+import Spinner from "../shared-module/common/components/Spinner"
+import { baseTheme } from "../shared-module/common/styles"
 
 const Wrapper = styled.div`
   margin: 0 auto;
@@ -315,7 +315,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
   }
 
   if (defaultCmsPeerReviewConfig.isError) {
-    return <ErrorBanner variant="text" error={defaultCmsPeerReviewConfig.error} />
+    return <ErrorBanner error={defaultCmsPeerReviewConfig.error} />
   }
 
   return (

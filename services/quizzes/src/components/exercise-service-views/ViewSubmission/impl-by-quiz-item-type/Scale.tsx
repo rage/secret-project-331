@@ -3,9 +3,9 @@ import React, { useId } from "react"
 
 import { UserItemAnswerScale } from "../../../../../types/quizTypes/answer"
 import { PublicSpecQuizItemScale } from "../../../../../types/quizTypes/publicSpec"
-import { primaryFont } from "../../../../shared-module/styles"
-import { respondToOrLarger } from "../../../../shared-module/styles/respond"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
+import { primaryFont } from "../../../../shared-module/common/styles"
+import { respondToOrLarger } from "../../../../shared-module/common/styles/respond"
+import withErrorBoundary from "../../../../shared-module/common/utils/withErrorBoundary"
 import MarkdownText from "../../../MarkdownText"
 
 import { QuizItemSubmissionComponentProps } from "."

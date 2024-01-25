@@ -3,9 +3,9 @@ import { useQuery } from "@tanstack/react-query"
 import React from "react"
 
 import { fetchFeedback, markAsRead } from "../../../../../../services/backend/feedback"
-import { Feedback } from "../../../../../../shared-module/bindings"
-import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../../../../shared-module/components/Spinner"
+import { Feedback } from "../../../../../../shared-module/common/bindings"
+import ErrorBanner from "../../../../../../shared-module/common/components/ErrorBanner"
+import Spinner from "../../../../../../shared-module/common/components/Spinner"
 
 import FeedbackView from "./FeedbackView"
 
@@ -36,7 +36,7 @@ const FeedbackPage: React.FC<React.PropsWithChildren<Props>> = ({
   }
 
   if (getFeedbackList.isError) {
-    return <ErrorBanner variant={"readOnly"} error={getFeedbackList.error} />
+    return <ErrorBanner error={getFeedbackList.error} />
   }
 
   if (getFeedbackList.isPending) {

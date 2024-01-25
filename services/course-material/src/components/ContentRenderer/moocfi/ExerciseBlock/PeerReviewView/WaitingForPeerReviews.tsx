@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { baseTheme } from "../../../../../shared-module/styles"
+import { baseTheme } from "../../../../../shared-module/common/styles"
 
 const WaitingForPeerReviews: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()

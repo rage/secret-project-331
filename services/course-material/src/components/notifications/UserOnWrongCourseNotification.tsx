@@ -5,12 +5,12 @@ import React from "react"
 import { Trans, useTranslation } from "react-i18next"
 
 import { fetchCourseById } from "../../services/backend"
-import Banner from "../../shared-module/components/Banner/Banner"
-import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
-import ErrorBanner from "../../shared-module/components/ErrorBanner"
-import Spinner from "../../shared-module/components/Spinner"
-import ietfLanguageTagToHumanReadableName from "../../shared-module/utils/ietfLanguageTagToHumanReadableName"
-import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
+import Banner from "../../shared-module/common/components/Banner/Banner"
+import BreakFromCentered from "../../shared-module/common/components/Centering/BreakFromCentered"
+import ErrorBanner from "../../shared-module/common/components/ErrorBanner"
+import Spinner from "../../shared-module/common/components/Spinner"
+import ietfLanguageTagToHumanReadableName from "../../shared-module/common/utils/ietfLanguageTagToHumanReadableName"
+import withErrorBoundary from "../../shared-module/common/utils/withErrorBoundary"
 
 export interface UserOnWrongCourseNotificationProps {
   correctCourseId: string
@@ -27,7 +27,7 @@ const UserOnWrongCourseNotification: React.FC<
   })
 
   if (getCourseById.isError) {
-    return <ErrorBanner variant={"readOnly"} error={getCourseById.error} />
+    return <ErrorBanner error={getCourseById.error} />
   }
 
   if (getCourseById.isPending) {

@@ -7,7 +7,7 @@ import {
   HIDE_TEXT_IN_SYSTEM_TESTS_EVENT,
   SHOW_TEXT_IN_SYSTEM_TESTS_EVENT,
   SPINNER_CLASS,
-} from "../shared-module/utils/constants"
+} from "../shared-module/common/utils/constants"
 
 import accessibilityCheck from "./accessibilityCheck"
 import { scrollLocatorsParentIframeToViewIfNeeded } from "./iframeLocators"

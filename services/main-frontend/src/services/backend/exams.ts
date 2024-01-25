@@ -1,4 +1,10 @@
-import { CourseExam, Exam, ExamCourseInfo, NewExam, OrgExam } from "../../shared-module/bindings"
+import {
+  CourseExam,
+  Exam,
+  ExamCourseInfo,
+  NewExam,
+  OrgExam,
+} from "../../shared-module/common/bindings"
 import { mainFrontendClient } from "../mainFrontendClient"
 
 export const createExam = async (organizationId: string, data: NewExam) => {

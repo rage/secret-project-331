@@ -1,7 +1,7 @@
-import { PageAudioFile } from "../../shared-module/bindings"
-import { isPageAudioFile } from "../../shared-module/bindings.guard"
-import { validateResponse } from "../../shared-module/utils/fetching"
-import { validateFile } from "../../shared-module/utils/files"
+import { PageAudioFile } from "../../shared-module/common/bindings"
+import { isPageAudioFile } from "../../shared-module/common/bindings.guard"
+import { validateResponse } from "../../shared-module/common/utils/fetching"
+import { validateFile } from "../../shared-module/common/utils/files"
 import { mainFrontendClient } from "../mainFrontendClient"
 
 export const postPageAudioFile = async (pageId: string, file: File): Promise<PageAudioFile> => {

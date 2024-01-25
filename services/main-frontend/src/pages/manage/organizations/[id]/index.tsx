@@ -5,13 +5,13 @@ import { useTranslation } from "react-i18next"
 
 import OrganizationImageWidget from "../../../../components/page-specific/org/organizationSlug/OrganizationImageWidget"
 import { fetchOrganization } from "../../../../services/backend/organizations"
-import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../../shared-module/components/Spinner"
-import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
+import ErrorBanner from "../../../../shared-module/common/components/ErrorBanner"
+import Spinner from "../../../../shared-module/common/components/Spinner"
+import { withSignedIn } from "../../../../shared-module/common/contexts/LoginStateContext"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
-} from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
+} from "../../../../shared-module/common/utils/dontRenderUntilQueryParametersReady"
+import withErrorBoundary from "../../../../shared-module/common/utils/withErrorBoundary"
 
 interface Props {
   query: SimplifiedUrlQuery<"id">
@@ -28,7 +28,7 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
   if (organization.isPending) {
     contents = <Spinner variant={"medium"} />
   } else if (organization.isError) {
-    contents = <ErrorBanner variant={"readOnly"} error={organization.error} />
+    contents = <ErrorBanner error={organization.error} />
   } else {
     contents = (
       <>

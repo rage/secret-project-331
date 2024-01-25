@@ -1,4 +1,4 @@
-import { NonGenericGradingRequest } from "../../../src/shared-module/exercise-service-protocol-types"
+import { NonGenericGradingRequest } from "../../../src/shared-module/common/exercise-service-protocol-types"
 import { COLUMN } from "../../../src/util/constants"
 import {
   oldMultipleChoiceMultipleOptionsGradingPolicy,

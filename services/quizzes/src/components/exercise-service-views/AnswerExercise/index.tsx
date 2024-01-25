@@ -3,7 +3,7 @@ import React, { useCallback, useMemo, useState } from "react"
 import { UserAnswer } from "../../../../types/quizTypes/answer"
 import { PublicSpecQuiz } from "../../../../types/quizTypes/publicSpec"
 import QuizzesUserItemAnswerContext from "../../../contexts/QuizzesUserItemAnswerContext"
-import { UserInformation } from "../../../shared-module/exercise-service-protocol-types"
+import { UserInformation } from "../../../shared-module/common/exercise-service-protocol-types"
 
 import AnswerExerciseImpl from "./impl-by-quiz-item-type"
 

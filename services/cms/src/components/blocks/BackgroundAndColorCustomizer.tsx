@@ -5,9 +5,9 @@ import { cover as icon } from "@wordpress/icons"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import Button from "../../shared-module/components/Button"
-import CheckBox from "../../shared-module/components/InputFields/CheckBox"
-import { baseTheme } from "../../shared-module/styles"
+import Button from "../../shared-module/common/components/Button"
+import CheckBox from "../../shared-module/common/components/InputFields/CheckBox"
+import { baseTheme } from "../../shared-module/common/styles"
 
 const placeHolderFixHeightStyles = css`
   min-height: unset !important;

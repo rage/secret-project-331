@@ -5,10 +5,10 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { fetchHistoryForPage } from "../../../../../../services/backend/pages"
-import { PageHistory } from "../../../../../../shared-module/bindings"
-import Button from "../../../../../../shared-module/components/Button"
-import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../../../../shared-module/components/Spinner"
+import { PageHistory } from "../../../../../../shared-module/common/bindings"
+import Button from "../../../../../../shared-module/common/components/Button"
+import ErrorBanner from "../../../../../../shared-module/common/components/ErrorBanner"
+import Spinner from "../../../../../../shared-module/common/components/Spinner"
 
 interface Props {
   pageId: string
@@ -34,7 +34,7 @@ const HistoryPage: React.FC<React.PropsWithChildren<Props>> = ({
   })
 
   if (getPageHistory.isError) {
-    return <ErrorBanner variant={"readOnly"} error={getPageHistory.error} />
+    return <ErrorBanner error={getPageHistory.error} />
   }
 
   if (getPageHistory.isPending) {

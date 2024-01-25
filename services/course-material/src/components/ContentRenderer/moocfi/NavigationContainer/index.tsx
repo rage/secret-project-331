@@ -1,10 +1,10 @@
 import React, { useContext } from "react"
 
 import PageContext from "../../../../contexts/PageContext"
-import Spinner from "../../../../shared-module/components/Spinner"
-import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
-import dontRenderUntilQueryParametersReady from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
+import Spinner from "../../../../shared-module/common/components/Spinner"
+import useQueryParameter from "../../../../shared-module/common/hooks/useQueryParameter"
+import dontRenderUntilQueryParametersReady from "../../../../shared-module/common/utils/dontRenderUntilQueryParametersReady"
+import withErrorBoundary from "../../../../shared-module/common/utils/withErrorBoundary"
 
 import NextPage from "./NextPage"
 

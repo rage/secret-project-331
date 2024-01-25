@@ -11,16 +11,16 @@ import {
   editCourseInstance,
   fetchCourseInstance,
 } from "../../../../services/backend/course-instances"
-import { CourseInstanceForm } from "../../../../shared-module/bindings"
-import Button from "../../../../shared-module/components/Button"
-import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../../shared-module/components/Spinner"
-import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
-import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
+import { CourseInstanceForm } from "../../../../shared-module/common/bindings"
+import Button from "../../../../shared-module/common/components/Button"
+import ErrorBanner from "../../../../shared-module/common/components/ErrorBanner"
+import Spinner from "../../../../shared-module/common/components/Spinner"
+import { withSignedIn } from "../../../../shared-module/common/contexts/LoginStateContext"
+import useToastMutation from "../../../../shared-module/common/hooks/useToastMutation"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
-} from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
+} from "../../../../shared-module/common/utils/dontRenderUntilQueryParametersReady"
+import withErrorBoundary from "../../../../shared-module/common/utils/withErrorBoundary"
 
 export interface ManageCourseInstancesProps {
   query: SimplifiedUrlQuery<"id">
@@ -156,11 +156,9 @@ const ManageCourseInstances: React.FC<React.PropsWithChildren<ManageCourseInstan
         {getCourseInstances.data?.name ?? t("default-course-instance-name")} (
         {getCourseInstances.isSuccess && getCourseInstances.data.id})
       </h1>
-      {mutation.isError && <ErrorBanner variant={"readOnly"} error={mutation.error} />}
-      {deleteMutation.isError && <ErrorBanner variant={"readOnly"} error={deleteMutation.error} />}
-      {getCourseInstances.isError && (
-        <ErrorBanner variant={"readOnly"} error={getCourseInstances.error} />
-      )}
+      {mutation.isError && <ErrorBanner error={mutation.error} />}
+      {deleteMutation.isError && <ErrorBanner error={deleteMutation.error} />}
+      {getCourseInstances.isError && <ErrorBanner error={getCourseInstances.error} />}
       {getCourseInstances.isPending && <Spinner variant={"medium"} />}
       {getCourseInstances.isSuccess && instanceInfo}
     </div>

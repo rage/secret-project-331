@@ -8,10 +8,10 @@ import {
   ExerciseTaskGradingResult,
   PlaygroundViewsMessage,
   SpecRequest,
-} from "../../shared-module/bindings"
-import { isExerciseServiceInfoApi } from "../../shared-module/bindings.guard"
-import { GradingRequest } from "../../shared-module/exercise-service-protocol-types-2"
-import useToastMutation from "../../shared-module/hooks/useToastMutation"
+} from "../../shared-module/common/bindings"
+import { isExerciseServiceInfoApi } from "../../shared-module/common/bindings.guard"
+import { GradingRequest } from "../../shared-module/common/exercise-service-protocol-types-2"
+import useToastMutation from "../../shared-module/common/hooks/useToastMutation"
 
 import { UseParsedPrivateSpecResult } from "./useParsedPrivateSpec"
 

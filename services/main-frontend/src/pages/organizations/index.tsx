@@ -4,8 +4,8 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import OrganizationsList from "../../components/page-specific/organizations/index/OrganizationsList"
-import OnlyRenderIfPermissions from "../../shared-module/components/OnlyRenderIfPermissions"
-import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
+import OnlyRenderIfPermissions from "../../shared-module/common/components/OnlyRenderIfPermissions"
+import withErrorBoundary from "../../shared-module/common/utils/withErrorBoundary"
 
 const MANAGE_EXERCISE_SERVICES_HREF = "/manage/exercise-services"
 const SEARCH_USERS_HREF = "/manage/search-users"

@@ -10,18 +10,18 @@ import {
   fetchPeerReviewDataByExerciseId,
   postPeerReviewSubmission,
 } from "../../../../../services/backend"
-import { CourseMaterialPeerReviewQuestionAnswer } from "../../../../../shared-module/bindings"
-import Button from "../../../../../shared-module/components/Button"
-import BreakFromCentered from "../../../../../shared-module/components/Centering/BreakFromCentered"
-import Centered from "../../../../../shared-module/components/Centering/Centered"
-import ErrorBanner from "../../../../../shared-module/components/ErrorBanner"
-import PeerReviewProgress from "../../../../../shared-module/components/PeerReview/PeerReviewProgress"
-import Spinner from "../../../../../shared-module/components/Spinner"
-import LoginStateContext from "../../../../../shared-module/contexts/LoginStateContext"
-import useToastMutation from "../../../../../shared-module/hooks/useToastMutation"
-import { narrowContainerWidthPx } from "../../../../../shared-module/styles/constants"
-import getGuestPseudonymousUserId from "../../../../../shared-module/utils/getGuestPseudonymousUserId"
-import { exerciseTaskGradingToExerciseTaskGradingResult } from "../../../../../shared-module/utils/typeMappter"
+import { CourseMaterialPeerReviewQuestionAnswer } from "../../../../../shared-module/common/bindings"
+import Button from "../../../../../shared-module/common/components/Button"
+import BreakFromCentered from "../../../../../shared-module/common/components/Centering/BreakFromCentered"
+import Centered from "../../../../../shared-module/common/components/Centering/Centered"
+import ErrorBanner from "../../../../../shared-module/common/components/ErrorBanner"
+import PeerReviewProgress from "../../../../../shared-module/common/components/PeerReview/PeerReviewProgress"
+import Spinner from "../../../../../shared-module/common/components/Spinner"
+import LoginStateContext from "../../../../../shared-module/common/contexts/LoginStateContext"
+import useToastMutation from "../../../../../shared-module/common/hooks/useToastMutation"
+import { narrowContainerWidthPx } from "../../../../../shared-module/common/styles/constants"
+import getGuestPseudonymousUserId from "../../../../../shared-module/common/utils/getGuestPseudonymousUserId"
+import { exerciseTaskGradingToExerciseTaskGradingResult } from "../../../../../shared-module/common/utils/typeMappter"
 import ExerciseTaskIframe from "../ExerciseTaskIframe"
 
 import PeerReviewQuestion from "./PeerReviewQuestion"
@@ -126,7 +126,7 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
   )
 
   if (query.isError) {
-    return <ErrorBanner variant={"readOnly"} error={query.error} />
+    return <ErrorBanner error={query.error} />
   }
 
   if (query.isPending || !query.data) {

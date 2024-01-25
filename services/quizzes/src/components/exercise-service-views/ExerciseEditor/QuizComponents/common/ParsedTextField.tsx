@@ -4,8 +4,8 @@ import { Eye, Pencil } from "@vectopus/atlas-icons-react"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import Button from "../../../../../shared-module/components/Button"
-import TextField from "../../../../../shared-module/components/InputFields/TextField"
+import Button from "../../../../../shared-module/common/components/Button"
+import TextField from "../../../../../shared-module/common/components/InputFields/TextField"
 import ParsedText from "../../../../ParsedText"
 
 const DisplayContainer = styled.div`

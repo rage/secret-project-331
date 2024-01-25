@@ -3,10 +3,10 @@ import dynamic from "next/dynamic"
 
 import { BlockRendererProps } from "../../.."
 import { CodeAttributes } from "../../../../../../types/GutenbergBlockAttributes"
-import BreakFromCentered from "../../../../../shared-module/components/Centering/BreakFromCentered"
-import Spinner from "../../../../../shared-module/components/Spinner"
-import { monospaceFont } from "../../../../../shared-module/styles"
-import withErrorBoundary from "../../../../../shared-module/utils/withErrorBoundary"
+import BreakFromCentered from "../../../../../shared-module/common/components/Centering/BreakFromCentered"
+import Spinner from "../../../../../shared-module/common/components/Spinner"
+import { monospaceFont } from "../../../../../shared-module/common/styles"
+import withErrorBoundary from "../../../../../shared-module/common/utils/withErrorBoundary"
 import { fontSizeMapper } from "../../../../../styles/fontSizeMapper"
 
 const SyntaxHighlightedContainerLoading = <Spinner variant="medium" />

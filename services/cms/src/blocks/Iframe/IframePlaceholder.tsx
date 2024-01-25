@@ -2,9 +2,9 @@
 import { css } from "@emotion/css"
 import { useState } from "react"
 
-import Button from "../../shared-module/components/Button"
-import ErrorBanner from "../../shared-module/components/ErrorBanner"
-import TextAreaField from "../../shared-module/components/InputFields/TextAreaField"
+import Button from "../../shared-module/common/components/Button"
+import ErrorBanner from "../../shared-module/common/components/ErrorBanner"
+import TextAreaField from "../../shared-module/common/components/InputFields/TextAreaField"
 
 export interface IFramePlaceHolderProps {
   setUrl: (url: string) => void
@@ -42,7 +42,7 @@ const IFramePlaceHolder: React.FC<IFramePlaceHolderProps> = ({ setUrl, defaultVa
             margin: 1rem;
           `}
         >
-          <ErrorBanner variant="readOnly" error={error} />
+          <ErrorBanner error={error} />
         </div>
       )}
       <Button

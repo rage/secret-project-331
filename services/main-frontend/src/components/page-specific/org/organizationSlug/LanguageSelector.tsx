@@ -2,8 +2,8 @@ import styled from "@emotion/styled"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import Flag from "../../../../shared-module/components/LanguageSelection/Language"
-import { headingFont } from "../../../../shared-module/styles"
+import Flag from "../../../../shared-module/common/components/LanguageSelection/Language"
+import { headingFont } from "../../../../shared-module/common/styles"
 import Close from "../imgs/close.svg"
 import Tick from "../imgs/tick-03.svg"
 

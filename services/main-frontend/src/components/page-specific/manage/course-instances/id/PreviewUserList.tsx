@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { ManualCompletionPreviewUser } from "../../../../../shared-module/bindings"
+import { ManualCompletionPreviewUser } from "../../../../../shared-module/common/bindings"
 
 export interface PreviewUserListProps {
   users: Array<ManualCompletionPreviewUser>

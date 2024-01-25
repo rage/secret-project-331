@@ -1,4 +1,4 @@
-import { ExerciseServiceIframeRenderingInfo } from "../../../shared-module/bindings"
+import { ExerciseServiceIframeRenderingInfo } from "../../../shared-module/common/bindings"
 
 import ExerciseServiceList from "./ExerciseServiceList"
 

@@ -1,8 +1,8 @@
 /* eslint-disable i18next/no-literal-string */
-import { Course, CourseCount, Organization } from "../../shared-module/bindings"
-import { isCourse, isOrganization } from "../../shared-module/bindings.guard"
-import { isArray, validateResponse } from "../../shared-module/utils/fetching"
-import { validateFile } from "../../shared-module/utils/files"
+import { Course, CourseCount, Organization } from "../../shared-module/common/bindings"
+import { isCourse, isOrganization } from "../../shared-module/common/bindings.guard"
+import { isArray, validateResponse } from "../../shared-module/common/utils/fetching"
+import { validateFile } from "../../shared-module/common/utils/files"
 import { mainFrontendClient } from "../mainFrontendClient"
 
 export const fetchOrganizations = async (): Promise<Array<Organization>> => {

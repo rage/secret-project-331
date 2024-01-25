@@ -11,9 +11,9 @@ import PlayGroundSettings from "../components/page-specific/playground-views/Pla
 import PlaygroundSpecs from "../components/page-specific/playground-views/PlaygroundSpecs"
 import useParsedPrivateSpec from "../hooks/playground/useParsedPrivateSpec"
 import usePlaygroundQueriesAndMutations from "../hooks/playground/usePlaygroundQueriesAndMutations"
-import { baseTheme } from "../shared-module/styles"
-import { narrowContainerWidthPx } from "../shared-module/styles/constants"
-import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
+import { baseTheme } from "../shared-module/common/styles"
+import { narrowContainerWidthPx } from "../shared-module/common/styles/constants"
+import withErrorBoundary from "../shared-module/common/utils/withErrorBoundary"
 
 const TABS = [
   {

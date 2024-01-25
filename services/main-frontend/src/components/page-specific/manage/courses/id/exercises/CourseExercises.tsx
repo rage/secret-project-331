@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import { useTranslation } from "react-i18next"
 
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
-import { baseTheme, headingFont } from "../../../../../../shared-module/styles"
+import { baseTheme, headingFont } from "../../../../../../shared-module/common/styles"
 
 import ExerciseList from "./ExerciseList"
 import ExerciseRepositories from "./ExerciseRepositories"

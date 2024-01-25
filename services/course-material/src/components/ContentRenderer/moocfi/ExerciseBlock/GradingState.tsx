@@ -7,8 +7,8 @@ import {
   CourseMaterialPeerReviewConfig,
   GradingProgress,
   ReviewingStage,
-} from "../../../../shared-module/bindings"
-import { baseTheme } from "../../../../shared-module/styles"
+} from "../../../../shared-module/common/bindings"
+import { baseTheme } from "../../../../shared-module/common/styles"
 
 interface GradingStateProps {
   gradingProgress: GradingProgress

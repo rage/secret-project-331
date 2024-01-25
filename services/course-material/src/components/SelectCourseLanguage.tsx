@@ -5,16 +5,16 @@ import { useTranslation } from "react-i18next"
 
 import PageContext from "../contexts/PageContext"
 import { fetchCourseLanguageVersions } from "../services/backend"
-import ErrorBanner from "../shared-module/components/ErrorBanner"
-import Spinner from "../shared-module/components/Spinner"
+import ErrorBanner from "../shared-module/common/components/ErrorBanner"
+import Spinner from "../shared-module/common/components/Spinner"
 import {
   baseTheme,
   fontWeights,
   headingFont,
   primaryFont,
   typography,
-} from "../shared-module/styles"
-import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
+} from "../shared-module/common/styles"
+import withErrorBoundary from "../shared-module/common/utils/withErrorBoundary"
 
 import { GetLanguageFlag, getLanguageName } from "./modals/ChooseCourseLanguage"
 
@@ -88,7 +88,7 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
   }
 
   if (useCourseLanguageVersionsList.isError) {
-    return <ErrorBanner variant="readOnly" error={useCourseLanguageVersionsList.error} />
+    return <ErrorBanner error={useCourseLanguageVersionsList.error} />
   }
 
   if (courseVersionsList && courseVersionsList.length < 2) {

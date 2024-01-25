@@ -4,7 +4,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
-import { baseTheme, headingFont } from "../../../../../../shared-module/styles"
+import { baseTheme, headingFont } from "../../../../../../shared-module/common/styles"
 
 import CourseSubmissionsByDay from "./CourseSubmissionsByDay"
 import CourseSubmissionsByWeekdayAndHour from "./CourseSubmissionsByWeekdayAndHour"

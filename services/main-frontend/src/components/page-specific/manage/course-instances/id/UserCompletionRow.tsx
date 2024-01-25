@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next"
 import {
   CourseModule,
   CourseModuleCompletionWithRegistrationInfo,
-} from "../../../../../shared-module/bindings"
+} from "../../../../../shared-module/common/bindings"
 import { FullWidthTableRow } from "../../../../tables/FullWidthTable"
 
 export interface UserCompletionRowProps {

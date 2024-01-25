@@ -3,8 +3,8 @@ import { t } from "i18next"
 import React from "react"
 
 import { BlockRendererProps } from ".."
-import { baseTheme } from "../../../shared-module/styles"
-import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
+import { baseTheme } from "../../../shared-module/common/styles"
+import withErrorBoundary from "../../../shared-module/common/utils/withErrorBoundary"
 import InnerBlocks from "../util/InnerBlocks"
 
 interface InfoBoxBlockAttributes {

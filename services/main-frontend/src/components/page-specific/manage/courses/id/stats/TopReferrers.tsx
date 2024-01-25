@@ -2,12 +2,12 @@ import { css } from "@emotion/css"
 import React, { useMemo } from "react"
 
 import useCoursePageVisitDatumSummary from "../../../../../../hooks/useCoursePageVisitDatumSummary"
-import DebugModal from "../../../../../../shared-module/components/DebugModal"
-import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../../../../shared-module/components/Spinner"
-import { baseTheme } from "../../../../../../shared-module/styles"
-import { dontRenderUntilQueryParametersReady } from "../../../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
-import withErrorBoundary from "../../../../../../shared-module/utils/withErrorBoundary"
+import DebugModal from "../../../../../../shared-module/common/components/DebugModal"
+import ErrorBanner from "../../../../../../shared-module/common/components/ErrorBanner"
+import Spinner from "../../../../../../shared-module/common/components/Spinner"
+import { baseTheme } from "../../../../../../shared-module/common/styles"
+import { dontRenderUntilQueryParametersReady } from "../../../../../../shared-module/common/utils/dontRenderUntilQueryParametersReady"
+import withErrorBoundary from "../../../../../../shared-module/common/utils/withErrorBoundary"
 
 import Echarts from "./Echarts"
 
@@ -60,7 +60,7 @@ const TopReferrers: React.FC<React.PropsWithChildren<TopReferrersProps>> = ({ co
   }, [aggregatedData])
 
   if (query.isError) {
-    return <ErrorBanner variant="readOnly" error={query.error} />
+    return <ErrorBanner error={query.error} />
   }
 
   if (query.isPending || !query.data) {

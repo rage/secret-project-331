@@ -2,8 +2,8 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
-import { baseTheme } from "../../shared-module/styles"
+import BreakFromCentered from "../../shared-module/common/components/Centering/BreakFromCentered"
+import { baseTheme } from "../../shared-module/common/styles"
 
 interface CourseTestModeNotificationProps {
   isTestMode: boolean

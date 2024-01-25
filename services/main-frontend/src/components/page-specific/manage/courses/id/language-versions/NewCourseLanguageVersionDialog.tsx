@@ -1,8 +1,8 @@
 import { css } from "@emotion/css"
 import { useTranslation } from "react-i18next"
 
-import { NewCourse } from "../../../../../../shared-module/bindings"
-import Dialog from "../../../../../../shared-module/components/Dialog"
+import { NewCourse } from "../../../../../../shared-module/common/bindings"
+import Dialog from "../../../../../../shared-module/common/components/Dialog"
 import NewCourseForm from "../../../../../forms/NewCourseForm"
 
 interface NewCourseLanguageVersionDialogProps {

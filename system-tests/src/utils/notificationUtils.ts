@@ -3,7 +3,7 @@ import { Page } from "playwright"
 import {
   SHOW_TOAS_INIFINITELY_IN_SYSTEM_TESTS_EVENT,
   SHOW_TOAST_DURATION_IN_SYSTEM_TESTS_EVENT,
-} from "../shared-module/utils/constants"
+} from "../shared-module/common/utils/constants"
 
 /** Hides all currently visible toasts and instructs next toasts to be shown infinitely. To hide the toasts, call function showToastsNormally. */
 export const showNextToastsInfinitely = async (page: Page) => {

@@ -1,6 +1,12 @@
-import { RoleDomain, RoleInfo, RoleQuery, RoleUser, UserRole } from "../../shared-module/bindings"
-import { isRoleUser } from "../../shared-module/bindings.guard"
-import { isArray, validateResponse } from "../../shared-module/utils/fetching"
+import {
+  RoleDomain,
+  RoleInfo,
+  RoleQuery,
+  RoleUser,
+  UserRole,
+} from "../../shared-module/common/bindings"
+import { isRoleUser } from "../../shared-module/common/bindings.guard"
+import { isArray, validateResponse } from "../../shared-module/common/utils/fetching"
 import { mainFrontendClient } from "../mainFrontendClient"
 
 export const fetchRoles = async (query: RoleQuery): Promise<Array<RoleUser>> => {

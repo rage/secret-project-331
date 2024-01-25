@@ -3,12 +3,12 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { fetchPageChapterAndCourse } from "../../services/backend"
-import { Page } from "../../shared-module/bindings"
-import Breadcrumbs from "../../shared-module/components/Breadcrumbs"
-import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
-import ErrorBanner from "../../shared-module/components/ErrorBanner"
-import Spinner from "../../shared-module/components/Spinner"
-import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
+import { Page } from "../../shared-module/common/bindings"
+import Breadcrumbs from "../../shared-module/common/components/Breadcrumbs"
+import BreakFromCentered from "../../shared-module/common/components/Centering/BreakFromCentered"
+import ErrorBanner from "../../shared-module/common/components/ErrorBanner"
+import Spinner from "../../shared-module/common/components/Spinner"
+import withErrorBoundary from "../../shared-module/common/utils/withErrorBoundary"
 
 interface CourseMaterialPageBreadcrumbsProps {
   page: Page | null
@@ -40,7 +40,7 @@ const CourseMaterialPageBreadcrumbs: React.FC<
   }
 
   if (data.isError) {
-    return <ErrorBanner variant={"readOnly"} error={data.error} />
+    return <ErrorBanner error={data.error} />
   }
 
   if (data.isPending) {

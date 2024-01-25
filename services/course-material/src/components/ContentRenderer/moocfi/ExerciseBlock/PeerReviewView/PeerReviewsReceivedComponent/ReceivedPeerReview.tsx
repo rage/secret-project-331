@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next"
 import {
   PeerReviewQuestion,
   PeerReviewQuestionSubmission,
-} from "../../../../../../shared-module/bindings"
+} from "../../../../../../shared-module/common/bindings"
 
 import Essay from "./Essay"
 import Likert from "./Likert"

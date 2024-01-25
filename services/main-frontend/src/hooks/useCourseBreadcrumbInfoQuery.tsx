@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query"
 
 import { getCourseBreadCrumbInfo } from "../services/backend/courses"
-import { assertNotNullOrUndefined } from "../shared-module/utils/nullability"
+import { assertNotNullOrUndefined } from "../shared-module/common/utils/nullability"
 
 const useCourseBreadcrumbInfoQuery = (courseId: string | null) => {
   return useQuery({

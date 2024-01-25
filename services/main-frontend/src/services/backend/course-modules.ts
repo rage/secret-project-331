@@ -5,13 +5,13 @@ import {
   ModuleUpdates,
   NewModule,
   UserCompletionInformation,
-} from "../../shared-module/bindings"
+} from "../../shared-module/common/bindings"
 import {
   isCompletionRegistrationLink,
   isCourseModule,
   isUserCompletionInformation,
-} from "../../shared-module/bindings.guard"
-import { validateResponse } from "../../shared-module/utils/fetching"
+} from "../../shared-module/common/bindings.guard"
+import { validateResponse } from "../../shared-module/common/utils/fetching"
 import { mainFrontendClient } from "../mainFrontendClient"
 
 export const fetchCourseModule = async (id: string): Promise<CourseModule> => {

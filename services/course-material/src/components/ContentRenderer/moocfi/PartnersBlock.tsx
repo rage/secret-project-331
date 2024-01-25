@@ -1,9 +1,9 @@
 import React from "react"
 
 import { BlockRendererProps } from ".."
-import BreakFromCentered from "../../../shared-module/components/Centering/BreakFromCentered"
-import Sponsor, { SponsorProps } from "../../../shared-module/components/Sponsor"
-import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
+import BreakFromCentered from "../../../shared-module/common/components/Centering/BreakFromCentered"
+import Sponsor, { SponsorProps } from "../../../shared-module/common/components/Sponsor"
+import withErrorBoundary from "../../../shared-module/common/utils/withErrorBoundary"
 
 const PartnersBlock: React.FC<React.PropsWithChildren<BlockRendererProps<SponsorProps>>> = (
   props,

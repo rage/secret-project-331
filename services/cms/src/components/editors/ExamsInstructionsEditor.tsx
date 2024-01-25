@@ -7,8 +7,8 @@ import { useTranslation } from "react-i18next"
 
 import { allowedExamInstructionsCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import mediaUploadBuilder from "../../services/backend/media/mediaUpload"
-import { ExamInstructions, ExamInstructionsUpdate } from "../../shared-module/bindings"
-import Spinner from "../../shared-module/components/Spinner"
+import { ExamInstructions, ExamInstructionsUpdate } from "../../shared-module/common/bindings"
+import Spinner from "../../shared-module/common/components/Spinner"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
 

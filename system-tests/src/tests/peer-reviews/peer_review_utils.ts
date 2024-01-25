@@ -1,7 +1,7 @@
 import { Page } from "playwright"
 import { expect } from "playwright/test"
 
-import { EXERCISE_SERVICE_CONTENT_ID } from "../../shared-module/utils/constants"
+import { EXERCISE_SERVICE_CONTENT_ID } from "../../shared-module/common/utils/constants"
 
 /**
  *

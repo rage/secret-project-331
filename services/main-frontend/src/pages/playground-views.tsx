@@ -17,29 +17,29 @@ import {
   ExerciseTaskGradingResult,
   PlaygroundViewsMessage,
   SpecRequest,
-} from "../shared-module/bindings"
-import { isExerciseServiceInfoApi } from "../shared-module/bindings.guard"
-import Button from "../shared-module/components/Button"
-import BreakFromCentered from "../shared-module/components/Centering/BreakFromCentered"
-import DebugModal from "../shared-module/components/DebugModal"
-import ErrorBanner from "../shared-module/components/ErrorBanner"
-import CheckBox from "../shared-module/components/InputFields/CheckBox"
-import TextAreaField from "../shared-module/components/InputFields/TextAreaField"
-import TextField from "../shared-module/components/InputFields/TextField"
-import Spinner from "../shared-module/components/Spinner"
-import HideChildrenInSystemTests from "../shared-module/components/system-tests/HideChildrenInSystemTests"
+} from "../shared-module/common/bindings"
+import { isExerciseServiceInfoApi } from "../shared-module/common/bindings.guard"
+import Button from "../shared-module/common/components/Button"
+import BreakFromCentered from "../shared-module/common/components/Centering/BreakFromCentered"
+import DebugModal from "../shared-module/common/components/DebugModal"
+import ErrorBanner from "../shared-module/common/components/ErrorBanner"
+import CheckBox from "../shared-module/common/components/InputFields/CheckBox"
+import TextAreaField from "../shared-module/common/components/InputFields/TextAreaField"
+import TextField from "../shared-module/common/components/InputFields/TextField"
+import Spinner from "../shared-module/common/components/Spinner"
+import HideChildrenInSystemTests from "../shared-module/common/components/system-tests/HideChildrenInSystemTests"
 import {
   CurrentStateMessage,
   IframeViewType,
   UserInformation,
-} from "../shared-module/exercise-service-protocol-types"
-import { GradingRequest } from "../shared-module/exercise-service-protocol-types-2"
-import useToastMutation from "../shared-module/hooks/useToastMutation"
-import { baseTheme, monospaceFont } from "../shared-module/styles"
-import { narrowContainerWidthPx } from "../shared-module/styles/constants"
-import { respondToOrLarger } from "../shared-module/styles/respond"
-import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
-import withNoSsr from "../shared-module/utils/withNoSsr"
+} from "../shared-module/common/exercise-service-protocol-types"
+import { GradingRequest } from "../shared-module/common/exercise-service-protocol-types-2"
+import useToastMutation from "../shared-module/common/hooks/useToastMutation"
+import { baseTheme, monospaceFont } from "../shared-module/common/styles"
+import { narrowContainerWidthPx } from "../shared-module/common/styles/constants"
+import { respondToOrLarger } from "../shared-module/common/styles/respond"
+import withErrorBoundary from "../shared-module/common/utils/withErrorBoundary"
+import withNoSsr from "../shared-module/common/utils/withNoSsr"
 
 interface PlaygroundFields {
   url: string
@@ -533,9 +533,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
 
               <p>{t("public-spec-explanation")}</p>
 
-              {publicSpecQuery.isError && (
-                <ErrorBanner variant={"readOnly"} error={publicSpecQuery.error} />
-              )}
+              {publicSpecQuery.isError && <ErrorBanner error={publicSpecQuery.error} />}
               {publicSpecQuery.isPending && publicSpecQuery.isFetching && (
                 <Spinner variant={"medium"} />
               )}
@@ -559,7 +557,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
               <p>{t("model-solution-spec-explanation")}</p>
 
               {modelSolutionSpecQuery.isError && (
-                <ErrorBanner variant={"readOnly"} error={modelSolutionSpecQuery.error} />
+                <ErrorBanner error={modelSolutionSpecQuery.error} />
               )}
               {modelSolutionSpecQuery.isPending && modelSolutionSpecQuery.isFetching && (
                 <Spinner variant={"medium"} />

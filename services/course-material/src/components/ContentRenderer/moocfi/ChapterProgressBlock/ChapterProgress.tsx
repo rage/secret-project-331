@@ -4,10 +4,10 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { fetchUserChapterInstanceChapterProgress } from "../../../../services/backend"
-import Progress from "../../../../shared-module/components/CourseProgress"
-import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../../shared-module/components/Spinner"
-import { respondToOrLarger } from "../../../../shared-module/styles/respond"
+import Progress from "../../../../shared-module/common/components/CourseProgress"
+import ErrorBanner from "../../../../shared-module/common/components/ErrorBanner"
+import Spinner from "../../../../shared-module/common/components/Spinner"
+import { respondToOrLarger } from "../../../../shared-module/common/styles/respond"
 import ColorsIdentifier from "../CourseProgressBlock/ColorsIdentifier"
 
 interface ChapterProgressProps {
@@ -27,9 +27,7 @@ const ChapterProgress: React.FC<React.PropsWithChildren<ChapterProgressProps>> =
 
   return (
     <div>
-      {getUserChapterProgress.isError && (
-        <ErrorBanner variant={"readOnly"} error={getUserChapterProgress.error} />
-      )}
+      {getUserChapterProgress.isError && <ErrorBanner error={getUserChapterProgress.error} />}
       {getUserChapterProgress.isPending && <Spinner variant={"medium"} />}
       {getUserChapterProgress.isSuccess && (
         <div

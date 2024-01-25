@@ -11,7 +11,7 @@ import {
   CmsPageExerciseSlide,
   CmsPageExerciseTask,
   CmsPageUpdate,
-} from "../shared-module/bindings"
+} from "../shared-module/common/bindings"
 
 /**
  * Only id is allowed in normalized exercises. This is because:

@@ -3,9 +3,9 @@ import { useTranslation } from "react-i18next"
 
 import { UserItemAnswerClosedEndedQuestion } from "../../../../../types/quizTypes/answer"
 import { PublicSpecQuizItemClosedEndedQuestion } from "../../../../../types/quizTypes/publicSpec"
-import TextField from "../../../../shared-module/components/InputFields/TextField"
-import { stripNonPrintableCharacters } from "../../../../shared-module/utils/strings"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
+import TextField from "../../../../shared-module/common/components/InputFields/TextField"
+import { stripNonPrintableCharacters } from "../../../../shared-module/common/utils/strings"
+import withErrorBoundary from "../../../../shared-module/common/utils/withErrorBoundary"
 import MarkdownText from "../../../MarkdownText"
 import CloseEndedQuestionWrapper from "../../../Shared/CloseEndedQuestionWrapper"
 

@@ -1,5 +1,5 @@
 import handler from "../../src/pages/api/model-solution"
-import { SpecRequest } from "../../src/shared-module/bindings"
+import { SpecRequest } from "../../src/shared-module/common/bindings"
 import {
   ModelSolutionQuiz,
   ModelSolutionQuizItemClosedEndedQuestion,

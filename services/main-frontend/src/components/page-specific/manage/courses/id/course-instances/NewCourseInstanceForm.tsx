@@ -3,10 +3,10 @@ import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { CourseInstance, CourseInstanceForm } from "../../../../../../shared-module/bindings"
-import Button from "../../../../../../shared-module/components/Button"
-import TimePicker from "../../../../../../shared-module/components/InputFields/DateTimeLocal"
-import TextField from "../../../../../../shared-module/components/InputFields/TextField"
+import { CourseInstance, CourseInstanceForm } from "../../../../../../shared-module/common/bindings"
+import Button from "../../../../../../shared-module/common/components/Button"
+import TimePicker from "../../../../../../shared-module/common/components/InputFields/DateTimeLocal"
+import TextField from "../../../../../../shared-module/common/components/InputFields/TextField"
 
 interface FormProps {
   initialData: CourseInstance | null

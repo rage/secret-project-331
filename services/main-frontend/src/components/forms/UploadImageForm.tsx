@@ -3,7 +3,7 @@ import styled from "@emotion/styled"
 import React, { createRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import Button, { LabelButton } from "../../shared-module/components/Button"
+import Button, { LabelButton } from "../../shared-module/common/components/Button"
 
 const FieldContainer = styled.div`
   margin-bottom: 1rem;

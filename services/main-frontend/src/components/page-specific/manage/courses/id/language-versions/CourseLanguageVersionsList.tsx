@@ -3,8 +3,8 @@ import Link from "next/link"
 import React from "react"
 
 import { fetchCourseLanguageVersions } from "../../../../../../services/backend/courses"
-import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../../../../shared-module/components/Spinner"
+import ErrorBanner from "../../../../../../shared-module/common/components/ErrorBanner"
+import Spinner from "../../../../../../shared-module/common/components/Spinner"
 
 export const formatLanguageVersionsQueryKey = (courseId: string): string => {
   // eslint-disable-next-line i18next/no-literal-string
@@ -24,9 +24,7 @@ const CourseLanguageVersionsList: React.FC<
   })
   return (
     <>
-      {getCourseLanguageVersions.isError && (
-        <ErrorBanner variant={"readOnly"} error={getCourseLanguageVersions.error} />
-      )}
+      {getCourseLanguageVersions.isError && <ErrorBanner error={getCourseLanguageVersions.error} />}
       {getCourseLanguageVersions.isPending && <Spinner variant={"medium"} />}
       {getCourseLanguageVersions.isSuccess && (
         <ul>

@@ -7,12 +7,12 @@ import ReactDOM from "react-dom"
 import { v4 } from "uuid"
 
 import StateRenderer from "../components/StateRenderer"
-import { ExerciseTaskSubmission } from "../shared-module/bindings"
-import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
-import { UploadResultMessage } from "../shared-module/exercise-service-protocol-types"
-import { isMessageToIframe } from "../shared-module/exercise-service-protocol-types.guard"
-import useExerciseServiceParentConnection from "../shared-module/hooks/useExerciseServiceParentConnection"
-import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
+import { ExerciseTaskSubmission } from "../shared-module/common/bindings"
+import HeightTrackingContainer from "../shared-module/common/components/HeightTrackingContainer"
+import { UploadResultMessage } from "../shared-module/common/exercise-service-protocol-types"
+import { isMessageToIframe } from "../shared-module/common/exercise-service-protocol-types.guard"
+import useExerciseServiceParentConnection from "../shared-module/common/hooks/useExerciseServiceParentConnection"
+import withErrorBoundary from "../shared-module/common/utils/withErrorBoundary"
 import {
   CurrentStateMessageData,
   EditorExercisePublicSpec,

@@ -2,10 +2,10 @@ import { css } from "@emotion/css"
 import { useTranslation } from "react-i18next"
 
 import { newCourseInstance } from "../../../../../../services/backend/courses"
-import { CourseInstanceForm } from "../../../../../../shared-module/bindings"
-import Dialog from "../../../../../../shared-module/components/Dialog"
-import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
-import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
+import { CourseInstanceForm } from "../../../../../../shared-module/common/bindings"
+import Dialog from "../../../../../../shared-module/common/components/Dialog"
+import ErrorBanner from "../../../../../../shared-module/common/components/ErrorBanner"
+import useToastMutation from "../../../../../../shared-module/common/hooks/useToastMutation"
 
 import NewCourseInstanceForm from "./NewCourseInstanceForm"
 
@@ -61,7 +61,7 @@ const NewCourseInstanceDialog: React.FC<
         >
           {t("new-course-instance")}
         </h1>
-        {mutation.isError && <ErrorBanner variant={"readOnly"} error={mutation.error} />}
+        {mutation.isError && <ErrorBanner error={mutation.error} />}
         <NewCourseInstanceForm
           initialData={null}
           onSubmit={(data) => {

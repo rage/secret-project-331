@@ -1,4 +1,9 @@
-import { CourseInstance, ExamData, Page, UserCourseSettings } from "../shared-module/bindings"
+import {
+  CourseInstance,
+  ExamData,
+  Page,
+  UserCourseSettings,
+} from "../shared-module/common/bindings"
 
 interface PageStateLoading {
   state: "loading"

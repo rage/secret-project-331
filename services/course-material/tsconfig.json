@@ -29,6 +29,6 @@
     "katex.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    "../../shared-module/src/components/layout/PageMarginOffset.tsx"
+    "../../shared-module/common/src/components/layout/PageMarginOffset.tsx"
   ]
 }

@@ -3,9 +3,9 @@ set -euo pipefail
 source "$(dirname "$0")/.common"
 
 BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
-TRANSLATIONS_EN_PATH="$BASEDIR/../shared-module/src/locales/en"
+TRANSLATIONS_EN_PATH="$BASEDIR/../shared-module/common/src/locales/en"
 TRANSLATIONS_EN_RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$TRANSLATIONS_EN_PATH")
-FOLDERS_PATH="$BASEDIR/../shared-module/src/locales"
+FOLDERS_PATH="$BASEDIR/../shared-module/common/src/locales"
 FOLDERS_RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDERS_PATH")
 
 ensure_program_in_path jq

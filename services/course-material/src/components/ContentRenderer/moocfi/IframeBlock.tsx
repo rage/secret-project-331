@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 
 import { BlockRendererProps } from ".."
-import BreakFromCentered from "../../../shared-module/components/Centering/BreakFromCentered"
+import BreakFromCentered from "../../../shared-module/common/components/Centering/BreakFromCentered"
 
 export interface IframeAttributes {
   url: string | undefined

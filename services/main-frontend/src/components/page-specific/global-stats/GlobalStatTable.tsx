@@ -4,10 +4,10 @@ import { groupBy, mapValues, sortBy } from "lodash"
 import { Fragment, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { GlobalStatEntry } from "../../../shared-module/bindings"
-import ErrorBanner from "../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../shared-module/components/Spinner"
-import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
+import { GlobalStatEntry } from "../../../shared-module/common/bindings"
+import ErrorBanner from "../../../shared-module/common/components/ErrorBanner"
+import Spinner from "../../../shared-module/common/components/Spinner"
+import withErrorBoundary from "../../../shared-module/common/utils/withErrorBoundary"
 import FullWidthTable, { FullWidthTableRow } from "../../tables/FullWidthTable"
 
 interface GlobalStatTableProps {
@@ -28,7 +28,7 @@ const GlobalStatTable: React.FC<GlobalStatTableProps> = ({ query }) => {
   }, [query.data])
 
   if (query.isError) {
-    return <ErrorBanner variant="text" error={query.error} />
+    return <ErrorBanner error={query.error} />
   }
 
   if (query.isLoading) {

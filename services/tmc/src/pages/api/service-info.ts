@@ -2,8 +2,8 @@
 import type { NextApiRequest, NextApiResponse } from "next"
 
 import { ClientErrorResponse } from "../../lib"
-import { ExerciseServiceInfoApi } from "../../shared-module/bindings"
-import basePath from "../../shared-module/utils/base-path"
+import { ExerciseServiceInfoApi } from "../../shared-module/common/bindings"
+import basePath from "../../shared-module/common/utils/base-path"
 
 export default (
   req: NextApiRequest,

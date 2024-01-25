@@ -2,10 +2,10 @@ import { useQuery } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
 import { fetchFeedbackCount } from "../../../../../../services/backend/feedback"
-import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
-import Pagination from "../../../../../../shared-module/components/Pagination"
-import Spinner from "../../../../../../shared-module/components/Spinner"
-import usePaginationInfo from "../../../../../../shared-module/hooks/usePaginationInfo"
+import ErrorBanner from "../../../../../../shared-module/common/components/ErrorBanner"
+import Pagination from "../../../../../../shared-module/common/components/Pagination"
+import Spinner from "../../../../../../shared-module/common/components/Spinner"
+import usePaginationInfo from "../../../../../../shared-module/common/hooks/usePaginationInfo"
 
 import FeedbackPage from "./FeedbackPage"
 
@@ -25,7 +25,7 @@ const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read
   })
 
   if (getFeedbackCount.isError) {
-    return <ErrorBanner variant={"readOnly"} error={getFeedbackCount.error} />
+    return <ErrorBanner error={getFeedbackCount.error} />
   }
 
   if (getFeedbackCount.isPending) {

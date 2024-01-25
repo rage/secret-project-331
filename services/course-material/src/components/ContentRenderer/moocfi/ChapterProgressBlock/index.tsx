@@ -3,10 +3,10 @@ import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../.."
 import PageContext from "../../../../contexts/PageContext"
-import GenericInfobox from "../../../../shared-module/components/GenericInfobox"
-import Spinner from "../../../../shared-module/components/Spinner"
-import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
+import GenericInfobox from "../../../../shared-module/common/components/GenericInfobox"
+import Spinner from "../../../../shared-module/common/components/Spinner"
+import LoginStateContext from "../../../../shared-module/common/contexts/LoginStateContext"
+import withErrorBoundary from "../../../../shared-module/common/utils/withErrorBoundary"
 
 import ChapterProgress from "./ChapterProgress"
 

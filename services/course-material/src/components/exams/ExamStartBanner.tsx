@@ -2,9 +2,9 @@ import { css } from "@emotion/css"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { ExamEnrollmentData } from "../../shared-module/bindings"
-import Button from "../../shared-module/components/Button"
-import { baseTheme } from "../../shared-module/styles"
+import { ExamEnrollmentData } from "../../shared-module/common/bindings"
+import Button from "../../shared-module/common/components/Button"
+import { baseTheme } from "../../shared-module/common/styles"
 
 export interface ExamInstructionsProps {
   onStart: () => Promise<void>

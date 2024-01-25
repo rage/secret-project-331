@@ -6,9 +6,9 @@ import {
   deleteExerciseRepository,
   getExerciseRepositories,
 } from "../../../../../../services/backend/exercise-repositories"
-import Button from "../../../../../../shared-module/components/Button"
-import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
-import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
+import Button from "../../../../../../shared-module/common/components/Button"
+import ErrorBanner from "../../../../../../shared-module/common/components/ErrorBanner"
+import useToastMutation from "../../../../../../shared-module/common/hooks/useToastMutation"
 
 import AddExerciseRepositoryForm from "./AddExerciseRepositoryForm"
 import EditExerciseRepositoryForm from "./EditExerciseRepositoryForm"
@@ -52,7 +52,7 @@ const ExerciseRepositories: React.FC<Props> = ({ courseId, examId }) => {
   if (exerciseRepositories.isPending) {
     return <div>{t("loading-text")}</div>
   } else if (exerciseRepositories.isError) {
-    return <ErrorBanner error={exerciseRepositories.error} variant={"readOnly"} />
+    return <ErrorBanner error={exerciseRepositories.error} />
   }
 
   return (

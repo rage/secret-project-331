@@ -2,10 +2,10 @@ import { useQuery } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
 import { fetchEditProposalCount } from "../../../../../../services/backend/proposedEdits"
-import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
-import Pagination from "../../../../../../shared-module/components/Pagination"
-import Spinner from "../../../../../../shared-module/components/Spinner"
-import usePaginationInfo from "../../../../../../shared-module/hooks/usePaginationInfo"
+import ErrorBanner from "../../../../../../shared-module/common/components/ErrorBanner"
+import Pagination from "../../../../../../shared-module/common/components/Pagination"
+import Spinner from "../../../../../../shared-module/common/components/Spinner"
+import usePaginationInfo from "../../../../../../shared-module/common/hooks/usePaginationInfo"
 
 import EditProposalPage from "./EditProposalPage"
 
@@ -29,7 +29,7 @@ const EditProposalList: React.FC<React.PropsWithChildren<Props>> = ({
   })
 
   if (getEditProposalCount.isError) {
-    return <ErrorBanner variant={"readOnly"} error={getEditProposalCount.error} />
+    return <ErrorBanner error={getEditProposalCount.error} />
   }
 
   if (getEditProposalCount.isPending) {

@@ -3,7 +3,7 @@ import _ from "lodash"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import Button from "../shared-module/components/Button"
+import Button from "../shared-module/common/components/Button"
 import { ExerciseFile, IframeState, PublicSpec } from "../util/stateInterfaces"
 
 interface Props {

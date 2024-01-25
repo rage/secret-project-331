@@ -12,21 +12,21 @@ import {
   fetchAllRegradings,
   fetchRegradingsCount,
 } from "../../../services/backend/regradings"
-import { NewRegrading, UserPointsUpdateStrategy } from "../../../shared-module/bindings"
-import Button from "../../../shared-module/components/Button"
-import DebugModal from "../../../shared-module/components/DebugModal"
-import Dialog from "../../../shared-module/components/Dialog"
-import ErrorBanner from "../../../shared-module/components/ErrorBanner"
-import SelectField from "../../../shared-module/components/InputFields/SelectField"
-import TextAreaField from "../../../shared-module/components/InputFields/TextAreaField"
-import Pagination from "../../../shared-module/components/Pagination"
-import Spinner from "../../../shared-module/components/Spinner"
-import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
-import usePaginationInfo from "../../../shared-module/hooks/usePaginationInfo"
-import useToastMutation from "../../../shared-module/hooks/useToastMutation"
-import { respondToOrLarger } from "../../../shared-module/styles/respond"
-import { isUuid } from "../../../shared-module/utils/fetching"
-import { dateToString } from "../../../shared-module/utils/time"
+import { NewRegrading, UserPointsUpdateStrategy } from "../../../shared-module/common/bindings"
+import Button from "../../../shared-module/common/components/Button"
+import DebugModal from "../../../shared-module/common/components/DebugModal"
+import Dialog from "../../../shared-module/common/components/Dialog"
+import ErrorBanner from "../../../shared-module/common/components/ErrorBanner"
+import SelectField from "../../../shared-module/common/components/InputFields/SelectField"
+import TextAreaField from "../../../shared-module/common/components/InputFields/TextAreaField"
+import Pagination from "../../../shared-module/common/components/Pagination"
+import Spinner from "../../../shared-module/common/components/Spinner"
+import { withSignedIn } from "../../../shared-module/common/contexts/LoginStateContext"
+import usePaginationInfo from "../../../shared-module/common/hooks/usePaginationInfo"
+import useToastMutation from "../../../shared-module/common/hooks/useToastMutation"
+import { respondToOrLarger } from "../../../shared-module/common/styles/respond"
+import { isUuid } from "../../../shared-module/common/utils/fetching"
+import { dateToString } from "../../../shared-module/common/utils/time"
 
 interface Fields {
   exerciseTaskSubmissionIds: string
@@ -74,7 +74,7 @@ const RegradingsPage: React.FC = () => {
   )
 
   if (regradingsQuery.isError) {
-    return <ErrorBanner variant="readOnly" error={regradingsQuery.error} />
+    return <ErrorBanner error={regradingsQuery.error} />
   }
 
   if (regradingsQuery.isPending) {

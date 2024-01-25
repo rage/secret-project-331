@@ -6,7 +6,7 @@ source "$(dirname "$0")/.common"
 
 
 BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
-FOLDER_PATH="$BASEDIR/../shared-module-v2"
+FOLDER_PATH="$BASEDIR/../shared-module"
 RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
 
 cd "$RELATIVE_PATH"

@@ -8,14 +8,14 @@ import { promisify } from "util"
 const exec = promisify(execOriginal)
 
 const ALL_SERVICES_TARGETS = [
-  "services/cms/src/shared-module-v2",
-  "services/course-material/src/shared-module-v2",
-  "services/example-exercise/src/shared-module-v2",
-  "services/headless-lms/shared-module-v2",
-  "services/main-frontend/src/shared-module-v2",
-  "services/quizzes/src/shared-module-v2",
-  "services/tmc/src/shared-module-v2",
-  "system-tests/src/shared-module-v2",
+  "services/cms/src/shared-module",
+  "services/course-material/src/shared-module",
+  "services/example-exercise/src/shared-module",
+  "services/headless-lms/shared-module",
+  "services/main-frontend/src/shared-module",
+  "services/quizzes/src/shared-module",
+  "services/tmc/src/shared-module",
+  "system-tests/src/shared-module",
   "storybook/src/shared-module",
 ]
 
@@ -58,11 +58,11 @@ async function runSync(restarted: boolean) {
   if (restarted) {
     console.log(
       "Restarted syncing at " +
-      new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
-        .toISOString()
-        .replace("T", " ")
-        .replace("Z", "")
-        .split(".")[0],
+        new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+          .toISOString()
+          .replace("T", " ")
+          .replace("Z", "")
+          .split(".")[0],
     )
   }
   await syncEverything()

@@ -4,11 +4,11 @@ import { useTranslation } from "react-i18next"
 
 import { UserItemAnswerMultiplechoiceDropdown } from "../../../../../types/quizTypes/answer"
 import { PublicSpecQuizItemMultiplechoiceDropdown } from "../../../../../types/quizTypes/publicSpec"
+import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import { quizTheme } from "../../../../styles/QuizStyles"
 
 import { QuizItemComponentProps } from "."
-import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 
 const SelectInputIcon = () => {
   return (

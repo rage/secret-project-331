@@ -18,7 +18,6 @@ import {
   CourseMaterialExercise,
   StudentExerciseSlideSubmission,
 } from "../../../../shared-module/bindings"
-import Button from "../../../../shared-module/components/Button"
 import BreakFromCentered from "../../../../shared-module/components/Centering/BreakFromCentered"
 import Centered from "../../../../shared-module/components/Centering/Centered"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
@@ -611,42 +610,46 @@ const ExerciseBlock: React.FC<
                         <div>{t("exam-submission-has-been-saved-help-text")}</div>
                       </div>
                     )}
-                    <div className={css`
-                      display: flex;
-                      justify-content: center;
-                      column-gap: 0.625rem;
-                      button {
-                        margin: 0 !important;
-                      }
-                    `}>
-                    {!ranOutOfTries && (
-                      <button
-                        className={cx(optionButton)}
-                        onClick={() => {
-                          tryAgainMutation.mutate()
-                        }}
-                        disabled={
-                          getCourseMaterialExercise.isRefetching ||
-                          !getCourseMaterialExercise.data.can_post_submission ||
-                          tryAgainMutation.isPending
+                    <div
+                      className={css`
+                        display: flex;
+                        justify-content: center;
+                        column-gap: 0.625rem;
+                        button {
+                          margin: 0 !important;
                         }
-                      >
-                        {t("try-again")}
-                      </button>
-                    )}
-                    {needsPeerReview && (
-                      <button
-                      className={cx(optionButton)}
-                        disabled={!needsPeerReview || !allowStartPeerReview}
-                        onClick={async () => {
-                          setAllowStartPeerReview(false)
-                          await postStartPeerReview(id).finally(() => setAllowStartPeerReview(true))
-                          await getCourseMaterialExercise.refetch()
-                        }}
-                      >
-                        {t("start-peer-review")}
-                      </button>
-                    )}
+                      `}
+                    >
+                      {!ranOutOfTries && (
+                        <button
+                          className={cx(optionButton)}
+                          onClick={() => {
+                            tryAgainMutation.mutate()
+                          }}
+                          disabled={
+                            getCourseMaterialExercise.isRefetching ||
+                            !getCourseMaterialExercise.data.can_post_submission ||
+                            tryAgainMutation.isPending
+                          }
+                        >
+                          {t("try-again")}
+                        </button>
+                      )}
+                      {needsPeerReview && (
+                        <button
+                          className={cx(optionButton)}
+                          disabled={!needsPeerReview || !allowStartPeerReview}
+                          onClick={async () => {
+                            setAllowStartPeerReview(false)
+                            await postStartPeerReview(id).finally(() =>
+                              setAllowStartPeerReview(true),
+                            )
+                            await getCourseMaterialExercise.refetch()
+                          }}
+                        >
+                          {t("start-peer-review")}
+                        </button>
+                      )}
                     </div>
                   </div>
                 )}

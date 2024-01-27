@@ -30,6 +30,9 @@ const MultipleChoiceClickableFeedback: React.FC<
         className={css`
           display: flex;
           color: #4c5868;
+          font-size: 1.25rem;
+          margin-bottom: 0.25rem;
+          font-weight: 500;
         `}
       >
         {public_quiz_item.title || public_quiz_item.body}
@@ -64,7 +67,7 @@ const MultipleChoiceClickableFeedback: React.FC<
                 color: #4c5868;
 
                 display: flex;
-                margin: 0.5rem;
+                margin: 0.5rem 1rem 0.5rem 0;
                 flex-grow: 1;
                 background-color: ${backgroundColor};
                 border: ${optionSelected ? `2px solid #d8d8d8` : "none"};

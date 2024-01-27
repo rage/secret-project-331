@@ -70,7 +70,8 @@ const Scale: React.FC<QuizItemComponentProps<PublicSpecQuizItemScale, UserItemAn
         className={css`
           display: flex;
           flex-wrap: wrap;
-          gap: 1rem;
+          row-gap: 1rem;
+          column-gap: 0;
           list-style: none;
           padding: 0;
         `}

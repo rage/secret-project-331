@@ -128,6 +128,7 @@ const Essay: React.FunctionComponent<
             color: #4c5868;
             font-family: ${headingFont};
             font-weight: 500;
+            margin-bottom: 0.25rem;
           `}
         >
           {t("word-count")}:
@@ -135,7 +136,7 @@ const Essay: React.FunctionComponent<
         <div
           className={css`
             display: flex;
-            column-gap: 0.938rem;
+            column-gap: 0.625rem;
           `}
         >
           <div
@@ -143,6 +144,7 @@ const Essay: React.FunctionComponent<
               display: flex;
               color: #4c5868;
               font-size: 1.125rem;
+              line-height: 140%;
               font-weight: 700;
             `}
           >
@@ -155,9 +157,9 @@ const Essay: React.FunctionComponent<
 
               span {
                 background: #f4f5f7;
-                border-radius: 1.25rem;
-                margin-right: 0.625rem;
-                padding: 0.15rem 0.6rem;
+                border-radius: 0.25rem;
+                margin-right: 0.375rem;
+                padding: 0.05rem 0.4rem;
               }
 
               strong {

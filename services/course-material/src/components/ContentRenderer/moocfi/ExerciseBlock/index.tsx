@@ -101,8 +101,11 @@ export const optionButton = css`
 const DeadlineText = styled.div<DeadlineProps>`
   display: flex;
   justify-content: center;
-  font-size: clamp(10px, 2.5vw, 16px);
+  font-size: 1rem;
   padding: 1rem;
+  border-radius: 0.25rem;
+  margin-bottom: 0.625rem;
+  line-height: 140%;
   background: ${(DeadlineProps) =>
     DeadlineProps.closingSoon ? baseTheme.colors.red["100"] : baseTheme.colors.clear["300"]};
   color: ${(DeadlineProps) =>
@@ -333,6 +336,7 @@ const ExerciseBlock: React.FC<
                       font-weight: 500;
                       font-size: 18px;
                       line-height: 19px;
+                      margin-bottom: 0.25rem;
                       color: #1b222c;
                     `}
                   >
@@ -607,10 +611,17 @@ const ExerciseBlock: React.FC<
                         <div>{t("exam-submission-has-been-saved-help-text")}</div>
                       </div>
                     )}
+                    <div className={css`
+                      display: flex;
+                      justify-content: center;
+                      column-gap: 0.625rem;
+                      button {
+                        margin: 0 !important;
+                      }
+                    `}>
                     {!ranOutOfTries && (
-                      <Button
-                        variant="primary"
-                        size="medium"
+                      <button
+                        className={cx(optionButton)}
                         onClick={() => {
                           tryAgainMutation.mutate()
                         }}
@@ -621,12 +632,11 @@ const ExerciseBlock: React.FC<
                         }
                       >
                         {t("try-again")}
-                      </Button>
+                      </button>
                     )}
                     {needsPeerReview && (
-                      <Button
-                        variant="primary"
-                        size="medium"
+                      <button
+                      className={cx(optionButton)}
                         disabled={!needsPeerReview || !allowStartPeerReview}
                         onClick={async () => {
                           setAllowStartPeerReview(false)
@@ -635,8 +645,9 @@ const ExerciseBlock: React.FC<
                         }}
                       >
                         {t("start-peer-review")}
-                      </Button>
+                      </button>
                     )}
+                    </div>
                   </div>
                 )}
               {postSubmissionMutation.isError && (

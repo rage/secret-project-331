@@ -8,6 +8,7 @@ import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary
 import { quizTheme } from "../../../../styles/QuizStyles"
 
 import { QuizItemComponentProps } from "."
+import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 
 const SelectInputIcon = () => {
   return (
@@ -104,10 +105,14 @@ const MultipleChoiceDropdown: React.FunctionComponent<
       <div
         className={css`
           display: flex;
-          width: 40%;
+          width: 80%;
           align-items: center;
           margin-bottom: 0.5rem;
           position: relative;
+
+          ${respondToOrLarger.sm} {
+            width: 40%;
+          }
 
           .select-arrow {
             position: absolute;
@@ -126,7 +131,7 @@ const MultipleChoiceDropdown: React.FunctionComponent<
             width: 100%;
             border-radius: 0.25rem;
             border: none;
-            padding: 0.5rem 0.625rem;
+            padding: 0.5rem 2rem 0.5rem 0.625rem;
             font-size: 1.125rem;
             cursor: pointer;
             border: 0.188rem solid #dfe1e6;
@@ -137,6 +142,9 @@ const MultipleChoiceDropdown: React.FunctionComponent<
             color: #4c5868;
             appearance: none;
             background: transparent;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
 
             :hover {
               background: #f9f9f9;

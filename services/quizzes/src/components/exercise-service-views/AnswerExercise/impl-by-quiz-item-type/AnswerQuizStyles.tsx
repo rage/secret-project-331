@@ -25,7 +25,6 @@ export const TWO_DIMENSIONAL_BUTTON_STYLES = `
   user-select: none;
   -webkit-user-select: none;
   touch-action: manipulation;
-  white-space: nowrap;
   will-change: box-shadow;
   font-size: 1.125rem;
   margin-bottom: 0.625rem;

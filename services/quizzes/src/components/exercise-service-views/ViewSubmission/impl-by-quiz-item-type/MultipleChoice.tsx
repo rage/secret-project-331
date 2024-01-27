@@ -23,7 +23,7 @@ const gradingOption = css`
   flex: 1;
   flex-wrap: wrap;
   justify-content: space-between;
-  margin: 0.3rem;
+  margin: 0.3rem 0;
   padding: 0 1rem;
   border-radius: 0.375rem;
   font-size: 1.125rem;
@@ -78,7 +78,7 @@ const MultipleChoiceSubmission: React.FC<
   return (
     <div
       className={css`
-        margin: 0.5rem;
+        margin: 0.5rem 0;
       `}
     >
       <div
@@ -236,12 +236,12 @@ const RowSubmissionFeedback: React.FC<React.PropsWithChildren<RowSubmissionFeedb
   return feedback ? (
     <div
       className={css`
-        margin: 0 0.5rem 1rem;
+        margin: 0 0.5rem 1rem 0;
         display: flex;
         color: #4c5868;
         border-left: ${correct
           ? `0.375rem solid ${quizTheme.gradingCorrectItemBorderColor}`
-          : `0.375rem solid ${quizTheme.gradingWrongItemBackground}`};
+          : `0.375rem solid #ebcbcd`};
         box-sizing: border-box;
         background: ${quizTheme.feedbackBackground};
         padding: 0.5rem 0px 0.5rem 0.5rem;

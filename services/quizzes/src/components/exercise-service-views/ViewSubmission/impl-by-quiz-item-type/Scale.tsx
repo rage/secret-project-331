@@ -53,7 +53,7 @@ const Scale: React.FC<
         className={css`
           display: flex;
           flex-wrap: wrap;
-          gap: 1rem;
+          row-gap: 1rem;
           justify-content: space-between;
           list-style: none;
           padding: 0;

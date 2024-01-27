@@ -112,9 +112,13 @@ const MultipleChoiceDropdownFeedback: React.FC<
         <div
           className={css`
             display: flex;
-            width: 30%;
+            width: 80%;
             align-items: center;
             position: relative;
+
+            ${respondToOrLarger.sm} {
+              width: 40%;
+            }
 
             .select-arrow {
               position: absolute;
@@ -133,7 +137,7 @@ const MultipleChoiceDropdownFeedback: React.FC<
               width: 100%;
               border-radius: 0.25rem;
               border: none;
-              padding: 0.5rem 0.625rem;
+              padding: 0.5rem 2rem 0.5rem 0.625rem;
               font-size: 18px;
               cursor: pointer;
               border: 0.188rem solid
@@ -146,6 +150,9 @@ const MultipleChoiceDropdownFeedback: React.FC<
               align-items: center;
               color: #7e8894;
               appearance: none;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
 
               background: ${correct
                 ? quizTheme.gradingCorrectItemBackground
@@ -176,8 +183,7 @@ const MultipleChoiceDropdownFeedback: React.FC<
       {correctOption && (
         <div
           className={css`
-            margin: 0.5rem;
-            margin-bottom: -1rem;
+            margin: 0.5rem 0.5rem 0.5rem 0;
             color: #57606f;
           `}
         >
@@ -232,11 +238,11 @@ const SubmissionFeedbackMessage: React.FC<
     return feedBackForOption ? (
       <div
         className={css`
-          margin: 0 0.5rem 1rem;
+          margin: 0.5rem 0.5rem 1rem 0;
           display: flex;
           border-left: ${correctAnswer
             ? `6px solid ${quizTheme.gradingCorrectItemBackground}`
-            : `6px solid ${quizTheme.gradingWrongItemBackground}`};
+            : `6px solid #ebcbcd`};
           box-sizing: border-box;
           background: ${quizTheme.feedbackBackground};
           padding: 0.5rem 0px 0.5rem 0.5rem;

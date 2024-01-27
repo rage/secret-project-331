@@ -95,7 +95,6 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
         <div
           className={css`
             margin: 1rem 0;
-            margin-top: -1rem;
             background: white;
             font-weight: 400;
             color: ${baseTheme.colors.gray[500]};

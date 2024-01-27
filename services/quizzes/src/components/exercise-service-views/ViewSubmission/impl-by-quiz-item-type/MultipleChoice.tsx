@@ -239,6 +239,7 @@ const RowSubmissionFeedback: React.FC<React.PropsWithChildren<RowSubmissionFeedb
         margin: 0 0.5rem 1rem 0;
         display: flex;
         color: #4c5868;
+        font-size: 1.125rem;
         border-left: ${correct
           ? `0.375rem solid ${quizTheme.gradingCorrectItemBorderColor}`
           : `0.375rem solid #ebcbcd`};

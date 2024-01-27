@@ -184,6 +184,7 @@ const MultipleChoiceDropdownFeedback: React.FC<
         <div
           className={css`
             margin: 0.5rem 0.5rem 0.5rem 0;
+            font-size: 1.125rem;
             color: #57606f;
           `}
         >
@@ -240,6 +241,8 @@ const SubmissionFeedbackMessage: React.FC<
         className={css`
           margin: 0.5rem 0.5rem 1rem 0;
           display: flex;
+          font-size: 1.125rem;
+          color: #3c4551;
           border-left: ${correctAnswer
             ? `6px solid ${quizTheme.gradingCorrectItemBackground}`
             : `6px solid #ebcbcd`};

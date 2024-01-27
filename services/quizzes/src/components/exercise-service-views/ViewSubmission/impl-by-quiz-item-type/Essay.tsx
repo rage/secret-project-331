@@ -31,6 +31,7 @@ const EssayFeedback: React.FC<
             display: flex;
             font-family: Raleway, sans-serif;
             color: #676e7b;
+            font-size: 1.125rem;
             font-weight: 500;
             white-space: pre-wrap;
           `}
@@ -43,7 +44,8 @@ const EssayFeedback: React.FC<
           display: flex;
           white-space: pre-wrap;
           font-family: Raleway, sans-serif;
-          font-weight: 500;
+          font-weight: 600;
+          font-size: 1.125rem;
           color: #4c5868;
           margin: 1rem 0;
         `}

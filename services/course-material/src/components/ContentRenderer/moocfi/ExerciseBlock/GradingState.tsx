@@ -29,7 +29,7 @@ const GradingState: React.FC<React.PropsWithChildren<GradingStateProps>> = ({
         background-color: ${baseTheme.colors.yellow[200]};
         color: #493f13;
         margin: 1rem 0;
-        font-size: 1rem;
+        font-size: 1.125rem;
         line-height: 140%;
         text-align: center;
         border-radius: 0.25rem;

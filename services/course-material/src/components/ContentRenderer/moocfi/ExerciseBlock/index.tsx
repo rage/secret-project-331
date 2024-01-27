@@ -100,7 +100,7 @@ export const optionButton = css`
 const DeadlineText = styled.div<DeadlineProps>`
   display: flex;
   justify-content: center;
-  font-size: 1rem;
+  font-size: 1.125rem;
   padding: 1rem;
   border-radius: 0.25rem;
   margin-bottom: 0.625rem;

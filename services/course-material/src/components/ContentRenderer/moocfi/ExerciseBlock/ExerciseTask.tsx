@@ -55,12 +55,13 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
             p {
               margin-top: 0 !important;
               opacity: 0.9;
-              font-size: 16px;
+              font-size: 1.125;
               font-weight: 500;
             }
 
             span {
-              font-size: 16px;
+              font-size: 1.25rem;
+              line-height: 140%;
               font-weight: 600;
             }
           `}

@@ -54,7 +54,7 @@ const Scale: React.FC<
           display: flex;
           flex-wrap: wrap;
           row-gap: 1rem;
-          justify-content: space-between;
+          column-gap: 0;
           list-style: none;
           padding: 0;
         `}

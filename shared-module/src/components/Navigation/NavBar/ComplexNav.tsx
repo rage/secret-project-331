@@ -228,8 +228,8 @@ const Navigation: React.FC<
   return (
     <nav role="navigation" className={cx(navbarItems)}>
       <div className={cx(navbarLogo)}>
-        <a href="/" aria-label={t("home-page")} role="button">
-          <MOOCfi aria-label={t("home-page")} />
+        <a href="/" aria-label={t("home-page")}>
+          <MOOCfi />
         </a>
       </div>
       <div

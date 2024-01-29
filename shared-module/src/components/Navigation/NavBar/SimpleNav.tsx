@@ -69,7 +69,7 @@ const Navigation: React.FC<React.PropsWithChildren<React.PropsWithChildren<Navig
           aria-label={t("home-page")}
           role="button"
         >
-          <MOOCfi className={cx(StyledIcon)} aria-label={t("home-page")} />
+          <MOOCfi className={cx(StyledIcon)} />
         </a>
       </div>
       {children}

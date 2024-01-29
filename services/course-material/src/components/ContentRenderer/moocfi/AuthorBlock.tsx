@@ -52,7 +52,7 @@ const Wrapper = styled.div`
 
   p {
     margin: 0;
-    font-size: 16px;
+    font-size: 1.125rem;
     font-weight: 400;
     color: ${baseTheme.colors.gray[600]};
   }

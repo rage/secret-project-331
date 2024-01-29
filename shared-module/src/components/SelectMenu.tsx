@@ -22,6 +22,18 @@ const DEFAULT_VALUE_KEY = "default-value"
 
 export type SelectMenuProps = React.HTMLAttributes<HTMLInputElement> & SelectMenuExtraProps
 
+const SelectIcon = () => {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" role="presentation">
+      <path
+        d="M8.292 10.293a1.009 1.009 0 000 1.419l2.939 2.965c.218.215.5.322.779.322s.556-.107.769-.322l2.93-2.955a1.01 1.01 0 000-1.419.987.987 0 00-1.406 0l-2.298 2.317-2.307-2.327a.99.99 0 00-1.406 0z"
+        fill="#57606f"
+        fillRule="evenodd"
+      ></path>
+    </svg>
+  )
+}
+
 const SelectMenu = ({
   id,
   label,
@@ -38,50 +50,48 @@ const SelectMenu = ({
         css`
           margin-bottom: 1rem;
 
-          select {
-            appearance: none;
-            background-color: transparent;
-            border: none;
-            padding: 10px 10px;
-            margin: 0;
-            width: 100%;
-            font-family: inherit;
-            font-size: inherit;
-            cursor: inherit;
-            line-height: inherit;
-            z-index: 1;
-            outline: none;
-            padding-right: 40px;
-          }
-
-          select,
-          .select:after {
-            grid-area: select;
-          }
-
-          .select {
-            width: 100%;
-            border: 1px solid #e0e0e0;
-            font-size: 1rem;
-            cursor: pointer;
-            line-height: 1.1;
+          :hover {
             background: #f9f9f9;
+          }
+
+          select {
             display: grid;
+            width: 100%;
+            border-radius: 4px;
+            border: none;
+            padding: 8px 10px;
+            font-size: 18px;
+            cursor: pointer;
+            border: 3px solid #dfe1e6;
+            background: none;
+            min-height: 40px;
             grid-template-areas: "select";
             align-items: center;
+            color: #4c5868;
+            appearance: none;
+            background: transparent;
+
+            :hover {
+              background: #f9f9f9;
+            }
           }
 
-          .select::after {
-            content: "";
-            justify-self: end;
-            align-self: center;
-            width: 0.8em;
-            margin-right: 10px;
-            height: 0.8em;
-            line-height: 0;
-            background-color: #333;
-            clip-path: polygon(52% 80%, 0 20%, 100% 20%);
+          .select-wrapper {
+            display: flex;
+            width: 100%;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            position: relative;
+
+            .select-arrow {
+              position: absolute;
+              top: 50%;
+              transform: translateY(-50%);
+              right: 10px;
+              pointer-events: none;
+            }
           }
+
           label {
             color: #333;
             font-size: 14px;
@@ -96,7 +106,7 @@ const SelectMenu = ({
       )}
     >
       {label && <label htmlFor={id}>{label}</label>}
-      <div className="select">
+      <div className="select-wrapper">
         <select
           id={id}
           onChange={onChange}
@@ -112,6 +122,9 @@ const SelectMenu = ({
             </option>
           ))}
         </select>
+        <div className="select-arrow">
+          <SelectIcon />
+        </div>
       </div>
     </div>
   )

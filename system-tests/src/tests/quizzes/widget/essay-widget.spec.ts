@@ -19,9 +19,7 @@ test("widget, essay", async ({ page, headless }, testInfo) => {
 
   await scrollLocatorsParentIframeToViewIfNeeded(frame)
 
-  await frame
-    .locator(`textarea:below(:text("Min words"))`)
-    .fill("I think I enrolled in the wrong course XD")
+  await frame.locator("textarea").fill("I think I enrolled in the wrong course XD")
 
   await expectScreenshotsToMatchSnapshots({
     headless,
@@ -31,13 +29,13 @@ test("widget, essay", async ({ page, headless }, testInfo) => {
     screenshotTarget: frame,
   })
 
-  await frame.locator(`textarea:below(:text("Min words"))`).fill(
+  await frame.locator("textarea").fill(
     `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Laoreet sit amet cursus sit amet dictum sit. Et tortor consequat id porta nibh. Nibh sit amet commodo nulla facilisi nullam vehicula ipsum.
 
   Elit at imperdiet dui accumsan. Sit amet nisl suscipit adipiscing bibendum est ultricies. Mauris rhoncus aenean vel elit. Consequat ac felis donec et odio. Tortor pretium viverra suspendisse potenti nullam ac. Aenean pharetra magna ac placerat vestibulum. `,
   )
 
-  await frame.locator(`text=Word count`).waitFor()
+  await frame.locator(`text=79`).waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     headless,
@@ -45,7 +43,7 @@ test("widget, essay", async ({ page, headless }, testInfo) => {
     snapshotName: "widget-essay-long-answer",
     waitForTheseToBeVisibleAndStable: [
       frame.locator(`text="Of the lamps of Fëanor"`),
-      frame.locator(`text=Word count: 79`),
+      frame.locator(`text=79`),
     ],
     screenshotTarget: frame,
   })

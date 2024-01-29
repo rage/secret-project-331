@@ -36,7 +36,7 @@ test("quizzes essay feedback", async ({ page, headless }, testInfo) => {
 
   await frame.locator("text=write an essay").waitFor()
 
-  await frame.locator(`textarea:below(:text("Min words"))`)
+  await frame.locator("textarea")
     .fill(`Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin quis orci nec augue bibendum lobortis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Sed venenatis, purus in venenatis rutrum, turpis velit fermentum libero, eu eleifend elit purus id arcu. Sed sodales velit id mauris auctor, at tempor urna maximus. Aenean vulputate pellentesque mollis. In lacinia malesuada orci, ac tincidunt metus tempor ac. Morbi porta posuere nisi, in fringilla lacus ultricies pulvinar.
 
   Suspendisse vitae feugiat est. Nulla ex tortor, feugiat et ipsum vel, dapibus congue quam. Ut justo augue, dignissim id diam vel, tincidunt bibendum libero. Nam dignissim nibh in purus finibus porta. Aliquam egestas risus non vulputate egestas. Nam vel posuere neque. Nunc ut commodo orci, et rutrum risus. Pellentesque eleifend consequat ultricies. Integer nulla massa, pharetra non augue sit amet, pulvinar finibus orci. Suspendisse gravida sagittis lacinia.

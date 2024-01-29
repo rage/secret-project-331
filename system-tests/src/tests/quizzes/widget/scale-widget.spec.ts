@@ -25,11 +25,11 @@ test("widget, scale", async ({ page, headless }, testInfo) => {
     screenshotTarget: iframeLocator,
   })
 
-  await iframeLocator.locator('input[type="radio"]').first().click()
+  await iframeLocator.locator('text=1234 >> span:has-text("1")').first().click()
 
-  await iframeLocator.locator('text=1234567 >> input[type="radio"]').first().click()
+  await iframeLocator.locator('text=1234567 >> span:has-text("1")').first().click()
 
-  await iframeLocator.locator('text=123456789101112131415 >> input[type="radio"]').first().click()
+  await iframeLocator.locator('text=123456789101112131415 >> span:has-text("1")').first().click()
 
   await expectScreenshotsToMatchSnapshots({
     headless,
@@ -46,10 +46,10 @@ test("widget, scale", async ({ page, headless }, testInfo) => {
   // No idea how to fix.
 
   // Change second item to 4
-  await iframeLocator.locator("div:nth-child(2) div:nth-child(5) input").first().click()
+  await iframeLocator.locator("div:nth-child(2) div:nth-child(5) span").first().click()
 
   // Change third item to 15
-  await iframeLocator.locator("div:nth-child(3) div:nth-child(15) input").first().click()
+  await iframeLocator.locator("div:nth-child(3) div:nth-child(15) span").first().click()
 
   await expectScreenshotsToMatchSnapshots({
     headless,

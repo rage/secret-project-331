@@ -223,7 +223,7 @@ const ExerciseTaskEditor: React.FC<
                     exerciseTaskId={attributes.id}
                     onPrivateSpecChange={(x) => setAttributes({ private_spec: x })}
                     privateSpec={privateSpecToPostToIframe}
-                    url={`${url}?width=${narrowContainerWidthPx}`}
+                    url={url}
                   />
                 )}
               </ExerciseTaskEditorCard>

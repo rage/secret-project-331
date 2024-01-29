@@ -19,28 +19,15 @@ const TimelineWrapper = styled.section`
     box-sizing: border-box;
   }
 
+  flex: 1;
   position: relative;
   width: 100%;
-  max-width: 1140px;
+  max-width: 71.25rem;
   margin: 0 auto;
-  padding: 15px 0;
-
-  &::after {
-    content: "";
-    position: absolute;
-    width: 2px;
-    background: #e2e4e6;
-    top: 0;
-    bottom: 0;
-    left: 50%;
-    margin-left: -1px;
-    @media (max-width: 767.98px) {
-      left: 80px;
-    }
-  }
+  padding: 0.938rem 0;
 `
 const container = css`
-  padding: 15px 30px;
+  padding: 0.938rem 1.875rem;
   position: relative;
   width: 50%;
 
@@ -49,22 +36,22 @@ const container = css`
     display: inline-block;
     top: calc(50% - 15px);
     text-align: center;
-    font-size: 14px;
-    font-weight: bold;
-    color: #006e51;
-    text-transform: uppercase;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #4c5868;
+    font-family: ${headingFont};
     letter-spacing: 1;
     z-index: 1;
   }
 
   .content {
-    padding: 30px 30px 30px 30px;
+    padding: 1.875rem;
     position: relative;
   }
 
   @media (max-width: 767.98px) {
     width: 100%;
-    padding-left: 120px;
+    padding-left: 7.5rem;
     padding-right: 0px;
   }
 `
@@ -72,22 +59,22 @@ const left = css`
   left: 0;
 
   .date {
-    right: -75px;
+    right: -4.688rem;
     @media (max-width: 767.98px) {
       right: auto;
-      left: 15px;
+      left: 0.938rem;
     }
   }
 
   &::after {
     @media (max-width: 767.98px) {
-      left: 65px;
+      left: 4.063rem;
     }
   }
 
   .content {
     @media (max-width: 767.98px) {
-      padding: 30px 0px 30px 0px;
+      padding: 1.875rem 0 1.875rem 0.625rem;
     }
   }
 `
@@ -99,24 +86,24 @@ const right = css`
   }
 
   .date {
-    left: -75px;
+    left: -4.688rem;
     @media (max-width: 767.98px) {
       right: auto;
-      left: 15px;
+      left: 0.938rem;
     }
   }
 
   .content {
-    padding: 30px 30px 30px 30px;
+    padding: 1.875rem;
     @media (max-width: 767.98px) {
-      padding: 30px 0px 30px 0px;
+      padding: 1.875rem 0 1.875rem 0.625rem;
     }
   }
 
   &::after {
-    left: -15px;
+    left: -0.938rem;
     @media (max-width: 767.98px) {
-      left: 65px;
+      left: 4.063rem;
     }
   }
 `
@@ -173,16 +160,44 @@ const Timeline: React.FunctionComponent<
                 &::after {
                   content: "";
                   position: absolute;
-                  width: 30px;
-                  height: 30px;
+                  width: 3rem;
+                  height: 2.5rem;
                   top: calc(50% - 20px);
-                  right: -15px;
-                  background: ${whatWasChosenWasCorrect ? "#32BEA6" : baseTheme.colors.clear[200]};
-                  border: ${whatWasChosenWasCorrect ? "4px solid #EBEDEE" : "2px solid #767B85"};
-                  border-style: solid;
-                  border-radius: 16px;
+                  right: -0.938rem;
+                  background: ${selectedTimelineItem ? "#77C299" : "#EBEDEE"};
+                  border: ${selectedTimelineItem ? "none" : "0.125rem solid #898E99"};
+                  border-style: ${selectedTimelineItem ? "none" : "dashed"};
+                  ${selectedTimelineItem &&
+                  `box-shadow:
+                rgba(45, 35, 66, 0) 0 2px 4px,
+                rgba(45, 35, 66, 0) 0 7px 13px -3px,
+                #69AF8A 0 -2px 0 inset;`};
+                  border-radius: 1.563rem;
                   transition: all 200ms linear;
                   z-index: 1;
+                }
+
+                .select-wrapper {
+                  margin-bottom: 0px !important;
+                }
+
+                .content > div {
+                  margin-bottom: 0px !important;
+                }
+
+                &:not(:last-child)::before {
+                  content: "";
+                  position: absolute;
+                  top: 60%;
+                  bottom: 0;
+                  left: 50%;
+                  height: 100%;
+                  border: 0.188rem solid #ebedee;
+                  border-radius: 6.188rem;
+                  margin-left: 0.375rem;
+                  @media (max-width: 767.98px) {
+                    left: 80px;
+                  }
                 }
               `}`}
               key={timelineItem.itemId}
@@ -194,9 +209,7 @@ const Timeline: React.FunctionComponent<
                   <div>
                     <div
                       className={css`
-                        background-color: ${whatWasChosenWasCorrect
-                          ? baseTheme.colors.green[300]
-                          : baseTheme.colors.red[400]};
+                        background-color: ${whatWasChosenWasCorrect ? "#D5EADF" : "#EDD3D6"};
                         border: none;
                         margin: 0;
                         width: 100%;
@@ -215,6 +228,8 @@ const Timeline: React.FunctionComponent<
                       </p>
                       <div
                         className={css`
+                          padding: 0.5rem 1rem;
+                          color: ${whatWasChosenWasCorrect ? "#246F46" : "#D75861"};
                           width: 50px;
                           display: flex;
                           align-items: center;
@@ -243,26 +258,28 @@ const Timeline: React.FunctionComponent<
                     {!whatWasChosenWasCorrect && modelSolutionCorrectEventName && (
                       <div
                         className={css`
-                          background-color: ${baseTheme.colors.clear[200]};
-                          padding-top: 10px;
-                          padding-left: 17px;
-                          padding-right: 17px;
-                          padding-bottom: 10px;
-                          font-size: 13px;
+                          background-color: #f2f2f2;
+                          padding-top: 0.625rem;
+                          padding-left: 1.063rem;
+                          padding-right: 1.063rem;
+                          padding-bottom: 0.625rem;
+                          font-size: 0.813rem;
                         `}
                       >
                         <div
                           className={css`
                             font-family: ${headingFont};
-                            text-transform: uppercase;
                             color: ${baseTheme.colors.clear[100]};
                             background-color: ${baseTheme.colors.green[400]};
                             width: fit-content;
-                            font-size: 12px;
-                            margin-bottom: 0.5rem;
-                            font-weight: 600;
-                            padding: 3px;
+                            margin-bottom: 0.4rem;
                             line-height: 100%;
+
+                            font-size: 0.625rem;
+                            text-transform: uppercase;
+                            font-weight: bold;
+                            padding: 0.2rem 0.375rem 0.25rem 0.375rem;
+                            border-radius: 0.125rem;
 
                             span {
                               position: relative;

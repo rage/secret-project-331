@@ -20,7 +20,7 @@ test("quizzes multiple-choice-dropdown", async ({ page, headless }, testInfo) =>
   await frame.locator("text=Choose the right answer from given options.").waitFor()
 
   await frame
-    .locator(`select:right-of(:text("Choose the right answer from given options."))`)
+    .locator(`select:below(:text("Choose the right answer from given options."))`)
     .selectOption({ label: "The Wright answer" })
 
   await page.locator("text=Submit").click()
@@ -40,7 +40,7 @@ test("quizzes multiple-choice-dropdown", async ({ page, headless }, testInfo) =>
   await frame.locator("text=Choose the right answer from given options.").waitFor()
 
   await frame
-    .locator(`select:right-of(:text("Choose the right answer from given options."))`)
+    .locator(`select:below(:text("Choose the right answer from given options."))`)
     .selectOption({
       label: "The right answer",
     })
@@ -62,7 +62,7 @@ test("quizzes multiple-choice-dropdown", async ({ page, headless }, testInfo) =>
   await frame.locator("text=Choose the right answer from given options.").waitFor()
 
   await frame
-    .locator(`select:right-of(:text("Choose the right answer from given options."))`)
+    .locator(`select:below(:text("Choose the right answer from given options."))`)
     .selectOption({
       label: "The Wright answer",
     })

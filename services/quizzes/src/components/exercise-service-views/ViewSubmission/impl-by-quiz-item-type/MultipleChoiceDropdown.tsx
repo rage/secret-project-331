@@ -15,6 +15,18 @@ import { quizTheme } from "../../../../styles/QuizStyles"
 
 import { QuizItemSubmissionComponentProps } from "."
 
+const SelectIcon = () => {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" role="presentation">
+      <path
+        d="M8.292 10.293a1.009 1.009 0 000 1.419l2.939 2.965c.218.215.5.322.779.322s.556-.107.769-.322l2.93-2.955a1.01 1.01 0 000-1.419.987.987 0 00-1.406 0l-2.298 2.317-2.307-2.327a.99.99 0 00-1.406 0z"
+        fill="#57606f"
+        fillRule="evenodd"
+      ></path>
+    </svg>
+  )
+}
+
 const MultipleChoiceDropdownFeedback: React.FC<
   React.PropsWithChildren<
     QuizItemSubmissionComponentProps<
@@ -31,10 +43,8 @@ const MultipleChoiceDropdownFeedback: React.FC<
   const { t } = useTranslation()
 
   const modelSolution = quiz_item_model_solution as ModelSolutionQuizItemMultiplechoiceDropdown
-  const correct = quiz_item_answer_feedback
-    ? quiz_item_answer_feedback?.score === 1 ??
-      quiz_item_answer_feedback.correctnessCoefficient == 1
-    : false
+  const correct =
+    quiz_item_answer_feedback?.score === 1 || quiz_item_answer_feedback?.correctnessCoefficient == 1
   const selectedOption = public_quiz_item.options.filter(
     (o) => o.id === (user_quiz_item_answer.selectedOptionIds as string[])[0],
   )[0]
@@ -45,10 +55,7 @@ const MultipleChoiceDropdownFeedback: React.FC<
     <div>
       <div
         className={css`
-          display: flex;
-          flex: 1;
-          flex-direction: column;
-          justify-content: space-between;
+          display: grid;
           align-items: center;
           ${respondToOrLarger.sm} {
             flex-direction: row;
@@ -58,22 +65,23 @@ const MultipleChoiceDropdownFeedback: React.FC<
         <div
           className={css`
             flex-direction: column;
-            width: 70%;
+            width: 100%;
           `}
         >
           <div
             className={css`
-              margin: 0.5rem 0;
-              margin-bottom: 0;
+              margin: 0.5rem 0 0 0;
             `}
           >
             {public_quiz_item.title ? (
               <>
                 <h2
                   className={css`
-                    font-family: "Raleway", sans-serif;
-                    font-weight: bold;
                     font-size: ${quizTheme.quizTitleFontSize} !important;
+                    font-weight: 500;
+                    color: #4c5868;
+                    font-family: "Raleway", sans-serif;
+                    margin-bottom: 1rem;
                   `}
                 >
                   {public_quiz_item.title}
@@ -91,7 +99,7 @@ const MultipleChoiceDropdownFeedback: React.FC<
                 <>
                   <h3
                     className={css`
-                      font-size: clamp(18px, 2vw, 20px) !important;
+                      font-size: 1.25rem !important;
                     `}
                   >
                     {public_quiz_item.body}
@@ -104,9 +112,21 @@ const MultipleChoiceDropdownFeedback: React.FC<
         <div
           className={css`
             display: flex;
-            width: 30%;
+            width: 80%;
             align-items: center;
-            margin: 0.5rem 0;
+            position: relative;
+
+            ${respondToOrLarger.sm} {
+              width: 40%;
+            }
+
+            .select-arrow {
+              position: absolute;
+              top: 55%;
+              transform: translateY(-50%);
+              right: 0.625rem;
+              pointer-events: none;
+            }
           `}
         >
           <select
@@ -115,28 +135,31 @@ const MultipleChoiceDropdownFeedback: React.FC<
             className={css`
               display: grid;
               width: 100%;
-              border: 1px solid #e0e0e0;
-              border-radius: 3px;
-              padding: 10px 12px;
+              border-radius: 0.25rem;
+              border: none;
+              padding: 0.5rem 2rem 0.5rem 0.625rem;
               font-size: 18px;
-              cursor: not-allowed;
+              cursor: pointer;
+              border: 0.188rem solid
+                ${correct
+                  ? quizTheme.gradingCorrectItemBorderColor
+                  : quizTheme.gradingWrongItemBorderColor};
+              background: none;
+              min-height: 2.5rem;
+              grid-template-areas: "select";
+              align-items: center;
+              color: #7e8894;
+              appearance: none;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+
               background: ${correct
                 ? quizTheme.gradingCorrectItemBackground
                 : quizTheme.gradingWrongItemBackground};
-              color: white;
-              grid-template-areas: "select";
-              align-items: center;
-              margin-left: 0.5rem;
             `}
           >
-            <option
-              disabled
-              selected={selectedOption.id === null}
-              value=""
-              className={css`
-                display: flex;
-              `}
-            >
+            <option disabled selected={selectedOption.id === null} value="">
               {t("answer")}
             </option>
             {public_quiz_item.options.map((o) => (
@@ -152,31 +175,20 @@ const MultipleChoiceDropdownFeedback: React.FC<
               </option>
             ))}
           </select>
+          <div className="select-arrow">
+            <SelectIcon />
+          </div>
         </div>
       </div>
       {correctOption && (
-        <div>
-          <div
-            className={css`
-              display: flex;
-            `}
-          >
-            <div
-              className={css`
-                width: 70%;
-              `}
-            >
-              &nbsp;
-            </div>
-            <div
-              className={css`
-                margin-left: 0.5rem;
-                margin-bottom: 1rem;
-              `}
-            >
-              {t("correct-option")}: {correctOption?.title || correctOption?.body}
-            </div>
-          </div>
+        <div
+          className={css`
+            margin: 0.5rem 0.5rem 0.5rem 0;
+            font-size: 1.125rem;
+            color: #57606f;
+          `}
+        >
+          {t("correct-option")}: {correctOption?.title || correctOption?.body}
         </div>
       )}
       <SubmissionFeedbackMessage
@@ -227,11 +239,13 @@ const SubmissionFeedbackMessage: React.FC<
     return feedBackForOption ? (
       <div
         className={css`
-          margin: 0 0.5rem 1rem;
+          margin: 0.5rem 0.5rem 1rem 0;
           display: flex;
+          font-size: 1.125rem;
+          color: #3c4551;
           border-left: ${correctAnswer
             ? `6px solid ${quizTheme.gradingCorrectItemBackground}`
-            : `6px solid ${quizTheme.gradingWrongItemBackground}`};
+            : `6px solid #ebcbcd`};
           box-sizing: border-box;
           background: ${quizTheme.feedbackBackground};
           padding: 0.5rem 0px 0.5rem 0.5rem;

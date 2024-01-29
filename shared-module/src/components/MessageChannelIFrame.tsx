@@ -15,7 +15,7 @@ import {
 } from "../exercise-service-protocol-types.guard"
 import useMessageChannel from "../hooks/useMessageChannel"
 
-import BreakFromCentered, { BreakFromCenteredProps } from "./Centering/BreakFromCentered"
+import { BreakFromCenteredProps } from "./Centering/BreakFromCentered"
 
 interface MessageChannelIFrameProps {
   url: string
@@ -35,7 +35,7 @@ const MessageChannelIFrame: React.FC<
   url,
   postThisStateToIFrame,
   onMessageFromIframe,
-  breakFromCenteredProps,
+
   title,
   showBorders = false,
   disableSandbox = false,
@@ -185,34 +185,32 @@ const MessageChannelIFrame: React.FC<
   }
 
   return (
-    // We have to force the iframe to take the full width of the page because the iframe protocol requires it
-    <BreakFromCentered {...(breakFromCenteredProps ?? { sidebar: false })}>
-      <div
-        className={css`
-          border: 0;
-          /*
+    <div
+      className={css`
+        border: 0;
+        /*
           To see the size of the frame in development
           Only top and bottom because frame is 100% of window width.
           */
-          ${showBorders &&
-          `border-top: 1px solid black;
-          border-bottom: 1px solid black;`}
-          margin-bottom: 1rem;
+        ${showBorders && `border: 1px solid black;`}
+        margin-bottom: 1rem;
+        background-color: #fff;
+        padding: 0.8rem 1.25rem;
+        border-radius: 0.625rem;
+      `}
+    >
+      <iframe
+        sandbox={disableSandbox ? undefined : "allow-scripts allow-forms allow-downloads"}
+        className={css`
+          overflow: hidden;
+          width: 100%;
+          border: 0;
         `}
-      >
-        <iframe
-          sandbox={disableSandbox ? undefined : "allow-scripts allow-forms allow-downloads"}
-          className={css`
-            overflow: hidden;
-            width: 100%;
-            border: 0;
-          `}
-          title={title}
-          ref={iframeRef}
-          src={url}
-        />
-      </div>
-    </BreakFromCentered>
+        title={title}
+        ref={iframeRef}
+        src={url}
+      />
+    </div>
   )
 }
 

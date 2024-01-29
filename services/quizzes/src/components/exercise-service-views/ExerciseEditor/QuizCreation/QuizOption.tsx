@@ -25,8 +25,8 @@ interface QuizCardProps {
 
 const QuizCard = styled.div<QuizCardProps>`
   all: unset;
-  width: 340px;
-  height: 110px;
+  width: auto;
+  height: auto;
   background-color: #f5f6f7;
   padding: 16px;
   margin: 5px;
@@ -52,6 +52,7 @@ const QuizCardTitle = styled.div`
 const QuizCardDescription = styled.div`
   margin-top: 6px;
   font-size: 17px;
+  word-wrap: break-word;
   color: #767b85;
 `
 

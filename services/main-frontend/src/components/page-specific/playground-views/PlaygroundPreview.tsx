@@ -184,7 +184,13 @@ const PlaygroundPreview: React.FC<PlaygroundPreviewProps> = ({
             </button>
           </div>
         </div>
-        <div key={refreshKey}>
+        <div
+          key={refreshKey}
+          className={css`
+            margin: 0 auto;
+            max-width: ${width}px;
+          `}
+        >
           {serviceInfoQuery.data &&
             isValidServiceInfo &&
             serviceInfoQuery.data &&
@@ -192,7 +198,7 @@ const PlaygroundPreview: React.FC<PlaygroundPreviewProps> = ({
               <>
                 {currentView === "exercise-editor" && (
                   <PlaygroundExerciseEditorIframe
-                    url={`${exerciseServiceHost}${serviceInfoQuery.data.user_interface_iframe_path}?width=${width}`}
+                    url={`${exerciseServiceHost}${serviceInfoQuery.data.user_interface_iframe_path}`}
                     privateSpec={parsedPrivateSpec.parsedPrivateSpec}
                     setCurrentStateReceivedFromIframe={setCurrentStateReceivedFromIframe}
                     showIframeBorders={showIframeBorders}
@@ -243,7 +249,7 @@ const PlaygroundPreview: React.FC<PlaygroundPreviewProps> = ({
                       />
                     </CheckBoxWrapper>
                     <PlaygroundExerciseIframe
-                      url={`${exerciseServiceHost}${serviceInfoQuery.data.user_interface_iframe_path}?width=${width}`}
+                      url={`${exerciseServiceHost}${serviceInfoQuery.data.user_interface_iframe_path}`}
                       publicSpecQuery={publicSpecQuery}
                       setCurrentStateReceivedFromIframe={setCurrentStateReceivedFromIframe}
                       showIframeBorders={showIframeBorders}
@@ -285,7 +291,7 @@ const PlaygroundPreview: React.FC<PlaygroundPreviewProps> = ({
                       />
                     </CheckBoxWrapper>
                     <PlaygroundViewSubmissionIframe
-                      url={`${exerciseServiceHost}${serviceInfoQuery.data.user_interface_iframe_path}?width=${width}`}
+                      url={`${exerciseServiceHost}${serviceInfoQuery.data.user_interface_iframe_path}`}
                       publicSpecQuery={publicSpecQuery}
                       setCurrentStateReceivedFromIframe={setCurrentStateReceivedFromIframe}
                       showIframeBorders={showIframeBorders}

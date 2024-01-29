@@ -88,8 +88,8 @@ const AddQuizItemWrapper = styled.div`
 `
 
 const TypeContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   width: 100%;
   margin-top: 1rem;
   margin-bottom: 1rem;

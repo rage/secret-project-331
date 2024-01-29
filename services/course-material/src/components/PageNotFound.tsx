@@ -1,6 +1,7 @@
-import { Alert, AlertTitle } from "@mui/lab"
 import React from "react"
-import { Trans, useTranslation } from "react-i18next"
+import { useTranslation } from "react-i18next"
+
+import ErrorBanner from "../shared-module/components/ErrorBanner"
 
 import PublicPageList from "./PublicPageList"
 
@@ -18,12 +19,10 @@ const PageNotFound: React.FC<React.PropsWithChildren<PageNotFoundProps>> = ({
   const { t } = useTranslation()
   return (
     <>
-      <Alert severity="error">
-        <AlertTitle>{t("404-not-found")}</AlertTitle>
-        <Trans t={t} i18nKey="course-has-no-page-at-path">
-          This course has no page at <code>{{ path }}</code>.
-        </Trans>
-      </Alert>
+      <ErrorBanner
+        error={new Error(`${t("404-not-found")} ${t("course-has-no-page-at-path", { path })}`)}
+        variant="readOnly"
+      />
       {path === "/" && (
         <>
           <p>{t("if-author-of-course-please-create-front-page")}</p>

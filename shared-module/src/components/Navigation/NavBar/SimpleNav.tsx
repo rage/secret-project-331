@@ -1,12 +1,11 @@
 import { css, cx } from "@emotion/css"
-import { faFingerprint } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "../../../styles"
 import { respondToOrLarger } from "../../../styles/respond"
 import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "../../../utils/constants"
 import SkipLink from "../../SkipLink"
+import MOOCfi from "../img/moocfiLogo.svg"
 
 import { NavigationProps } from "."
 
@@ -66,12 +65,7 @@ const Navigation: React.FC<React.PropsWithChildren<React.PropsWithChildren<Navig
           aria-label={t("home-page")}
           role="button"
         >
-          <FontAwesomeIcon
-            className={cx(StyledIcon)}
-            icon={faFingerprint}
-            aria-label={t("home-page")}
-            aria-hidden="true"
-          />
+          <MOOCfi className={cx(StyledIcon)} aria-label={t("home-page")} />
         </a>
       </div>
       {children}

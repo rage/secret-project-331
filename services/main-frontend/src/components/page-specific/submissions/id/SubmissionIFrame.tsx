@@ -57,7 +57,7 @@ const SubmissionIFrame: React.FC<React.PropsWithChildren<SubmissionIFrameProps>>
 
   return (
     <MessageChannelIFrame
-      url={`${coursematerialExerciseTask.exercise_iframe_url}?width=700`} // todo: move constants to shared
+      url={`${coursematerialExerciseTask.exercise_iframe_url}`}
       onMessageFromIframe={(messageContainer, _responsePort) => {
         console.log(messageContainer)
       }}

@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
+import { MinusCircle } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -9,6 +10,7 @@ import {
   PublicSpecQuizItemTimelineItem,
 } from "../../../../../types/quizTypes/publicSpec"
 import SelectMenu from "../../../../shared-module/components/SelectMenu"
+import { headingFont } from "../../../../shared-module/styles"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 import { QuizItemComponentProps } from "."
@@ -23,26 +25,12 @@ const TimelineWrapper = styled.section`
   flex: 1;
   position: relative;
   width: 100%;
-  max-width: 1140px;
+  max-width: 71.25rem;
   margin: 0 auto;
-  padding: 15px 0;
-
-  &::after {
-    content: "";
-    position: absolute;
-    width: 2px;
-    background: #e2e4e6;
-    top: 0;
-    bottom: 0;
-    left: 50%;
-    margin-left: -1px;
-    @media (max-width: 767.98px) {
-      left: 80px;
-    }
-  }
+  padding: 0.938rem 0;
 `
 const container = css`
-  padding: 15px 30px;
+  padding: 0.938rem 1.875rem;
   position: relative;
   width: 50%;
 
@@ -51,22 +39,22 @@ const container = css`
     display: inline-block;
     top: calc(50% - 15px);
     text-align: center;
-    font-size: 14px;
-    font-weight: bold;
-    color: #006e51;
-    text-transform: uppercase;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #4c5868;
+    font-family: ${headingFont};
     letter-spacing: 1;
     z-index: 1;
   }
 
   .content {
-    padding: 30px 30px 30px 30px;
+    padding: 1.875rem;
     position: relative;
   }
 
   @media (max-width: 767.98px) {
     width: 100%;
-    padding-left: 120px;
+    padding-left: 7.5rem;
     padding-right: 0px;
   }
 `
@@ -74,22 +62,22 @@ const left = css`
   left: 0;
 
   .date {
-    right: -75px;
+    right: -4.688rem;
     @media (max-width: 767.98px) {
       right: auto;
-      left: 15px;
+      left: 0.938rem;
     }
   }
 
   &::after {
     @media (max-width: 767.98px) {
-      left: 65px;
+      left: 4.063rem;
     }
   }
 
   .content {
     @media (max-width: 767.98px) {
-      padding: 30px 0px 30px 0px;
+      padding: 1.875rem 0rem 1.875rem 0.625rem;
     }
   }
 `
@@ -101,56 +89,47 @@ const right = css`
   }
 
   .date {
-    left: -75px;
+    left: -4.688rem;
     @media (max-width: 767.98px) {
       right: auto;
-      left: 15px;
+      left: 0.938rem;
     }
   }
 
   .content {
-    padding: 30px 30px 30px 30px;
+    padding: 1.875rem;
     @media (max-width: 767.98px) {
-      padding: 30px 0px 30px 0px;
+      padding: 1.875rem 0px 1.875rem 0.625rem;
     }
   }
 
   &::after {
-    left: -15px;
+    left: -0.938rem;
     @media (max-width: 767.98px) {
-      left: 65px;
+      left: 4.063rem;
     }
   }
 `
 const StyledTime = styled.div`
-  background-color: #e5e0f1;
+  background-color: #f3f5f7;
+  border-radius: 0.125rem;
   border: none;
   margin: 0;
   width: 100%;
   display: flex;
 `
 const StyledButton = styled.button`
-  background-color: #b1a2d4;
-  width: 80px;
+  background-color: #f3f5f7;
+  width: 5rem;
   justify-self: end;
   height: auto;
   margin: 0;
+  color: #4c5868;
   position: relative;
   border: none;
-
-  &:after {
-    content: "+";
-    width: 40%;
-    color: #51309f;
-    position: absolute;
-    font-size: 2.8rem;
-    line-height: 0.5;
-    top: calc(50% - 14px);
-    right: 30%;
-    font-weight: 200;
-    padding-bottom: 5px;
-    transform: rotate(45deg);
-  }
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `
 
 export interface Time {
@@ -183,16 +162,44 @@ const Timeline: React.FunctionComponent<
                 &::after {
                   content: "";
                   position: absolute;
-                  width: 30px;
-                  height: 30px;
+                  width: 3rem;
+                  height: 2.5rem;
                   top: calc(50% - 20px);
-                  right: -15px;
-                  background: ${selectedTimelineItem ? "#32BEA6" : "#EBEDEE"};
-                  border: ${selectedTimelineItem ? "4px solid #EBEDEE" : "2px solid #767B85"};
-                  border-style: ${selectedTimelineItem ? "solid" : "dashed"};
-                  border-radius: 16px;
+                  right: -0.125rem;
+                  background: ${selectedTimelineItem ? "#77C299" : "#EBEDEE"};
+                  border: ${selectedTimelineItem ? "none" : "0.125rem solid #898E99"};
+                  border-style: ${selectedTimelineItem ? "none" : "dashed"};
+                  ${selectedTimelineItem &&
+                  `box-shadow:
+                  rgba(45, 35, 66, 0) 0 2px 4px,
+                  rgba(45, 35, 66, 0) 0 7px 13px -3px,
+                  #69AF8A 0 -2px 0 inset;`};
+                  border-radius: 1.563rem;
                   transition: all 200ms linear;
                   z-index: 1;
+                }
+
+                .select-wrapper {
+                  margin-bottom: 0px !important;
+                }
+
+                .content > div {
+                  margin-bottom: 0px !important;
+                }
+
+                &:not(:last-child)::before {
+                  content: "";
+                  position: absolute;
+                  top: 6rem;
+                  bottom: 0;
+                  left: 50%;
+                  height: 60%;
+                  border: 0.188rem solid #ebedee;
+                  border-radius: 6.188rem;
+                  margin-left: 0.375rem;
+                  @media (max-width: 767.98px) {
+                    left: 5rem;
+                  }
                 }
               `}`}
               key={timelineItem.itemId}
@@ -249,8 +256,9 @@ const Timeline: React.FunctionComponent<
                   <StyledTime id={timelineItem.itemId}>
                     <p
                       className={css`
-                        padding: 8px 2px 8px 8px;
+                        padding: 0.5rem 0.125rem 0.5rem 0.5rem;
                         width: 100%;
+                        color: #4c5868;
                       `}
                     >
                       {selectedTimelineEventDetails?.name ?? t("deleted-option")}
@@ -271,7 +279,9 @@ const Timeline: React.FunctionComponent<
                           valid: validate(timelineChoicesWithoutThisOne, quizItem.timelineItems),
                         })
                       }}
-                    ></StyledButton>
+                    >
+                      <MinusCircle size={20} weight="medium" />
+                    </StyledButton>
                   </StyledTime>
                 )}
               </div>

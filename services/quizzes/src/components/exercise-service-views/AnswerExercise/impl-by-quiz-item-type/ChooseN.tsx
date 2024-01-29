@@ -6,7 +6,12 @@ import { UserItemAnswerChooseN } from "../../../../../types/quizTypes/answer"
 import { PublicSpecQuizItemChooseN } from "../../../../../types/quizTypes/publicSpec"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
-import { quizTheme } from "../../../../styles/QuizStyles"
+
+import {
+  QUIZ_TITLE_STYLE,
+  TWO_DIMENSIONAL_BUTTON_SELECTED,
+  TWO_DIMENSIONAL_BUTTON_STYLES,
+} from "./AnswerQuizStyles"
 
 import { QuizItemComponentProps } from "."
 
@@ -43,8 +48,10 @@ const ChooseN: React.FunctionComponent<
     setQuizItemAnswerState(newItemAnswer)
   }
 
-  const selectedBackgroundColor = quizTheme.selectedItemBackground
-  const selectedForegroundColor = quizTheme.selectedItemColor
+  // Is it a dynamic color, because it was discarded in this PR
+  // const selectedBackgroundColor = quizTheme.selectedItemBackground
+  // const selectedForegroundColor = quizTheme.selectedItemColor
+
   return (
     <div
       className={css`
@@ -59,6 +66,7 @@ const ChooseN: React.FunctionComponent<
       <h2
         className={css`
           display: flex;
+          ${QUIZ_TITLE_STYLE}
         `}
       >
         {quizItem.title || quizItem.body}
@@ -75,12 +83,11 @@ const ChooseN: React.FunctionComponent<
             value={o.id}
             onClick={handleOptionSelect}
             className={css`
-              display: flex;
-              flex-grow: 1;
-              margin: 0.5rem;
-              border: none;
+              ${TWO_DIMENSIONAL_BUTTON_STYLES}
               ${quizItemAnswerState?.selectedOptionIds?.includes(o.id) &&
-              `background-color: ${selectedBackgroundColor}; color: ${selectedForegroundColor}`}
+              `
+                ${TWO_DIMENSIONAL_BUTTON_SELECTED}
+              `}
             `}
             disabled={
               quizItemAnswerState?.selectedOptionIds.length == quizItem.n &&

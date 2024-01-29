@@ -11,22 +11,26 @@ import MatrixCell from "./MatrixCell"
 const MatrixTableContainer = styled.table`
   margin: auto;
   margin-top: 1rem;
-  background-color: gray;
+  background-color: #e2e4e6;
   border-collapse: collapse;
   td {
-    border: 2px solid #e1e1e199;
+    border: 0.125rem solid #e1e1e199;
   }
-  &tr:first-child td {
-    border-top: 4px;
+
+  td {
+    border-top: none;
   }
-  &tr td:first-child {
-    border-left: 4px;
+
+  tr:last-child td {
+    border-bottom: none;
   }
-  &tr:last-child td {
-    border-bottom: 4px;
+
+  tr td:last-child {
+    border-right: none;
   }
-  &tr td:last-child {
-    border-right: 4px;
+
+  tr td:first-child {
+    border-left: none;
   }
 `
 

@@ -2,12 +2,12 @@ import { css, cx, keyframes } from "@emotion/css"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import MOOCfi from "../../../img/moocfiLogo.svg"
 import { baseTheme } from "../../../styles"
 import { respondToOrLarger } from "../../../styles/respond"
 import { runCallbackIfEnterPressed } from "../../../utils/accessibility"
 import Button from "../../Button"
 import LoginControls from "../../LoginControls"
-import MOOCfi from "../img/moocfiLogo.svg"
 
 import Hamburger from "./Menu/Hamburger/Hamburger"
 

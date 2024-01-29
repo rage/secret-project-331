@@ -1,17 +1,21 @@
 import { css, cx } from "@emotion/css"
 import { useTranslation } from "react-i18next"
 
+import MOOCfi from "../../../img/moocfiLogoNoText.svg"
 import { baseTheme } from "../../../styles"
 import { respondToOrLarger } from "../../../styles/respond"
 import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "../../../utils/constants"
 import SkipLink from "../../SkipLink"
-import MOOCfi from "../img/moocfiLogo.svg"
 
 import { NavigationProps } from "."
 
 const StyledIcon = css`
   font-size: 1.8rem;
-  color: ${baseTheme.colors.gray[700]};
+  transform: scale(0.7);
+
+  path {
+    fill: ${baseTheme.colors.gray[600]} !important;
+  }
 `
 // eslint-disable-next-line i18next/no-literal-string
 const Navbar = css`

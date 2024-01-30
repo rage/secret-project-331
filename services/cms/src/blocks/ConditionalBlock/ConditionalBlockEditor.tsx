@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query"
 import { InnerBlocks, InspectorControls } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
 import React, { useContext, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import PageContext from "../../contexts/PageContext"
 import { fetchCourseInstances } from "../../services/backend/course-instances"
@@ -27,6 +28,7 @@ const Text = styled.p`
 const ConditionalBlockEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ConditionAttributes>>
 > = ({ attributes, clientId, setAttributes }) => {
+  const { t } = useTranslation()
   const courseId = useContext(PageContext)?.page.course_id
   const courseModules = useQuery({
     queryKey: [`/courses/${courseId}/modules`],
@@ -46,13 +48,13 @@ const ConditionalBlockEditor: React.FC<
   return (
     <BlockPlaceholderWrapper
       id={clientId}
-      title={`Conditional Block`}
-      explanation={`This block will be rendered to the student if the student meets all the given condition.`}
+      title={t("conditional-block")}
+      explanation={t("conditional-block-explanation")}
     >
       <InspectorControls>
         {courseModules.data && (
           <Wrapper>
-            <Text>{`Student has completed any of the following modules:`}</Text>
+            <Text>{t("module-completion-condition")}</Text>
             {courseModules.data.map((mod) => {
               return (
                 <CheckBox
@@ -76,7 +78,7 @@ const ConditionalBlockEditor: React.FC<
         )}
         {courseInstances.data && (
           <Wrapper>
-            <Text>{`Student has enrolled to any of the following course instances:`}</Text>
+            <Text>{t("course-instance-enrollment-condition")}</Text>
             {courseInstances.data.map((inst) => {
               return (
                 <CheckBox

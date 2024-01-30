@@ -59,80 +59,6 @@ module.exports = {
       {
         paths: [
           {
-            name: "@mui/material",
-            importNames: ["Grid"],
-            message: "Don't use Grid from @material-ui. Please use either css flexbox or css grid.",
-          },
-          {
-            name: "@mui/material/Grid",
-            importNames: ["default"],
-            message: "Don't use Grid from @material-ui. Please use either css flexbox or css grid.",
-          },
-          {
-            name: "@mui/material",
-            importNames: ["Container"],
-            message:
-              "Don't use Container from @material-ui. Please use Centered from shared-module.",
-          },
-          {
-            name: "@mui/material/Container",
-            importNames: ["default"],
-            message:
-              "Don't use Container from @material-ui. Please use Centered from shared-module.",
-          },
-          {
-            name: "@mui/material",
-            importNames: ["Typography"],
-            message: "Don't use Typography from @material-ui. Please use p, h1, h2, h3...",
-          },
-          {
-            name: "@mui/material/Typography",
-            importNames: ["default"],
-            message: "Don't use Typography from @material-ui. Please use p, h1, h2, h3...",
-          },
-          {
-            name: "@mui/material",
-            importNames: ["Button"],
-            message: "Don't use Button from @material-ui. Please use Button from shared-module.",
-          },
-          {
-            name: "@mui/material/Button",
-            importNames: ["default"],
-            message: "Don't use Button from @material-ui. Please use Button from shared-module.",
-          },
-          {
-            name: "@mui/material/Pagination",
-            importNames: ["default"],
-            message:
-              "Don't use Pagination from @material-ui. Please use Pagination from shared-module.",
-          },
-          {
-            name: "@mui/material",
-            importNames: ["Pagination"],
-            message:
-              "Don't use Pagination from @material-ui. Please use Pagination from shared-module.",
-          },
-          {
-            name: "@mui/material/Box",
-            importNames: ["default"],
-            message: "Don't use Box from @material-ui. Please use a div.",
-          },
-          {
-            name: "@mui/material",
-            importNames: ["Box"],
-            message: "Don't use Box from @material-ui. Please use a div.",
-          },
-          {
-            name: "@mui/styles",
-            importNames: ["withStyles"],
-            message: "Don't use withStyles from @material-ui. Please use emotion.js.",
-          },
-          {
-            name: "@mui/styles/withStyles",
-            importNames: ["default"],
-            message: "Don't use withStyles from @material-ui. Please use emotion.js.",
-          },
-          {
             name: "@emotion/react",
             importNames: ["css"],
             message: 'Use this instead: import { css } from "@emotion/css"',
@@ -146,8 +72,6 @@ module.exports = {
         ],
       },
     ],
-    "eslint-custom-rules/ban-ts-ignore-without-comment": "error",
-    "eslint-custom-rules/no-material-ui-grid-component": "error",
     "react/forbid-component-props": [
       "error",
       {

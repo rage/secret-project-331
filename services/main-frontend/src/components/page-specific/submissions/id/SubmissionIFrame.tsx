@@ -1,4 +1,3 @@
-import { Alert } from "@mui/lab"
 import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -6,6 +5,7 @@ import {
   CourseMaterialExerciseTask,
   StudentExerciseTaskSubmissionResult,
 } from "../../../../shared-module/bindings"
+import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import MessageChannelIFrame from "../../../../shared-module/components/MessageChannelIFrame"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
 import getGuestPseudonymousUserId from "../../../../shared-module/utils/getGuestPseudonymousUserId"
@@ -33,15 +33,22 @@ const SubmissionIFrame: React.FC<React.PropsWithChildren<SubmissionIFrameProps>>
     !coursematerialExerciseTask.exercise_iframe_url ||
     coursematerialExerciseTask.exercise_iframe_url.trim() === ""
   ) {
-    return <Alert severity="error">{t("error-cannot-render-exercise-task-missing-url")}</Alert>
+    return (
+      <ErrorBanner error={t("error-cannot-render-exercise-task-missing-url")} variant="readOnly" />
+    )
   }
   if (!coursematerialExerciseTask.previous_submission_grading) {
-    return <Alert severity="error">{t("error-cannot-render-exercise-task-missing-url")}</Alert>
+    return (
+      <ErrorBanner error={t("error-cannot-render-exercise-task-missing-url")} variant="readOnly" />
+    )
   }
 
   if (!coursematerialExerciseTask.previous_submission) {
     return (
-      <Alert severity="error">{t("error-cannot-render-exercise-task-missing-submission")}</Alert>
+      <ErrorBanner
+        error={t("error-cannot-render-exercise-task-missing-submission")}
+        variant="readOnly"
+      />
     )
   }
   const state: SubmissionState = {

@@ -114,6 +114,10 @@
         "connectString": "postgres://headless-lms@localhost:54328/headless_lms_test"
       }
     ],
+    "search.exclude": {
+      "**/node_modules": true,
+      "*.tsbuildinfo": true,
+    }
   },
   "launch": {
     "configurations": [],

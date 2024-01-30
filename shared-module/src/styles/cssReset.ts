@@ -56,7 +56,6 @@ const cssReset = css`
   }
 
   /* Inherit fonts for inputs and buttons */
-  /* Add !important to override MuiTheme Roboto */
   input,
   button,
   textarea,

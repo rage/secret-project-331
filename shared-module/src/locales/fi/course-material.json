@@ -32,7 +32,7 @@
   "continue": "Jatka",
   "could-not-fetch-embed": "Ei voitu upottaa {{provider}} osoitteella: {{url}}",
   "course": "Course",
-  "course-has-no-page-at-path": "Tällä kurssilla ei ole sivua osoitteessa <1>{{path}}</1>",
+  "course-has-no-page-at-path": "Tällä kurssilla ei ole sivua osoitteessa {{path}}",
   "course-language-change-warning": "Huom: Kurssimateriaali muuttuu suomenkielisen kurssin materiaaliksi, jossa on eri kurssin edistyminen.",
   "course-overview": "Kurssin yhteenveto",
   "course-progress": "Kurssin edistyminen",

@@ -12,7 +12,7 @@ export interface ConditionAttributes {
 
 const ConditionalBlockConfiguration: BlockConfiguration<ConditionAttributes> = {
   title: "ConditionalBlock",
-  description: "Conditionally rendered block",
+  description: "Conditionally shown block",
   category: MOOCFI_CATEGORY_SLUG,
   attributes: {
     module_completion: {

@@ -33,7 +33,7 @@
   "could-not-fetch-embed": "Could not fetch {{provider}} oEmbed with URL: {{url}}",
   "country-added-successfully": "Country addedd successfully",
   "course": "Course",
-  "course-has-no-page-at-path": "This course has no page at <1>{{path}}</1>",
+  "course-has-no-page-at-path": "This course has no page at {{path}}",
   "course-language-change-warning": "Note: The course material will be switched to the {{newLanguage}} course with different course progress.",
   "course-overview": "Course overview",
   "course-progress": "Course progress",

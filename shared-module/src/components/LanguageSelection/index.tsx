@@ -1,11 +1,11 @@
 import { css } from "@emotion/css"
 import { Placement } from "@popperjs/core"
 import { LanguageTranslation } from "@vectopus/atlas-icons-react"
-import React, { useState } from "react"
+import React, { useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
-import OutsideClickHandler from "react-outside-click-handler"
 import { usePopper } from "react-popper"
 
+import useClickOutside from "../../hooks/useClickOutside"
 import { LANGUAGE_COOKIE_KEY } from "../../utils/constants"
 
 import LanguageMenu from "./LanguageMenu"
@@ -34,6 +34,7 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
   languages,
   handleLanguageChange,
 }) => {
+  const outSideClickRef = useRef<HTMLDivElement>(null)
   const [visible, setVisible] = useState<boolean>(false)
   const [referenceElement, setReferenceElement] = useState<Element | null>(null)
   const [popperElement, setPopperElement] = useState<HTMLElement | null>(null)
@@ -53,10 +54,11 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
   }
 
   const noLanguagesToChange = (languages ?? DEFAULT_LANGUAGES).length <= 1
+  useClickOutside(outSideClickRef, () => setVisible(false), visible)
 
   return (
     <>
-      <OutsideClickHandler onOutsideClick={() => setVisible(false)}>
+      <div ref={outSideClickRef}>
         <button
           type="button"
           className={css`
@@ -117,7 +119,7 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
           {/* eslint-disable-next-line react/forbid-dom-props */}
           <div ref={setArrowElement} style={styles.arrow} />
         </div>
-      </OutsideClickHandler>
+      </div>
     </>
   )
 }

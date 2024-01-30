@@ -31,7 +31,7 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
 }) => {
   const { signedIn } = useContext(LoginStateContext)
   const { t } = useTranslation()
-  const currentExerciseTaskAssignment = exerciseTask.assignment as Block<unknown>[]
+  const currentExerciseTaskAssignment = exerciseTask.assignment as Block<any>[]
   const url = exerciseTask.exercise_iframe_url
 
   if (!postThisStateToIFrame) {
@@ -45,9 +45,13 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
   const cannotAnswerButNoSubmission =
     !canPostSubmission && !exerciseTask.previous_submission && signedIn
 
+    const hasInstruction = currentExerciseTaskAssignment.length > 0 &&
+    currentExerciseTaskAssignment[0]?.name === "core/paragraph" &&
+    currentExerciseTaskAssignment[0]?.attributes?.content.trim() !== ''
+
   return (
     <div>
-      {currentExerciseTaskAssignment && (
+      {currentExerciseTaskAssignment && hasInstruction && (
         <div
           className={css`
             font-family: ${headingFont};
@@ -55,18 +59,18 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
             p {
               margin-top: 0 !important;
               opacity: 0.9;
-              font-size: 1.125;
+              font-size: 1.125rem !important;
               font-weight: 500;
             }
 
             span {
-              font-size: 1.25rem;
+              font-size: 1.25rem !important;
               line-height: 140%;
               font-weight: 600;
             }
           `}
         >
-          <span>{t("instructions")}</span>
+           {hasInstruction && <span>{t("instructions")}</span>}
           <ContentRenderer
             data={currentExerciseTaskAssignment}
             editing={false}

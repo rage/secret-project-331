@@ -3,6 +3,7 @@ import styled from "@emotion/styled"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { CheckCircle, PlusHeart } from "@vectopus/atlas-icons-react"
 import { produce } from "immer"
+import { useRouter } from "next/router"
 import { useContext, useEffect, useId, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -28,7 +29,10 @@ import { useDateStringAsDateNullable } from "../../../../shared-module/hooks/use
 import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
 import { baseTheme, headingFont, secondaryFont } from "../../../../shared-module/styles"
 import { dateDiffInDays } from "../../../../shared-module/utils/dateUtil"
+import { useCurrentPagePathForReturnTo } from "../../../../shared-module/utils/redirectBackAfterLoginOrSignup"
+import { signUpRoute } from "../../../../shared-module/utils/routes"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
+import YellowBox from "../../../YellowBox"
 
 import ExerciseTask from "./ExerciseTask"
 import GradingState from "./GradingState"
@@ -44,7 +48,11 @@ interface DeadlineProps {
   closingSoon: boolean
 }
 
-export const optionButton = css`
+const AWithNoDecoration = styled.a`
+  text-decoration: none;
+`
+
+export const exerciseButtonStyles = css`
   align-items: center;
   appearance: none;
   background-color: #77c299;
@@ -80,7 +88,7 @@ export const optionButton = css`
   margin: 0 auto;
 
   &:hover {
-    background: #77c299;
+    filter: brightness(92%) contrast(110%);
     box-shadow:
       rgba(45, 35, 66, 0) 0 4px 8px,
       rgba(45, 35, 66, 0) 0 7px 13px -3px,
@@ -93,6 +101,7 @@ export const optionButton = css`
       rgba(45, 35, 66, 0) 0 4px 8px,
       rgba(45, 35, 66, 0) 0 7px 13px -3px,
       #68716c 0 -3px 0 inset;
+    cursor: not-allowed;
   }
 `
 
@@ -119,7 +128,8 @@ const ExerciseBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<ExerciseBlockAttributes>>
 > = (props) => {
   const exerciseTitleId = useId()
-  const [allowStartPeerReview, setAllowStartPeerReview] = useState(true)
+  const router = useRouter()
+  const returnTo = useCurrentPagePathForReturnTo(router.asPath)
   const [answers, setAnswers] = useState<Map<string, { valid: boolean; data: unknown }>>(new Map())
   const [points, setPoints] = useState<number | null>(null)
   const queryClient = useQueryClient()
@@ -221,6 +231,16 @@ const ExerciseBlock: React.FC<
     getCourseMaterialExercise.data?.exercise.deadline,
   )
 
+  const startPeerReviewMutation = useToastMutation(
+    () => postStartPeerReview(id),
+    { notify: false },
+    {
+      onSuccess: async () => {
+        await getCourseMaterialExercise.refetch()
+      },
+    },
+  )
+
   if (!showExercise) {
     return <div>{t("please-select-course-instance-before-answering-exercise")}</div>
   }
@@ -302,6 +322,7 @@ const ExerciseBlock: React.FC<
             border-radius: 1rem;
             margin-bottom: 1rem;
             padding-bottom: 1.25rem;
+            position: relative;
           `}
           id={getExerciseBlockBeginningScrollingId(id)}
           aria-labelledby={exerciseTitleId}
@@ -446,10 +467,54 @@ const ExerciseBlock: React.FC<
               </div>
             </div>
           </div>
+
+          {!loginState.isPending && !loginState.signedIn && (
+            <div
+              className={css`
+                padding: 0 1rem;
+                margin-bottom: 2rem;
+              `}
+            >
+              <YellowBox>{t("please-log-in-to-answer-exercise")}</YellowBox>
+
+              <AWithNoDecoration href={signUpRoute(returnTo)}>
+                <button
+                  className={cx(
+                    exerciseButtonStyles,
+                    css`
+                      margin-bottom: 1rem;
+                      margin-top: 1rem;
+                      background-color: ${baseTheme.colors.gray[100]};
+                      box-shadow:
+                        rgba(45, 35, 66, 0) 0 4px 8px,
+                        rgba(45, 35, 66, 0) 0 7px 13px -3px,
+                        ${baseTheme.colors.gray[200]} 0 -3px 0 inset !important;
+                    `,
+                  )}
+                >
+                  {t("log-in")}
+                </button>
+              </AWithNoDecoration>
+              <AWithNoDecoration href={signUpRoute(returnTo)}>
+                <button className={cx(exerciseButtonStyles)}>{t("create-new-account")}</button>
+              </AWithNoDecoration>
+            </div>
+          )}
+
           <div
             className={css`
               padding: 0 1rem;
+              ${!loginState.isPending &&
+              !loginState.signedIn &&
+              `
+              pointer-events: none !important;
+              user-select: none !important;
+              filter: blur(2px);
+              opacity: 0.9;
+              `}
             `}
+            // Waiting for https://github.com/facebook/react/pull/24730
+            {...{ inert: !loginState.isPending && !loginState.signedIn ? "" : undefined }}
           >
             {exerciseDeadline &&
               (Date.now() < exerciseDeadline.getTime() ? (
@@ -517,7 +582,7 @@ const ExerciseBlock: React.FC<
                       answers.size < (postThisStateToIFrame?.length ?? 0) ||
                       Array.from(answers.values()).some((x) => !x.valid)
                     }
-                    className={cx(optionButton)}
+                    className={cx(exerciseButtonStyles)}
                     onClick={() => {
                       if (!courseInstanceId && !getCourseMaterialExercise.data.exercise.exam_id) {
                         return
@@ -622,7 +687,7 @@ const ExerciseBlock: React.FC<
                     >
                       {!ranOutOfTries && (
                         <button
-                          className={cx(optionButton)}
+                          className={cx(exerciseButtonStyles)}
                           onClick={() => {
                             tryAgainMutation.mutate()
                           }}
@@ -637,15 +702,9 @@ const ExerciseBlock: React.FC<
                       )}
                       {needsPeerReview && (
                         <button
-                          className={cx(optionButton)}
-                          disabled={!needsPeerReview || !allowStartPeerReview}
-                          onClick={async () => {
-                            setAllowStartPeerReview(false)
-                            await postStartPeerReview(id).finally(() =>
-                              setAllowStartPeerReview(true),
-                            )
-                            await getCourseMaterialExercise.refetch()
-                          }}
+                          className={cx(exerciseButtonStyles)}
+                          disabled={startPeerReviewMutation.isPending}
+                          onClick={() => startPeerReviewMutation.mutate()}
                         >
                           {t("start-peer-review")}
                         </button>
@@ -655,9 +714,6 @@ const ExerciseBlock: React.FC<
                 )}
               {postSubmissionMutation.isError && (
                 <ErrorBanner variant={"readOnly"} error={postSubmissionMutation.error} />
-              )}
-              {!loginState.isPending && !loginState.signedIn && (
-                <div>{t("please-log-in-to-answer-exercise")}</div>
               )}
             </div>
           </div>

@@ -30,14 +30,14 @@ import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
 import { baseTheme, headingFont, secondaryFont } from "../../../../shared-module/styles"
 import { dateDiffInDays } from "../../../../shared-module/utils/dateUtil"
 import { useCurrentPagePathForReturnTo } from "../../../../shared-module/utils/redirectBackAfterLoginOrSignup"
-import { signUpRoute } from "../../../../shared-module/utils/routes"
+import { loginRoute, signUpRoute } from "../../../../shared-module/utils/routes"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import YellowBox from "../../../YellowBox"
 
 import ExerciseTask from "./ExerciseTask"
 import GradingState from "./GradingState"
 import PeerReviewView from "./PeerReviewView"
-import PeerReviewReceived from "./PeerReviewView/PeerReviewsReceivedComponent/index"
+import PeerReviewsReceived from "./PeerReviewView/PeerReviewsReceivedComponent/index"
 import WaitingForPeerReviews from "./PeerReviewView/WaitingForPeerReviews"
 
 interface ExerciseBlockAttributes {
@@ -477,7 +477,7 @@ const ExerciseBlock: React.FC<
             >
               <YellowBox>{t("please-log-in-to-answer-exercise")}</YellowBox>
 
-              <AWithNoDecoration href={signUpRoute(returnTo)}>
+              <AWithNoDecoration href={loginRoute(returnTo)}>
                 <button
                   className={cx(
                     exerciseButtonStyles,
@@ -572,6 +572,13 @@ const ExerciseBlock: React.FC<
               />
             )}
             {reviewingStage === "WaitingForPeerReviews" && <WaitingForPeerReviews />}
+            {inSubmissionView &&
+              getCourseMaterialExercise.data.exercise.needs_peer_review &&
+              exerciseSlideSubmissionId &&
+              (reviewingStage === "WaitingForPeerReviews" ||
+                reviewingStage === "ReviewedAndLocked") && (
+                <PeerReviewsReceived id={id} submissionId={exerciseSlideSubmissionId} />
+              )}
             <div>
               {getCourseMaterialExercise.data.can_post_submission &&
                 !userOnWrongLanguageVersion &&
@@ -643,13 +650,7 @@ const ExerciseBlock: React.FC<
                     {t("submit-button")}
                   </button>
                 )}
-              {inSubmissionView &&
-                getCourseMaterialExercise.data.exercise.needs_peer_review &&
-                exerciseSlideSubmissionId &&
-                (reviewingStage === "WaitingForPeerReviews" ||
-                  reviewingStage === "ReviewedAndLocked") && (
-                  <PeerReviewReceived id={id} submissionId={exerciseSlideSubmissionId} />
-                )}
+
               {inSubmissionView &&
                 (reviewingStage === "NotStarted" || reviewingStage === undefined) && (
                   <div>

@@ -28,6 +28,7 @@ const WaitingForPeerReviews: React.FC<React.PropsWithChildren<unknown>> = () => 
       </h3>
 
       <p>{t("waiting-for-peer-reviews-explanation")}</p>
+      <p>{t("help-text-increase-peer-review-priority")}</p>
     </div>
   )
 }

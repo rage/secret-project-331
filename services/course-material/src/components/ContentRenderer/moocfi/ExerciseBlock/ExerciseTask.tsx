@@ -31,6 +31,7 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
 }) => {
   const { signedIn } = useContext(LoginStateContext)
   const { t } = useTranslation()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const currentExerciseTaskAssignment = exerciseTask.assignment as Block<any>[]
   const url = exerciseTask.exercise_iframe_url
 
@@ -45,13 +46,15 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
   const cannotAnswerButNoSubmission =
     !canPostSubmission && !exerciseTask.previous_submission && signedIn
 
-    const hasInstruction = currentExerciseTaskAssignment.length > 0 &&
-    currentExerciseTaskAssignment[0]?.name === "core/paragraph" &&
-    currentExerciseTaskAssignment[0]?.attributes?.content.trim() !== ''
+    const areAllParagraphsEmpty = () => currentExerciseTaskAssignment?.every((paragraph) => paragraph.name === "core/paragraph" &&
+    paragraph.attributes?.content.trim() == '' )
+
+    const isEmpty = currentExerciseTaskAssignment.length > 0 && areAllParagraphsEmpty()
+    console.log('currentExerciseTaskAssignment', currentExerciseTaskAssignment, areAllParagraphsEmpty());
 
   return (
     <div>
-      {currentExerciseTaskAssignment && hasInstruction && (
+      {currentExerciseTaskAssignment && !isEmpty && (
         <div
           className={css`
             font-family: ${headingFont};
@@ -70,7 +73,7 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
             }
           `}
         >
-           {hasInstruction && <span>{t("instructions")}</span>}
+           <span>{t("instructions")}</span>
           <ContentRenderer
             data={currentExerciseTaskAssignment}
             editing={false}

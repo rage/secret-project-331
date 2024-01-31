@@ -46,11 +46,13 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
   const cannotAnswerButNoSubmission =
     !canPostSubmission && !exerciseTask.previous_submission && signedIn
 
-    const areAllParagraphsEmpty = () => currentExerciseTaskAssignment?.every((paragraph) => paragraph.name === "core/paragraph" &&
-    paragraph.attributes?.content.trim() == '' )
+  const areAllParagraphsEmpty = () =>
+    currentExerciseTaskAssignment?.every(
+      (paragraph) =>
+        paragraph.name === "core/paragraph" && paragraph.attributes?.content.trim() == "",
+    )
 
-    const isEmpty = currentExerciseTaskAssignment.length > 0 && areAllParagraphsEmpty()
-    console.log('currentExerciseTaskAssignment', currentExerciseTaskAssignment, areAllParagraphsEmpty());
+  const isEmpty = currentExerciseTaskAssignment.length > 0 && areAllParagraphsEmpty()
 
   return (
     <div>
@@ -73,7 +75,7 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
             }
           `}
         >
-           <span>{t("instructions")}</span>
+          <span>{t("instructions")}</span>
           <ContentRenderer
             data={currentExerciseTaskAssignment}
             editing={false}

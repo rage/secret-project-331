@@ -12,9 +12,11 @@ const ExercisesInChapterEditor: React.FC<
 > = ({ clientId }) => {
   const { t } = useTranslation()
   return (
-    <BlockPlaceholderWrapper id={clientId}>
-      <h3>{t("exercises-in-chapter-placeholder")}</h3>
-      <p>{t("exercises-in-chapter-placeholder-explanation")}</p>
+    <BlockPlaceholderWrapper
+      id={clientId}
+      title={t("exercises-in-chapter-placeholder")}
+      explanation={t("exercises-in-chapter-placeholder-explanation")}
+    >
       <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
     </BlockPlaceholderWrapper>
   )

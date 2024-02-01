@@ -12,9 +12,11 @@ const PagesInChapterEditor: React.FC<
 > = ({ clientId }) => {
   const { t } = useTranslation()
   return (
-    <BlockPlaceholderWrapper id={clientId}>
-      <h3>{t("pages-in-chapter-placeholder")}</h3>
-      <p>{t("pages-in-chapter-placeholder-explanation")}</p>
+    <BlockPlaceholderWrapper
+      id={clientId}
+      title={t("pages-in-chapter-placeholder")}
+      explanation={t("pages-in-chapter-placeholder-explanation")}
+    >
       <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
     </BlockPlaceholderWrapper>
   )

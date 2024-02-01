@@ -1,5 +1,6 @@
 import {
   CmsPeerReviewConfiguration,
+  CourseModule,
   NewResearchForm,
   NewResearchFormQuestion,
   Page,
@@ -8,6 +9,7 @@ import {
 } from "../../shared-module/bindings"
 import {
   isCmsPeerReviewConfiguration,
+  isCourseModule,
   isPage,
   isResearchForm,
   isResearchFormQuestion,
@@ -67,4 +69,13 @@ export const upsertResearchFormQuestion = async (
     },
   )
   return validateResponse(response, isResearchFormQuestion)
+}
+
+export const fetchCourseModulesByCourseId = async (
+  courseId: string,
+): Promise<Array<CourseModule>> => {
+  const response = await cmsClient.get(`/courses/${courseId}/modules`, {
+    responseType: "json",
+  })
+  return validateResponse(response, isArray(isCourseModule))
 }

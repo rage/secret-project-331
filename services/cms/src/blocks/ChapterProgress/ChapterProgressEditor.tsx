@@ -12,9 +12,11 @@ const ChapterProgressEditor: React.FC<
 > = ({ clientId }) => {
   const { t } = useTranslation()
   return (
-    <BlockPlaceholderWrapper id={clientId}>
-      <h3>{t("chapter-progress-placeholder")}</h3>
-      <p>{t("chapter-progress-placeholder-explanation")}</p>
+    <BlockPlaceholderWrapper
+      id={clientId}
+      title={t("chapter-progress-placeholder")}
+      explanation={t("chapter-progress-placeholder-explanation")}
+    >
       <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
     </BlockPlaceholderWrapper>
   )

@@ -12,9 +12,11 @@ const CongratulationsEditor: React.FC<
 > = ({ clientId }) => {
   const { t } = useTranslation()
   return (
-    <BlockPlaceholderWrapper id={clientId}>
-      <h3>{t("congratulations-placeholder")}</h3>
-      <p>{t("congratulations-explanation")}</p>
+    <BlockPlaceholderWrapper
+      id={clientId}
+      title={t("congratulations-placeholder")}
+      explanation={t("congratulations-explanation")}
+    >
       <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
     </BlockPlaceholderWrapper>
   )

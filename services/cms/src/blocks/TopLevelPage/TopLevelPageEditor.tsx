@@ -12,9 +12,11 @@ const TopLevelPageEditor: React.FC<
 > = ({ clientId }) => {
   const { t } = useTranslation()
   return (
-    <BlockPlaceholderWrapper id={clientId}>
-      <h3>{t("top-level-block-placeholder")}</h3>
-      <p>{t("top-level-block-placeholder-explanation")}</p>
+    <BlockPlaceholderWrapper
+      id={clientId}
+      title={t("top-level-block-placeholder")}
+      explanation={t("top-level-block-placeholder-explanation")}
+    >
       <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
     </BlockPlaceholderWrapper>
   )

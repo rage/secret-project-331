@@ -42,6 +42,7 @@ import AudioPlayer from "./moocfi/AudioPlayer/index"
 import AuthorBlock from "./moocfi/AuthorBlock"
 import AuthorInnerBlock from "./moocfi/AuthorInnerBlock"
 import ChapterProgressBlock from "./moocfi/ChapterProgressBlock"
+import ConditionalBlock from "./moocfi/ConditionalBlock"
 import CongratulationsBlock from "./moocfi/CongratulationsBlock"
 import CourseChapterGridBlock from "./moocfi/CourseChapterGridBlock"
 import CourseObjectiveSectionBlock from "./moocfi/CourseObjectiveSectionBlock"
@@ -127,6 +128,7 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   // moocfi
   "moocfi/aside": AsideBlock,
   "moocfi/chapter-progress": ChapterProgressBlock,
+  "moocfi/conditional-block": ConditionalBlock,
   "moocfi/congratulations": CongratulationsBlock,
   "moocfi/course-chapter-grid": CourseChapterGridBlock,
   "moocfi/course-objective-section": CourseObjectiveSectionBlock,

@@ -14,7 +14,7 @@ export const TWO_DIMENSIONAL_BUTTON_STYLES = `
   display: flex;
   min-height: 3rem;
   justify-content: center;
-  line-height: 1;
+  line-height: 120%;
   list-style: none;
   padding: 0.875rem;
   text-align: left;

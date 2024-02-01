@@ -31,7 +31,8 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
 }) => {
   const { signedIn } = useContext(LoginStateContext)
   const { t } = useTranslation()
-  const currentExerciseTaskAssignment = exerciseTask.assignment as Block<unknown>[]
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const currentExerciseTaskAssignment = exerciseTask.assignment as Block<any>[]
   const url = exerciseTask.exercise_iframe_url
 
   if (!postThisStateToIFrame) {
@@ -45,9 +46,17 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
   const cannotAnswerButNoSubmission =
     !canPostSubmission && !exerciseTask.previous_submission && signedIn
 
+  const areAllParagraphsEmpty = () =>
+    currentExerciseTaskAssignment?.every(
+      (paragraph) =>
+        paragraph.name === "core/paragraph" && paragraph.attributes?.content.trim() == "",
+    )
+
+  const isEmpty = currentExerciseTaskAssignment.length > 0 && areAllParagraphsEmpty()
+
   return (
     <div>
-      {currentExerciseTaskAssignment && (
+      {currentExerciseTaskAssignment && !isEmpty && (
         <div
           className={css`
             font-family: ${headingFont};
@@ -55,12 +64,12 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
             p {
               margin-top: 0 !important;
               opacity: 0.9;
-              font-size: 1.125;
+              font-size: 1.125rem !important;
               font-weight: 500;
             }
 
             span {
-              font-size: 1.25rem;
+              font-size: 1.25rem !important;
               line-height: 140%;
               font-weight: 600;
             }

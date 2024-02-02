@@ -1,6 +1,6 @@
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useQueryClient } from "@tanstack/react-query"
 import { CheckCircle, PlusHeart } from "@vectopus/atlas-icons-react"
 import { produce } from "immer"
 import { useRouter } from "next/router"
@@ -9,12 +9,11 @@ import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../.."
 import PageContext from "../../../../contexts/PageContext"
+import useCourseMaterialExerciseQuery, {
+  courseMaterialExerciseQueryKey,
+} from "../../../../hooks/useCourseMaterialExerciseQuery"
 import exerciseBlockPostThisStateToIFrameReducer from "../../../../reducers/exerciseBlockPostThisStateToIFrameReducer"
-import {
-  fetchExerciseById,
-  postStartPeerReview,
-  postSubmission,
-} from "../../../../services/backend"
+import { postStartPeerReview, postSubmission } from "../../../../services/backend"
 import {
   CourseMaterialExercise,
   StudentExerciseSlideSubmission,
@@ -105,6 +104,16 @@ export const exerciseButtonStyles = css`
   }
 `
 
+export const makeExerciseButtonMutedStyles = css`
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+  background-color: ${baseTheme.colors.gray[100]};
+  box-shadow:
+    rgba(45, 35, 66, 0) 0 4px 8px,
+    rgba(45, 35, 66, 0) 0 7px 13px -3px,
+    ${baseTheme.colors.gray[200]} 0 -3px 0 inset !important;
+`
+
 // eslint-disable-next-line i18next/no-literal-string
 const DeadlineText = styled.div<DeadlineProps>`
   display: flex;
@@ -147,13 +156,7 @@ const ExerciseBlock: React.FC<
     pageContext.settings.current_course_instance_id !== pageContext.instance?.id
 
   const id = props.data.attributes.id
-  // eslint-disable-next-line i18next/no-literal-string
-  const queryUniqueKey = [`exercise`, id]
-  const getCourseMaterialExercise = useQuery({
-    queryKey: queryUniqueKey,
-    queryFn: () => fetchExerciseById(id),
-    enabled: showExercise,
-  })
+  const getCourseMaterialExercise = useCourseMaterialExerciseQuery(id, showExercise)
   useEffect(() => {
     if (!getCourseMaterialExercise.data) {
       return
@@ -478,20 +481,7 @@ const ExerciseBlock: React.FC<
               <YellowBox>{t("please-log-in-to-answer-exercise")}</YellowBox>
 
               <AWithNoDecoration href={loginRoute(returnTo)}>
-                <button
-                  className={cx(
-                    exerciseButtonStyles,
-                    css`
-                      margin-bottom: 1rem;
-                      margin-top: 1rem;
-                      background-color: ${baseTheme.colors.gray[100]};
-                      box-shadow:
-                        rgba(45, 35, 66, 0) 0 4px 8px,
-                        rgba(45, 35, 66, 0) 0 7px 13px -3px,
-                        ${baseTheme.colors.gray[200]} 0 -3px 0 inset !important;
-                    `,
-                  )}
-                >
+                <button className={cx(exerciseButtonStyles, makeExerciseButtonMutedStyles)}>
                   {t("log-in")}
                 </button>
               </AWithNoDecoration>
@@ -571,14 +561,27 @@ const ExerciseBlock: React.FC<
                 parentExerciseQuery={getCourseMaterialExercise}
               />
             )}
-            {reviewingStage === "WaitingForPeerReviews" && <WaitingForPeerReviews />}
-            {inSubmissionView &&
-              getCourseMaterialExercise.data.exercise.needs_peer_review &&
-              exerciseSlideSubmissionId &&
-              (reviewingStage === "WaitingForPeerReviews" ||
-                reviewingStage === "ReviewedAndLocked") && (
-                <PeerReviewsReceived id={id} submissionId={exerciseSlideSubmissionId} />
-              )}
+            {(reviewingStage === "WaitingForPeerReviews" ||
+              reviewingStage === "ReviewedAndLocked") && (
+              <div
+                className={css`
+                  padding: 0.5rem 0.45rem;
+                  background-color: white;
+                  border-radius: 0.625rem;
+                `}
+              >
+                {reviewingStage === "WaitingForPeerReviews" && (
+                  <WaitingForPeerReviews exerciseId={id} />
+                )}
+                {inSubmissionView &&
+                  getCourseMaterialExercise.data.exercise.needs_peer_review &&
+                  exerciseSlideSubmissionId &&
+                  (reviewingStage === "WaitingForPeerReviews" ||
+                    reviewingStage === "ReviewedAndLocked") && (
+                    <PeerReviewsReceived id={id} submissionId={exerciseSlideSubmissionId} />
+                  )}
+              </div>
+            )}
             <div>
               {getCourseMaterialExercise.data.can_post_submission &&
                 !userOnWrongLanguageVersion &&
@@ -609,7 +612,7 @@ const ExerciseBlock: React.FC<
                         {
                           onSuccess: (res) => {
                             queryClient.setQueryData(
-                              queryUniqueKey,
+                              courseMaterialExerciseQueryKey(id),
                               (old: CourseMaterialExercise | undefined) => {
                                 if (!old) {
                                   // eslint-disable-next-line i18next/no-literal-string

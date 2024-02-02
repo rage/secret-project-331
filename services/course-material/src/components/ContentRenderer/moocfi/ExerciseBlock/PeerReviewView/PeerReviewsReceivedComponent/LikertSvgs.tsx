@@ -1,6 +1,6 @@
 import React from "react"
 
-const Agree = () => {
+export const Agree = () => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -48,7 +48,7 @@ const Agree = () => {
   )
 }
 
-const StronglyAgree = () => {
+export const StronglyAgree = () => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -88,7 +88,7 @@ const StronglyAgree = () => {
   )
 }
 
-const Neutral = () => {
+export const NeitherAgreeNorDisagree = () => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -122,7 +122,7 @@ const Neutral = () => {
   )
 }
 
-const Disagree = () => {
+export const Disagree = () => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -156,7 +156,7 @@ const Disagree = () => {
   )
 }
 
-const StronglyDisagree = () => {
+export const StronglyDisagree = () => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -189,25 +189,3 @@ const StronglyDisagree = () => {
     </svg>
   )
 }
-
-const SVGMatcher = (identifier: string) => {
-  switch (identifier) {
-    case "agree":
-      return <Agree />
-      break
-    case "strongly agree":
-      return <StronglyAgree />
-      break
-    case "neutral":
-      return <Neutral />
-      break
-    case "disagree":
-      return <Disagree />
-      break
-    case "strongly disagree":
-      return <StronglyDisagree />
-    default:
-  }
-}
-
-export default SVGMatcher

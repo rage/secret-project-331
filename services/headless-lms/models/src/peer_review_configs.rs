@@ -299,7 +299,10 @@ pub async fn get_course_material_peer_review_data(
 
     match user_exercise_state {
         Some(ref user_exercise_state) => {
-            if user_exercise_state.reviewing_stage == ReviewingStage::PeerReview {
+            if matches!(
+                user_exercise_state.reviewing_stage,
+                ReviewingStage::PeerReview | ReviewingStage::WaitingForPeerReviews
+            ) {
                 // Calling library inside a model function. Maybe should be refactored by moving
                 // complicated logic to own library file?
                 let res = library::peer_reviewing::try_to_select_exercise_slide_submission_for_peer_review(

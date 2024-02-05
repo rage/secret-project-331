@@ -38,6 +38,12 @@ let subscriptions: watcher.AsyncSubscription[] = []
 async function main() {
   await cleanUpFolders()
 
+  const firstCmdArg = process.argv[2]
+  if (firstCmdArg === "--once") {
+    await syncEverything()
+    return
+  }
+
   let restarted = false
 
   process.once("SIGINT", async function (_signal) {
@@ -204,18 +210,22 @@ async function syncPath(relativeSource: string, pathToTargetSharedModule: string
 async function cleanUpFolders() {
   for (const target of ALL_SERVICES_TARGETS) {
     const fullPathToDestination = path.resolve(__dirname, "..", target)
-    // list files and folders in the destination
-    const files = await readdir(fullPathToDestination)
-    const allowedFiles = SYNC_TARGETS.map((target) => target.source)
-    const hasNotAllowedFiles = files.some((file) => !allowedFiles.includes(file))
-    if (!hasNotAllowedFiles) {
-      return
-    }
-    console.info("Cleaning up folders...")
     try {
-      await exec(`rm -r '${fullPathToDestination}'`)
-    } catch (e) {
-      console.warn(`Could not remove ${fullPathToDestination}`, e)
+      // list files and folders in the destination
+      const files = await readdir(fullPathToDestination)
+      const allowedFiles = SYNC_TARGETS.map((target) => target.source)
+      const hasNotAllowedFiles = files.some((file) => !allowedFiles.includes(file))
+      if (!hasNotAllowedFiles) {
+        return
+      }
+      console.info("Cleaning up folders...")
+      try {
+        await exec(`rm -r '${fullPathToDestination}'`)
+      } catch (e) {
+        console.warn(`Could not remove ${fullPathToDestination}`, e)
+      }
+    } catch (_e) {
+      // NOP
     }
     await exec(`mkdir -p '${fullPathToDestination}'`)
   }

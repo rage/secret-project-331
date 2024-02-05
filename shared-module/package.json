@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "sync": "tsx sync.ts"
+    "sync": "tsx sync.ts",
+    "sync-once": "tsx sync.ts --once"
   },
   "keywords": [],
   "author": "Henrik Nygren <nygrenh@gmail.com>",

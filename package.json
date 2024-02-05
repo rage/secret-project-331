@@ -11,7 +11,7 @@
     "eslint:ci": "eslint .",
     "prepare": "husky install",
     "lint:css": "stylelint '**/*.tsx'",
-    "postinstall": "ts-node --transpile-only -O \"{\\\"module\\\":\\\"commonjs\\\"}\" shared-module/setup-shared-module.ts"
+    "postinstall": "cd shared-module && npm ci && npm run sync-once"
   },
   "repository": {
     "type": "git",

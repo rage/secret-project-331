@@ -5,6 +5,7 @@ import Aside from "./Aside"
 import Author from "./Author"
 import AuthorInnerBlock from "./AuthorInnerBlock"
 import ChapterProgress from "./ChapterProgress"
+import ConditionalBlock from "./ConditionalBlock"
 import Congratulations from "./Congratulations"
 import CourseChapterGrid from "./CourseChapterGrid"
 import CourseObjectiveSection from "./CourseObjectiveSection"
@@ -58,6 +59,7 @@ export const blockTypeMapForPages = [
   ["moocfi/map", Map],
   ["moocfi/author", Author],
   ["moocfi/author-inner-block", AuthorInnerBlock],
+  ["moocfi/conditional-block", ConditionalBlock],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as Array<[string, BlockConfiguration<Record<string, any>>]>
 

@@ -1,9 +1,10 @@
 import { BrowserContext, test } from "@playwright/test"
 
-import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
-import { fillPeerReview, TIMEOUT } from "./peer_review_utils"
+import { answerExercise, fillPeerReview, TIMEOUT } from "./peer_review_utils"
+
+const TEST_PAGE = "http://project-331.local/org/uh-cs/courses/peer-review-course/chapter-1/page-3"
 
 test.describe("test AutomaticallyGradeByAverage behavior", () => {
   test.use({
@@ -33,26 +34,7 @@ test.describe("test AutomaticallyGradeByAverage behavior", () => {
     const _teacherPage = await context3.newPage()
 
     // User 1 neavigates to exercise and answers
-    await student1Page.goto("http://project-331.local/")
-    await student1Page
-      .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
-      .click()
-    await student1Page
-      .getByRole("link", { name: "Navigate to course 'Peer review Course'" })
-      .click()
-    await selectCourseInstanceIfPrompted(student1Page)
-    await student1Page.getByRole("link", { name: "Chapter 1 The Basics" }).click()
-    await student1Page.getByRole("link", { name: "3 Page Three" }).click()
-    await student1Page.frameLocator("iframe").getByRole("checkbox", { name: "a" }).click()
-    await student1Page.getByRole("button", { name: "Submit" }).click()
-    await student1Page.getByText("Try again").waitFor()
-
-    await student1Page
-      .frameLocator("iframe")
-      .first()
-      .locator("div#exercise-service-content-id")
-      .click({ timeout: TIMEOUT })
-
+    await answerExercise(student1Page, TEST_PAGE, "a")
     await expectScreenshotsToMatchSnapshots({
       headless,
       testInfo,
@@ -68,24 +50,7 @@ test.describe("test AutomaticallyGradeByAverage behavior", () => {
 
     // User 2 neavigates to exercise and answers
     await student2Page.goto("http://project-331.local/")
-    await student2Page
-      .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
-      .click()
-    await student2Page
-      .getByRole("link", { name: "Navigate to course 'Peer review Course'" })
-      .click()
-    await selectCourseInstanceIfPrompted(student2Page)
-    await student2Page.getByRole("link", { name: "Chapter 1 The Basics" }).click()
-    await student2Page.getByRole("link", { name: "3 Page Three" }).click()
-    await student2Page.frameLocator("iframe").getByRole("checkbox", { name: "b" }).click()
-    await student2Page.getByRole("button", { name: "Submit" }).click()
-    await student2Page.getByText("Try again").waitFor()
-
-    await student2Page
-      .frameLocator("iframe")
-      .first()
-      .locator("div#exercise-service-content-id")
-      .click({ timeout: TIMEOUT })
+    await answerExercise(student2Page, TEST_PAGE, "b")
 
     await expectScreenshotsToMatchSnapshots({
       headless,

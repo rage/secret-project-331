@@ -48,6 +48,8 @@ pub async fn seed_organization_uh_mathstat(
         student_1_user_id: _,
         student_2_user_id: _,
         student_3_user_id,
+        student_4_user_id: _,
+        student_5_user_id: _,
         langs_user_id: _,
     } = seed_users_result;
     let _ = seed_file_storage_result;

@@ -186,6 +186,28 @@
 <a href="#186" id="186">186</a>
 <a href="#187" id="187">187</a>
 <a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>headless_lms_models::{users, PKeyPolicy};
 <span class="kw">use </span>sqlx::{Pool, Postgres};
 <span class="kw">use </span>uuid::Uuid;
@@ -205,6 +227,8 @@
     <span class="kw">pub </span>student_1_user_id: Uuid,
     <span class="kw">pub </span>student_2_user_id: Uuid,
     <span class="kw">pub </span>student_3_user_id: Uuid,
+    <span class="kw">pub </span>student_4_user_id: Uuid,
+    <span class="kw">pub </span>student_5_user_id: Uuid,
     <span class="kw">pub </span>langs_user_id: Uuid,
 }
 
@@ -296,6 +320,24 @@
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
+    <span class="kw">let </span>student_4_user_id = users::insert(
+        <span class="kw-2">&amp;mut </span>conn,
+        PKeyPolicy::Fixed(Uuid::parse_str(<span class="string">&quot;bc403a82-1e8b-4274-acc8-d765648ef698&quot;</span>)<span class="question-mark">?</span>),
+        <span class="string">&quot;student4@example.com&quot;</span>,
+        <span class="prelude-val">Some</span>(<span class="string">&quot;User&quot;</span>),
+        <span class="prelude-val">Some</span>(<span class="string">&quot;4&quot;</span>),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let </span>student_5_user_id = users::insert(
+        <span class="kw-2">&amp;mut </span>conn,
+        PKeyPolicy::Fixed(Uuid::parse_str(<span class="string">&quot;7ba4beb1-abe8-4bad-8bb2-d012c55b310c&quot;</span>)<span class="question-mark">?</span>),
+        <span class="string">&quot;student5@example.com&quot;</span>,
+        <span class="prelude-val">Some</span>(<span class="string">&quot;User&quot;</span>),
+        <span class="prelude-val">Some</span>(<span class="string">&quot;5&quot;</span>),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
     <span class="kw">let </span>teaching_and_learning_services_user_id = users::insert(
         <span class="kw-2">&amp;mut </span>conn,
         PKeyPolicy::Fixed(Uuid::parse_str(<span class="string">&quot;5d081ccb-1dab-4367-9549-267fd3f1dd9c&quot;</span>)<span class="question-mark">?</span>),
@@ -371,6 +413,8 @@
         student_1_user_id,
         student_2_user_id,
         student_3_user_id,
+        student_4_user_id,
+        student_5_user_id,
         langs_user_id,
     })
 }

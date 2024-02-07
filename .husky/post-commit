@@ -1,0 +1,4 @@
+#!/bin/sh
+echo "Post commit"
+## List all command line arguments
+echo "All arguments: $@"

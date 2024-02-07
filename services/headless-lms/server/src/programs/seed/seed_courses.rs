@@ -3311,6 +3311,8 @@ pub async fn seed_course_without_submissions(
         ManualReviewEverything,
         3.0,
         true,
+        1,
+        0,
     )
     .await?;
 
@@ -3418,6 +3420,8 @@ pub async fn seed_course_without_submissions(
         AutomaticallyGradeOrManualReviewByAverage,
         2.5,
         true,
+        1,
+        0,
     )
     .await?;
 
@@ -3428,6 +3432,8 @@ pub async fn seed_course_without_submissions(
         AutomaticallyGradeByAverage,
         2.0,
         true,
+        1,
+        0,
     )
     .await?;
 
@@ -4515,6 +4521,8 @@ pub async fn seed_peer_review_course_without_submissions(
         ManualReviewEverything,
         3.0,
         true,
+        1,
+        0,
     )
     .await?;
 
@@ -4571,6 +4579,8 @@ pub async fn seed_peer_review_course_without_submissions(
         AutomaticallyGradeOrManualReviewByAverage,
         2.5,
         true,
+        1,
+        0,
     )
     .await?;
 
@@ -4627,6 +4637,8 @@ pub async fn seed_peer_review_course_without_submissions(
         AutomaticallyGradeByAverage,
         2.0,
         true,
+        1,
+        0,
     )
     .await?;
 
@@ -4683,6 +4695,66 @@ pub async fn seed_peer_review_course_without_submissions(
         ManualReviewEverything,
         3.0,
         true,
+        1,
+        0,
+    )
+    .await?;
+
+    let block_id_9 = Uuid::new_v5(&course_id, b"54349cc8-dbba-4223-b5e0-71fafdfe8fd3");
+    let block_id_10 = Uuid::new_v5(&course_id, b"ee05ad17-07dc-4c3b-be63-67bd2a4ac46a");
+    let exercise_5_id = Uuid::new_v5(&course_id, b"31717e20-8fe5-451c-a7d3-bca09d0ea14f");
+    let exercise_5_slide_1_id = Uuid::new_v5(&course_id, b"9bd990d1-3cd6-4e23-b372-8860ebd8bac5");
+    let exercise_5_slide_1_task_1_id =
+        Uuid::new_v5(&course_id, b"fe5da9f8-aaae-4b05-9cf9-29f3cde55bd7");
+    let exercise_5_slide_1_task_1_spec_1_id =
+        Uuid::new_v5(&course_id, b"5efb1377-70af-455f-ad78-cddd0bd6cbb1");
+    let exercise_5_slide_1_task_1_spec_2_id =
+        Uuid::new_v5(&course_id, b"f92ba66c-fe8a-4711-b25a-73a13c451543");
+    let exercise_5_slide_1_task_1_spec_3_id =
+        Uuid::new_v5(&course_id, b"75bbc9f6-84f2-4182-80d1-07bd7c435d6c");
+
+    let (exercise_block_1, exercise_1, slide_1, task_1) = create_best_exercise(
+        block_id_10,
+        exercise_5_slide_1_task_1_spec_1_id,
+        exercise_5_slide_1_task_1_spec_2_id,
+        exercise_5_slide_1_task_1_spec_3_id,
+        Some("Can give extra reviews".to_string()),
+        CommonExerciseData {
+            exercise_id: exercise_5_id,
+            exercise_slide_id: exercise_5_slide_1_id,
+            exercise_task_id: exercise_5_slide_1_task_1_id,
+            block_id: block_id_9,
+        },
+    );
+
+    create_page(
+        &mut conn,
+        course.id,
+        admin,
+        Some(chapter_1.id),
+        CmsPageUpdate {
+            url_path: "/chapter-1/can-give-extra-reviews".to_string(),
+            title: "Can give extra peer reviews".to_string(),
+            chapter_id: Some(chapter_1.id),
+            exercises: vec![exercise_1],
+            exercise_slides: vec![slide_1],
+            exercise_tasks: vec![task_1],
+            content: serde_json::json!([exercise_block_1,]),
+        },
+        base_url.clone(),
+        Arc::clone(&jwt_key),
+    )
+    .await?;
+
+    create_best_peer_review(
+        &mut conn,
+        course_id,
+        exercise_5_id,
+        AutomaticallyGradeByAverage,
+        3.0,
+        true,
+        3,
+        2,
     )
     .await?;
 

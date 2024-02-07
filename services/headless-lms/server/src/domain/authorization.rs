@@ -890,12 +890,16 @@ pub async fn authenticate_test_user(
         models::users::get_by_email(conn, "assistant@example.com").await?
     } else if email == "creator@example.com" && password == "creator" {
         models::users::get_by_email(conn, "creator@example.com").await?
-    } else if email == "student1@example.com" && password == "student.1" {
+    } else if email == "student1@example.com" && password == "student1" {
         models::users::get_by_email(conn, "student1@example.com").await?
-    } else if email == "student2@example.com" && password == "student.2" {
+    } else if email == "student2@example.com" && password == "student2" {
         models::users::get_by_email(conn, "student2@example.com").await?
-    } else if email == "student3@example.com" && password == "student.3" {
+    } else if email == "student3@example.com" && password == "student3" {
         models::users::get_by_email(conn, "student3@example.com").await?
+    } else if email == "student4@example.com" && password == "student4" {
+        models::users::get_by_email(conn, "student4@example.com").await?
+    } else if email == "student5@example.com" && password == "student5" {
+        models::users::get_by_email(conn, "student5@example.com").await?
     } else if email == "teaching-and-learning-services@example.com"
         && password == "teaching-and-learning-services"
     {

@@ -61,7 +61,7 @@ const ExamStartBanner: React.FC<React.PropsWithChildren<ExamInstructionsProps>> 
             text-align: center;
           `}
         >
-          <h2>{t("instructions")}</h2>
+          <h2>{t("title-instructions")}</h2>
         </div>
         <p
           className={css`

@@ -23,14 +23,15 @@ const Likerts = styled.div`
   background: #f9f9f9;
   min-height: 100px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
   margin: 0 auto;
   max-width: 1000px;
+  justify-items: center;
 `
 
 /* eslint-disable i18next/no-literal-string */
 const Likert = styled.div`
-  width: 150px;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -62,6 +63,7 @@ const Likert = styled.div`
     color: ${({ active }) => (active ? "#ffffff" : "#313947")};
     text-align: center;
     line-height: 1.2;
+    padding: 0 0.5rem;
   }
 `
 

@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next"
 import LoginStateContext from "../contexts/LoginStateContext"
 import { logout } from "../services/backend/auth"
 import { useCurrentPagePathForReturnTo } from "../utils/redirectBackAfterLoginOrSignup"
+import { loginRoute, signUpRoute } from "../utils/routes"
 
 import Button from "./Button"
 import Spinner from "./Spinner"
@@ -36,12 +37,6 @@ const LoginControls: React.FC<
     }, 100)
   }
 
-  // eslint-disable-next-line i18next/no-literal-string
-  const loginPathWithReturnTo = `/login?return_to=${encodeURIComponent(returnTo)}`
-
-  // eslint-disable-next-line i18next/no-literal-string
-  const signUpPathWithReturnTo = `/signup?return_to=${encodeURIComponent(returnTo)}`
-
   return loginStateContext.signedIn ? (
     <>
       <li className={cx(styles)}>
@@ -53,14 +48,14 @@ const LoginControls: React.FC<
   ) : (
     <>
       <li className={cx(styles)}>
-        <a href={signUpPathWithReturnTo}>
+        <a href={signUpRoute(returnTo)}>
           <Button size="medium" variant="primary">
             {t("create-new-account")}
           </Button>
         </a>
       </li>
       <li className={cx(styles)}>
-        <a href={loginPathWithReturnTo}>
+        <a href={loginRoute(returnTo)}>
           <Button size="medium" variant="primary">
             {t("log-in")}
           </Button>

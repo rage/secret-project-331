@@ -8,6 +8,7 @@ export interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElemen
   error?: string | FieldError
   onChangeByValue?: (value: string, name?: string) => void
   autoResize?: boolean
+  resize?: "none" | "both" | "horizontal" | "vertical" | "block" | "inline"
 }
 
 function updateHeight(ref: React.RefObject<HTMLTextAreaElement>) {
@@ -37,7 +38,17 @@ const useCombinedRefs = (
   return innerRef
 }
 const TextAreaField = forwardRef<HTMLTextAreaElement, TextAreaProps>(
-  ({ onChangeByValue, onChange, className, autoResize, ...rest }: TextAreaProps, ref) => {
+  (
+    {
+      onChangeByValue,
+      onChange,
+      className,
+      autoResize,
+      resize = "vertical",
+      ...rest
+    }: TextAreaProps,
+    ref,
+  ) => {
     const textareaRef = useRef<HTMLTextAreaElement>(null)
     const combinedRef = useCombinedRefs(ref, textareaRef)
 
@@ -75,6 +86,7 @@ const TextAreaField = forwardRef<HTMLTextAreaElement, TextAreaProps>(
                 background: #fcfcfc;
                 border: 1.6px solid #dedede;
                 padding: 10px 12px;
+                resize: ${resize};
               }
               span {
                 color: #333;

@@ -1,19 +1,19 @@
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useQueryClient } from "@tanstack/react-query"
 import { CheckCircle, PlusHeart } from "@vectopus/atlas-icons-react"
 import { produce } from "immer"
+import { useRouter } from "next/router"
 import { useContext, useEffect, useId, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../.."
 import PageContext from "../../../../contexts/PageContext"
+import useCourseMaterialExerciseQuery, {
+  courseMaterialExerciseQueryKey,
+} from "../../../../hooks/useCourseMaterialExerciseQuery"
 import exerciseBlockPostThisStateToIFrameReducer from "../../../../reducers/exerciseBlockPostThisStateToIFrameReducer"
-import {
-  fetchExerciseById,
-  postStartPeerReview,
-  postSubmission,
-} from "../../../../services/backend"
+import { postStartPeerReview, postSubmission } from "../../../../services/backend"
 import {
   CourseMaterialExercise,
   StudentExerciseSlideSubmission,
@@ -28,12 +28,15 @@ import { useDateStringAsDateNullable } from "../../../../shared-module/hooks/use
 import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
 import { baseTheme, headingFont, secondaryFont } from "../../../../shared-module/styles"
 import { dateDiffInDays } from "../../../../shared-module/utils/dateUtil"
+import { useCurrentPagePathForReturnTo } from "../../../../shared-module/utils/redirectBackAfterLoginOrSignup"
+import { loginRoute, signUpRoute } from "../../../../shared-module/utils/routes"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
+import YellowBox from "../../../YellowBox"
 
 import ExerciseTask from "./ExerciseTask"
 import GradingState from "./GradingState"
 import PeerReviewView from "./PeerReviewView"
-import PeerReviewReceived from "./PeerReviewView/PeerReviewsReceivedComponent/index"
+import PeerReviewsReceived from "./PeerReviewView/PeerReviewsReceivedComponent/index"
 import WaitingForPeerReviews from "./PeerReviewView/WaitingForPeerReviews"
 
 interface ExerciseBlockAttributes {
@@ -44,7 +47,11 @@ interface DeadlineProps {
   closingSoon: boolean
 }
 
-export const optionButton = css`
+const AWithNoDecoration = styled.a`
+  text-decoration: none;
+`
+
+export const exerciseButtonStyles = css`
   align-items: center;
   appearance: none;
   background-color: #77c299;
@@ -80,7 +87,7 @@ export const optionButton = css`
   margin: 0 auto;
 
   &:hover {
-    background: #77c299;
+    filter: brightness(92%) contrast(110%);
     box-shadow:
       rgba(45, 35, 66, 0) 0 4px 8px,
       rgba(45, 35, 66, 0) 0 7px 13px -3px,
@@ -93,7 +100,18 @@ export const optionButton = css`
       rgba(45, 35, 66, 0) 0 4px 8px,
       rgba(45, 35, 66, 0) 0 7px 13px -3px,
       #68716c 0 -3px 0 inset;
+    cursor: not-allowed;
   }
+`
+
+export const makeExerciseButtonMutedStyles = css`
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+  background-color: ${baseTheme.colors.gray[100]};
+  box-shadow:
+    rgba(45, 35, 66, 0) 0 4px 8px,
+    rgba(45, 35, 66, 0) 0 7px 13px -3px,
+    ${baseTheme.colors.gray[200]} 0 -3px 0 inset !important;
 `
 
 // eslint-disable-next-line i18next/no-literal-string
@@ -119,7 +137,8 @@ const ExerciseBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<ExerciseBlockAttributes>>
 > = (props) => {
   const exerciseTitleId = useId()
-  const [allowStartPeerReview, setAllowStartPeerReview] = useState(true)
+  const router = useRouter()
+  const returnTo = useCurrentPagePathForReturnTo(router.asPath)
   const [answers, setAnswers] = useState<Map<string, { valid: boolean; data: unknown }>>(new Map())
   const [points, setPoints] = useState<number | null>(null)
   const queryClient = useQueryClient()
@@ -137,13 +156,7 @@ const ExerciseBlock: React.FC<
     pageContext.settings.current_course_instance_id !== pageContext.instance?.id
 
   const id = props.data.attributes.id
-  // eslint-disable-next-line i18next/no-literal-string
-  const queryUniqueKey = [`exercise`, id]
-  const getCourseMaterialExercise = useQuery({
-    queryKey: queryUniqueKey,
-    queryFn: () => fetchExerciseById(id),
-    enabled: showExercise,
-  })
+  const getCourseMaterialExercise = useCourseMaterialExerciseQuery(id, showExercise)
   useEffect(() => {
     if (!getCourseMaterialExercise.data) {
       return
@@ -219,6 +232,16 @@ const ExerciseBlock: React.FC<
   )
   const exerciseDeadline = useDateStringAsDateNullable(
     getCourseMaterialExercise.data?.exercise.deadline,
+  )
+
+  const startPeerReviewMutation = useToastMutation(
+    () => postStartPeerReview(id),
+    { notify: false },
+    {
+      onSuccess: async () => {
+        await getCourseMaterialExercise.refetch()
+      },
+    },
   )
 
   if (!showExercise) {
@@ -302,6 +325,7 @@ const ExerciseBlock: React.FC<
             border-radius: 1rem;
             margin-bottom: 1rem;
             padding-bottom: 1.25rem;
+            position: relative;
           `}
           id={getExerciseBlockBeginningScrollingId(id)}
           aria-labelledby={exerciseTitleId}
@@ -446,10 +470,41 @@ const ExerciseBlock: React.FC<
               </div>
             </div>
           </div>
+
+          {!loginState.isPending && !loginState.signedIn && (
+            <div
+              className={css`
+                padding: 0 1rem;
+                margin-bottom: 2rem;
+              `}
+            >
+              <YellowBox>{t("please-log-in-to-answer-exercise")}</YellowBox>
+
+              <AWithNoDecoration href={loginRoute(returnTo)}>
+                <button className={cx(exerciseButtonStyles, makeExerciseButtonMutedStyles)}>
+                  {t("log-in")}
+                </button>
+              </AWithNoDecoration>
+              <AWithNoDecoration href={signUpRoute(returnTo)}>
+                <button className={cx(exerciseButtonStyles)}>{t("create-new-account")}</button>
+              </AWithNoDecoration>
+            </div>
+          )}
+
           <div
             className={css`
               padding: 0 1rem;
+              ${!loginState.isPending &&
+              !loginState.signedIn &&
+              `
+              pointer-events: none !important;
+              user-select: none !important;
+              filter: blur(2px);
+              opacity: 0.9;
+              `}
             `}
+            // Waiting for https://github.com/facebook/react/pull/24730
+            {...{ inert: !loginState.isPending && !loginState.signedIn ? "" : undefined }}
           >
             {exerciseDeadline &&
               (Date.now() < exerciseDeadline.getTime() ? (
@@ -506,7 +561,27 @@ const ExerciseBlock: React.FC<
                 parentExerciseQuery={getCourseMaterialExercise}
               />
             )}
-            {reviewingStage === "WaitingForPeerReviews" && <WaitingForPeerReviews />}
+            {(reviewingStage === "WaitingForPeerReviews" ||
+              reviewingStage === "ReviewedAndLocked") && (
+              <div
+                className={css`
+                  padding: 0.5rem 0.45rem;
+                  background-color: white;
+                  border-radius: 0.625rem;
+                `}
+              >
+                {reviewingStage === "WaitingForPeerReviews" && (
+                  <WaitingForPeerReviews exerciseId={id} />
+                )}
+                {inSubmissionView &&
+                  getCourseMaterialExercise.data.exercise.needs_peer_review &&
+                  exerciseSlideSubmissionId &&
+                  (reviewingStage === "WaitingForPeerReviews" ||
+                    reviewingStage === "ReviewedAndLocked") && (
+                    <PeerReviewsReceived id={id} submissionId={exerciseSlideSubmissionId} />
+                  )}
+              </div>
+            )}
             <div>
               {getCourseMaterialExercise.data.can_post_submission &&
                 !userOnWrongLanguageVersion &&
@@ -517,7 +592,7 @@ const ExerciseBlock: React.FC<
                       answers.size < (postThisStateToIFrame?.length ?? 0) ||
                       Array.from(answers.values()).some((x) => !x.valid)
                     }
-                    className={cx(optionButton)}
+                    className={cx(exerciseButtonStyles)}
                     onClick={() => {
                       if (!courseInstanceId && !getCourseMaterialExercise.data.exercise.exam_id) {
                         return
@@ -537,7 +612,7 @@ const ExerciseBlock: React.FC<
                         {
                           onSuccess: (res) => {
                             queryClient.setQueryData(
-                              queryUniqueKey,
+                              courseMaterialExerciseQueryKey(id),
                               (old: CourseMaterialExercise | undefined) => {
                                 if (!old) {
                                   // eslint-disable-next-line i18next/no-literal-string
@@ -578,13 +653,7 @@ const ExerciseBlock: React.FC<
                     {t("submit-button")}
                   </button>
                 )}
-              {inSubmissionView &&
-                getCourseMaterialExercise.data.exercise.needs_peer_review &&
-                exerciseSlideSubmissionId &&
-                (reviewingStage === "WaitingForPeerReviews" ||
-                  reviewingStage === "ReviewedAndLocked") && (
-                  <PeerReviewReceived id={id} submissionId={exerciseSlideSubmissionId} />
-                )}
+
               {inSubmissionView &&
                 (reviewingStage === "NotStarted" || reviewingStage === undefined) && (
                   <div>
@@ -622,7 +691,7 @@ const ExerciseBlock: React.FC<
                     >
                       {!ranOutOfTries && (
                         <button
-                          className={cx(optionButton)}
+                          className={cx(exerciseButtonStyles)}
                           onClick={() => {
                             tryAgainMutation.mutate()
                           }}
@@ -637,15 +706,9 @@ const ExerciseBlock: React.FC<
                       )}
                       {needsPeerReview && (
                         <button
-                          className={cx(optionButton)}
-                          disabled={!needsPeerReview || !allowStartPeerReview}
-                          onClick={async () => {
-                            setAllowStartPeerReview(false)
-                            await postStartPeerReview(id).finally(() =>
-                              setAllowStartPeerReview(true),
-                            )
-                            await getCourseMaterialExercise.refetch()
-                          }}
+                          className={cx(exerciseButtonStyles)}
+                          disabled={startPeerReviewMutation.isPending}
+                          onClick={() => startPeerReviewMutation.mutate()}
                         >
                           {t("start-peer-review")}
                         </button>
@@ -655,9 +718,6 @@ const ExerciseBlock: React.FC<
                 )}
               {postSubmissionMutation.isError && (
                 <ErrorBanner variant={"readOnly"} error={postSubmissionMutation.error} />
-              )}
-              {!loginState.isPending && !loginState.signedIn && (
-                <div>{t("please-log-in-to-answer-exercise")}</div>
               )}
             </div>
           </div>

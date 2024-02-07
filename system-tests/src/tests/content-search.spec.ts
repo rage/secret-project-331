@@ -30,7 +30,7 @@ test("content search", async ({ page, headless }, testInfo) => {
 
   // Fill [placeholder="Search..."]
   await page.fill('[placeholder="Search..."]', "ma")
-  await page.waitForSelector("text=Human-machine interface")
+  await page.getByText("Human-machine interface").waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     axeSkip: ["aria-hidden-focus", "landmark-unique", "landmark-one-main", "page-has-heading-one"],
@@ -55,9 +55,9 @@ test("content search", async ({ page, headless }, testInfo) => {
 
   // Fill [placeholder="Search..."]
   await page.fill('[placeholder="Search..."]', "welcome course")
-  await page.waitForSelector(
-    "text=Welcome to Introduction to Course Material In this course you'll...",
-  )
+  await page
+    .getByText("Welcome to Introduction to Course Material In this course you'll...")
+    .waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     axeSkip: ["aria-hidden-focus", "landmark-one-main", "page-has-heading-one"],
@@ -74,7 +74,7 @@ test("content search", async ({ page, headless }, testInfo) => {
   // For example if the search word is banana cat the text banana cat should be
   // ranked higher than the text banana ...lots of random text... cat
   await page.fill('[placeholder="Search..."]', "banana cat")
-  await page.waitForSelector("text=banana cat enim")
+  await page.getByText("banana cat enim").waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     axeSkip: ["landmark-one-main", "page-has-heading-one"],

@@ -62,7 +62,7 @@ test("history test", async ({ page, headless }, testInfo) => {
 
   await page.click(`button:text-is("Save") >> visible=true`)
   // TODO: wait for page saved notification
-  await page.waitForSelector(`button:enabled:text("Save") >> visible=true`)
+  await page.locator(`button:enabled:text("Save") >> visible=true`).waitFor()
   await page.waitForTimeout(100)
 
   // Triple click [placeholder="Exercise name"]
@@ -90,7 +90,7 @@ test("history test", async ({ page, headless }, testInfo) => {
   await frame.locator(':nth-match(input[type="checkbox"], 2)').check()
 
   await page.click(`button:text-is("Save") >> visible=true`)
-  await page.waitForSelector(`button:enabled:text("Save") >> visible=true`)
+  await page.locator(`button:enabled:text("Save") >> visible=true`).waitFor()
   await page.waitForTimeout(100)
 
   await page.goto("http://project-331.local/org/uh-cs")
@@ -105,18 +105,18 @@ test("history test", async ({ page, headless }, testInfo) => {
 
   await page.click(`a:has-text("History")`)
 
-  await page.waitForSelector("text=core/paragraph")
+  await page.getByText("core/paragraph").waitFor()
 
   // Go back and navigate to the page again to workaround a race condition related to monaco editor fonts. This way the font used by monaco editor is already cached
   await page.goBack()
-  await page.waitForSelector("text=Course pages for Introduction to history")
+  await page.getByText("Course pages for Introduction to history").waitFor()
 
   await page.click(`[aria-label="Dropdown menu"]:right-of(:text("New title"))`)
 
   await page.click(`a:has-text("History")`)
 
   /*
-  const stableElement = await page.waitForSelector("text=core/paragraph")
+  const stableElement = await page.getByText("core/paragraph").waitFor()
   await expectScreenshotsToMatchSnapshots({
 screenshotTarget: page,
     headless, testInfo,    axeSkip: [`landmark-unique`],
@@ -133,7 +133,7 @@ screenshotTarget: page,
   await expectUrlPathWithRandomUuid(page, "/manage/pages/[id]/history?page=4")
 
   /*
-  const stableElement2 = await page.waitForSelector("text=core/paragraph")
+  const stableElement2 = await page.getByText("core/paragraph").waitFor()
 
   await expectScreenshotsToMatchSnapshots({
 screenshotTarget: page,
@@ -150,7 +150,7 @@ screenshotTarget: page,
   await page.waitForTimeout(100)
 
   await page.locator("text=Compare").click()
-  await page.waitForSelector("text=core/paragraph")
+  await page.getByText("core/paragraph").waitFor()
 
   await page.click(':nth-match(:text("["), 3)')
 
@@ -164,7 +164,7 @@ screenshotTarget: page,
   //   "PageDown",
   // )
 
-  // await page.waitForSelector("text=Best exercise")
+  // await page.getByText("Best exercise").waitFor()
 
   /*
   await expectScreenshotsToMatchSnapshots({
@@ -186,7 +186,7 @@ screenshotTarget: page,
 
   await page.locator("text=Restore").click()
   await page.locator("text=Page edit history").click() // deselect restore
-  await page.waitForSelector("[aria-label='Current page: 1']")
+  await page.locator("[aria-label='Current page: 1']").waitFor()
   await page.waitForTimeout(100)
   /*
   await expectScreenshotsToMatchSnapshots({

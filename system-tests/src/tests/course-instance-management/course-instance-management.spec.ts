@@ -132,7 +132,7 @@ test("Managing course instances works", async ({ page, headless }, testInfo) => 
     window.scrollTo(0, 0)
   })
 
-  await page.waitForSelector("text=Instance is open and ends at")
+  await page.getByText("Instance is open and ends at").waitFor()
 
   await page.evaluate(() => {
     const divs = document.querySelectorAll("div")

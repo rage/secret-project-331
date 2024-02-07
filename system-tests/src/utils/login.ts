@@ -27,6 +27,6 @@ export async function login(
   if (!stayLoggedIn) {
     await page.locator("id=main-navigation-menu").click()
     await page.locator("text=Log out").click()
-    await page.waitForSelector("text=Log in")
+    await page.getByText("Log in").waitFor()
   }
 }

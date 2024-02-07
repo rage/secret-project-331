@@ -26,7 +26,7 @@ test("quizzes open feedback", async ({ page, headless }, testInfo) => {
   )
 
   await page.click(`a:has-text("Page 4")`)
-  await page.waitForSelector("text=First chapters open page.")
+  await page.getByText("First chapters open page.").waitFor()
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/page-4",
   )

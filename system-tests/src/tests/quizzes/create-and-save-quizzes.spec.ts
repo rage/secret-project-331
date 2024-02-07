@@ -32,7 +32,7 @@ const createPageAndNavigate = async (page: Page) => {
 
   await page.click(`button:text("Create"):below(:text("Course language"))`)
 
-  await page.waitForSelector("text=Operation successful!")
+  await page.getByText("Operation successful!").waitFor()
 
   await page.click(`a[aria-label="Manage course 'exercise test'"]`)
 
@@ -50,7 +50,7 @@ const createPageAndNavigate = async (page: Page) => {
 
   await page.click(`button:text("Create")`)
 
-  await page.waitForSelector(`text=Chapter 1`)
+  await page.getByText(`Chapter 1`).waitFor()
 
   await page.click(`:nth-match(button:text("New page"):below(:text("Chapter 1")), 1)`)
 

@@ -58,11 +58,11 @@ test("Limited tries work", async ({ page }) => {
   )
 
   await Promise.all([
-    page.waitForSelector('span.heading:has-text("POINTS")'),
-    page.waitForSelector('div.points:has-text("0⁄8")'),
+    page.locator('span.heading:has-text("POINTS")').waitFor(),
+    page.locator('div.points:has-text("0⁄8")').waitFor(),
   ])
 
-  await page.waitForSelector('div.tries:has-text("2")')
+  await page.locator('div.tries:has-text("2")').waitFor()
 
   await page.frameLocator("iframe").locator("text=AC").click()
 
@@ -70,7 +70,7 @@ test("Limited tries work", async ({ page }) => {
 
   await page.locator("text=Submit").click()
 
-  await page.waitForSelector('div.tries:has-text("1")')
+  await page.locator('div.tries:has-text("1")').waitFor()
 
   await page.locator("text=try again").click()
 
@@ -83,6 +83,6 @@ test("Limited tries work", async ({ page }) => {
 
   await page.locator("text=Submit").click()
 
-  await page.waitForSelector('div.tries:has-text("0")')
+  await page.locator('div.tries:has-text("0")').waitFor()
   await page.locator("text=try again").waitFor({ state: "hidden" })
 })

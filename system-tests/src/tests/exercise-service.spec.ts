@@ -42,7 +42,7 @@ test("can add and delete exercise service", async ({ page, headless }, testInfo)
   await page.click('[placeholder="Internal URL..."]')
 
   await page.click('button:text("Create")')
-  await page.waitForSelector("text=New exercise service")
+  await page.getByText("New exercise service").waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,

@@ -99,7 +99,7 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
 
   await page.click('button:has-text("Send")')
 
-  await page.waitForSelector("text=Feedback submitted successfully")
+  await page.getByText("Feedback submitted successfully").waitFor()
 
   await page.goto("http://project-331.local/")
 

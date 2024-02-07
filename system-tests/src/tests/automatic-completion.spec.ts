@@ -33,7 +33,7 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
 
   await page.locator("text=Automatic Completions").click()
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs/courses/automatic-completions")
-  await page.waitForSelector("text=Congratulations!")
+  await page.getByText("Congratulations!").waitFor()
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
@@ -100,7 +100,7 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
 
   await page.locator("text=Automatic Completions").click()
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs/courses/automatic-completions")
-  await page.waitForSelector("text=Congratulations!")
+  await page.getByText("Congratulations!").waitFor()
 
   await page.locator("text=Automatic CompletionsRegister >> button").click()
 

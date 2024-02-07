@@ -25,7 +25,7 @@ test("quizzes essay feedback", async ({ page, headless }, testInfo) => {
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1",
   )
 
-  await page.waitForSelector(`a:has-text("Page 3")`)
+  await page.locator(`a:has-text("Page 3")`).waitFor()
   await page.click(`a:has-text("Page 3")`)
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/page-3",

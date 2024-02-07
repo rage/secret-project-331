@@ -46,12 +46,12 @@ test.describe("Login session with Playwright", async () => {
 
   test("is succesful", async ({ page }) => {
     await page.locator("id=main-navigation-menu").click()
-    expect(await page.waitForSelector("text=Log out")).toBeTruthy()
+    expect(await page.getByText("Log out").waitFor()).toBeTruthy()
   })
 
   test("able to logout", async ({ page }) => {
     await logout(page)
-    expect(await page.waitForSelector("text=Log in")).toBeTruthy()
+    expect(await page.getByText("Log in").waitFor()).toBeTruthy()
   })
 })
 
@@ -76,7 +76,7 @@ test.describe("Login return_to", async () => {
 
     await page.locator("id=main-navigation-menu").click()
     await page.locator("text=Log in").click()
-    await page.waitForSelector(`label:has-text("Password")`)
+    await page.locator(`label:has-text("Password")`).waitFor()
     await page.waitForURL(/http:\/\/project-331\.local\/login\?return_to=.*/)
 
     await page.click(`label:has-text("Email")`)

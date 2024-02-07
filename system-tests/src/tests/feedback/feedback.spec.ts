@@ -72,7 +72,7 @@ test("feedback test", async ({ page, headless }, testInfo) => {
 
   await page.click(`button:text("Add comment")`)
   await page.click(`button:text("Send")`)
-  await page.waitForSelector("text=Feedback submitted successfully")
+  await page.getByText("Feedback submitted successfully").waitFor()
 
   await logout(page)
   await login("admin@example.com", "admin", page, true)
@@ -90,7 +90,7 @@ test("feedback test", async ({ page, headless }, testInfo) => {
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/feedback")
 
   // Makes sure the components have rendered so that the next waitForTheseToBeVisibleAndStable always works with the placeholder
-  await page.waitForSelector(`text="Page: Page One"`)
+  await page.getByText(`Page: Page One`).waitFor()
 
   // Unread feedback view
   await expectScreenshotsToMatchSnapshots({
@@ -105,13 +105,13 @@ test("feedback test", async ({ page, headless }, testInfo) => {
 
   await page.locator("text=Mark as read").first().click()
   // We have to wait for the feedback item to disappear so that we don't accidentally click the same button multiple times. Computers are sometimes faster that one would expect.
-  await page.waitForSelector("text=I found this pretty confusing!", { state: "hidden" })
+  await page.getByText("I found this pretty confusing!").waitFor({ state: "hidden" })
   await page.locator("text=Mark as read").first().click()
-  await page.waitForSelector("text=Anonymous unrelated feedback", { state: "hidden" })
+  await page.getByText("Anonymous unrelated feedback").waitFor({ state: "hidden" })
   await page.locator("text=Mark as read").first().click()
-  await page.waitForSelector("text=Anonymous feedback", { state: "hidden" })
+  await page.getByText("Anonymous feedback").waitFor({ state: "hidden" })
   await page.locator("text=Mark as read").first().click()
-  await page.waitForSelector("text=I dont think we need these paragraphs", { state: "hidden" })
+  await page.getByText("I dont think we need these paragraphs").waitFor({ state: "hidden" })
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,

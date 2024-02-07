@@ -144,11 +144,11 @@ test("Creating a course an returning an exercise works", async ({ page }) => {
   await frame.locator(':nth-match(input[type="checkbox"], 2)').check()
 
   await page.click('button:text-is("Save") >> visible=true')
-  await page.waitForSelector(`text="Operation successful!"`)
+  await page.getByText(`Operation successful!`).waitFor()
 
   // Check that the assignment still displays after saving
   await page.click('[aria-label="Block: ExerciseTask"] [aria-label="Edit"]')
-  await page.waitForSelector(`text="Please select the most correct alternative."`)
+  await page.getByText(`Please select the most correct alternative.`).waitFor()
 
   await page.goto(`http://project-331.local/org/uh-cs/courses/introduction-to-system-level-testing`)
 
@@ -174,7 +174,7 @@ test("Creating a course an returning an exercise works", async ({ page }) => {
   await page.locator("#content >> text=Submit").click()
 
   await Promise.all([
-    page.waitForSelector('span.heading:has-text("POINTS")'),
-    page.waitForSelector('div.points:has-text("1⁄1")'),
+    page.locator('span.heading:has-text("POINTS")').waitFor(),
+    page.locator('div.points:has-text("1⁄1")').waitFor(),
   ])
 })

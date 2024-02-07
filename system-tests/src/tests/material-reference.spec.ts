@@ -160,7 +160,7 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
   await page.locator('[aria-label="Table caption text"]').fill(CAPTION_CONTENT)
 
   await page.locator("text=Save").nth(3).click()
-  await page.waitForSelector(`text="Operation successful!"`)
+  await page.getByText(`Operation successful!`).waitFor()
 
   await page.goto(
     "http://project-331.local/org/uh-mathstat/courses/introduction-to-citations/chapter-1/page-1",

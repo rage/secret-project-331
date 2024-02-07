@@ -556,6 +556,7 @@ pub async fn create_exam(
     Ok(new_exam_id)
 }
 
+#[allow(clippy::too_many_arguments)]
 pub async fn create_best_peer_review(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -563,10 +564,9 @@ pub async fn create_best_peer_review(
     processing_strategy: peer_review_configs::PeerReviewProcessingStrategy,
     accepting_threshold: f32,
     points_are_all_or_nothing: bool,
+    peer_reviews_to_give: i32,
+    peer_reviews_to_receive: i32,
 ) -> Result<()> {
-    // let prc_id =
-    //     peer_review_configs::insert(conn, PKeyPolicy::Generate, course_id, Some(exercise_id))
-    //         .await?;
     let prc = peer_review_configs::upsert_with_id(
         conn,
         PKeyPolicy::Generate,
@@ -574,8 +574,8 @@ pub async fn create_best_peer_review(
             id: Uuid::new_v4(),
             course_id,
             exercise_id: Some(exercise_id),
-            peer_reviews_to_give: 3,
-            peer_reviews_to_receive: 2,
+            peer_reviews_to_give,
+            peer_reviews_to_receive,
             accepting_threshold,
             processing_strategy,
             points_are_all_or_nothing,

@@ -36,14 +36,12 @@ import {
 import { GradingRequest } from "../shared-module/exercise-service-protocol-types-2"
 import useToastMutation from "../shared-module/hooks/useToastMutation"
 import { baseTheme, monospaceFont } from "../shared-module/styles"
-import { narrowContainerWidthPx } from "../shared-module/styles/constants"
 import { respondToOrLarger } from "../shared-module/styles/respond"
 import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 import withNoSsr from "../shared-module/utils/withNoSsr"
 
 interface PlaygroundFields {
   url: string
-  width: string
   private_spec: string
   showIframeBorders: boolean
   disableSandbox: boolean
@@ -175,7 +173,6 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
     defaultValues: {
       // eslint-disable-next-line i18next/no-literal-string
       url: localStorage.getItem("service-info-url") ?? DEFAULT_SERVICE_INFO_URL,
-      width: narrowContainerWidthPx.toString(),
       // eslint-disable-next-line i18next/no-literal-string
       private_spec: "null",
       showIframeBorders: true,
@@ -186,7 +183,6 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
     },
   })
 
-  const width = watch("width")
   const url = watch("url")
   const privateSpec = watch("private_spec")
   const showIframeBorders = watch("showIframeBorders")
@@ -420,11 +416,6 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
             )}
           </ServiceInfoUrlGridArea>
           <MiscSettingsGridArea>
-            <TextField
-              placeholder={t("label-width")}
-              label={t("label-width")}
-              {...register("width")}
-            />
             <CheckBox label={t("show-iframe-borders")} {...register("showIframeBorders")} />
             <CheckBox label={t("disable-sandbox")} {...register("disableSandbox")} />
             <TextField

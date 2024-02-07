@@ -54,7 +54,11 @@ const ExamList: React.FC<React.PropsWithChildren<Props>> = ({
             <li key={exam.id}>
               <a href={`/org/${organizationSlug}/exams/${exam.id}`}>{exam.name}</a>
               <br />
-              <a href={`/manage/exams/${exam.id}`}>{t("manage")}</a>
+              <a
+                href={`/manage/exams/${exam.id}?org-slug=${organizationSlug}&org-id=${organizationId}`}
+              >
+                {t("manage")}
+              </a>
             </li>
           )
         })}

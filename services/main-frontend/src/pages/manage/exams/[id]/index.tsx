@@ -3,7 +3,12 @@ import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { fetchExam, setCourse, unsetCourse } from "../../../../services/backend/exams"
+import {
+  fetchExam,
+  fetchOrganizationExams,
+  setCourse,
+  unsetCourse,
+} from "../../../../services/backend/exams"
 import Button from "../../../../shared-module/components/Button"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import TextField from "../../../../shared-module/components/InputFields/TextField"
@@ -37,6 +42,12 @@ const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = (
       },
     },
   )
+
+  const queryString = window.location.search
+  const urlParams = new URLSearchParams(queryString)
+  const organizationSlug = urlParams.get("org-slug")
+  const organizationId = urlParams.get("org-id")
+
   const unsetCourseMutation = useToastMutation(
     ({ examId, courseId }: { examId: string; courseId: string }) => {
       return unsetCourse(examId, courseId)
@@ -52,6 +63,25 @@ const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = (
     },
   )
 
+  const getOrgExams = useQuery({
+    queryKey: ["organization-exams", organizationId],
+    queryFn: () => {
+      if (organizationId) {
+        return fetchOrganizationExams(organizationId)
+      } else {
+        return Promise.reject(new Error("Organization ID undefined"))
+      }
+    },
+    enabled: !!organizationId,
+  })
+
+  if (getOrgExams.isError) {
+    return <ErrorBanner variant={"readOnly"} error={getOrgExams.error} />
+  }
+
+  if (getOrgExams.isPending) {
+    return <Spinner variant={"medium"} />
+  }
   return (
     <div
       className={css`

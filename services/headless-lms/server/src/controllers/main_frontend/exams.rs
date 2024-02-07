@@ -138,7 +138,7 @@ async fn duplicate_exam(
     exam_id: web::Path<Uuid>,
     new_exam: web::Json<NewExam>,
     user: AuthUser,
-) -> ControllerResult<web::Json<()>> {
+) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
     let organization_id = models::exams::get_organization_id(&mut conn, *exam_id).await?;
     let token = authorize(
@@ -161,7 +161,7 @@ async fn duplicate_exam(
     .await?;
     tx.commit().await?;
 
-    token.authorized_ok(web::Json(()))
+    token.authorized_ok(web::Json(true))
 }
 
 /**

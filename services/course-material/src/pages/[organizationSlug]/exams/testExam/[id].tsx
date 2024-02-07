@@ -1,30 +1,42 @@
+/* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { addMinutes, differenceInSeconds, isPast, min } from "date-fns"
-import React, { useCallback, useContext, useEffect, useReducer } from "react"
+import React, { useCallback, useContext, useEffect, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import ContentRenderer from "../../../components/ContentRenderer"
-import Page from "../../../components/Page"
-import ExamStartBanner from "../../../components/exams/ExamStartBanner"
-import ExamTimer from "../../../components/exams/ExamTimer"
-import ExamTimeOverModal from "../../../components/modals/ExamTimeOverModal"
-import LayoutContext from "../../../contexts/LayoutContext"
-import PageContext, { CoursePageDispatch, getDefaultPageState } from "../../../contexts/PageContext"
-import useTime from "../../../hooks/useTime"
-import pageStateReducer from "../../../reducers/pageStateReducer"
-import { Block, enrollInExam, fetchExam } from "../../../services/backend"
-import BreakFromCentered from "../../../shared-module/components/Centering/BreakFromCentered"
-import ErrorBanner from "../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../shared-module/components/Spinner"
-import HideTextInSystemTests from "../../../shared-module/components/system-tests/HideTextInSystemTests"
-import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
-import { baseTheme } from "../../../shared-module/styles"
-import { respondToOrLarger } from "../../../shared-module/styles/respond"
+import ContentRenderer from "../../../../components/ContentRenderer"
+import Page from "../../../../components/Page"
+import ExamStartBanner from "../../../../components/exams/ExamStartBanner"
+import ExamTimer from "../../../../components/exams/ExamTimer"
+import ExamTimeOverModal from "../../../../components/modals/ExamTimeOverModal"
+import LayoutContext from "../../../../contexts/LayoutContext"
+import PageContext, {
+  CoursePageDispatch,
+  getDefaultPageState,
+} from "../../../../contexts/PageContext"
+import useTime from "../../../../hooks/useTime"
+import pageStateReducer from "../../../../reducers/pageStateReducer"
+import {
+  Block,
+  enrollInExam,
+  fetchExamForTesting,
+  resetExamProgress,
+  updateShowExerciseAnswers,
+} from "../../../../services/backend"
+import Button from "../../../../shared-module/components/Button"
+import BreakFromCentered from "../../../../shared-module/components/Centering/BreakFromCentered"
+import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
+import CheckBox from "../../../../shared-module/components/InputFields/CheckBox"
+import Spinner from "../../../../shared-module/components/Spinner"
+import HideTextInSystemTests from "../../../../shared-module/components/system-tests/HideTextInSystemTests"
+import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
+import { baseTheme } from "../../../../shared-module/styles"
+import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
-} from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
-import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
+} from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 interface ExamProps {
   // "organizationSlug"
@@ -34,6 +46,8 @@ interface ExamProps {
 const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
   const { t, i18n } = useTranslation()
   const examId = query.id
+
+  const [showExamAnswers, setShowExamAnswers] = useState<boolean>(false)
   const [pageState, pageStateDispatch] = useReducer(
     pageStateReducer,
     // We don't pass a refetch function here on purpose because refetching during an exam is risky because we don't want to accidentally lose unsubitted answers
@@ -41,7 +55,22 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
   )
   const now = useTime(5000)
 
-  const exam = useQuery({ queryKey: [`exam-page-${examId}`], queryFn: () => fetchExam(examId) })
+  const exam = useQuery({
+    queryKey: [`exam-page-${examId}-fetch-exam-for-testing`],
+    queryFn: () => fetchExamForTesting(examId),
+  })
+
+  const resetExam = useQuery({
+    queryKey: [`exam-page-${examId}-reset-exam-progress`],
+    queryFn: () => resetExamProgress(examId),
+    enabled: false,
+  })
+
+  const updateShowAnswers = useQuery({
+    queryKey: [`exam-page-${examId}-update-show-exercise-answers`, showExamAnswers],
+    queryFn: () => updateShowExerciseAnswers(examId, showExamAnswers),
+    enabled: false,
+  })
 
   useEffect(() => {
     if (exam.isError) {
@@ -59,6 +88,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
           isTest: false,
         },
       })
+      // setShowExamAnswers(exam.data.enrollment_data.enrollment.show_exercise_answers ?? false)
     } else {
       // eslint-disable-next-line i18next/no-literal-string
       pageStateDispatch({ type: "setLoading" })
@@ -80,12 +110,26 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
   }, [layoutContext, query.organizationSlug])
 
   const handleRefresh = useCallback(async () => {
+    console.log("1", exam)
     await exam.refetch()
+    console.log("2", exam)
   }, [exam])
 
+  //this
   const handleTimeOverModalClose = useCallback(async () => {
     await handleRefresh()
   }, [handleRefresh])
+
+  const handleResetProgress = () => {
+    resetExam.refetch()
+    exam.refetch()
+  }
+
+  const handleShowAnswers = () => {
+    updateShowAnswers.refetch()
+    exam.refetch()
+    //usemutation reset?
+  }
 
   if (exam.isPending) {
     return <Spinner variant="medium" />
@@ -180,7 +224,6 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
       </div>
     </BreakFromCentered>
   )
-
   if (
     exam.data.enrollment_data.tag === "NotEnrolled" ||
     exam.data.enrollment_data.tag === "NotYetStarted"
@@ -191,11 +234,11 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
         <div id="exam-instructions">
           <ExamStartBanner
             onStart={async () => {
-              await enrollInExam(examId, false)
+              await enrollInExam(examId, true)
               exam.refetch()
             }}
             examEnrollmentData={exam.data.enrollment_data}
-            examHasStarted={exam.data.starts_at ? isPast(exam.data.starts_at) : false}
+            examHasStarted={true}
             examHasEnded={exam.data.ends_at ? isPast(exam.data.ends_at) : false}
             timeMinutes={exam.data.time_minutes}
           >
@@ -237,36 +280,54 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
   const secondsLeft = differenceInSeconds(endsAt, now)
 
   return (
-    <CoursePageDispatch.Provider value={pageStateDispatch}>
-      <PageContext.Provider value={pageState}>
-        <ExamTimeOverModal
-          disabled={exam.data.ended}
-          secondsLeft={secondsLeft}
-          onClose={handleTimeOverModalClose}
-        />
-        {examInfo}
-
-        <ExamTimer
-          startedAt={exam.data.enrollment_data.enrollment.started_at}
-          endsAt={endsAt}
-          secondsLeft={secondsLeft}
-        />
-        {secondsLeft < 10 * 60 && (
-          <div
-            className={css`
-              background-color: ${baseTheme.colors.yellow[100]};
-              color: black;
-              padding: 0.7rem 1rem;
-              margin: 1rem 0;
-              border: 1px solid ${baseTheme.colors.yellow[300]};
-            `}
-          >
-            <div>{t("exam-time-running-out-soon-help-text")}</div>
+    <>
+      <CoursePageDispatch.Provider value={pageStateDispatch}>
+        <PageContext.Provider value={pageState}>
+          <ExamTimeOverModal
+            disabled={exam.data.ended}
+            secondsLeft={secondsLeft}
+            onClose={handleTimeOverModalClose}
+          />
+          {examInfo}
+          <ExamTimer
+            startedAt={exam.data.enrollment_data.enrollment.started_at}
+            endsAt={endsAt}
+            secondsLeft={secondsLeft}
+          />
+          {secondsLeft < 10 * 60 && (
+            <div
+              className={css`
+                background-color: ${baseTheme.colors.yellow[100]};
+                color: black;
+                padding: 0.7rem 1rem;
+                margin: 1rem 0;
+                border: 1px solid ${baseTheme.colors.yellow[300]};
+              `}
+            >
+              <div>{t("exam-time-running-out-soon-help-text")}</div>
+            </div>
+          )}
+          <Page onRefresh={handleRefresh} organizationSlug={query.organizationSlug} />
+        </PageContext.Provider>
+      </CoursePageDispatch.Provider>
+      <>
+        {exam.data?.enrollment_data.enrollment.is_teacher_testing && (
+          <div>
+            <Button variant="primary" size="medium" onClick={handleResetProgress}>
+              Reset exam progress
+            </Button>
+            <CheckBox
+              label={"show answers"}
+              checked={showExamAnswers}
+              onChange={() => {
+                setShowExamAnswers(!showExamAnswers)
+                handleShowAnswers()
+              }}
+            />
           </div>
         )}
-        <Page onRefresh={handleRefresh} organizationSlug={query.organizationSlug} />
-      </PageContext.Provider>
-    </CoursePageDispatch.Provider>
+      </>
+    </>
   )
 }
 

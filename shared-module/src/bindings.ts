@@ -503,6 +503,8 @@ export interface ExamEnrollment {
   user_id: string
   exam_id: string
   started_at: Date
+  is_teacher_testing: boolean
+  show_exercise_answers: boolean | null
 }
 
 export interface ExamInstructions {

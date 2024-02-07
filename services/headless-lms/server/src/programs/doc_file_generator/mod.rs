@@ -920,7 +920,9 @@ fn models() {
         ExamEnrollment {
             user_id,
             exam_id,
-            started_at
+            started_at,
+            is_teacher_testing,
+            show_exercise_answers,
         }
     );
     doc!(CourseMaterialExercise {

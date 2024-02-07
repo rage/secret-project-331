@@ -395,13 +395,44 @@ export const fetchExamEnrollment = async (examId: string): Promise<ExamEnrollmen
   return response.data
 }
 
-export const enrollInExam = async (examId: string): Promise<void> => {
-  await courseMaterialClient.post(`/exams/${examId}/enroll`, { responseType: "json" })
+export const enrollInExam = async (examId: string, is_teacher_testing: boolean): Promise<void> => {
+  await courseMaterialClient.post(
+    `/exams/${examId}/enroll`,
+    { is_teacher_testing },
+    {
+      responseType: "json",
+    },
+  )
 }
 
 export const fetchExam = async (examId: string): Promise<ExamData> => {
   const response = await courseMaterialClient.get(`/exams/${examId}`, { responseType: "json" })
   return validateResponse(response, isExamData)
+}
+
+export const fetchExamForTesting = async (examId: string): Promise<ExamData> => {
+  const response = await courseMaterialClient.get(`/exams/${examId}/fetch-exam-for-testing`, {
+    responseType: "json",
+  })
+  return validateResponse(response, isExamData)
+}
+
+export const resetExamProgress = async (examId: string): Promise<void> => {
+  const response = await courseMaterialClient.get(`/exams/${examId}/reset-exam-progress`)
+  return response.data
+}
+
+export const updateShowExerciseAnswers = async (
+  examId: string,
+  showExerciseAnswers: boolean,
+): Promise<void> => {
+  await courseMaterialClient.post(
+    `/exams/${examId}/update-show-exercise-answers`,
+    { show_exercise_answers: showExerciseAnswers },
+    {
+      responseType: "json",
+    },
+  )
 }
 
 export const saveExamAnswer = async (

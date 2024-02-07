@@ -191,21 +191,16 @@ pub async fn edit(
     starts_at: Option<DateTime<Utc>>,
     ends_at: Option<DateTime<Utc>>,
     time_minutes: Option<i32>,
+    minimum_points_treshold: Option<i32>,
 ) -> ModelResult<()> {
-    if time_minutes.map(|i| i > 0).unwrap_or_default() {
-        return Err(ModelError::new(
-            ModelErrorType::InvalidRequest,
-            "Exam duration has to be positive".to_string(),
-            None,
-        ));
-    }
     sqlx::query!(
         "
 UPDATE exams
 SET name = COALESCE($2, name),
   starts_at = $3,
   ends_at = $4,
-  time_minutes = $5
+  time_minutes = $5,
+  minimum_points_treshold = $6
 WHERE id = $1
 ",
         id,
@@ -213,6 +208,7 @@ WHERE id = $1
         starts_at,
         ends_at,
         time_minutes,
+        minimum_points_treshold,
     )
     .execute(conn)
     .await?;
@@ -294,14 +290,20 @@ FROM exams
     Ok(res)
 }
 
-pub async fn enroll(conn: &mut PgConnection, exam_id: Uuid, user_id: Uuid) -> ModelResult<()> {
+pub async fn enroll(
+    conn: &mut PgConnection,
+    exam_id: Uuid,
+    user_id: Uuid,
+    is_teacher_testing: bool,
+) -> ModelResult<()> {
     sqlx::query!(
         "
-INSERT INTO exam_enrollments (exam_id, user_id)
-VALUES ($1, $2)
+INSERT INTO exam_enrollments (exam_id, user_id, is_teacher_testing)
+VALUES ($1, $2, $3)
 ",
         exam_id,
-        user_id
+        user_id,
+        is_teacher_testing
     )
     .execute(conn)
     .await?;
@@ -336,6 +338,8 @@ pub struct ExamEnrollment {
     pub user_id: Uuid,
     pub exam_id: Uuid,
     pub started_at: DateTime<Utc>,
+    pub is_teacher_testing: bool,
+    pub show_exercise_answers: Option<bool>,
 }
 
 pub async fn get_enrollment(
@@ -348,7 +352,9 @@ pub async fn get_enrollment(
         "
 SELECT user_id,
   exam_id,
-  started_at
+  started_at,
+  is_teacher_testing,
+  show_exercise_answers
 FROM exam_enrollments
 WHERE exam_id = $1
   AND user_id = $2
@@ -360,6 +366,52 @@ WHERE exam_id = $1
     .fetch_optional(conn)
     .await?;
     Ok(res)
+}
+
+pub async fn update_exam_start_time(
+    conn: &mut PgConnection,
+    exam_id: Uuid,
+    user_id: Uuid,
+    started_at: DateTime<Utc>,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE exam_enrollments
+SET started_at = $3
+WHERE exam_id = $1
+  AND user_id = $2
+  AND deleted_at IS NULL
+",
+        exam_id,
+        user_id,
+        started_at
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+pub async fn update_show_exercise_answers(
+    conn: &mut PgConnection,
+    exam_id: Uuid,
+    user_id: Uuid,
+    show_exercise_answers: bool,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE exam_enrollments
+SET show_exercise_answers = $3
+WHERE exam_id = $1
+  AND user_id = $2
+  AND deleted_at IS NULL
+",
+        exam_id,
+        user_id,
+        show_exercise_answers
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }
 
 pub async fn get_organization_id(conn: &mut PgConnection, exam_id: Uuid) -> ModelResult<Uuid> {

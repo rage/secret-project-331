@@ -10,12 +10,12 @@ test("manage course structure works", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    page.locator("text=University of Helsinki, Department of Computer Science").click(),
+    page.getByText("University of Helsinki, Department of Computer Science").click(),
   ])
 
   await page.locator("[aria-label=\"Manage\\ course\\ \\'Course\\ Structure\\'\"] svg").click()
 
-  await page.locator("text=Pages").click()
+  await page.getByText("Pages").click()
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/86cbc198-601c-42f4-8e0f-3e6cce49bbfc/pages",
   )
@@ -54,11 +54,11 @@ test("manage course structure works", async ({ page, headless }, testInfo) => {
   // Test moving pages around
   await page.click('text=Page One/chapter-1/page-1Edit page >> [aria-label="Dropdown\\ menu"]')
 
-  await page.locator("text=Move down").click()
+  await page.getByText("Move down").click()
 
   await page.click('text=Page 6/chapter-1/page-6Edit page >> [aria-label="Dropdown\\ menu"]')
 
-  await page.locator("text=Move up").click()
+  await page.getByText("Move up").click()
 
   await page.click('button:text-is("Save")')
 
@@ -74,7 +74,7 @@ test("manage course structure works", async ({ page, headless }, testInfo) => {
   page.once("dialog", (dialog) => {
     dialog.accept()
   })
-  await page.locator("text=Delete").click()
+  await page.getByText("Delete").click()
 
   await page.click('button:text-is("Save")')
   await page.getByText("Operation successful!").waitFor()
@@ -101,7 +101,7 @@ test("manage course structure works", async ({ page, headless }, testInfo) => {
 
   await page.fill('[placeholder="Deadline"]', "2050-01-01T23:59:13")
 
-  await page.locator("text=Update").click()
+  await page.getByText("Update").click()
 
   await page.getByText("Operation successful!").waitFor()
   // eslint-disable-next-line playwright/no-wait-for-timeout
@@ -109,12 +109,12 @@ test("manage course structure works", async ({ page, headless }, testInfo) => {
   // Check if the rename is visible on the page
   await page.locator(`:text("The intermediaries TEST change")`).waitFor()
 
-  await page.locator("text=Page 3/chapter-1/page-3Edit page >> :nth-match(div, 2)").click()
+  await page.getByText("Page 3/chapter-1/page-3Edit page >> :nth-match(div, 2)").click()
 
   page.once("dialog", (dialog) => {
     dialog.accept()
   })
-  await page.locator("text=Delete").click()
+  await page.getByText("Delete").click()
 
   await page.getByText("Successfully deleted").waitFor()
 
@@ -126,7 +126,7 @@ test("manage course structure works", async ({ page, headless }, testInfo) => {
 
   await page.click('text=Chapter 1: The Basics >> [aria-label="Dropdown\\ menu"]')
 
-  await page.locator("text=Move down").click()
+  await page.getByText("Move down").click()
 
   await page.click('button:text-is("Save")')
 

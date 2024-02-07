@@ -17,17 +17,17 @@ test("history test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    await page.locator("text=University of Helsinki, Department of Computer Science").click(),
+    await page.getByText("University of Helsinki, Department of Computer Science").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
-  await page.locator("text=Introduction to history").click()
+  await page.getByText("Introduction to history").click()
 
   await selectCourseInstanceIfPrompted(page)
 
   await page.click('a:has-text("The Basics")')
 
-  await page.locator("text=1Page One").click()
+  await page.getByText("1Page One").click()
   // eslint-disable-next-line playwright/no-networkidle
   await page.waitForLoadState("networkidle")
 
@@ -45,14 +45,14 @@ test("history test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    page.locator("text=University of Helsinki, Department of Computer Science").click(),
+    page.getByText("University of Helsinki, Department of Computer Science").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
   await page.locator("[aria-label=\"Manage course 'Introduction to history'\"] svg").click()
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")
 
-  await page.locator("text=Pages").click()
+  await page.getByText("Pages").click()
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")
 
   await page.click(`button:text("Edit page"):right-of(:text("Page One"))`)
@@ -98,7 +98,7 @@ test("history test", async ({ page, headless }, testInfo) => {
   await page.locator("[aria-label=\"Manage course 'Introduction to history'\"] svg").click()
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")
 
-  await page.locator("text=Pages").click()
+  await page.getByText("Pages").click()
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")
 
   await page.click(`[aria-label="Dropdown menu"]:right-of(:text("New title"))`)
@@ -149,7 +149,7 @@ screenshotTarget: page,
 
   await page.waitForTimeout(100)
 
-  await page.locator("text=Compare").click()
+  await page.getByText("Compare").click()
   await page.getByText("core/paragraph").waitFor()
 
   await page.click(':nth-match(:text("["), 3)')
@@ -184,8 +184,8 @@ screenshotTarget: page,
   })
 */
 
-  await page.locator("text=Restore").click()
-  await page.locator("text=Page edit history").click() // deselect restore
+  await page.getByText("Restore").click()
+  await page.getByText("Page edit history").click() // deselect restore
   await page.locator("[aria-label='Current page: 1']").waitFor()
   await page.waitForTimeout(100)
   /*
@@ -193,7 +193,7 @@ screenshotTarget: page,
 screenshotTarget: page,
     headless, testInfo,    axeSkip: [`landmark-unique`],
     snapshotName: "history-view-after-restore",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=core/paragraph")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("core/paragraph")],
 
     beforeScreenshot: async () => {
       await replaceIdsAndTimesFromHistoryView(page)
@@ -202,11 +202,11 @@ screenshotTarget: page,
 */
   await page.goto("http://project-331.local/org/uh-cs")
 
-  await page.locator("text=Introduction to history").click()
+  await page.getByText("Introduction to history").click()
 
   await page.click('a:has-text("CHAPTER 1The Basics")')
 
-  await page.locator("text=1Page One").click()
+  await page.getByText("1Page One").click()
 
   // eslint-disable-next-line playwright/no-networkidle
   await page.waitForLoadState("networkidle")

@@ -10,7 +10,7 @@ test("Limited tries work", async ({ page }) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    page.locator("text=University of Helsinki, Department of Computer Science").click(),
+    page.getByText("University of Helsinki, Department of Computer Science").click(),
   ])
 
   await page.locator("[aria-label=\"Manage\\ course\\ \\'Limited\\ tries\\'\"] svg").click()
@@ -20,13 +20,13 @@ test("Limited tries work", async ({ page }) => {
     "http://project-331.local/manage/courses/9da60c66-9517-46e4-b351-07d0f7aa6cd4/pages",
   )
 
-  await page.locator("text=Page 6/chapter-1/page-6Edit page >> button").first().click()
+  await page.getByText("Page 6/chapter-1/page-6Edit page >> button").first().click()
 
   await page.locator('[placeholder="Max\\ points"]').click()
   // Fill [placeholder="Max\ points"]
   await page.locator('[placeholder="Max\\ points"]').fill("8")
 
-  await page.locator("text=Limit number of tries").click()
+  await page.getByText("Limit number of tries").click()
 
   await page.locator('[placeholder="Max\\ tries\\ per\\ slide"]').click()
   // Fill [placeholder="Max\ tries\ per\ slide"]
@@ -34,25 +34,25 @@ test("Limited tries work", async ({ page }) => {
 
   await page.locator(`button:text-is("Save")`).nth(1).click()
 
-  await page.locator("text=Operation successful!").waitFor()
+  await page.getByText("Operation successful!").waitFor()
 
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    page.locator("text=University of Helsinki, Department of Computer Science").click(),
+    page.getByText("University of Helsinki, Department of Computer Science").click(),
   ])
 
-  await page.locator("text=Limited tries").click()
+  await page.getByText("Limited tries").click()
 
-  await page.locator("text=Objective #1").waitFor({ state: "attached" })
+  await page.getByText("Objective #1").waitFor({ state: "attached" })
 
   await selectCourseInstanceIfPrompted(page)
 
-  await page.locator("text=Start course").click()
+  await page.getByText("Start course").click()
 
-  await page.locator("text=The Basics").click()
+  await page.getByText("The Basics").click()
 
-  await page.locator("text=6Page 6").click()
+  await page.getByText("6Page 6").click()
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/limited-tries/chapter-1/page-6",
   )
@@ -64,25 +64,25 @@ test("Limited tries work", async ({ page }) => {
 
   await page.locator('div.tries:has-text("2")').waitFor()
 
-  await page.frameLocator("iframe").locator("text=AC").click()
+  await page.frameLocator("iframe").getByText("AC").click()
 
-  await page.frameLocator("iframe").locator("text=Jupiter").click()
+  await page.frameLocator("iframe").getByText("Jupiter").click()
 
-  await page.locator("text=Submit").click()
+  await page.getByText("Submit").click()
 
   await page.locator('div.tries:has-text("1")').waitFor()
 
-  await page.locator("text=try again").click()
+  await page.getByText("try again").click()
 
-  await page.frameLocator("iframe").locator("text=AC").click()
-  await page.frameLocator("iframe").locator("text=Jupiter").click()
+  await page.frameLocator("iframe").getByText("AC").click()
+  await page.frameLocator("iframe").getByText("Jupiter").click()
 
-  await page.frameLocator("iframe").locator("text=Erlang").click()
+  await page.frameLocator("iframe").getByText("Erlang").click()
 
-  await page.frameLocator("iframe").locator("text=Jupiter").click()
+  await page.frameLocator("iframe").getByText("Jupiter").click()
 
-  await page.locator("text=Submit").click()
+  await page.getByText("Submit").click()
 
   await page.locator('div.tries:has-text("0")').waitFor()
-  await page.locator("text=try again").waitFor({ state: "hidden" })
+  await page.getByText("try again").waitFor({ state: "hidden" })
 })

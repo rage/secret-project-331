@@ -14,7 +14,7 @@ const createPageAndNavigate = async (page: Page) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    await page.locator("text=University of Helsinki, Department of Computer Science").click(),
+    await page.getByText("University of Helsinki, Department of Computer Science").click(),
   ])
   await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
@@ -38,7 +38,7 @@ const createPageAndNavigate = async (page: Page) => {
 
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")
 
-  await page.locator("text=Pages").click()
+  await page.getByText("Pages").click()
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")
 
   await page.click(`:nth-match(button:has-text("New chapter"), 1)`)
@@ -79,23 +79,23 @@ const createPageAndNavigate = async (page: Page) => {
   // Fill [placeholder="Exercise name"]
   await page.fill('[placeholder="Exercise name"]', "quizzes test")
 
-  await page.locator("text=Add slide").click()
+  await page.getByText("Add slide").click()
 
   // The block needs to be focused for the button to work
   // eslint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(100)
-  await page.locator("text=Slide 1").click()
+  await page.getByText("Slide 1").click()
 }
 
 const addNewQuizz = async (page: Page) => {
-  await page.locator("text=Add task").click()
+  await page.getByText("Add task").click()
   const count = await page.locator('[aria-label="Edit"]').count()
   // Sometimes the add task button doesn't respond due to lag
   if (count == 0) {
-    await page.locator("text=Add task").click()
+    await page.getByText("Add task").click()
   }
   await page.locator('[aria-label="Edit"]').nth(0).click()
-  await page.locator("text=Quizzes").click()
+  await page.getByText("Quizzes").click()
 }
 
 const createMultipleChoice = async (frame: Locator) => {

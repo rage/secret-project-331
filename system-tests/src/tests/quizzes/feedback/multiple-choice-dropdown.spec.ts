@@ -17,13 +17,13 @@ test("quizzes multiple-choice-dropdown", async ({ page, headless }, testInfo) =>
 
   const frame = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
-  await frame.locator("text=Choose the right answer from given options.").waitFor()
+  await frame.getByText("Choose the right answer from given options.").waitFor()
 
   await frame
     .locator(`select:below(:text("Choose the right answer from given options."))`)
     .selectOption({ label: "The Wright answer" })
 
-  await page.locator("text=Submit").click()
+  await page.getByText("Submit").click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
@@ -35,9 +35,9 @@ test("quizzes multiple-choice-dropdown", async ({ page, headless }, testInfo) =>
     ],
   })
 
-  await page.locator("text=Try again").click()
+  await page.getByText("Try again").click()
 
-  await frame.locator("text=Choose the right answer from given options.").waitFor()
+  await frame.getByText("Choose the right answer from given options.").waitFor()
 
   await frame
     .locator(`select:below(:text("Choose the right answer from given options."))`)
@@ -45,7 +45,7 @@ test("quizzes multiple-choice-dropdown", async ({ page, headless }, testInfo) =>
       label: "The right answer",
     })
 
-  await page.locator("text=Submit").click()
+  await page.getByText("Submit").click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
@@ -57,9 +57,9 @@ test("quizzes multiple-choice-dropdown", async ({ page, headless }, testInfo) =>
     ],
   })
 
-  await page.locator("text=Try again").click()
+  await page.getByText("Try again").click()
 
-  await frame.locator("text=Choose the right answer from given options.").waitFor()
+  await frame.getByText("Choose the right answer from given options.").waitFor()
 
   await frame
     .locator(`select:below(:text("Choose the right answer from given options."))`)
@@ -67,7 +67,7 @@ test("quizzes multiple-choice-dropdown", async ({ page, headless }, testInfo) =>
       label: "The Wright answer",
     })
 
-  await page.locator("text=Submit").click()
+  await page.getByText("Submit").click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,

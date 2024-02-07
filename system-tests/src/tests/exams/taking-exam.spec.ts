@@ -13,9 +13,9 @@ test("Can start an exam and can answer exercises", async ({ page, headless }, te
     screenshotTarget: page,
     snapshotName: "exam-instructions-page",
     waitForTheseToBeVisibleAndStable: [
-      page.locator("text=Ongoing plenty of time"),
-      page.locator("text=Submissions are no longer accepted after"),
-      page.locator("text=You have 730 minutes to complete the exam after starting"),
+      page.getByText("Ongoing plenty of time"),
+      page.getByText("Submissions are no longer accepted after"),
+      page.getByText("You have 730 minutes to complete the exam after starting"),
     ],
   })
 
@@ -27,7 +27,7 @@ test("Can start an exam and can answer exercises", async ({ page, headless }, te
     screenshotTarget: page,
     snapshotName: "exam-started",
     waitForTheseToBeVisibleAndStable: [
-      page.locator("text=In this exam you're supposed to answer to two easy questions. Good luck!"),
+      page.getByText("In this exam you're supposed to answer to two easy questions. Good luck!"),
     ],
     // Only should happen in seeded data
     axeSkip: ["frame-title-unique"],
@@ -36,15 +36,15 @@ test("Can start an exam and can answer exercises", async ({ page, headless }, te
     window.scrollTo(0, 500)
   })
 
-  await page.locator("text=Answer this question.").first().scrollIntoViewIfNeeded()
+  await page.getByText("Answer this question.").first().scrollIntoViewIfNeeded()
   await page
     .frameLocator("iframe")
     .first()
-    .locator("text=Which one is the Rust package manager?")
+    .getByText("Which one is the Rust package manager?")
     .first()
     .waitFor()
 
-  await page.frameLocator("iframe").first().locator("text=cargo").click()
+  await page.frameLocator("iframe").first().getByText("cargo").click()
   await page.locator("button:text('Submit')").first().click()
   await expectScreenshotsToMatchSnapshots({
     headless,
@@ -63,17 +63,17 @@ test("Can start an exam and can answer exercises", async ({ page, headless }, te
     .frameLocator("iframe")
     .first()
     .locator("role=button[pressed]")
-    .locator("text=cargo")
+    .getByText("cargo")
     .waitFor({ state: "visible" })
 
   // Make sure this works even after reloading the page
   await page.reload()
-  await page.locator("text=Answer this question.").first().scrollIntoViewIfNeeded()
+  await page.getByText("Answer this question.").first().scrollIntoViewIfNeeded()
   await page.locator("button:text('Try again')").first().click()
   await page
     .frameLocator("iframe")
     .first()
     .locator("role=button[pressed]")
-    .locator("text=cargo")
+    .getByText("cargo")
     .waitFor({ state: "visible" })
 })

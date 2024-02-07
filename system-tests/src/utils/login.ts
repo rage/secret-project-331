@@ -10,7 +10,7 @@ export async function login(
   await page.waitForLoadState()
   await page.locator("id=main-navigation-menu").click()
 
-  await page.locator("text=Log in").click()
+  await page.getByText("Log in").click()
   await page.click(`label:has-text("Email")`)
   await page.fill(`label:has-text("Email")`, user)
 
@@ -26,7 +26,7 @@ export async function login(
   await page.context().storageState({ path: `src/states/${user}.json` })
   if (!stayLoggedIn) {
     await page.locator("id=main-navigation-menu").click()
-    await page.locator("text=Log out").click()
+    await page.getByText("Log out").click()
     await page.getByText("Log in").waitFor()
   }
 }

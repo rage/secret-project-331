@@ -18,9 +18,9 @@ test("blocks render correctly", async ({ page, headless }, testInfo) => {
 
   await selectCourseInstanceIfPrompted(page)
 
-  await page.locator("text=User Experience").click()
+  await page.getByText("User Experience").click()
 
-  await page.locator("text=Content rendering").click()
+  await page.getByText("Content rendering").click()
 
   await page.getByText("100px wide").waitFor()
 

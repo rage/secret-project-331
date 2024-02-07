@@ -9,24 +9,24 @@ test("create peer review", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    page.locator("text=University of Helsinki, Department of Computer Science").click(),
+    page.getByText("University of Helsinki, Department of Computer Science").click(),
   ])
 
   await page.locator("[aria-label=\"Manage course \\'Introduction to everything\\'\"] svg").click()
 
-  await page.locator("text=Pages").click()
+  await page.getByText("Pages").click()
 
-  await page.locator("text=Page One/chapter-1/page-1Edit page >> button").first().click()
+  await page.getByText("Page One/chapter-1/page-1Edit page >> button").first().click()
 
-  await page.locator("text=Add peer review").check()
+  await page.getByText("Add peer review").check()
   // Uncheck text=Use course global peer reviewCourse default peer review config >> input[type="checkbox"]
-  await page.locator("text=Use course default peer review config").uncheck()
+  await page.getByText("Use course default peer review config").uncheck()
 
-  await page.locator("text=Add peer review question").click()
+  await page.getByText("Add peer review question").click()
   // Fill text=Insert question here
-  await page.locator("text=Insert question here").fill("first question")
+  await page.getByText("Insert question here").fill("first question")
 
-  await page.locator("text=Save").nth(3).click()
+  await page.getByText("Save").nth(3).click()
   await page.getByText(`Operation successful`).waitFor()
 
   await expectScreenshotsToMatchSnapshots({
@@ -51,9 +51,9 @@ test("default peer review editing", async ({ page, headless }, testInfo) => {
 
   await page.locator("[aria-label=\"Manage course \\'Introduction to everything\\'\"] path").click()
 
-  await page.locator("text=Pages").click()
+  await page.getByText("Pages").click()
 
-  await page.locator("text=Page One/chapter-1/page-1Edit page >> button").first().click()
+  await page.getByText("Page One/chapter-1/page-1Edit page >> button").first().click()
 
   await page.getByText("Use course default peer review config").click()
 
@@ -82,10 +82,10 @@ test("default peer review editing", async ({ page, headless }, testInfo) => {
 
   await page1.getByRole("button", { name: "Delete" }).nth(1).click()
   // Fill text=General comments
-  await page1.locator("text=General comments").fill("test")
+  await page1.getByText("General comments").fill("test")
 
   await showNextToastsInfinitely(page1)
-  await page1.locator("text=Save").click()
+  await page1.getByText("Save").click()
   await page1.getByText(`Operation successful`).waitFor()
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page1,

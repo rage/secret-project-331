@@ -14,25 +14,25 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    page.locator("text=University of Helsinki, Department of Computer Science").click(),
+    page.getByText("University of Helsinki, Department of Computer Science").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
-  await page.locator("text=Introduction to edit proposals").click()
+  await page.getByText("Introduction to edit proposals").click()
 
   await selectCourseInstanceIfPrompted(page)
 
-  await page.locator("text=The Basics").click()
+  await page.getByText("The Basics").click()
 
   await Promise.all([page.getByRole("link", { name: "1 Page One" }).click()])
 
   const frame = await getLocatorForNthExerciseServiceIframe(page, "example-exercise", 1)
 
-  await frame.locator("text=b").waitFor()
+  await frame.getByText("b").waitFor()
 
-  await page.locator("text=Give feedback").click()
+  await page.getByText("Give feedback").click()
 
-  await page.locator("text=Improve material").click()
+  await page.getByText("Improve material").click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
@@ -40,30 +40,30 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
     testInfo,
     snapshotName: "no-edits-yet",
     waitForTheseToBeVisibleAndStable: [
-      page.locator("text=Click on course material to make it editable!"),
+      page.getByText("Click on course material to make it editable!"),
     ],
   })
 
-  await page.locator("text=At vero eos et").click()
+  await page.getByText("At vero eos et").click()
 
-  await page.locator("text=So big, that we need many paragraphs.").click()
+  await page.getByText("So big, that we need many paragraphs.").click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
     testInfo,
     snapshotName: "currently-editing",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=You've selected material for editing")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("You've selected material for editing")],
   })
 
-  await page.locator("text=So big, that we need many paragraphs.").click()
+  await page.getByText("So big, that we need many paragraphs.").click()
   await page.fill(
     "text=So big, that we need many paragraphs.",
     "So big, that we need many paragraphs...",
   )
 
-  await page.locator("text=Like this.").click()
-  await page.locator("text=Like this.").click()
+  await page.getByText("Like this.").click()
+  await page.getByText("Like this.").click()
   await page.fill("text=Like this.", "Like this!")
 
   await page.click(
@@ -81,7 +81,7 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
     "redacted",
   )
 
-  await page.locator("text=So big,").click()
+  await page.getByText("So big,").click()
 
   await page.click('button:has-text("Preview")')
 
@@ -104,7 +104,7 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    page.locator("text=University of Helsinki, Department of Computer Science").click(),
+    page.getByText("University of Helsinki, Department of Computer Science").click(),
   ])
 
   await page.locator("[aria-label=\"Manage course 'Introduction to edit proposals'\"] svg").click()
@@ -113,8 +113,8 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
     "http://project-331.local/manage/courses/cae7da38-9486-47da-9106-bff9b6a280f2",
   )
 
-  await page.locator("text=Change requests").click()
-  await page.locator("text=Accept").first().waitFor({ state: "visible" })
+  await page.getByText("Change requests").click()
+  await page.getByText("Accept").first().waitFor({ state: "visible" })
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/cae7da38-9486-47da-9106-bff9b6a280f2/change-requests",
   )
@@ -124,7 +124,7 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "manage-initial",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Accept").first()],
+    waitForTheseToBeVisibleAndStable: [page.getByText("Accept").first()],
   })
 
   await page.click(':nth-match(:text("Accept"), 1)')
@@ -138,7 +138,7 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "manage-before-send",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Send").first()],
+    waitForTheseToBeVisibleAndStable: [page.getByText("Send").first()],
     beforeScreenshot: async () => {
       await page.evaluate(() => window.scrollTo(0, 0))
     },
@@ -153,7 +153,7 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "manage-after-send",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Reject").first()],
+    waitForTheseToBeVisibleAndStable: [page.getByText("Reject").first()],
     clearNotifications: true,
     scrollToYCoordinate: 0,
   })
@@ -165,18 +165,18 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "manage-old-after-send",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Accepted").first()],
+    waitForTheseToBeVisibleAndStable: [page.getByText("Accepted").first()],
     scrollToYCoordinate: 0,
   })
 
-  await page.locator("text=Pending 2").click()
+  await page.getByText("Pending 2").click()
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/cae7da38-9486-47da-9106-bff9b6a280f2/change-requests?pending=true",
   )
 
   const [page1] = await Promise.all([
     page.waitForEvent("popup"),
-    page.locator("text=Open page in new tab").first().click(),
+    page.getByText("Open page in new tab").first().click(),
   ])
 
   // Wait for the exercise to load because otherwise it might mess up the screenshot
@@ -192,7 +192,7 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "after-changes",
-    waitForTheseToBeVisibleAndStable: [page1.locator("text=Like this!!!!!")],
+    waitForTheseToBeVisibleAndStable: [page1.getByText("Like this!!!!!")],
     scrollToYCoordinate: 0,
   })
 })

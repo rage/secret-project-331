@@ -18,10 +18,10 @@ test("Exercise score updates gradually", async ({ page, headless }, testInfo) =>
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    page.locator("text=University of Helsinki, Department of Computer Science").click(),
+    page.getByText("University of Helsinki, Department of Computer Science").click(),
   ])
 
-  await page.locator("text=Advanced exercise states").click()
+  await page.getByText("Advanced exercise states").click()
 
   await selectCourseInstanceIfPrompted(page)
 

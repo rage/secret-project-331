@@ -16,9 +16,9 @@ test("Can take exam after enough course points", async ({ page, headless }, test
     screenshotTarget: page,
     snapshotName: "cant-take-exam-before-meeting-exercise-requirements",
     waitForTheseToBeVisibleAndStable: [
-      page.locator("text=Automatic course exam"),
-      page.locator("text=Submissions are no longer accepted after"),
-      page.locator("text=You have 1 minutes to complete the exam after starting"),
+      page.getByText("Automatic course exam"),
+      page.getByText("Submissions are no longer accepted after"),
+      page.getByText("You have 1 minutes to complete the exam after starting"),
       page.getByText("You have not met the requirements for taking this exam."),
     ],
   })
@@ -36,7 +36,7 @@ test("Can take exam after enough course points", async ({ page, headless }, test
   )
   // Make sure that the course isn't completed before taking an exam.
   await page.getByText("Welcome to...").waitFor()
-  await expect(page.locator("text=Congratulations!")).toHaveCount(0)
+  await expect(page.getByText("Congratulations!")).toHaveCount(0)
 
   await page.goto("http://project-331.local/org/uh-cs/exams/b2168b2f-f721-4771-a35d-ca75ca0937b1")
 
@@ -46,9 +46,9 @@ test("Can take exam after enough course points", async ({ page, headless }, test
     screenshotTarget: page,
     snapshotName: "can-take-exam-after-meeting-exercise-requirements",
     waitForTheseToBeVisibleAndStable: [
-      page.locator("text=Automatic course exam"),
-      page.locator("text=Submissions are no longer accepted after"),
-      page.locator("text=You have 1 minutes to complete the exam after starting"),
+      page.getByText("Automatic course exam"),
+      page.getByText("Submissions are no longer accepted after"),
+      page.getByText("You have 1 minutes to complete the exam after starting"),
     ],
   })
 

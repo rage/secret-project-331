@@ -61,9 +61,9 @@ test("quizzes timeline feedback", async ({ page, headless }, testInfo) => {
     scrollToYCoordinate: 470,
   })
 
-  await page.locator("text=Submit").click()
+  await page.getByText("Submit").click()
 
-  await page.frameLocator("iframe").locator("text=Your answer was partially correct.").waitFor()
+  await page.frameLocator("iframe").getByText("Your answer was partially correct.").waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
@@ -73,7 +73,7 @@ test("quizzes timeline feedback", async ({ page, headless }, testInfo) => {
     scrollToYCoordinate: 470,
   })
 
-  await page.locator("text=Try again").click()
+  await page.getByText("Try again").click()
   // Clear previous answers
   await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
   await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
@@ -94,9 +94,9 @@ test("quizzes timeline feedback", async ({ page, headless }, testInfo) => {
     .locator(`label:text("2002")`)
     .selectOption({ label: "Finland switches their currency to Euro" })
 
-  await page.locator("text=Submit").click()
+  await page.getByText("Submit").click()
 
-  await page.frameLocator("iframe").locator("text=Your answer was correct.").waitFor()
+  await page.frameLocator("iframe").getByText("Your answer was correct.").waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
@@ -108,7 +108,7 @@ test("quizzes timeline feedback", async ({ page, headless }, testInfo) => {
 
   // Model solution is now visible since we got full points, so we can see what feedback looks like with the model solution
 
-  await page.locator("text=Try again").click()
+  await page.getByText("Try again").click()
   // Clear previous answers
   await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
   await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
@@ -129,9 +129,9 @@ test("quizzes timeline feedback", async ({ page, headless }, testInfo) => {
     .locator(`label:text("2002")`)
     .selectOption({ label: "Finland switches their currency to Euro" })
 
-  await page.locator("text=Submit").click()
+  await page.getByText("Submit").click()
 
-  await page.frameLocator("iframe").locator("text=Your answer was partially correct.").waitFor()
+  await page.frameLocator("iframe").getByText("Your answer was partially correct.").waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,

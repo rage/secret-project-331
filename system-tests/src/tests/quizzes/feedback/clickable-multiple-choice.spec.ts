@@ -12,7 +12,7 @@ test("quizzes clickable multiple-choice feedback", async ({ page, headless }, te
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    await page.locator("text=University of Helsinki, Department of Computer Science").click(),
+    await page.getByText("University of Helsinki, Department of Computer Science").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
@@ -20,7 +20,7 @@ test("quizzes clickable multiple-choice feedback", async ({ page, headless }, te
 
   await selectCourseInstanceIfPrompted(page)
 
-  await page.locator("text=The Basics").click()
+  await page.getByText("The Basics").click()
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1",
   )
@@ -32,12 +32,12 @@ test("quizzes clickable multiple-choice feedback", async ({ page, headless }, te
 
   // page has a frame that pushes all the content down after loafing, so let's wait for it to load first
   const frame = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
-  await frame.locator("text=Pick all the programming languages from below").waitFor()
+  await frame.getByText("Pick all the programming languages from below").waitFor()
 
   await frame.locator(`button:text("AC")`).click()
   await frame.locator(`button:text("Jupiter")`).click()
 
-  await page.locator("text=Submit").click()
+  await page.getByText("Submit").click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
@@ -49,16 +49,16 @@ test("quizzes clickable multiple-choice feedback", async ({ page, headless }, te
     ],
   })
 
-  await page.locator("text=Try again").click()
+  await page.getByText("Try again").click()
   // Unselect all the options
-  await frame.locator("text=Pick all the programming languages from below").waitFor()
+  await frame.getByText("Pick all the programming languages from below").waitFor()
   await frame.locator(`button:text("AC")`).click()
   await frame.locator(`button:text("Jupiter")`).click()
 
   await frame.locator(`button:text("Java")`).click()
   await frame.locator(`button:text("Erlang")`).click()
 
-  await page.locator("text=Submit").click()
+  await page.getByText("Submit").click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,

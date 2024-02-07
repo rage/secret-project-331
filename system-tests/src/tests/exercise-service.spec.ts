@@ -22,7 +22,7 @@ test("can add and delete exercise service", async ({ page, headless }, testInfo)
     window.scrollTo(0, 700)
   })
 
-  await page.locator("text=Manage exercise services").click()
+  await page.getByText("Manage exercise services").click()
   await expect(page).toHaveURL("http://project-331.local/manage/exercise-services")
 
   await expectUrlPathWithRandomUuid(page, "/manage/exercise-services")
@@ -49,7 +49,7 @@ test("can add and delete exercise service", async ({ page, headless }, testInfo)
     headless,
     testInfo,
     snapshotName: "exercise-service-page",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=New exercise service")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("New exercise service")],
 
     beforeScreenshot: async () => {
       await replaceTimeComponentDates(page)

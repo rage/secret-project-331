@@ -18,8 +18,11 @@ interface ReviewProps {
 
 const Wrapper = styled.div`
   background: #f5f6f7;
-  margin-bottom: 10px;
   padding: 0 !important;
+
+  &:not(:last-child) {
+    margin-bottom: 10px;
+  }
 `
 const Heading = styled.div`
   padding: 1rem;

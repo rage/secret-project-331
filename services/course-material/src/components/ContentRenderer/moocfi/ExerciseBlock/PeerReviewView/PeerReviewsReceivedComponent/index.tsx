@@ -54,7 +54,6 @@ const Wrapper = styled.div`
     color: ${baseTheme.colors.gray[700]};
     outline: 0;
     background: ${baseTheme.colors.clear[100]};
-    margin-bottom: 5px;
   }
 
   details summary::-webkit-details-marker {
@@ -72,7 +71,7 @@ const Wrapper = styled.div`
     color: ${baseTheme.colors.gray[700]};
     line-height: 0;
     margin-top: 0.75rem;
-    top: 14px;
+    top: 18px;
     right: 4%;
     font-weight: 200;
     transform-origin: center;
@@ -88,11 +87,11 @@ const Wrapper = styled.div`
 `
 const Notification = styled.div`
   display: inline-block;
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   background: #44827e;
   color: #fff;
-  line-height: 113%;
+  line-height: 112%;
   font-size: 15px;
   font-family: ${headingFont};
   border-radius: 50%;
@@ -149,7 +148,7 @@ const PeerReviewsReceived: React.FunctionComponent<PeerReviewProps> = ({ id, sub
     <Wrapper>
       <details>
         <summary>
-          {t("peer-reviews-received-from-other-student")}
+          {t("peer-reviews-received-from-other-students")}
           <Notification>{data.length ?? "0"}</Notification>
         </summary>
         {data.map((item, index) => (

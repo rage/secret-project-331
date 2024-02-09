@@ -1,6 +1,10 @@
 import { expect, test } from "@playwright/test"
 
-import { showNextToastsInfinitely, showToastsNormally } from "../utils/notificationUtils"
+import {
+  hideToasts,
+  showNextToastsInfinitely,
+  showToastsNormally,
+} from "../utils/notificationUtils"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 test.use({
@@ -87,26 +91,27 @@ test("Managing permissions works", async ({ page, headless }, testInfo) => {
     "Reviewer",
   )
 
+  await showNextToastsInfinitely(page)
   await page.click('[aria-label="Save edited role"]')
+  await page.getByText("Success").first().waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
     testInfo,
     snapshotName: "edited-permission",
-    waitForTheseToBeVisibleAndStable: [page.locator('text="Success"')],
     clearNotifications: false,
   })
 
-  await showNextToastsInfinitely(page)
+  await hideToasts(page)
   await page.click('[aria-label="Remove role"]')
+  await page.getByText("Success").first().waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
     testInfo,
     snapshotName: "removed-permission",
-    waitForTheseToBeVisibleAndStable: [page.locator('text="Success"')],
   })
   await showToastsNormally(page)
 })

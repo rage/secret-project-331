@@ -90,7 +90,7 @@ test("history test", async ({ page, headless }, testInfo) => {
   await frame.locator(':nth-match(input[type="checkbox"], 2)').check()
 
   await page.click(`button:text-is("Save") >> visible=true`)
-  await page.locator(`button:enabled:text("Save") >> visible=true`).waitFor()
+  await page.locator(`button:enabled:text-is("Save") >> visible=true`).waitFor()
   await page.waitForTimeout(100)
 
   await page.goto("http://project-331.local/org/uh-cs")

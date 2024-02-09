@@ -1,6 +1,6 @@
 /* eslint-disable i18next/no-literal-string */
 import { render, waitFor } from "@testing-library/react"
-import { rest } from "msw"
+import { http, HttpResponse } from "msw"
 import { setupServer } from "msw/node"
 import { I18nextProvider } from "react-i18next"
 
@@ -8,8 +8,8 @@ import MessageChannelIFrame from "../../src/components/MessageChannelIFrame"
 import i18nTest from "../../src/utils/testing/i18nTest"
 
 const server = setupServer(
-  rest.get("/example-iframe-page", (_req, res, ctx) => {
-    return res(ctx.body("<html>Hello from iframe</html>"))
+  http.get("/example-iframe-page", (_info) => {
+    return new HttpResponse("<html>Hello from iframe</html>")
   }),
 )
 

@@ -1,7 +1,8 @@
 import { QueryClientProvider } from "@tanstack/react-query"
 import type { AppProps } from "next/app"
+import Head from "next/head"
 import Script from "next/script"
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 
 import Layout from "../components/layout/Layout"
 import { LoginStateContextProvider } from "../shared-module/contexts/LoginStateContext"
@@ -19,7 +20,8 @@ const SERVICE_NAME = "course-material"
 const i18n = initI18n(SERVICE_NAME)
 
 const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pageProps }) => {
-  const language = useLanguage()
+  const initialLanguage = useLanguage()
+  const [language, setLanguage] = useState(initialLanguage ?? "en")
 
   useEffect(() => {
     // Remove the server-side injected CSS.
@@ -31,20 +33,34 @@ const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pagePro
   }, [])
 
   useEffect(() => {
-    if (!language) {
+    if (!initialLanguage) {
       return
     }
 
     // eslint-disable-next-line i18next/no-literal-string
-    console.info(`Setting language to: ${language}`)
-    i18n.changeLanguage(language)
-  }, [language])
+    console.info(`Setting language to: ${initialLanguage}`)
+    i18n.changeLanguage(initialLanguage)
+  }, [initialLanguage])
+
+  useEffect(() => {
+    i18n.on("languageChanged", (language) => {
+      setLanguage(language)
+    })
+    return () => {
+      i18n.off("languageChanged")
+    }
+  })
 
   return (
     <>
       <Script noModule id="outdated-browser-warning">
         {OUTDATED_BROWSER_WARNING_SCRIPT}
       </Script>
+      {initialLanguage && (
+        <Head>
+          <html lang={language} />
+        </Head>
+      )}
       <QueryClientProvider client={queryClient}>
         <GlobalStyles />
         <LoginStateContextProvider>

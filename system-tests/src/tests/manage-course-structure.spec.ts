@@ -109,7 +109,10 @@ test("manage course structure works", async ({ page, headless }, testInfo) => {
   // Check if the rename is visible on the page
   await page.locator(`:text("The intermediaries TEST change")`).waitFor()
 
-  await page.getByText("Page 3/chapter-1/page-3Edit page >> :nth-match(div, 2)").click()
+  await page
+    .getByRole("row", { name: "Page 3 /chapter-1/page-3 Edit" })
+    .getByLabel("Dropdown menu")
+    .click()
 
   page.once("dialog", (dialog) => {
     dialog.accept()

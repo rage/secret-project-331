@@ -33,7 +33,7 @@ test("exam list renders, can create exam", async ({ page, headless }, testInfo) 
     ],
   })
 
-  await page.getByText("ManageCre >> button").click()
+  await page.getByRole("button", { name: "Create" }).nth(1).click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page.locator("id=new-exam-dialog"),

@@ -20,7 +20,11 @@ test("Limited tries work", async ({ page }) => {
     "http://project-331.local/manage/courses/9da60c66-9517-46e4-b351-07d0f7aa6cd4/pages",
   )
 
-  await page.getByText("Page 6/chapter-1/page-6Edit page >> button").first().click()
+  await page
+    .getByRole("row", { name: "Page 6 /chapter-1/page-6 Edit" })
+    .getByRole("button")
+    .first()
+    .click()
 
   await page.locator('[placeholder="Max\\ points"]').click()
   // Fill [placeholder="Max\ points"]

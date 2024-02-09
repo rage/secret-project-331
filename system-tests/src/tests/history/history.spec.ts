@@ -62,7 +62,7 @@ test("history test", async ({ page, headless }, testInfo) => {
 
   await page.click(`button:text-is("Save") >> visible=true`)
   // TODO: wait for page saved notification
-  await page.locator(`button:enabled:text("Save") >> visible=true`).waitFor()
+  await page.getByText("Operation successful!").waitFor()
   await page.waitForTimeout(100)
 
   // Triple click [placeholder="Exercise name"]
@@ -105,7 +105,7 @@ test("history test", async ({ page, headless }, testInfo) => {
 
   await page.click(`a:has-text("History")`)
 
-  await page.getByText("core/paragraph").waitFor()
+  await page.getByText("core/paragraph").first().waitFor()
 
   // Go back and navigate to the page again to workaround a race condition related to monaco editor fonts. This way the font used by monaco editor is already cached
   await page.goBack()
@@ -116,7 +116,7 @@ test("history test", async ({ page, headless }, testInfo) => {
   await page.click(`a:has-text("History")`)
 
   /*
-  const stableElement = await page.getByText("core/paragraph").waitFor()
+  const stableElement = await page.getByText("core/paragraph").first().waitFor()
   await expectScreenshotsToMatchSnapshots({
 screenshotTarget: page,
     headless, testInfo,    axeSkip: [`landmark-unique`],
@@ -133,7 +133,7 @@ screenshotTarget: page,
   await expectUrlPathWithRandomUuid(page, "/manage/pages/[id]/history?page=4")
 
   /*
-  const stableElement2 = await page.getByText("core/paragraph").waitFor()
+  const stableElement2 = await page.getByText("core/paragraph").first().waitFor()
 
   await expectScreenshotsToMatchSnapshots({
 screenshotTarget: page,
@@ -150,7 +150,7 @@ screenshotTarget: page,
   await page.waitForTimeout(100)
 
   await page.getByText("Compare").click()
-  await page.getByText("core/paragraph").waitFor()
+  await page.getByText("core/paragraph").first().waitFor()
 
   await page.click(':nth-match(:text("["), 3)')
 
@@ -193,7 +193,7 @@ screenshotTarget: page,
 screenshotTarget: page,
     headless, testInfo,    axeSkip: [`landmark-unique`],
     snapshotName: "history-view-after-restore",
-    waitForTheseToBeVisibleAndStable: [page.getByText("core/paragraph")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("core/paragraph").first()],
 
     beforeScreenshot: async () => {
       await replaceIdsAndTimesFromHistoryView(page)

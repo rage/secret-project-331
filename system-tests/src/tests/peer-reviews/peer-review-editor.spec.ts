@@ -16,7 +16,11 @@ test("create peer review", async ({ page, headless }, testInfo) => {
 
   await page.getByText("Pages").click()
 
-  await page.getByText("Page One/chapter-1/page-1Edit page >> button").first().click()
+  await page
+    .getByRole("row", { name: "Page One /chapter-1/page-1" })
+    .getByRole("button")
+    .first()
+    .click()
 
   await page.getByText("Add peer review").check()
   // Uncheck text=Use course global peer reviewCourse default peer review config >> input[type="checkbox"]
@@ -53,7 +57,11 @@ test("default peer review editing", async ({ page, headless }, testInfo) => {
 
   await page.getByText("Pages").click()
 
-  await page.getByText("Page One/chapter-1/page-1Edit page >> button").first().click()
+  await page
+    .getByRole("row", { name: "Page One /chapter-1/page-1" })
+    .getByRole("button")
+    .first()
+    .click()
 
   await page.getByText("Use course default peer review config").click()
 

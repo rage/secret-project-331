@@ -46,12 +46,12 @@ test.describe("Login session with Playwright", async () => {
 
   test("is succesful", async ({ page }) => {
     await page.locator("id=main-navigation-menu").click()
-    expect(await page.getByText("Log out").waitFor()).toBeTruthy()
+    await page.getByText("Log out").waitFor()
   })
 
   test("able to logout", async ({ page }) => {
     await logout(page)
-    expect(await page.getByText("Log in").waitFor()).toBeTruthy()
+    await page.getByText("Log in").waitFor()
   })
 })
 

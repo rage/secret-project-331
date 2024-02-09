@@ -31,8 +31,6 @@ test("Managing permissions works", async ({ page, headless }, testInfo) => {
   // Fill [placeholder="Enter email"]
   await page.fill('[placeholder="Enter email"]', "teacher@example.com")
 
-  await page.getByText("RoleAdminAssistantReviewerTeacher >> div").click()
-
   // Select Admin
   await page.selectOption("select", "Admin")
 
@@ -42,8 +40,6 @@ test("Managing permissions works", async ({ page, headless }, testInfo) => {
 
   // Fill [placeholder="Enter email"]
   await page.fill('[placeholder="Enter email"]', "admin@example.com")
-
-  await page.getByText("RoleAdminAssistantReviewerTeacher >> div").click()
 
   // Select Admin
   await page.selectOption("select", "Teacher")

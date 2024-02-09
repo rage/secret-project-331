@@ -114,7 +114,11 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
     "http://project-331.local/manage/courses/049061ba-ac30-49f1-aa9d-b7566dc22b78/pages",
   )
 
-  await page.getByText("Page One/chapter-1/page-1Edit page >> button").first().click()
+  await page
+    .getByRole("row", { name: "Page One /chapter-1/page-1" })
+    .getByRole("button")
+    .first()
+    .click()
 
   await page.locator('[aria-label="Add block"]').click()
 

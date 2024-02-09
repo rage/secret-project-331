@@ -14,7 +14,12 @@ test("Editing exam instructions works", async ({ page, headless }, testInfo) => 
     ),
   ])
 
-  await page.getByText("Ongoing short timerManage >> a").nth(1).click()
+  await page
+    .locator("li")
+    .filter({ hasText: "Ongoing short timerManage" })
+    .getByRole("link")
+    .nth(1)
+    .click()
 
   await page.getByText("Edit exam instructions").click()
 

@@ -48,7 +48,10 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
     beforeScreenshot: () => page.getByText("Congratulations!").scrollIntoViewIfNeeded(),
   })
 
-  await page.getByText("Automatic CompletionsRegister >> button").click()
+  await page
+    .getByLabel("Register completion for Automatic Completions")
+    .getByRole("button", { name: "Register" })
+    .click()
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
@@ -102,7 +105,10 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs/courses/automatic-completions")
   await page.getByText("Congratulations!").waitFor()
 
-  await page.getByText("Automatic CompletionsRegister >> button").click()
+  await page
+    .getByLabel("Register completion for Automatic Completions")
+    .getByRole("button", { name: "Register" })
+    .click()
 
   await page.getByText("To the registration form").click()
   await expect(page).toHaveURL("https://www.example.com/override")

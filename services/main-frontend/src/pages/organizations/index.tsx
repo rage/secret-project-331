@@ -12,7 +12,7 @@ const SEARCH_USERS_HREF = "/manage/search-users"
 const GLOBAL_PERMISSIONS_HREF = "/manage/permissions"
 const GLOBAL_STATS_HREF = "/stats"
 
-const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
+const OrganizationsPage: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
   return (
     <>
@@ -87,4 +87,4 @@ const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
   )
 }
 
-export default withErrorBoundary(Home)
+export default withErrorBoundary(OrganizationsPage)

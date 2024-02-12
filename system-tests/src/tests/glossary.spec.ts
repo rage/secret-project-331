@@ -71,6 +71,8 @@ test("glossary test", async ({ page, headless }, testInfo) => {
   // The save button reloads the data in the background and that might make the added-new-term screenshot unstable without the reload.
   await page.reload()
   await page.getByText("efgh").waitFor()
+  // Wait for footer translations to load
+  await page.getByText("high-quality").waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,

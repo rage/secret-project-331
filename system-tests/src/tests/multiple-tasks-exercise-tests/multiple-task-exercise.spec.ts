@@ -34,6 +34,8 @@ test("Exercise score updates gradually", async ({ page, headless }, testInfo) =>
     "http://project-331.local/org/uh-cs/courses/advanced-exercise-states/chapter-1/complicated-exercise",
   )
 
+  await page.getByRole("button", { name: "Submit" }).waitFor()
+
   await page.locator(FIRST_TASK).scrollIntoViewIfNeeded()
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page.locator("id=c1d545d7-c46b-5076-8f34-32374dd03310"),
@@ -54,6 +56,7 @@ test("Exercise score updates gradually", async ({ page, headless }, testInfo) =>
   await page.locator(THIRD_TASK).scrollIntoViewIfNeeded()
   await page.frameLocator(THIRD_TASK).locator(INCORRECT).click()
   await page.locator('button:has-text("Submit")').click()
+  await page.getByRole("button", { name: "Try again" }).waitFor()
 
   await page.locator(FIRST_TASK).scrollIntoViewIfNeeded()
   await expectScreenshotsToMatchSnapshots({
@@ -69,6 +72,7 @@ test("Exercise score updates gradually", async ({ page, headless }, testInfo) =>
   })
 
   await page.locator('button:has-text("try again")').click()
+  await page.getByRole("button", { name: "Submit" }).waitFor()
   await page.locator(FIRST_TASK).scrollIntoViewIfNeeded()
   await page.frameLocator(FIRST_TASK).locator(INCORRECT).click()
   await page.locator(SECOND_TASK).scrollIntoViewIfNeeded()
@@ -76,6 +80,7 @@ test("Exercise score updates gradually", async ({ page, headless }, testInfo) =>
   await page.locator(THIRD_TASK).scrollIntoViewIfNeeded()
   await page.frameLocator(THIRD_TASK).locator(CORRECT).click()
   await page.locator('button:has-text("Submit")').click()
+  await page.getByRole("button", { name: "Try again" }).waitFor()
 
   await page.locator(FIRST_TASK).scrollIntoViewIfNeeded()
   await expectScreenshotsToMatchSnapshots({
@@ -92,6 +97,7 @@ test("Exercise score updates gradually", async ({ page, headless }, testInfo) =>
   })
 
   await page.locator('button:has-text("try again")').click()
+  await page.getByRole("button", { name: "Submit" }).waitFor()
   await page.locator(FIRST_TASK).scrollIntoViewIfNeeded()
   await page.frameLocator(FIRST_TASK).locator(CORRECT).click()
   await page.locator(SECOND_TASK).scrollIntoViewIfNeeded()
@@ -99,6 +105,7 @@ test("Exercise score updates gradually", async ({ page, headless }, testInfo) =>
   await page.locator(THIRD_TASK).scrollIntoViewIfNeeded()
   await page.frameLocator(THIRD_TASK).locator(CORRECT).click()
   await page.locator('button:has-text("Submit")').click()
+  await page.getByRole("button", { name: "Try again" }).waitFor()
 
   await page.locator(FIRST_TASK).scrollIntoViewIfNeeded()
   await expectScreenshotsToMatchSnapshots({

@@ -340,7 +340,10 @@ export async function takeScreenshotAndComparetoSnapshot(
   } catch (e: unknown) {
     testInfo.config.updateSnapshots = originalUpdateSnapshotsSetting
     const savedYCoordinate = await imageSavedPageYCoordinate(pathToImage)
-    if (savedYCoordinate !== null) {
+    if (
+      savedYCoordinate !== null &&
+      process.env.UPDATE_SCREENSHOTS_WITHOUT_SCROLL_RESTORATION === undefined
+    ) {
       console.log(
         `Found a saved y coordinate of ${savedYCoordinate}. Scrolling to it for the screenshot comparison.`,
       )
@@ -357,7 +360,11 @@ export async function takeScreenshotAndComparetoSnapshot(
   } finally {
     testInfo.config.updateSnapshots = originalUpdateSnapshotsSetting
   }
-  if (testInfo.config.updateSnapshots === "all" || newScreenshot) {
+  if (
+    testInfo.config.updateSnapshots === "all" ||
+    newScreenshot ||
+    process.env.UPDATE_SCREENSHOTS_WITHOUT_SCROLL_RESTORATION !== undefined
+  ) {
     // When updating snapshots, optimize the new image so that it does not take extra space in version control.
     await ensureImageHasBeenOptimized(pathToImage)
     const savedYCoordinate = await imageSavedPageYCoordinate(pathToImage)

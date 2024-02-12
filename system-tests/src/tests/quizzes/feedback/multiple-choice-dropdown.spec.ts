@@ -24,6 +24,7 @@ test("quizzes multiple-choice-dropdown", async ({ page, headless }, testInfo) =>
     .selectOption({ label: "The Wright answer" })
 
   await page.getByText("Submit").click()
+  await page.getByText("Try again").waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
@@ -46,6 +47,7 @@ test("quizzes multiple-choice-dropdown", async ({ page, headless }, testInfo) =>
     })
 
   await page.getByText("Submit").click()
+  await page.getByText("Try again").waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
@@ -68,6 +70,7 @@ test("quizzes multiple-choice-dropdown", async ({ page, headless }, testInfo) =>
     })
 
   await page.getByText("Submit").click()
+  await page.getByText("Try again").waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,

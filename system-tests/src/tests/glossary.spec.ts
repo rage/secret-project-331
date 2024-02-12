@@ -72,7 +72,7 @@ test("glossary test", async ({ page, headless }, testInfo) => {
   await page.reload()
   await page.getByText("efgh").waitFor()
   // Wait for footer translations to load
-  await page.getByText("high-quality").waitFor()
+  await page.getByText("high-quality").waitFor({ state: "attached" })
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,

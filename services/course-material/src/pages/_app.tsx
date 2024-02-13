@@ -1,6 +1,5 @@
 import { QueryClientProvider } from "@tanstack/react-query"
 import type { AppProps } from "next/app"
-import Head from "next/head"
 import Script from "next/script"
 import React, { useEffect, useState } from "react"
 
@@ -22,6 +21,7 @@ const i18n = initI18n(SERVICE_NAME)
 const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pageProps }) => {
   const initialLanguage = useLanguage()
   const [language, setLanguage] = useState(initialLanguage ?? "en")
+  const [translationResourcesLoadedCounter, setTranslationResourcesLoadedCounter] = useState(0)
 
   useEffect(() => {
     // Remove the server-side injected CSS.
@@ -29,6 +29,24 @@ const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pagePro
     const jssStyles = document.querySelector("#jss-server-side")
     if (jssStyles) {
       jssStyles.parentElement?.removeChild(jssStyles)
+    }
+  }, [])
+
+  useEffect(() => {
+    i18n.on("languageChanged", (language) => {
+      const htmlElement = document.querySelector("html")
+      if (!htmlElement) {
+        return
+      }
+      htmlElement.setAttribute("lang", language)
+      setLanguage(language)
+    })
+    i18n.on("loaded", () => {
+      setTranslationResourcesLoadedCounter((counter) => counter + 1)
+    })
+    return () => {
+      i18n.off("languageChanged")
+      i18n.off("loaded")
     }
   }, [])
 
@@ -42,29 +60,16 @@ const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pagePro
     i18n.changeLanguage(initialLanguage)
   }, [initialLanguage])
 
-  useEffect(() => {
-    i18n.on("languageChanged", (language) => {
-      setLanguage(language)
-    })
-    return () => {
-      i18n.off("languageChanged")
-    }
-  })
-
   return (
     <>
       <Script noModule id="outdated-browser-warning">
         {OUTDATED_BROWSER_WARNING_SCRIPT}
       </Script>
-      {initialLanguage && (
-        <Head>
-          <html lang={language} />
-        </Head>
-      )}
+
       <QueryClientProvider client={queryClient}>
         <GlobalStyles />
         <LoginStateContextProvider>
-          <Layout>
+          <Layout key={`${language}${translationResourcesLoadedCounter}`}>
             <Component {...pageProps} />
           </Layout>
         </LoginStateContextProvider>

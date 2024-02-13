@@ -2,6 +2,7 @@ import { test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
+import { waitForFooterTranslationsToLoad } from "../utils/waitingUtils"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -71,8 +72,7 @@ test("glossary test", async ({ page, headless }, testInfo) => {
   // The save button reloads the data in the background and that might make the added-new-term screenshot unstable without the reload.
   await page.reload()
   await page.getByText("efgh").waitFor()
-  // Wait for footer translations to load
-  await page.getByText("high-quality").waitFor({ state: "attached" })
+  await waitForFooterTranslationsToLoad(page)
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,

@@ -7,7 +7,7 @@ test.use({
 })
 
 test("manage course structure works", async ({ page, headless }, testInfo) => {
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
     page.locator("text=University of Helsinki, Department of Computer Science").click(),

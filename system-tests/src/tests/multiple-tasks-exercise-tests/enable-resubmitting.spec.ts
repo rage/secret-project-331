@@ -12,7 +12,7 @@ test("quizzes, after wrong answer modify only the incorrect choice and resubmit"
   page,
   headless,
 }, testInfo) => {
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
   await page
     .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
     .click()

@@ -245,6 +245,7 @@
   "heading-number-of-people-registered-completion-to-study-registry": "Käyttäjien määrä, jotka ovat rekisteröineet suorituksen opintorekisteriin",
   "heading-number-of-people-started-course": "Kurssin aloittaneiden käyttäjien määrä",
   "heading-pages-in-this-chapter": "Tässä luvussa olevat sivut",
+  "heading-text-welcome": "Tervetuloa!",
   "heading-top-level-pages": "Yleiset sivut",
   "home": "Koti",
   "hourly-submissions-visualization-tooltip": "Tunti: {{day}}<br />Palautuksia: {{submissions}}",
@@ -605,6 +606,5 @@
   "weekday-thursday": "Torstai",
   "weekday-tuesday": "Tiistai",
   "weekday-wednesday": "Keskiviikko",
-  "welcome-to-place": "Tervetuloa sivulle {{place}}",
   "you-are-being-redirected-to-completion-registration-page-if-nothing-happens-click-here": "Sinut ohjataan Avoimen yliopiston suoritusten kirjaamissivulle automaattisesti. Jos mitään ei tapahdu, <2>paina tästä</2>."
 }

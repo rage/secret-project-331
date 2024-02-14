@@ -6,7 +6,7 @@ test.use({
 })
 
 test("Editing exam instructions works", async ({ page, headless }, testInfo) => {
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
     page.click(

@@ -5,7 +5,7 @@ import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 test.describe("anonymous user", () => {
   test("cannot see draft course", async ({ page }) => {
-    await page.goto("http://project-331.local/")
+    await page.goto("http://project-331.local/organizations")
 
     await Promise.all([
       page.locator("text=University of Helsinki, Department of Mathematics and Statistics").click(),
@@ -21,7 +21,7 @@ test.describe("user", () => {
     storageState: "src/states/user@example.com.json",
   })
   test("cannot see draft course", async ({ page }) => {
-    await page.goto("http://project-331.local/")
+    await page.goto("http://project-331.local/organizations")
 
     await Promise.all([
       page.locator("text=University of Helsinki, Department of Mathematics and Statistics").click(),
@@ -42,7 +42,7 @@ test.describe("admin", () => {
     storageState: "src/states/admin@example.com.json",
   })
   test("can see draft course", async ({ page }) => {
-    await page.goto("http://project-331.local/")
+    await page.goto("http://project-331.local/organizations")
 
     await Promise.all([
       page.locator("text=University of Helsinki, Department of Mathematics and Statistics").click(),
@@ -55,7 +55,7 @@ test.describe("admin", () => {
     page,
     headless,
   }, testInfo) => {
-    await page.goto("http://project-331.local/")
+    await page.goto("http://project-331.local/organizations")
 
     await Promise.all([
       page.locator("text=University of Helsinki, Department of Mathematics and Statistics").click(),
@@ -106,7 +106,7 @@ test.describe("Teacher", () => {
   })
 
   test("Can give students access to the draft course", async ({ page, browser }) => {
-    await page.goto("http://project-331.local/")
+    await page.goto("http://project-331.local/organizations")
     await page
       .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
       .click()
@@ -136,7 +136,7 @@ test.describe("Teacher", () => {
   })
 
   test("teacher gets permissions to new course when copying a course", async ({ page }) => {
-    await page.goto("http://project-331.local/")
+    await page.goto("http://project-331.local/organizations")
     await page
       .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
       .click()
@@ -163,7 +163,7 @@ test.describe("Teacher", () => {
   test("teacher can copy course and grant users the same permissions as the original course", async ({
     page,
   }) => {
-    await page.goto("http://project-331.local/")
+    await page.goto("http://project-331.local/organizations")
     await page
       .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
       .click()

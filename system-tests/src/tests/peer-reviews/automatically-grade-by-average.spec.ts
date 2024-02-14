@@ -49,7 +49,7 @@ test.describe("test AutomaticallyGradeByAverage behavior", () => {
     })
 
     // User 2 neavigates to exercise and answers
-    await student2Page.goto("http://project-331.local/")
+    await student2Page.goto("http://project-331.local/organizations")
     await answerExercise(student2Page, TEST_PAGE, "b")
 
     await expectScreenshotsToMatchSnapshots({

@@ -19,8 +19,14 @@ const FrontPage = () => {
 
   return (
     <div>
-      <h1>{t("welcome-to-place", { place: document.location.host })}</h1>
-      <h2>{t("heading-my-courses")}</h2>
+      <h1>{t("heading-text-welcome")}</h1>
+      <h2
+        className={css`
+          margin-bottom: 0.5rem;
+        `}
+      >
+        {t("heading-my-courses")}
+      </h2>
       <MyCourses />
 
       <h2>{t("heading-navigation")}</h2>

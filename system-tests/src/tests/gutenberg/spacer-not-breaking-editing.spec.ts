@@ -10,7 +10,7 @@ test("Spacers should not break text editing under them, block inserter should no
   page,
   headless,
 }, testInfo) => {
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
   await page
     .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
     .click()

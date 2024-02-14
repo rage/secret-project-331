@@ -9,7 +9,7 @@ test.use({
 })
 
 test("Points view works", async ({ page, headless }, testInfo) => {
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
     page.locator("text=University of Helsinki, Department of Computer Science").click(),
@@ -32,7 +32,7 @@ test("Points view works", async ({ page, headless }, testInfo) => {
   await page.locator("text=Submit").click()
   await page.getByRole("button", { name: "try again" }).waitFor()
 
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
 
   await page.locator("text=University of Helsinki, Department of Computer Science").click()
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")

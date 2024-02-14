@@ -9,7 +9,7 @@ test.use({
 test("Course modules test", async ({ page, headless }, testInfo) => {
   test.slow()
   // navigate to module page
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
   await page.locator("text=University of Helsinki, Department of Computer Science").click()
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
   await page.locator("[aria-label=\"Manage course \\'Course Modules\\'\"] path").click()

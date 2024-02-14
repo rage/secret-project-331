@@ -10,7 +10,7 @@ test.use({
 test("multiple-choice course material row test", async ({ page, headless }, testInfo) => {
   test.slow()
   // Go to http://project-331.local/
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
     page.locator("text=University of Helsinki, Department of Computer Science").click(),

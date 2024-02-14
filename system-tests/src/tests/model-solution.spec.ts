@@ -10,7 +10,7 @@ test.use({
 })
 test.describe("Model solutions", () => {
   test("model-solutions are displayed in submissions", async ({ page, headless }, testInfo) => {
-    await page.goto("http://project-331.local/")
+    await page.goto("http://project-331.local/organizations")
 
     await Promise.all([
       await page.locator("text=University of Helsinki, Department of Computer Science").click(),
@@ -62,7 +62,7 @@ test.describe("Model solutions", () => {
     page,
     headless,
   }, testInfo) => {
-    await page.goto("http://project-331.local/")
+    await page.goto("http://project-331.local/organizations")
 
     await Promise.all([
       await page.locator("text=University of Helsinki, Department of Computer Science").click(),

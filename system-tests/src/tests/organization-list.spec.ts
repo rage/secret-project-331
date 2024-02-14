@@ -14,6 +14,6 @@ test("Organization list renders", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "frontpage-organizations-list",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=learn the basics in Computer Science")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("learn the basics in Computer Science")],
   })
 })

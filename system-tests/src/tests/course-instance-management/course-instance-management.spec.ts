@@ -12,7 +12,7 @@ test("Managing course instances works", async ({ page, headless }, testInfo) => 
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    page.locator("text=University of Helsinki, Department of Computer Science").click(),
+    page.getByText("University of Helsinki, Department of Computer Science").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
@@ -31,7 +31,7 @@ test("Managing course instances works", async ({ page, headless }, testInfo) => 
     screenshotTarget: page,
   })
 
-  await page.locator("text=Export submissions (exercise tasks) as CSV").scrollIntoViewIfNeeded()
+  await page.getByText("Export submissions (exercise tasks) as CSV").scrollIntoViewIfNeeded()
 
   const [submissionsDownload] = await Promise.all([
     page.waitForEvent("download"),
@@ -67,7 +67,7 @@ test("Managing course instances works", async ({ page, headless }, testInfo) => 
     headless,
     testInfo,
     snapshotName: "new-course-instance-form",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=New course instance")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("New course instance")],
     screenshotTarget: page,
   })
 
@@ -80,7 +80,7 @@ test("Managing course instances works", async ({ page, headless }, testInfo) => 
   await page.fill("text=Closing time", "2099-01-01T23:59")
 
   await showNextToastsInfinitely(page)
-  await page.locator("text=Submit").click()
+  await page.getByText("Submit").click()
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4/course-instances",
   )
@@ -103,7 +103,7 @@ test("Managing course instances works", async ({ page, headless }, testInfo) => 
     headless,
     testInfo,
     snapshotName: "initial-management-page",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Course instance default")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("Course instance default")],
     screenshotTarget: page,
     clearNotifications: true,
   })
@@ -114,7 +114,7 @@ test("Managing course instances works", async ({ page, headless }, testInfo) => 
     headless,
     testInfo,
     snapshotName: "initial-management-page-editing",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Name").first()],
+    waitForTheseToBeVisibleAndStable: [page.getByText("Name").first()],
     screenshotTarget: page,
   })
 
@@ -126,13 +126,13 @@ test("Managing course instances works", async ({ page, headless }, testInfo) => 
   await page.fill("text=Opening time", "2000-01-01T00:00")
   await page.fill("text=Closing time", "2098-01-01T23:59")
 
-  await page.locator("text=Submit").click()
+  await page.getByText("Submit").click()
 
   await page.evaluate(() => {
     window.scrollTo(0, 0)
   })
 
-  await page.waitForSelector("text=Instance is open and ends at")
+  await page.getByText("Instance is open and ends at").waitFor()
 
   await page.evaluate(() => {
     const divs = document.querySelectorAll("div")
@@ -156,7 +156,7 @@ test("Managing course instances works", async ({ page, headless }, testInfo) => 
     clearNotifications: true,
   })
 
-  await page.locator("text=Delete").click()
+  await page.getByText("Delete").click()
 
   await page.getByRole("tab", { name: "Course instances" }).click()
 

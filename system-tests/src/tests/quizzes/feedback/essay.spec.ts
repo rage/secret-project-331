@@ -12,7 +12,7 @@ test("quizzes essay feedback", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    await page.locator("text=University of Helsinki, Department of Computer Science").click(),
+    await page.getByText("University of Helsinki, Department of Computer Science").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
@@ -20,12 +20,12 @@ test("quizzes essay feedback", async ({ page, headless }, testInfo) => {
 
   await selectCourseInstanceIfPrompted(page)
 
-  await page.locator("text=The Basics").click()
+  await page.getByText("The Basics").click()
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1",
   )
 
-  await page.waitForSelector(`a:has-text("Page 3")`)
+  await page.locator(`a:has-text("Page 3")`).waitFor()
   await page.click(`a:has-text("Page 3")`)
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/page-3",
@@ -34,7 +34,7 @@ test("quizzes essay feedback", async ({ page, headless }, testInfo) => {
   // page has a frame that pushes all the content down after loading, so let's wait for it to load first
   const frame = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
-  await frame.locator("text=write an essay").waitFor()
+  await frame.getByText("write an essay").waitFor()
 
   await frame.locator("textarea")
     .fill(`Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin quis orci nec augue bibendum lobortis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Sed venenatis, purus in venenatis rutrum, turpis velit fermentum libero, eu eleifend elit purus id arcu. Sed sodales velit id mauris auctor, at tempor urna maximus. Aenean vulputate pellentesque mollis. In lacinia malesuada orci, ac tincidunt metus tempor ac. Morbi porta posuere nisi, in fringilla lacus ultricies pulvinar.

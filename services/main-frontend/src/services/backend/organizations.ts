@@ -74,7 +74,9 @@ export const setOrganizationImage = async (
   const data = new FormData()
   // eslint-disable-next-line i18next/no-literal-string
   data.append("file", file, file.name || "unknown")
-  const response = await mainFrontendClient.put(`/organizations/${organizationId}/image`, data)
+  const response = await mainFrontendClient.put(`/organizations/${organizationId}/image`, data, {
+    headers: { "Content-Type": "multipart/form-data" },
+  })
   return validateResponse(response, isOrganization)
 }
 

@@ -39,6 +39,9 @@ test("quizzes clickable multiple-choice feedback", async ({ page, headless }, te
 
   await page.getByText("Submit").click()
 
+  await page.getByText("Try again").waitFor()
+  await page.getByText(`This is an extra submit message from the teacher.`).waitFor()
+
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
@@ -59,6 +62,8 @@ test("quizzes clickable multiple-choice feedback", async ({ page, headless }, te
   await frame.locator(`button:text("Erlang")`).click()
 
   await page.getByText("Submit").click()
+  await page.getByText("Try again").waitFor()
+  await page.getByText(`This is an extra submit message from the teacher.`).waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
@@ -66,7 +71,7 @@ test("quizzes clickable multiple-choice feedback", async ({ page, headless }, te
     testInfo,
     snapshotName: "clickable-multiple-choice-correct-answer",
     waitForTheseToBeVisibleAndStable: [
-      page.locator(`text=This is an extra submit message from the teacher.`),
+      page.getByText(`This is an extra submit message from the teacher.`),
     ],
   })
 })

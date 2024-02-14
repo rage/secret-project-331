@@ -24,12 +24,6 @@ import {
   useFigureOutNewUrl,
 } from "./ChooseCourseLanguage"
 
-export interface CourseTranslationsListProps {
-  courseId: string
-  setIsLanguageChanged(languageChanged: boolean): void
-  setSelectLanguage(setLanguage: string): void
-}
-
 export interface CourseSettingsModalProps {
   onClose: () => void
   manualOpen?: boolean
@@ -48,9 +42,20 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
   const dialogTitleId = useId()
   const router = useRouter()
 
-  const [selectedLangCourseId, setSelectedLangCourseId] = React.useState(
-    pageState.settings?.current_course_id ?? pageState.pageData?.course_id ?? "",
-  )
+  // i18n.language changes automatically when the page is loaded, need to update dialogLanguage automatically so that we can accurately detect when the user has changed the language
+  useEffect(() => {
+    setDialogLanguage((prevState) => {
+      if (prevState !== i18n.language) {
+        return i18n.language
+      }
+      return prevState
+    })
+  }, [i18n.language])
+
+  const savedOrDefaultLangCourseId =
+    pageState.settings?.current_course_id ?? pageState.pageData?.course_id ?? ""
+
+  const [selectedLangCourseId, setSelectedLangCourseId] = React.useState(savedOrDefaultLangCourseId)
 
   const [submitError, setSubmitError] = useState<unknown>()
   const [open, setOpen] = useState(manualOpen)
@@ -85,6 +90,8 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
     setOpen((signedIn && shouldChooseInstance) || (signedIn && manualOpen))
   }, [loginState, pageState, manualOpen])
 
+  const languageChanged = savedOrDefaultLangCourseId !== selectedLangCourseId
+
   const handleSubmitAndCloseMutation = useToastMutation<
     unknown,
     unknown,
@@ -92,7 +99,6 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
   >(
     async (variables) => {
       const newLanguage = newLangcode ?? ""
-      const languageChanged = i18n.language === newLanguage
       i18n.changeLanguage(newLanguage)
       // eslint-disable-next-line i18next/no-literal-string
       document.cookie = `${LANGUAGE_COOKIE_KEY}=${newLanguage}; path=/; SameSite=Strict; max-age=31536000;`
@@ -174,12 +180,11 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
             initialSelectedInstanceId={
               pageState.settings?.current_course_instance_id ?? pageState.instance?.id
             }
-            languageChanged={i18n.language === dialogLanguage}
             dialogLanguage={dialogLanguage}
           />
         )}
       </div>
-      {i18n.language !== dialogLanguage && (
+      {languageChanged && (
         <div
           className={css`
             background: ${baseTheme.colors.green[100]};

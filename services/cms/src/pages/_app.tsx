@@ -11,8 +11,10 @@ import GlobalStyles from "../shared-module/styles/GlobalStyles"
 import { OUTDATED_BROWSER_WARNING_SCRIPT } from "../shared-module/utils/constants"
 import generateWebVitalsReporter from "../shared-module/utils/generateWebVitalsReporter"
 import initI18n from "../shared-module/utils/initI18n"
-import "../styles/Gutenberg/style.scss"
+import { assertNotNullOrUndefined } from "../shared-module/utils/nullability"
 import LocalStyles from "../styles/LocalStyles"
+
+import "../styles/Gutenberg/style.scss"
 
 const SERVICE_NAME = "cms"
 
@@ -22,7 +24,6 @@ const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pagePro
   const initialLanguage = useLanguage()
   const [language, setLanguage] = useState(initialLanguage ?? "en")
   const [translationResourcesLoadedCounter, setTranslationResourcesLoadedCounter] = useState(0)
-  const [timeLanguageLastChanged, setTimeLanguageLastChanged] = useState(Date.now())
 
   useEffect(() => {
     // Remove the server-side injected CSS.
@@ -42,22 +43,22 @@ const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pagePro
       }
       htmlElement.setAttribute("lang", language)
       setLanguage(language)
-      setTimeLanguageLastChanged(Date.now())
     })
     i18n.on("loaded", () => {
-      // Updating the counter forces the  whole app to re-render, this ensures that new translations are rendered right away but it unfortunately also discards component local state
-      // Thats why we only update the counter if the language has chaged in the last 15 seconds and we'll do it only once
-      if (Date.now() - timeLanguageLastChanged < 15000) {
-        setTranslationResourcesLoadedCounter((counter) => counter + 1)
-        // Set the time to past to avoid updating the counter again
-        setTimeLanguageLastChanged(Date.now() - 15000)
-      }
+      // Updating the counter forces the  whole app to re-render
+      // As this this counter does not change the ui, the re-render will affect the interface other than react rendering
+      // components again and then decieding that there's not much need to update the ui
+      setTranslationResourcesLoadedCounter((counter) => counter + 1)
     })
     return () => {
       i18n.off("languageChanged")
       i18n.off("loaded")
     }
-  }, [timeLanguageLastChanged])
+  }, [])
+
+  // Make sure variables are used, doesn't do anything now, but will make sure the variable won't be optimized out in the future.
+  assertNotNullOrUndefined(translationResourcesLoadedCounter)
+  assertNotNullOrUndefined(language)
 
   useEffect(() => {
     if (!initialLanguage) {
@@ -80,7 +81,6 @@ const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pagePro
         <LocalStyles />
         <LoginStateContextProvider>
           <Layout
-            key={`${language}${translationResourcesLoadedCounter}`}
             /* @ts-expect-error: hideBreadcrumbs is an addtional property on Component */
             hideBreadcrumbs={Component.hideBreadcrumbs}
           >

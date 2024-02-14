@@ -251,7 +251,6 @@ const MatrixTable: React.FC<React.PropsWithChildren<MatrixTableProps>> = ({
                 {columnsCountArray.map((column) => {
                   const cell = findOptionText(column, row, isStudentsAnswer)
                   if (cell !== null) {
-                    console.log("cell", cell, "row", row, "column", column)
                     return (
                       <td
                         key={`cell ${row} ${column}`}

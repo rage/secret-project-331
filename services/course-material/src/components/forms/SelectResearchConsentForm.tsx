@@ -85,7 +85,7 @@ const SelectResearchConsentForm: React.FC<React.PropsWithChildren<ResearchConsen
       method: "POST",
     },
   )
-  console.log(usersInitialAnswers)
+
   const handleOnSubmit = async () => {
     if (questionIdsAndAnswers) {
       Object.entries(questionIdsAndAnswers).forEach(([id, bol]) => {

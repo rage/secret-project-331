@@ -3,7 +3,7 @@
 /* eslint-disable import/order */
 /* eslint-disable @typescript-eslint/no-var-requires */
 
-import { Block, BlockAttribute } from "@wordpress/blocks"
+import { Block } from "@wordpress/blocks"
 import { addFilter } from "@wordpress/hooks"
 import fs from "fs"
 import { compile } from "json-schema-to-typescript"

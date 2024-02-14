@@ -8,11 +8,11 @@ test.describe("anonymous user", () => {
     await page.goto("http://project-331.local/")
 
     await Promise.all([
-      page.locator("text=University of Helsinki, Department of Mathematics and Statistics").click(),
+      page.getByText("University of Helsinki, Department of Mathematics and Statistics").click(),
     ])
 
-    await expect(page.locator("text=Introduction to Statistics")).toBeVisible()
-    await expect(page.locator("text=Introduction to Drafts")).toBeHidden()
+    await expect(page.getByText("Introduction to Statistics")).toBeVisible()
+    await expect(page.getByText("Introduction to Drafts")).toBeHidden()
   })
 })
 
@@ -24,16 +24,16 @@ test.describe("user", () => {
     await page.goto("http://project-331.local/")
 
     await Promise.all([
-      page.locator("text=University of Helsinki, Department of Mathematics and Statistics").click(),
+      page.getByText("University of Helsinki, Department of Mathematics and Statistics").click(),
     ])
 
-    await expect(page.locator("text=Introduction to Statistics")).toBeVisible()
-    await expect(page.locator("text=Introduction to Drafts")).toBeHidden()
+    await expect(page.getByText("Introduction to Statistics")).toBeVisible()
+    await expect(page.getByText("Introduction to Drafts")).toBeHidden()
   })
   test("cannot directly navigate to the draft course page", async ({ page }) => {
     await page.goto("http://project-331.local/org/uh-mathstat/courses/introduction-to-drafts")
     await page.getByText("Unauthorized", { exact: true }).waitFor()
-    await expect(page.locator("text=Introduction to Drafts")).toBeHidden()
+    await expect(page.getByText("Introduction to Drafts")).toBeHidden()
   })
 })
 
@@ -45,11 +45,11 @@ test.describe("admin", () => {
     await page.goto("http://project-331.local/")
 
     await Promise.all([
-      page.locator("text=University of Helsinki, Department of Mathematics and Statistics").click(),
+      page.getByText("University of Helsinki, Department of Mathematics and Statistics").click(),
     ])
 
-    await expect(page.locator("text=Introduction to Statistics")).toBeVisible()
-    await expect(page.locator("text=Introduction to Drafts")).toBeVisible()
+    await expect(page.getByText("Introduction to Statistics")).toBeVisible()
+    await expect(page.getByText("Introduction to Drafts")).toBeVisible()
   })
   test("can create a draft course and change it to a non-draft course", async ({
     page,
@@ -58,7 +58,7 @@ test.describe("admin", () => {
     await page.goto("http://project-331.local/")
 
     await Promise.all([
-      page.locator("text=University of Helsinki, Department of Mathematics and Statistics").click(),
+      page.getByText("University of Helsinki, Department of Mathematics and Statistics").click(),
     ])
 
     await page.click(`button:text("Create")`)
@@ -80,7 +80,7 @@ test.describe("admin", () => {
       headless,
       testInfo,
       snapshotName: "draft-course",
-      waitForTheseToBeVisibleAndStable: [page.locator("text=Advanced drafts (Draft)")],
+      waitForTheseToBeVisibleAndStable: [page.getByText("Advanced drafts (Draft)")],
     })
 
     await page.getByRole("button", { name: "Edit" }).first().click()

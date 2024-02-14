@@ -51,7 +51,7 @@ test("quizzes vector feedback", async ({ page, headless }, testInfo) => {
 
   await page.getByRole("button", { name: "Submit" }).click()
 
-  await page.frameLocator("iframe").locator("text=Your answer was not correct.").first().waitFor()
+  await page.frameLocator("iframe").getByText("Your answer was not correct.").first().waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
@@ -67,7 +67,7 @@ test("quizzes vector feedback", async ({ page, headless }, testInfo) => {
 
   await page.getByRole("button", { name: "Submit" }).click()
 
-  await page.frameLocator("iframe").locator("text=Your answer was correct.").first().waitFor()
+  await page.frameLocator("iframe").getByText("Your answer was correct.").first().waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
@@ -83,7 +83,7 @@ test("quizzes vector feedback", async ({ page, headless }, testInfo) => {
 
   await page.getByRole("button", { name: "Submit" }).click()
 
-  await page.frameLocator("iframe").locator("text=Your answer was not correct.").first().waitFor()
+  await page.frameLocator("iframe").getByText("Your answer was not correct.").first().waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,

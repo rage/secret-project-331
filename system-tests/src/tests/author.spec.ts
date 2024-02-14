@@ -19,6 +19,6 @@ test("author-block", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "author-block",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Authors")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("Authors")],
   })
 })

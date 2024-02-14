@@ -73,7 +73,8 @@ const Login: React.FC<React.PropsWithChildren<unknown>> = () => {
             if (!(e instanceof Error)) {
               throw e
             }
-            console.log("failed to login: ", e)
+            console.error("failed to login: ", e)
+
             // @ts-ignore: null checked
             if (e?.response?.status.toString().startsWith("4")) {
               setNotification(t("incorrect-email-or-password"))

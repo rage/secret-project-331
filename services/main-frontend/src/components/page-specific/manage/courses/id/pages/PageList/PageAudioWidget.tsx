@@ -91,7 +91,7 @@ const PageAudioWidget: React.FC<React.PropsWithChildren<AudioUploadAttributes>> 
     if (file) {
       const isNotAcceptedFormat = file.type !== "audio/mpeg" && file.type !== "audio/ogg"
       if (isNotAcceptedFormat) {
-        console.log("UNACCEPTED AUDIO TYPES")
+        console.error("The audio format is not accepted")
       }
       uploadAudioFileMutation.mutate(file)
       event.currentTarget.audioFile.value = null

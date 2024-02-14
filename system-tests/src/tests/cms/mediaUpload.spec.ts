@@ -27,11 +27,11 @@ test.describe("Uploading media as admin", async () => {
   )
 
   test("Uploading images in the image block works", async ({ page, headless }, testInfo) => {
-    await page.locator("text=University of Helsinki, Department of Computer Science").click()
+    await page.getByText("University of Helsinki, Department of Computer Science").click()
 
     await page.locator("[aria-label=\"Manage course 'Introduction to everything'\"] svg").click()
 
-    await page.locator("text=Pages").click()
+    await page.getByText("Pages").click()
 
     await page.click(
       `button:text("Edit page"):right-of(:text("Welcome to Introduction to Everything"))`,
@@ -51,7 +51,7 @@ test.describe("Uploading media as admin", async () => {
     ])
     await fileChooser.setFiles("src/fixtures/media/welcome_exercise_decorations.png")
 
-    await page.locator("text=Replace").click()
+    await page.getByText("Replace").click()
 
     const [newPage] = await Promise.all([
       page.waitForEvent("popup"),

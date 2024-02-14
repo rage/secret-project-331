@@ -33,6 +33,9 @@ export interface AudioAttributes {
 
 export interface BlockAttributes {
   ref?: number
+  overrides?: {
+    [k: string]: unknown
+  }
   lock?: {
     [k: string]: unknown
   }

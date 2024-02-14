@@ -1,0 +1,13 @@
+#!/bin/bash
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+echo "This is sometimes used when trying to get rid of too many screenshots relying on scrolling to automatically saved y coordinates"
+
+BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
+FOLDER_PATH="$BASEDIR/../system-tests"
+RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
+
+run_command cd "$RELATIVE_PATH" || exit
+
+run_command env UPDATE_SCREENSHOTS_WITHOUT_SCROLL_RESTORATION=1 npm run update-snapshots "$@"

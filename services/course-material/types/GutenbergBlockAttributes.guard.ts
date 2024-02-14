@@ -79,6 +79,12 @@ export function isBlockAttributes(obj: unknown): obj is BlockAttributes {
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     (typeof typedObj["ref"] === "undefined" || typeof typedObj["ref"] === "number") &&
+    (typeof typedObj["overrides"] === "undefined" ||
+      (((typedObj["overrides"] !== null && typeof typedObj["overrides"] === "object") ||
+        typeof typedObj["overrides"] === "function") &&
+        Object.entries<any>(typedObj["overrides"]).every(
+          ([key, _value]) => typeof key === "string",
+        ))) &&
     (typeof typedObj["lock"] === "undefined" ||
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&

@@ -20,6 +20,6 @@ test("Exercise list works", async ({ page, headless }, testInfo) => {
     testInfo,
     snapshotName: "exercise-list-view",
 
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Exercises in this course")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("Exercises in this course")],
   })
 })

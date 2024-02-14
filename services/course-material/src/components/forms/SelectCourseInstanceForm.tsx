@@ -38,23 +38,23 @@ interface SelectCourseInstanceFormProps {
     unknown
   >
   initialSelectedInstanceId?: string
-  languageChanged: boolean
+  dialogLanguage: string
 }
 
 const SelectCourseInstanceForm: React.FC<
   React.PropsWithChildren<SelectCourseInstanceFormProps>
-> = ({ courseInstances, submitMutation, initialSelectedInstanceId, languageChanged }) => {
-  const { t } = useTranslation()
-  const [instance, setInstance] = useState(
+> = ({ courseInstances, submitMutation, initialSelectedInstanceId, dialogLanguage }) => {
+  const { t } = useTranslation("course-material", { lng: dialogLanguage })
+  const [selectedInstanceId, setSelectedInstanceId] = useState(
     figureOutInitialValue(courseInstances, initialSelectedInstanceId),
   )
   const [additionalQuestionAnswers, setAdditionalQuestionAnswers] = useState<
     NewCourseBackgroundQuestionAnswer[]
   >([])
   const additionalQuestionsQuery = useQuery({
-    queryKey: ["additional-questions", instance],
-    queryFn: () => fetchBackgroundQuestionsAndAnswers(assertNotNullOrUndefined(instance)),
-    enabled: instance !== undefined,
+    queryKey: ["additional-questions", selectedInstanceId],
+    queryFn: () => fetchBackgroundQuestionsAndAnswers(assertNotNullOrUndefined(selectedInstanceId)),
+    enabled: selectedInstanceId !== undefined,
   })
 
   useEffect(() => {
@@ -83,15 +83,18 @@ const SelectCourseInstanceForm: React.FC<
   }, [additionalQuestionsQuery.data])
 
   useEffect(() => {
-    if (languageChanged) {
-      setInstance(undefined) // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (courseInstances.find((x) => x.id === selectedInstanceId)) {
+      // Selected course instance is an allowed option
+      return
     }
-  }, [languageChanged])
+
+    setSelectedInstanceId(figureOutInitialValue(courseInstances, initialSelectedInstanceId))
+  }, [courseInstances, initialSelectedInstanceId, selectedInstanceId])
 
   const enrollOnCourse = async () => {
-    if (instance) {
+    if (selectedInstanceId) {
       submitMutation.mutate({
-        instanceId: instance,
+        instanceId: selectedInstanceId,
         backgroundQuestionAnswers: additionalQuestionAnswers,
       })
     }
@@ -120,8 +123,8 @@ const SelectCourseInstanceForm: React.FC<
                   { "data-testid": "default-course-instance-radiobutton" }
                 : undefined)}
               label={x.name || t("default-course-instance-name")}
-              onChange={(_event) => setInstance(x.id)}
-              defaultChecked={instance === x.id}
+              onChange={(_event) => setSelectedInstanceId(x.id)}
+              checked={selectedInstanceId === x.id}
               // eslint-disable-next-line i18next/no-literal-string
               name="select-course-instance"
             />
@@ -136,51 +139,53 @@ const SelectCourseInstanceForm: React.FC<
         >
           <GreenText>*</GreenText> {t("select-course-instance-explanation")}
         </div>
-        {instance !== undefined && additionalQuestions && additionalQuestions.length > 0 && (
-          <div
-            className={css`
-              margin-bottom: 1rem;
-            `}
-          >
-            <>
-              <h2>{t("title-additional-questions")}</h2>
-              {additionalQuestions.map((additionalQuestion) => {
-                if (additionalQuestion.question_type === "Checkbox") {
-                  const answer = additionalQuestionAnswers.find(
-                    (a) => a.course_background_question_id === additionalQuestion.id,
-                  )
+        {selectedInstanceId !== undefined &&
+          additionalQuestions &&
+          additionalQuestions.length > 0 && (
+            <div
+              className={css`
+                margin-bottom: 1rem;
+              `}
+            >
+              <>
+                <h2>{t("title-additional-questions")}</h2>
+                {additionalQuestions.map((additionalQuestion) => {
+                  if (additionalQuestion.question_type === "Checkbox") {
+                    const answer = additionalQuestionAnswers.find(
+                      (a) => a.course_background_question_id === additionalQuestion.id,
+                    )
+                    return (
+                      <AdditionalQuestionWrapper key={additionalQuestion.id}>
+                        <CheckBox
+                          label={additionalQuestion.question_text}
+                          checked={answer?.answer_value === "t"}
+                          onChange={(event) => {
+                            // eslint-disable-next-line i18next/no-literal-string
+                            const valueAsString = event.target.value ? "t" : "f"
+                            setAdditionalQuestionAnswers((prev) => {
+                              const newArray = prev.filter(
+                                (a) => a.course_background_question_id !== additionalQuestion.id,
+                              )
+                              newArray.push({
+                                answer_value: valueAsString,
+                                course_background_question_id: additionalQuestion.id,
+                              })
+                              return newArray
+                            })
+                          }}
+                        />
+                      </AdditionalQuestionWrapper>
+                    )
+                  }
                   return (
                     <AdditionalQuestionWrapper key={additionalQuestion.id}>
-                      <CheckBox
-                        label={additionalQuestion.question_text}
-                        checked={answer?.answer_value === "t"}
-                        onChange={(event) => {
-                          // eslint-disable-next-line i18next/no-literal-string
-                          const valueAsString = event.target.value ? "t" : "f"
-                          setAdditionalQuestionAnswers((prev) => {
-                            const newArray = prev.filter(
-                              (a) => a.course_background_question_id !== additionalQuestion.id,
-                            )
-                            newArray.push({
-                              answer_value: valueAsString,
-                              course_background_question_id: additionalQuestion.id,
-                            })
-                            return newArray
-                          })
-                        }}
-                      />
+                      {t("unsupported-question-type")}
                     </AdditionalQuestionWrapper>
                   )
-                }
-                return (
-                  <AdditionalQuestionWrapper key={additionalQuestion.id}>
-                    {t("unsupported-question-type")}
-                  </AdditionalQuestionWrapper>
-                )
-              })}
-            </>
-          </div>
-        )}
+                })}
+              </>
+            </div>
+          )}
         {additionalQuestionsQuery.error && (
           <ErrorBanner variant="readOnly" error={additionalQuestionsQuery.error} />
         )}
@@ -189,7 +194,7 @@ const SelectCourseInstanceForm: React.FC<
             size="medium"
             variant="primary"
             onClick={enrollOnCourse}
-            disabled={!instance || additionalQuestionsQuery.isPending}
+            disabled={!selectedInstanceId || additionalQuestionsQuery.isPending}
             data-testid="select-course-instance-continue-button"
           >
             {t("continue")}
@@ -201,14 +206,14 @@ const SelectCourseInstanceForm: React.FC<
 }
 
 function figureOutInitialValue(
-  items: CourseInstance[],
+  instances: CourseInstance[],
   initialSelectedInstanceId: string | undefined,
 ): string | undefined {
-  if (initialSelectedInstanceId) {
+  if (initialSelectedInstanceId && instances.find((x) => x.id === initialSelectedInstanceId)) {
     return initialSelectedInstanceId
   }
-  if (items.length === 1) {
-    return items[0].id
+  if (instances.length === 1) {
+    return instances[0].id
   }
 }
 

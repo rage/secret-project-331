@@ -66,7 +66,7 @@ const SubmissionIFrame: React.FC<React.PropsWithChildren<SubmissionIFrameProps>>
     <MessageChannelIFrame
       url={`${coursematerialExerciseTask.exercise_iframe_url}`}
       onMessageFromIframe={(messageContainer, _responsePort) => {
-        console.log(messageContainer)
+        console.info(messageContainer)
       }}
       postThisStateToIFrame={{
         view_type: VIEW_SUBMISSION,

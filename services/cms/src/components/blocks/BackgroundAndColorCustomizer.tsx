@@ -78,7 +78,6 @@ const BackgroundAndColorCustomizer: React.FC<
           }}
           onSelect={(media) => {
             setAttributes({ backgroundImage: media.url })
-            console.log({ media })
           }}
           accept={ALLOWED_MIMETYPES_FOR_UPLOAD.join(",")}
           allowedTypes={ALLOWED_MIMETYPES_FOR_UPLOAD}

@@ -3397,7 +3397,7 @@ mod test {
         assert!(pr_res.get(&pr_id).unwrap().accepting_threshold == 0.5);
 
         assert!(prq_res.get(&prq_id).unwrap().question == *"juu");
-        assert_eq!(pr_res.get(&pr_id).unwrap().points_are_all_or_nothing, false);
+        assert!(!pr_res.get(&pr_id).unwrap().points_are_all_or_nothing);
         assert_eq!(prq_res.get(&prq_id).unwrap().weight, 0.31);
     }
 

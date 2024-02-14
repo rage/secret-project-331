@@ -12,7 +12,7 @@ test("Error notifications work", async ({ page, headless }, testInfo) => {
 
   await page.click(`button:text("Edit page"):right-of(:text("In the second chapter..."))`)
 
-  await page.locator("text=Add task").click()
+  await page.getByText("Add task").click()
   await showNextToastsInfinitely(page)
   await page.click(`button:text-is("Save") >> visible=true`)
   await page.evaluate(() => {

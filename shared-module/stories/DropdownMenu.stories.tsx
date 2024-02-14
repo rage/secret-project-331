@@ -20,15 +20,11 @@ Default.args = {
   items: [
     {
       label: "First option",
-      onClick: () => {
-        console.log("a")
-      },
+      onClick: () => {},
     },
     {
       label: "Second option",
-      onClick: () => {
-        console.log("b")
-      },
+      onClick: () => {},
     },
     { label: "Third option", href: "https://www.example.com" },
   ],

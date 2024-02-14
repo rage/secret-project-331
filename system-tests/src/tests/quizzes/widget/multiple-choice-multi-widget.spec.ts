@@ -19,9 +19,9 @@ test("widget, multiple-choice multi screenshot test", async ({ page, headless },
 
   await scrollLocatorsParentIframeToViewIfNeeded(frame)
 
-  await frame.locator("text=#00ff00").click()
+  await frame.getByText("#00ff00").click()
 
-  await frame.locator("text=#ff0000").click()
+  await frame.getByText("#ff0000").click()
 
   await expectScreenshotsToMatchSnapshots({
     headless,

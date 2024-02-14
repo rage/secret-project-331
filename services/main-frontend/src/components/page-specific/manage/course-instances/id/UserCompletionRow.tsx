@@ -65,7 +65,6 @@ const PlayerCompletionRow: React.FC<UserCompletionRowProps> = ({ sortedCourseMod
     const completion = user.moduleCompletions.get(module.id)?.[0]
     return Boolean(completion)
   })
-  console.log({ anyCompletions })
 
   return (
     <>

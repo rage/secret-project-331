@@ -22,6 +22,6 @@ test("course list renders", async ({ page, headless }, testInfo) => {
     testInfo,
     screenshotTarget: page,
     snapshotName: "course-listing",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Courses:")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("Courses:")],
   })
 })

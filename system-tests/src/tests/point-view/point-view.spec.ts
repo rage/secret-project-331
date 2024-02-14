@@ -12,29 +12,29 @@ test("Points view works", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    page.locator("text=University of Helsinki, Department of Computer Science").click(),
+    page.getByText("University of Helsinki, Department of Computer Science").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
-  await page.locator("text=Point view for teachers").click()
+  await page.getByText("Point view for teachers").click()
 
   await selectCourseInstanceIfPrompted(page)
 
-  await page.locator("text=Start course").click()
+  await page.getByText("Start course").click()
 
-  await page.locator("text=The Basics").click()
+  await page.getByText("The Basics").click()
 
-  await page.locator("text=Page One").first().click()
+  await page.getByText("Page One").first().click()
 
   const frame = await getLocatorForNthExerciseServiceIframe(page, "example-exercise", 1)
-  await frame.locator("text=b").click()
+  await frame.getByText("b").click()
 
-  await page.locator("text=Submit").click()
+  await page.getByText("Submit").click()
   await page.getByRole("button", { name: "try again" }).waitFor()
 
   await page.goto("http://project-331.local/")
 
-  await page.locator("text=University of Helsinki, Department of Computer Science").click()
+  await page.getByText("University of Helsinki, Department of Computer Science").click()
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
   await page.locator("[aria-label=\"Manage course 'Point view for teachers'\"] svg").click()
@@ -44,17 +44,17 @@ test("Points view works", async ({ page, headless }, testInfo) => {
 
   await page.getByRole("tab", { name: "Course instances" }).click()
 
-  await page.locator("text=View points").nth(1).click()
+  await page.getByText("View points").nth(1).click()
 
   await expectScreenshotsToMatchSnapshots({
     headless,
     testInfo,
     snapshotName: "point-view-top",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=TOTAL POINT DASHBOARD")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("TOTAL POINT DASHBOARD")],
     screenshotTarget: page,
   })
 
-  await page.locator("text=user_4@example.com").click()
+  await page.getByText("user_4@example.com").click()
 
   await expectScreenshotsToMatchSnapshots({
     headless,

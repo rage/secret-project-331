@@ -2,3 +2,7 @@
 . "$(dirname "$0")/_/husky.sh"
 
 npx lint-staged -c ./.husky/lint-staged.config.js
+
+# Save the last time this was succesfully ran so that we can detect in post-commit if this script was skipped with --no-verify
+LAST_TIME_PRECOMMIT_SUCCESSFUL=".husky/_/saved-hashes/last-time-precommit-succesful"
+date +%s > "$LAST_TIME_PRECOMMIT_SUCCESSFUL"

@@ -182,7 +182,7 @@ const SubmissionFeedback: React.FC<{
       return customItemFeedback + "."
     }
     return customItemFeedback
-  }, [itemFeedback.quiz_item_feedback])
+  }, [itemFeedback.quiz_item_feedback, itemModelSolution?.messageOnModelSolution])
 
   return (
     <div

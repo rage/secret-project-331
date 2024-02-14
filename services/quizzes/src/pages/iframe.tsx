@@ -87,9 +87,6 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
           // An exercise might be edited after the previous submission and some item answers in the previous submission might be for a quiz item that has been removed from the exercise.
           // We'll filter out those answers here so that we don't submit answers to non-existing quiz items.
           if (quiz_answer) {
-            console.log("quiz_answer", quiz_answer)
-            console.log("publicSpec", publicSpec)
-            console.log("wat")
             quiz_answer = {
               ...(quiz_answer as UserAnswer),
               itemAnswers: (quiz_answer as UserAnswer).itemAnswers.filter((itemAnswer) =>
@@ -99,7 +96,7 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
               ),
             } satisfies UserAnswer
           }
-          console.log("quiz_answer after filtering", quiz_answer)
+
           setState({
             viewType: messageData.view_type,
             publicSpec: publicSpec as PublicSpecQuiz,

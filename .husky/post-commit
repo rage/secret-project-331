@@ -1,0 +1,20 @@
+#!/bin/sh
+LAST_TIME_PRECOMMIT_SUCCESSFUL=".husky/_/saved-hashes/last-time-precommit-succesful"
+# Read the the saved UNIX timestamp from the file and check if the timestamp is recent
+if [ -f "$LAST_TIME_PRECOMMIT_SUCCESSFUL" ] && [ $(($(date +%s) - $(cat "$LAST_TIME_PRECOMMIT_SUCCESSFUL"))) -lt 3000 ]; then
+  # The precommit checks were successful recently so no need to print the warning
+  rm "$LAST_TIME_PRECOMMIT_SUCCESSFUL" 2> /dev/null || true
+  exit 0
+fi
+
+rm "$LAST_TIME_PRECOMMIT_SUCCESSFUL" 2> /dev/null || true
+
+echo "ℹ️  Detected you used git commit with --no-verify. This may be fine if you don't want to wait for the checks to complete, but you'll need to ensure all the skipped checks pass before you create a pull request or your branch is merged."
+echo ""
+echo "👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇"
+echo ""
+printf "\033[1;31m⚠️  ONCE YOU'RE READY WITH THE BRANCH, RUN bin/git-run-precommit-checks AND MAKE SURE EVERYTHING PASSES ⚠️\033[0m\n"
+echo ""
+echo "👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆"
+echo ""
+

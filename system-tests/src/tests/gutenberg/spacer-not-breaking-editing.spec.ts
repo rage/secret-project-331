@@ -1,6 +1,7 @@
 import { test } from "@playwright/test"
 
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
+import { waitForFooterTranslationsToLoad } from "../../utils/waitingUtils"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
@@ -20,6 +21,8 @@ test("Spacers should not break text editing under them, block inserter should no
     .getByRole("row", { name: "Glossary /chapter-1 Edit page Dropdown menu" })
     .getByRole("button", { name: "Edit page" })
     .click()
+  await page.getByRole("button", { name: "Add block" }).waitFor()
+  await waitForFooterTranslationsToLoad(page)
   await page.getByRole("button", { name: "Add block" }).click()
   await page.getByRole("option", { name: "Paragraph" }).click()
   await page

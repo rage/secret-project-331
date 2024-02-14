@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/resvg-0.37.0/src/image.rs`."><title>image.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="resvg" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/resvg-0.38.0/src/image.rs`."><title>image.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="resvg" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -224,116 +224,39 @@
 <a href="#224" id="224">224</a>
 <a href="#225" id="225">225</a>
 <a href="#226" id="226">226</a>
-<a href="#227" id="227">227</a>
-<a href="#228" id="228">228</a>
-<a href="#229" id="229">229</a>
-<a href="#230" id="230">230</a>
-<a href="#231" id="231">231</a>
-<a href="#232" id="232">232</a>
-<a href="#233" id="233">233</a>
-<a href="#234" id="234">234</a>
-<a href="#235" id="235">235</a>
-<a href="#236" id="236">236</a>
-<a href="#237" id="237">237</a>
-<a href="#238" id="238">238</a>
-<a href="#239" id="239">239</a>
-<a href="#240" id="240">240</a>
-<a href="#241" id="241">241</a>
-<a href="#242" id="242">242</a>
-<a href="#243" id="243">243</a>
-<a href="#244" id="244">244</a>
-<a href="#245" id="245">245</a>
-<a href="#246" id="246">246</a>
-<a href="#247" id="247">247</a>
-<a href="#248" id="248">248</a>
-<a href="#249" id="249">249</a>
-<a href="#250" id="250">250</a>
-<a href="#251" id="251">251</a>
-<a href="#252" id="252">252</a>
-<a href="#253" id="253">253</a>
-<a href="#254" id="254">254</a>
-<a href="#255" id="255">255</a>
-<a href="#256" id="256">256</a>
-<a href="#257" id="257">257</a>
-<a href="#258" id="258">258</a>
-<a href="#259" id="259">259</a>
-<a href="#260" id="260">260</a>
-<a href="#261" id="261">261</a>
-<a href="#262" id="262">262</a>
 </pre></div><pre class="rust"><code><span class="comment">// This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 </span><span class="kw">use </span><span class="kw">crate</span>::render::TinySkiaPixmapMutExt;
-<span class="kw">use </span><span class="kw">crate</span>::tree::{BBoxes, Node, Tree};
 
-<span class="kw">pub enum </span>ImageKind {
-    <span class="attr">#[cfg(feature = <span class="string">&quot;raster-images&quot;</span>)]
-    </span>Raster(tiny_skia::Pixmap),
-    Vector(Tree),
-}
-
-<span class="kw">pub struct </span>Image {
-    <span class="kw">pub </span>view_box: usvg::ViewBox,
-    <span class="kw">pub </span>quality: tiny_skia::FilterQuality,
-    <span class="kw">pub </span>kind: ImageKind,
-}
-
-<span class="kw">pub fn </span>convert(image: <span class="kw-2">&amp;</span>usvg::Image, children: <span class="kw-2">&amp;mut </span>Vec&lt;Node&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;BBoxes&gt; {
-    <span class="kw">let </span>object_bbox = image.view_box.rect.to_rect();
-    <span class="kw">let </span>bboxes = BBoxes {
-        object: usvg::BBox::from(object_bbox),
-        layer: usvg::BBox::from(object_bbox),
-    };
-
-    <span class="kw">if </span>image.visibility != usvg::Visibility::Visible {
-        <span class="kw">return </span><span class="prelude-val">Some</span>(bboxes);
-    }
-
-    <span class="kw">let </span><span class="kw-2">mut </span>quality = tiny_skia::FilterQuality::Bicubic;
-    <span class="kw">if </span>image.rendering_mode == usvg::ImageRendering::OptimizeSpeed {
-        quality = tiny_skia::FilterQuality::Nearest;
-    }
-
-    <span class="kw">let </span>kind = <span class="kw">match </span>image.kind {
-        usvg::ImageKind::SVG(<span class="kw-2">ref </span>utree) =&gt; ImageKind::Vector(Tree::from_usvg(utree)),
-        <span class="attr">#[cfg(feature = <span class="string">&quot;raster-images&quot;</span>)]
-        </span><span class="kw">_ </span>=&gt; ImageKind::Raster(raster_images::decode_raster(image)<span class="question-mark">?</span>),
-        <span class="attr">#[cfg(not(feature = <span class="string">&quot;raster-images&quot;</span>))]
-        </span><span class="kw">_ </span>=&gt; {
-            <span class="macro">log::warn!</span>(<span class="string">&quot;Images decoding was disabled by a build feature.&quot;</span>);
-            <span class="kw">return </span><span class="prelude-val">None</span>;
-        }
-    };
-
-    children.push(Node::Image(Image {
-        view_box: image.view_box,
-        quality,
-        kind,
-    }));
-
-    <span class="prelude-val">Some</span>(bboxes)
-}
-
-<span class="kw">pub fn </span>render_image(
-    image: <span class="kw-2">&amp;</span>Image,
+<span class="kw">pub fn </span>render(
+    image: <span class="kw-2">&amp;</span>usvg::Image,
     transform: tiny_skia::Transform,
     pixmap: <span class="kw-2">&amp;mut </span>tiny_skia::PixmapMut,
 ) {
+    <span class="kw">if </span>image.visibility != usvg::Visibility::Visible {
+        <span class="kw">return</span>;
+    }
+
     <span class="kw">match </span>image.kind {
-        <span class="attr">#[cfg(feature = <span class="string">&quot;raster-images&quot;</span>)]
-        </span>ImageKind::Raster(<span class="kw-2">ref </span>raster) =&gt; {
-            raster_images::render_raster(image, raster, transform, pixmap);
+        usvg::ImageKind::SVG(<span class="kw-2">ref </span>tree) =&gt; {
+            render_vector(image, tree, transform, pixmap);
         }
-        ImageKind::Vector(<span class="kw-2">ref </span>rtree) =&gt; {
-            render_vector(image, rtree, transform, pixmap);
+        <span class="attr">#[cfg(feature = <span class="string">&quot;raster-images&quot;</span>)]
+        </span><span class="kw">_ </span>=&gt; {
+            raster_images::render_raster(image, transform, pixmap);
+        }
+        <span class="attr">#[cfg(not(feature = <span class="string">&quot;raster-images&quot;</span>))]
+        </span><span class="kw">_ </span>=&gt; {
+            <span class="macro">log::warn!</span>(<span class="string">&quot;Images decoding was disabled by a build feature.&quot;</span>);
         }
     }
 }
 
 <span class="kw">fn </span>render_vector(
-    image: <span class="kw-2">&amp;</span>Image,
-    tree: <span class="kw-2">&amp;</span>Tree,
+    image: <span class="kw-2">&amp;</span>usvg::Image,
+    tree: <span class="kw-2">&amp;</span>usvg::Tree,
     transform: tiny_skia::Transform,
     pixmap: <span class="kw-2">&amp;mut </span>tiny_skia::PixmapMut,
 ) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
@@ -345,7 +268,7 @@
     <span class="kw">let </span>source_transform = transform;
     <span class="kw">let </span>transform = transform.pre_concat(ts);
 
-    tree.render(transform, <span class="kw-2">&amp;mut </span>sub_pixmap.as_mut());
+    <span class="kw">crate</span>::render(tree, transform, <span class="kw-2">&amp;mut </span>sub_pixmap.as_mut());
 
     <span class="kw">let </span>mask = <span class="kw">if let </span><span class="prelude-val">Some</span>(clip) = clip {
         pixmap.create_rect_mask(source_transform, clip.to_rect())
@@ -367,11 +290,10 @@
 
 <span class="attr">#[cfg(feature = <span class="string">&quot;raster-images&quot;</span>)]
 </span><span class="kw">mod </span>raster_images {
-    <span class="kw">use </span><span class="kw">super</span>::Image;
     <span class="kw">use </span><span class="kw">crate</span>::render::TinySkiaPixmapMutExt;
-    <span class="kw">use </span><span class="kw">crate</span>::tree::OptionLog;
+    <span class="kw">use </span><span class="kw">crate</span>::OptionLog;
 
-    <span class="kw">pub fn </span>decode_raster(image: <span class="kw-2">&amp;</span>usvg::Image) -&gt; <span class="prelude-ty">Option</span>&lt;tiny_skia::Pixmap&gt; {
+    <span class="kw">fn </span>decode_raster(image: <span class="kw-2">&amp;</span>usvg::Image) -&gt; <span class="prelude-ty">Option</span>&lt;tiny_skia::Pixmap&gt; {
         <span class="kw">match </span>image.kind {
             usvg::ImageKind::SVG(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
             usvg::ImageKind::JPEG(<span class="kw-2">ref </span>data) =&gt; {
@@ -467,11 +389,12 @@
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>render_raster(
-        image: <span class="kw-2">&amp;</span>Image,
-        raster: <span class="kw-2">&amp;</span>tiny_skia::Pixmap,
+        image: <span class="kw-2">&amp;</span>usvg::Image,
         transform: tiny_skia::Transform,
         pixmap: <span class="kw-2">&amp;mut </span>tiny_skia::PixmapMut,
     ) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
+        <span class="kw">let </span>raster = decode_raster(image)<span class="question-mark">?</span>;
+
         <span class="kw">let </span>img_size = tiny_skia::IntSize::from_wh(raster.width(), raster.height())<span class="question-mark">?</span>;
         <span class="kw">let </span>rect = image_rect(<span class="kw-2">&amp;</span>image.view_box, img_size);
 
@@ -484,10 +407,15 @@
             rect.y(),
         );
 
+        <span class="kw">let </span><span class="kw-2">mut </span>quality = tiny_skia::FilterQuality::Bicubic;
+        <span class="kw">if </span>image.rendering_mode == usvg::ImageRendering::OptimizeSpeed {
+            quality = tiny_skia::FilterQuality::Nearest;
+        }
+
         <span class="kw">let </span>pattern = tiny_skia::Pattern::new(
             raster.as_ref(),
             tiny_skia::SpreadMode::Pad,
-            image.quality,
+            quality,
             <span class="number">1.0</span>,
             ts,
         );

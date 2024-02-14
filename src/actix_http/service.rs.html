@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-http-3.5.1/src/service.rs`."><title>service.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_http" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../actix_http/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_http"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-http-3.6.0/src/service.rs`."><title>service.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_http" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../actix_http/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_http"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -884,6 +884,112 @@
 <a href="#884" id="884">884</a>
 <a href="#885" id="885">885</a>
 <a href="#886" id="886">886</a>
+<a href="#887" id="887">887</a>
+<a href="#888" id="888">888</a>
+<a href="#889" id="889">889</a>
+<a href="#890" id="890">890</a>
+<a href="#891" id="891">891</a>
+<a href="#892" id="892">892</a>
+<a href="#893" id="893">893</a>
+<a href="#894" id="894">894</a>
+<a href="#895" id="895">895</a>
+<a href="#896" id="896">896</a>
+<a href="#897" id="897">897</a>
+<a href="#898" id="898">898</a>
+<a href="#899" id="899">899</a>
+<a href="#900" id="900">900</a>
+<a href="#901" id="901">901</a>
+<a href="#902" id="902">902</a>
+<a href="#903" id="903">903</a>
+<a href="#904" id="904">904</a>
+<a href="#905" id="905">905</a>
+<a href="#906" id="906">906</a>
+<a href="#907" id="907">907</a>
+<a href="#908" id="908">908</a>
+<a href="#909" id="909">909</a>
+<a href="#910" id="910">910</a>
+<a href="#911" id="911">911</a>
+<a href="#912" id="912">912</a>
+<a href="#913" id="913">913</a>
+<a href="#914" id="914">914</a>
+<a href="#915" id="915">915</a>
+<a href="#916" id="916">916</a>
+<a href="#917" id="917">917</a>
+<a href="#918" id="918">918</a>
+<a href="#919" id="919">919</a>
+<a href="#920" id="920">920</a>
+<a href="#921" id="921">921</a>
+<a href="#922" id="922">922</a>
+<a href="#923" id="923">923</a>
+<a href="#924" id="924">924</a>
+<a href="#925" id="925">925</a>
+<a href="#926" id="926">926</a>
+<a href="#927" id="927">927</a>
+<a href="#928" id="928">928</a>
+<a href="#929" id="929">929</a>
+<a href="#930" id="930">930</a>
+<a href="#931" id="931">931</a>
+<a href="#932" id="932">932</a>
+<a href="#933" id="933">933</a>
+<a href="#934" id="934">934</a>
+<a href="#935" id="935">935</a>
+<a href="#936" id="936">936</a>
+<a href="#937" id="937">937</a>
+<a href="#938" id="938">938</a>
+<a href="#939" id="939">939</a>
+<a href="#940" id="940">940</a>
+<a href="#941" id="941">941</a>
+<a href="#942" id="942">942</a>
+<a href="#943" id="943">943</a>
+<a href="#944" id="944">944</a>
+<a href="#945" id="945">945</a>
+<a href="#946" id="946">946</a>
+<a href="#947" id="947">947</a>
+<a href="#948" id="948">948</a>
+<a href="#949" id="949">949</a>
+<a href="#950" id="950">950</a>
+<a href="#951" id="951">951</a>
+<a href="#952" id="952">952</a>
+<a href="#953" id="953">953</a>
+<a href="#954" id="954">954</a>
+<a href="#955" id="955">955</a>
+<a href="#956" id="956">956</a>
+<a href="#957" id="957">957</a>
+<a href="#958" id="958">958</a>
+<a href="#959" id="959">959</a>
+<a href="#960" id="960">960</a>
+<a href="#961" id="961">961</a>
+<a href="#962" id="962">962</a>
+<a href="#963" id="963">963</a>
+<a href="#964" id="964">964</a>
+<a href="#965" id="965">965</a>
+<a href="#966" id="966">966</a>
+<a href="#967" id="967">967</a>
+<a href="#968" id="968">968</a>
+<a href="#969" id="969">969</a>
+<a href="#970" id="970">970</a>
+<a href="#971" id="971">971</a>
+<a href="#972" id="972">972</a>
+<a href="#973" id="973">973</a>
+<a href="#974" id="974">974</a>
+<a href="#975" id="975">975</a>
+<a href="#976" id="976">976</a>
+<a href="#977" id="977">977</a>
+<a href="#978" id="978">978</a>
+<a href="#979" id="979">979</a>
+<a href="#980" id="980">980</a>
+<a href="#981" id="981">981</a>
+<a href="#982" id="982">982</a>
+<a href="#983" id="983">983</a>
+<a href="#984" id="984">984</a>
+<a href="#985" id="985">985</a>
+<a href="#986" id="986">986</a>
+<a href="#987" id="987">987</a>
+<a href="#988" id="988">988</a>
+<a href="#989" id="989">989</a>
+<a href="#990" id="990">990</a>
+<a href="#991" id="991">991</a>
+<a href="#992" id="992">992</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::{
     fmt,
     future::Future,
@@ -1127,13 +1233,23 @@
 }
 
 <span class="doccomment">/// Configuration options used when accepting TLS connection.
-</span><span class="attr">#[cfg(any(feature = <span class="string">&quot;openssl&quot;</span>, feature = <span class="string">&quot;rustls-0_20&quot;</span>, feature = <span class="string">&quot;rustls-0_21&quot;</span>))]
+</span><span class="attr">#[cfg(any(
+    feature = <span class="string">&quot;openssl&quot;</span>,
+    feature = <span class="string">&quot;rustls-0_20&quot;</span>,
+    feature = <span class="string">&quot;rustls-0_21&quot;</span>,
+    feature = <span class="string">&quot;rustls-0_22&quot;</span>,
+))]
 #[derive(Debug, Default)]
 </span><span class="kw">pub struct </span>TlsAcceptorConfig {
     <span class="kw">pub</span>(<span class="kw">crate</span>) handshake_timeout: <span class="prelude-ty">Option</span>&lt;std::time::Duration&gt;,
 }
 
-<span class="attr">#[cfg(any(feature = <span class="string">&quot;openssl&quot;</span>, feature = <span class="string">&quot;rustls-0_20&quot;</span>, feature = <span class="string">&quot;rustls-0_21&quot;</span>))]
+<span class="attr">#[cfg(any(
+    feature = <span class="string">&quot;openssl&quot;</span>,
+    feature = <span class="string">&quot;rustls-0_20&quot;</span>,
+    feature = <span class="string">&quot;rustls-0_21&quot;</span>,
+    feature = <span class="string">&quot;rustls-0_22&quot;</span>,
+))]
 </span><span class="kw">impl </span>TlsAcceptorConfig {
     <span class="doccomment">/// Set TLS handshake timeout duration.
     </span><span class="kw">pub fn </span>handshake_timeout(<span class="self">self</span>, dur: std::time::Duration) -&gt; <span class="self">Self </span>{
@@ -1239,12 +1355,12 @@
 }
 
 <span class="attr">#[cfg(feature = <span class="string">&quot;rustls-0_20&quot;</span>)]
-</span><span class="kw">mod </span>rustls_020 {
+</span><span class="kw">mod </span>rustls_0_20 {
     <span class="kw">use </span>std::io;
 
     <span class="kw">use </span>actix_service::ServiceFactoryExt <span class="kw">as _</span>;
     <span class="kw">use </span>actix_tls::accept::{
-        rustls::{reexports::ServerConfig, Acceptor, TlsStream},
+        rustls_0_20::{reexports::ServerConfig, Acceptor, TlsStream},
         TlsError,
     };
 
@@ -1275,7 +1391,7 @@
         U::Error: fmt::Display + Into&lt;Response&lt;BoxBody&gt;&gt;,
         U::InitError: fmt::Debug,
     {
-        <span class="doccomment">/// Create Rustls based service.
+        <span class="doccomment">/// Create Rustls v0.20 based service.
         </span><span class="kw">pub fn </span>rustls(
             <span class="self">self</span>,
             config: ServerConfig,
@@ -1289,7 +1405,7 @@
             <span class="self">self</span>.rustls_with_config(config, TlsAcceptorConfig::default())
         }
 
-        <span class="doccomment">/// Create Rustls based service with custom TLS acceptor configuration.
+        <span class="doccomment">/// Create Rustls v0.20 based service with custom TLS acceptor configuration.
         </span><span class="kw">pub fn </span>rustls_with_config(
             <span class="self">self</span>,
             <span class="kw-2">mut </span>config: ServerConfig,
@@ -1335,7 +1451,7 @@
 }
 
 <span class="attr">#[cfg(feature = <span class="string">&quot;rustls-0_21&quot;</span>)]
-</span><span class="kw">mod </span>rustls_021 {
+</span><span class="kw">mod </span>rustls_0_21 {
     <span class="kw">use </span>std::io;
 
     <span class="kw">use </span>actix_service::ServiceFactoryExt <span class="kw">as _</span>;
@@ -1371,7 +1487,7 @@
         U::Error: fmt::Display + Into&lt;Response&lt;BoxBody&gt;&gt;,
         U::InitError: fmt::Debug,
     {
-        <span class="doccomment">/// Create Rustls based service.
+        <span class="doccomment">/// Create Rustls v0.21 based service.
         </span><span class="kw">pub fn </span>rustls_021(
             <span class="self">self</span>,
             config: ServerConfig,
@@ -1385,8 +1501,104 @@
             <span class="self">self</span>.rustls_021_with_config(config, TlsAcceptorConfig::default())
         }
 
-        <span class="doccomment">/// Create Rustls based service with custom TLS acceptor configuration.
+        <span class="doccomment">/// Create Rustls v0.21 based service with custom TLS acceptor configuration.
         </span><span class="kw">pub fn </span>rustls_021_with_config(
+            <span class="self">self</span>,
+            <span class="kw-2">mut </span>config: ServerConfig,
+            tls_acceptor_config: TlsAcceptorConfig,
+        ) -&gt; <span class="kw">impl </span>ServiceFactory&lt;
+            TcpStream,
+            Config = (),
+            Response = (),
+            Error = TlsError&lt;io::Error, DispatchError&gt;,
+            InitError = (),
+        &gt; {
+            <span class="kw">let </span><span class="kw-2">mut </span>protos = <span class="macro">vec!</span>[<span class="string">b&quot;h2&quot;</span>.to_vec(), <span class="string">b&quot;http/1.1&quot;</span>.to_vec()];
+            protos.extend_from_slice(<span class="kw-2">&amp;</span>config.alpn_protocols);
+            config.alpn_protocols = protos;
+
+            <span class="kw">let </span><span class="kw-2">mut </span>acceptor = Acceptor::new(config);
+
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(handshake_timeout) = tls_acceptor_config.handshake_timeout {
+                acceptor.set_handshake_timeout(handshake_timeout);
+            }
+
+            acceptor
+                .map_init_err(|<span class="kw">_</span>| {
+                    <span class="macro">unreachable!</span>(<span class="string">&quot;TLS acceptor service factory does not error on init&quot;</span>)
+                })
+                .map_err(TlsError::into_service_error)
+                .and_then(|io: TlsStream&lt;TcpStream&gt;| <span class="kw">async </span>{
+                    <span class="kw">let </span>proto = <span class="kw">if let </span><span class="prelude-val">Some</span>(protos) = io.get_ref().<span class="number">1</span>.alpn_protocol() {
+                        <span class="kw">if </span>protos.windows(<span class="number">2</span>).any(|window| window == <span class="string">b&quot;h2&quot;</span>) {
+                            Protocol::Http2
+                        } <span class="kw">else </span>{
+                            Protocol::Http1
+                        }
+                    } <span class="kw">else </span>{
+                        Protocol::Http1
+                    };
+                    <span class="kw">let </span>peer_addr = io.get_ref().<span class="number">0</span>.peer_addr().ok();
+                    <span class="prelude-val">Ok</span>((io, proto, peer_addr))
+                })
+                .and_then(<span class="self">self</span>.map_err(TlsError::Service))
+        }
+    }
+}
+
+<span class="attr">#[cfg(feature = <span class="string">&quot;rustls-0_22&quot;</span>)]
+</span><span class="kw">mod </span>rustls_0_22 {
+    <span class="kw">use </span>std::io;
+
+    <span class="kw">use </span>actix_service::ServiceFactoryExt <span class="kw">as _</span>;
+    <span class="kw">use </span>actix_tls::accept::{
+        rustls_0_22::{reexports::ServerConfig, Acceptor, TlsStream},
+        TlsError,
+    };
+
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+
+    <span class="kw">impl</span>&lt;S, B, X, U&gt; HttpService&lt;TlsStream&lt;TcpStream&gt;, S, B, X, U&gt;
+    <span class="kw">where
+        </span>S: ServiceFactory&lt;Request, Config = ()&gt;,
+        S::Future: <span class="lifetime">&#39;static</span>,
+        S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">&#39;static</span>,
+        S::InitError: fmt::Debug,
+        S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">&#39;static</span>,
+        &lt;S::Service <span class="kw">as </span>Service&lt;Request&gt;&gt;::Future: <span class="lifetime">&#39;static</span>,
+
+        B: MessageBody + <span class="lifetime">&#39;static</span>,
+
+        X: ServiceFactory&lt;Request, Config = (), Response = Request&gt;,
+        X::Future: <span class="lifetime">&#39;static</span>,
+        X::Error: Into&lt;Response&lt;BoxBody&gt;&gt;,
+        X::InitError: fmt::Debug,
+
+        U: ServiceFactory&lt;
+            (Request, Framed&lt;TlsStream&lt;TcpStream&gt;, h1::Codec&gt;),
+            Config = (),
+            Response = (),
+        &gt;,
+        U::Future: <span class="lifetime">&#39;static</span>,
+        U::Error: fmt::Display + Into&lt;Response&lt;BoxBody&gt;&gt;,
+        U::InitError: fmt::Debug,
+    {
+        <span class="doccomment">/// Create Rustls v0.22 based service.
+        </span><span class="kw">pub fn </span>rustls_0_22(
+            <span class="self">self</span>,
+            config: ServerConfig,
+        ) -&gt; <span class="kw">impl </span>ServiceFactory&lt;
+            TcpStream,
+            Config = (),
+            Response = (),
+            Error = TlsError&lt;io::Error, DispatchError&gt;,
+            InitError = (),
+        &gt; {
+            <span class="self">self</span>.rustls_0_22_with_config(config, TlsAcceptorConfig::default())
+        }
+
+        <span class="doccomment">/// Create Rustls v0.22 based service with custom TLS acceptor configuration.
+        </span><span class="kw">pub fn </span>rustls_0_22_with_config(
             <span class="self">self</span>,
             <span class="kw-2">mut </span>config: ServerConfig,
             tls_acceptor_config: TlsAcceptorConfig,

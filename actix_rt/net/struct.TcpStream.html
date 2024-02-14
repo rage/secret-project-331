@@ -634,7 +634,7 @@ if it is called with a combined interest.</p>
 connected, without removing that data from the queue. On success,
 returns the number of bytes peeked.</p>
 <p>Successive calls return the same data. This is accomplished by passing
-<code>MSG_PEEK</code> as a flag to the underlying recv system call.</p>
+<code>MSG_PEEK</code> as a flag to the underlying <code>recv</code> system call.</p>
 <h5 id="examples-15"><a href="#examples-15">Examples</a></h5>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>tokio::net::TcpStream;
 <span class="kw">use </span>tokio::io::AsyncReadExt;
@@ -687,11 +687,11 @@ option.</p>
 <span class="kw">let </span>stream = TcpStream::connect(<span class="string">&quot;127.0.0.1:8080&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
 <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, stream.linger()<span class="question-mark">?</span>);</code></pre></div>
-</div></details><details class="toggle method-toggle" open><summary><section id="method.set_linger" class="method"><a class="src rightside" href="../../src/tokio/net/tcp/stream.rs.html#1202">source</a><h4 class="code-header">pub fn <a href="#method.set_linger" class="fn">set_linger</a>(&amp;self, dur: <a class="enum" href="https://doc.rust-lang.org/1.75.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="struct" href="https://doc.rust-lang.org/1.75.0/core/time/struct.Duration.html" title="struct core::time::Duration">Duration</a>&gt;) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.75.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.75.0/std/primitive.unit.html">()</a>, <a class="struct" href="https://doc.rust-lang.org/1.75.0/std/io/error/struct.Error.html" title="struct std::io::error::Error">Error</a>&gt;</h4></section></summary><div class="docblock"><p>Sets the linger duration of this socket by setting the SO_LINGER option.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.set_linger" class="method"><a class="src rightside" href="../../src/tokio/net/tcp/stream.rs.html#1202">source</a><h4 class="code-header">pub fn <a href="#method.set_linger" class="fn">set_linger</a>(&amp;self, dur: <a class="enum" href="https://doc.rust-lang.org/1.75.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="struct" href="https://doc.rust-lang.org/1.75.0/core/time/struct.Duration.html" title="struct core::time::Duration">Duration</a>&gt;) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.75.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.75.0/std/primitive.unit.html">()</a>, <a class="struct" href="https://doc.rust-lang.org/1.75.0/std/io/error/struct.Error.html" title="struct std::io::error::Error">Error</a>&gt;</h4></section></summary><div class="docblock"><p>Sets the linger duration of this socket by setting the <code>SO_LINGER</code> option.</p>
 <p>This option controls the action taken when a stream has unsent messages and the stream is
-closed. If SO_LINGER is set, the system shall block the process until it can transmit the
+closed. If <code>SO_LINGER</code> is set, the system shall block the process until it can transmit the
 data or until the time expires.</p>
-<p>If SO_LINGER is not specified, and the stream is closed, the system handles the call in a
+<p>If <code>SO_LINGER</code> is not specified, and the stream is closed, the system handles the call in a
 way that allows the process to continue as quickly as possible.</p>
 <h5 id="examples-19"><a href="#examples-19">Examples</a></h5>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>tokio::net::TcpStream;

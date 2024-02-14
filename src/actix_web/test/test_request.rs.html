@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.4.1/src/test/test_request.rs`."><title>test_request.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.5.1/src/test/test_request.rs`."><title>test_request.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -435,6 +435,13 @@
 <a href="#435" id="435">435</a>
 <a href="#436" id="436">436</a>
 <a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::{borrow::Cow, net::SocketAddr, rc::Rc};
 
 <span class="kw">use </span>actix_http::{test::TestRequest <span class="kw">as </span>HttpTestRequest, Request};
@@ -523,76 +530,77 @@
 
 <span class="attr">#[allow(clippy::wrong_self_convention)]
 </span><span class="kw">impl </span>TestRequest {
-    <span class="doccomment">/// Create TestRequest and set request uri
-    </span><span class="kw">pub fn </span>with_uri(path: <span class="kw-2">&amp;</span>str) -&gt; TestRequest {
-        TestRequest::default().uri(path)
+    <span class="doccomment">/// Constructs test request and sets request URI.
+    </span><span class="kw">pub fn </span>with_uri(uri: <span class="kw-2">&amp;</span>str) -&gt; TestRequest {
+        TestRequest::default().uri(uri)
     }
 
-    <span class="doccomment">/// Create TestRequest and set method to `Method::GET`
+    <span class="doccomment">/// Constructs test request with GET method.
     </span><span class="kw">pub fn </span>get() -&gt; TestRequest {
         TestRequest::default().method(Method::GET)
     }
 
-    <span class="doccomment">/// Create TestRequest and set method to `Method::POST`
+    <span class="doccomment">/// Constructs test request with POST method.
     </span><span class="kw">pub fn </span>post() -&gt; TestRequest {
         TestRequest::default().method(Method::POST)
     }
 
-    <span class="doccomment">/// Create TestRequest and set method to `Method::PUT`
+    <span class="doccomment">/// Constructs test request with PUT method.
     </span><span class="kw">pub fn </span>put() -&gt; TestRequest {
         TestRequest::default().method(Method::PUT)
     }
 
-    <span class="doccomment">/// Create TestRequest and set method to `Method::PATCH`
+    <span class="doccomment">/// Constructs test request with PATCH method.
     </span><span class="kw">pub fn </span>patch() -&gt; TestRequest {
         TestRequest::default().method(Method::PATCH)
     }
 
-    <span class="doccomment">/// Create TestRequest and set method to `Method::DELETE`
+    <span class="doccomment">/// Constructs test request with DELETE method.
     </span><span class="kw">pub fn </span>delete() -&gt; TestRequest {
         TestRequest::default().method(Method::DELETE)
     }
 
-    <span class="doccomment">/// Set HTTP version of this request
+    <span class="doccomment">/// Sets HTTP version of this request.
     </span><span class="kw">pub fn </span>version(<span class="kw-2">mut </span><span class="self">self</span>, ver: Version) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.req.version(ver);
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Set HTTP method of this request
+    <span class="doccomment">/// Sets method of this request.
     </span><span class="kw">pub fn </span>method(<span class="kw-2">mut </span><span class="self">self</span>, meth: Method) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.req.method(meth);
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Set HTTP URI of this request
+    <span class="doccomment">/// Sets URI of this request.
     </span><span class="kw">pub fn </span>uri(<span class="kw-2">mut </span><span class="self">self</span>, path: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.req.uri(path);
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Insert a header, replacing any that were set with an equivalent field name.
+    <span class="doccomment">/// Inserts a header, replacing any that were set with an equivalent field name.
     </span><span class="kw">pub fn </span>insert_header(<span class="kw-2">mut </span><span class="self">self</span>, header: <span class="kw">impl </span>TryIntoHeaderPair) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.req.insert_header(header);
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Append a header, keeping any that were set with an equivalent field name.
+    <span class="doccomment">/// Appends a header, keeping any that were set with an equivalent field name.
     </span><span class="kw">pub fn </span>append_header(<span class="kw-2">mut </span><span class="self">self</span>, header: <span class="kw">impl </span>TryIntoHeaderPair) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.req.append_header(header);
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Set cookie for this request.
+    <span class="doccomment">/// Sets cookie for this request.
     </span><span class="attr">#[cfg(feature = <span class="string">&quot;cookies&quot;</span>)]
     </span><span class="kw">pub fn </span>cookie(<span class="kw-2">mut </span><span class="self">self</span>, cookie: Cookie&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.cookies.add(cookie.into_owned());
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Set request path pattern parameter.
+    <span class="doccomment">/// Sets request path pattern parameter.
     ///
     /// # Examples
+    ///
     /// ```
     /// use actix_web::test::TestRequest;
     ///
@@ -608,19 +616,19 @@
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Set peer addr.
+    <span class="doccomment">/// Sets peer address.
     </span><span class="kw">pub fn </span>peer_addr(<span class="kw-2">mut </span><span class="self">self</span>, addr: SocketAddr) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.peer_addr = <span class="prelude-val">Some</span>(addr);
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Set request payload.
+    <span class="doccomment">/// Sets request payload.
     </span><span class="kw">pub fn </span>set_payload(<span class="kw-2">mut </span><span class="self">self</span>, data: <span class="kw">impl </span>Into&lt;Bytes&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.req.set_payload(data);
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Serialize `data` to a URL encoded form and set it as the request payload.
+    <span class="doccomment">/// Serializes `data` to a URL encoded form and set it as the request payload.
     ///
     /// The `Content-Type` header is set to `application/x-www-form-urlencoded`.
     </span><span class="kw">pub fn </span>set_form(<span class="kw-2">mut </span><span class="self">self</span>, data: <span class="kw">impl </span>Serialize) -&gt; <span class="self">Self </span>{
@@ -631,7 +639,7 @@
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Serialize `data` to JSON and set it as the request payload.
+    <span class="doccomment">/// Serializes `data` to JSON and set it as the request payload.
     ///
     /// The `Content-Type` header is set to `application/json`.
     </span><span class="kw">pub fn </span>set_json(<span class="kw-2">mut </span><span class="self">self</span>, data: <span class="kw">impl </span>Serialize) -&gt; <span class="self">Self </span>{
@@ -641,28 +649,34 @@
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Set application data. This is equivalent of `App::data()` method
-    /// for testing purpose.
-    </span><span class="kw">pub fn </span>data&lt;T: <span class="lifetime">&#39;static</span>&gt;(<span class="kw-2">mut </span><span class="self">self</span>, data: T) -&gt; <span class="self">Self </span>{
-        <span class="self">self</span>.app_data.insert(Data::new(data));
-        <span class="self">self
-    </span>}
-
-    <span class="doccomment">/// Set application data. This is equivalent of `App::app_data()` method
-    /// for testing purpose.
+    <span class="doccomment">/// Inserts application data.
+    ///
+    /// This is equivalent of `App::app_data()` method for testing purpose.
     </span><span class="kw">pub fn </span>app_data&lt;T: <span class="lifetime">&#39;static</span>&gt;(<span class="kw-2">mut </span><span class="self">self</span>, data: T) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.app_data.insert(data);
         <span class="self">self
     </span>}
 
-    <span class="attr">#[cfg(test)]
-    </span><span class="doccomment">/// Set request config
+    <span class="doccomment">/// Inserts application data.
+    ///
+    /// This is equivalent of `App::data()` method for testing purpose.
+    </span><span class="attr">#[doc(hidden)]
+    </span><span class="kw">pub fn </span>data&lt;T: <span class="lifetime">&#39;static</span>&gt;(<span class="kw-2">mut </span><span class="self">self</span>, data: T) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.app_data.insert(Data::new(data));
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Sets resource map.
+    </span><span class="attr">#[cfg(test)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>rmap(<span class="kw-2">mut </span><span class="self">self</span>, rmap: ResourceMap) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.rmap = rmap;
         <span class="self">self
     </span>}
 
-    <span class="kw">fn </span>finish(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Request {
+    <span class="doccomment">/// Finalizes test request.
+    ///
+    /// This request builder will be useless after calling `finish()`.
+    </span><span class="kw">fn </span>finish(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Request {
         <span class="comment">// mut used when cookie feature is enabled
         </span><span class="attr">#[allow(unused_mut)]
         </span><span class="kw">let </span><span class="kw-2">mut </span>req = <span class="self">self</span>.req.finish();
@@ -688,14 +702,14 @@
         req
     }
 
-    <span class="doccomment">/// Complete request creation and generate `Request` instance
+    <span class="doccomment">/// Finalizes request creation and returns `Request` instance.
     </span><span class="kw">pub fn </span>to_request(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; Request {
         <span class="kw">let </span><span class="kw-2">mut </span>req = <span class="self">self</span>.finish();
         req.head_mut().peer_addr = <span class="self">self</span>.peer_addr;
         req
     }
 
-    <span class="doccomment">/// Complete request creation and generate `ServiceRequest` instance
+    <span class="doccomment">/// Finalizes request creation and returns `ServiceRequest` instance.
     </span><span class="kw">pub fn </span>to_srv_request(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; ServiceRequest {
         <span class="kw">let </span>(<span class="kw-2">mut </span>head, payload) = <span class="self">self</span>.finish().into_parts();
         head.peer_addr = <span class="self">self</span>.peer_addr;
@@ -716,12 +730,12 @@
         )
     }
 
-    <span class="doccomment">/// Complete request creation and generate `ServiceResponse` instance
+    <span class="doccomment">/// Finalizes request creation and returns `ServiceResponse` instance.
     </span><span class="kw">pub fn </span>to_srv_response&lt;B&gt;(<span class="self">self</span>, res: HttpResponse&lt;B&gt;) -&gt; ServiceResponse&lt;B&gt; {
         <span class="self">self</span>.to_srv_request().into_response(res)
     }
 
-    <span class="doccomment">/// Complete request creation and generate `HttpRequest` instance
+    <span class="doccomment">/// Finalizes request creation and returns `HttpRequest` instance.
     </span><span class="kw">pub fn </span>to_http_request(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; HttpRequest {
         <span class="kw">let </span>(<span class="kw-2">mut </span>head, <span class="kw">_</span>) = <span class="self">self</span>.finish().into_parts();
         head.peer_addr = <span class="self">self</span>.peer_addr;
@@ -739,7 +753,7 @@
         )
     }
 
-    <span class="doccomment">/// Complete request creation and generate `HttpRequest` and `Payload` instances
+    <span class="doccomment">/// Finalizes request creation and returns `HttpRequest` and `Payload` pair.
     </span><span class="kw">pub fn </span>to_http_parts(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; (HttpRequest, Payload) {
         <span class="kw">let </span>(<span class="kw-2">mut </span>head, payload) = <span class="self">self</span>.finish().into_parts();
         head.peer_addr = <span class="self">self</span>.peer_addr;
@@ -759,7 +773,7 @@
         (req, payload)
     }
 
-    <span class="doccomment">/// Complete request creation, calls service and waits for response future completion.
+    <span class="doccomment">/// Finalizes request creation, calls service, and waits for response future completion.
     </span><span class="kw">pub async fn </span>send_request&lt;S, B, E&gt;(<span class="self">self</span>, app: <span class="kw-2">&amp;</span>S) -&gt; S::Response
     <span class="kw">where
         </span>S: Service&lt;Request, Response = ServiceResponse&lt;B&gt;, Error = E&gt;,

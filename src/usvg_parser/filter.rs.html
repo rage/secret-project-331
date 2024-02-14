@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-parser-0.37.0/src/filter.rs`."><title>filter.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-parser-0.38.0/src/filter.rs`."><title>filter.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1141,17 +1141,14 @@
 <a href="#1141" id="1141">1141</a>
 <a href="#1142" id="1142">1142</a>
 <a href="#1143" id="1143">1143</a>
-<a href="#1144" id="1144">1144</a>
-<a href="#1145" id="1145">1145</a>
-<a href="#1146" id="1146">1146</a>
-<a href="#1147" id="1147">1147</a>
 </pre></div><pre class="rust"><code><span class="comment">// This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 </span><span class="doccomment">//! A collection of SVG filters.
 
-</span><span class="kw">use </span>std::collections::HashSet;
+</span><span class="kw">use </span>std::cell::RefCell;
+<span class="kw">use </span>std::collections::HashSet;
 <span class="kw">use </span>std::rc::Rc;
 <span class="kw">use </span>std::str::FromStr;
 
@@ -1159,8 +1156,7 @@
 <span class="kw">use </span>svgtypes::{Length, LengthUnit <span class="kw">as </span>Unit};
 <span class="kw">use </span>usvg_tree::filter::<span class="kw-2">*</span>;
 <span class="kw">use </span>usvg_tree::{
-    strict_num, ApproxZeroUlps, Color, Group, Node, NodeKind, NonZeroF32, NonZeroRect, Opacity,
-    Units,
+    strict_num, ApproxZeroUlps, Color, Group, Node, NonZeroF32, NonZeroRect, Opacity, Units,
 };
 
 <span class="kw">use </span><span class="kw">crate</span>::converter::{<span class="self">self</span>, SvgColorExt};
@@ -1182,7 +1178,7 @@
     node: SvgNode,
     state: <span class="kw-2">&amp;</span>converter::State,
     cache: <span class="kw-2">&amp;mut </span>converter::Cache,
-) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;Rc&lt;Filter&gt;&gt;, ()&gt; {
+) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;SharedFilter&gt;, ()&gt; {
     <span class="kw">let </span>value = <span class="kw">match </span>node.attribute::&lt;<span class="kw-2">&amp;</span>str&gt;(AId::Filter) {
         <span class="prelude-val">Some</span>(v) =&gt; v,
         <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(Vec::new()),
@@ -1191,7 +1187,7 @@
     <span class="kw">let </span><span class="kw-2">mut </span>has_invalid_urls = <span class="bool-val">false</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>filters = Vec::new();
 
-    <span class="kw">let </span>create_base_filter_func = |kind, filters: <span class="kw-2">&amp;mut </span>Vec&lt;Rc&lt;Filter&gt;&gt;| {
+    <span class="kw">let </span>create_base_filter_func = |kind, filters: <span class="kw-2">&amp;mut </span>Vec&lt;SharedFilter&gt;| {
         <span class="comment">// Filter functions, unlike `filter` elements, do not have a filter region.
         // We&#39;re currently do not support an unlimited region, so we simply use a fairly large one.
         // This if far from ideal, but good for now.
@@ -1203,7 +1199,7 @@
             <span class="kw">_ </span>=&gt; NonZeroRect::from_xywh(-<span class="number">0.1</span>, -<span class="number">0.1</span>, <span class="number">1.2</span>, <span class="number">1.2</span>).unwrap(),
         };
 
-        filters.push(Rc::new(Filter {
+        filters.push(Rc::new(RefCell::new(Filter {
             id: String::new(),
             units: Units::ObjectBoundingBox,
             primitive_units: Units::UserSpaceOnUse,
@@ -1218,7 +1214,7 @@
                 result: <span class="string">&quot;result&quot;</span>.to_string(),
                 kind,
             }],
-        }));
+        })));
     };
 
     <span class="kw">for </span>func <span class="kw">in </span>svgtypes::FilterValueListParser::from(value) {
@@ -1299,7 +1295,7 @@
     node: SvgNode,
     state: <span class="kw-2">&amp;</span>converter::State,
     cache: <span class="kw-2">&amp;mut </span>converter::Cache,
-) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Rc&lt;Filter&gt;&gt;, ()&gt; {
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;SharedFilter&gt;, ()&gt; {
     <span class="kw">if let </span><span class="prelude-val">Some</span>(filter) = cache.filters.get(node.element_id()) {
         <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(filter.clone()));
     }
@@ -1355,13 +1351,13 @@
         <span class="kw">return </span><span class="prelude-val">Err</span>(());
     }
 
-    <span class="kw">let </span>filter = Rc::new(Filter {
+    <span class="kw">let </span>filter = Rc::new(RefCell::new(Filter {
         id: node.element_id().to_string(),
         units,
         primitive_units,
         rect,
         primitives,
-    });
+    }));
 
     cache
         .filters
@@ -1840,40 +1836,36 @@
         .find_attribute(AId::ImageRendering)
         .unwrap_or(state.opt.image_rendering);
 
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(node) = fe.attribute::&lt;SvgNode&gt;(AId::Href) {
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(node) = fe.try_attribute::&lt;SvgNode&gt;(AId::Href) {
         <span class="kw">let </span><span class="kw-2">mut </span>state = state.clone();
         state.fe_image_link = <span class="bool-val">true</span>;
-        <span class="kw">let </span><span class="kw-2">mut </span>root = Node::new(NodeKind::Group(Group::default()));
+        <span class="kw">let </span><span class="kw-2">mut </span>root = Group::default();
         <span class="kw">crate</span>::converter::convert_element(node, <span class="kw-2">&amp;</span>state, cache, <span class="kw-2">&amp;mut </span>root);
-        <span class="kw">return if let </span><span class="prelude-val">Some</span>(node) = root.first_child() {
-            node.detach(); <span class="comment">// drops `root` node
-
-            // Transfer node id from group&#39;s child to the group itself if needed.
-            </span><span class="kw">let </span><span class="kw-2">mut </span>id = String::new();
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(child) = node.first_child() {
-                id = child.borrow().id().to_string();
-                <span class="kw">match </span><span class="kw-2">*</span>child.borrow_mut() {
-                    NodeKind::Group(<span class="kw-2">ref mut </span>g) =&gt; g.id.clear(),
-                    NodeKind::Path(<span class="kw-2">ref mut </span>path) =&gt; path.id.clear(),
-                    NodeKind::Image(<span class="kw-2">ref mut </span>image) =&gt; image.id.clear(),
-                    NodeKind::Text(<span class="kw-2">ref mut </span>text) =&gt; text.id.clear(),
+        <span class="kw">return if </span>root.has_children() {
+            <span class="comment">// Transfer node id from group&#39;s child to the group itself if needed.
+            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(Node::Group(<span class="kw-2">ref mut </span>g)) = root.children.first_mut() {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(child2) = g.children.first_mut() {
+                    g.id = child2.id().to_string();
+                    <span class="kw">match </span>child2 {
+                        Node::Group(<span class="kw-2">ref mut </span>g2) =&gt; g2.id.clear(),
+                        Node::Path(<span class="kw-2">ref mut </span>path) =&gt; path.id.clear(),
+                        Node::Image(<span class="kw-2">ref mut </span>image) =&gt; image.id.clear(),
+                        Node::Text(<span class="kw-2">ref mut </span>text) =&gt; text.id.clear(),
+                    }
                 }
-            }
-            <span class="kw">if let </span>NodeKind::Group(<span class="kw-2">ref mut </span>g) = <span class="kw-2">*</span>node.borrow_mut() {
-                g.id = id;
             }
 
             Kind::Image(Image {
                 aspect,
                 rendering_mode,
-                data: ImageKind::Use(node),
+                data: ImageKind::Use(Box::new(root)),
             })
         } <span class="kw">else </span>{
             create_dummy_primitive()
         };
     }
 
-    <span class="kw">let </span>href = <span class="kw">match </span>fe.attribute(AId::Href) {
+    <span class="kw">let </span>href = <span class="kw">match </span>fe.try_attribute(AId::Href) {
         <span class="prelude-val">Some</span>(s) =&gt; s,
         <span class="kw">_ </span>=&gt; {
             <span class="macro">log::warn!</span>(<span class="string">&quot;The &#39;feImage&#39; element lacks the &#39;xlink:href&#39; attribute. Skipped.&quot;</span>);

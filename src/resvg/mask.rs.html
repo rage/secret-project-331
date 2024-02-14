@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/resvg-0.37.0/src/mask.rs`."><title>mask.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="resvg" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/resvg-0.38.0/src/mask.rs`."><title>mask.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="resvg" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -80,101 +80,50 @@
 <a href="#80" id="80">80</a>
 <a href="#81" id="81">81</a>
 <a href="#82" id="82">82</a>
-<a href="#83" id="83">83</a>
-<a href="#84" id="84">84</a>
-<a href="#85" id="85">85</a>
-<a href="#86" id="86">86</a>
-<a href="#87" id="87">87</a>
-<a href="#88" id="88">88</a>
-<a href="#89" id="89">89</a>
-<a href="#90" id="90">90</a>
-<a href="#91" id="91">91</a>
-<a href="#92" id="92">92</a>
-<a href="#93" id="93">93</a>
-<a href="#94" id="94">94</a>
-<a href="#95" id="95">95</a>
-<a href="#96" id="96">96</a>
-<a href="#97" id="97">97</a>
-<a href="#98" id="98">98</a>
-<a href="#99" id="99">99</a>
-<a href="#100" id="100">100</a>
-<a href="#101" id="101">101</a>
-<a href="#102" id="102">102</a>
-<a href="#103" id="103">103</a>
-<a href="#104" id="104">104</a>
-<a href="#105" id="105">105</a>
-<a href="#106" id="106">106</a>
-<a href="#107" id="107">107</a>
 </pre></div><pre class="rust"><code><span class="comment">// This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-</span><span class="kw">use </span>std::rc::Rc;
+</span><span class="kw">use </span><span class="kw">crate</span>::render::Context;
 
-<span class="kw">use </span><span class="kw">crate</span>::render::Context;
-<span class="kw">use </span><span class="kw">crate</span>::tree::{Node, OptionLog};
-
-<span class="kw">pub struct </span>Mask {
-    <span class="kw">pub </span>mask_all: bool,
-    <span class="kw">pub </span>region: tiny_skia::Rect,
-    <span class="kw">pub </span>content_transform: tiny_skia::Transform,
-    <span class="kw">pub </span>kind: usvg::MaskType,
-    <span class="kw">pub </span>mask: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="self">Self</span>&gt;&gt;,
-    <span class="kw">pub </span>children: Vec&lt;Node&gt;,
-}
-
-<span class="kw">pub fn </span>convert(umask: <span class="prelude-ty">Option</span>&lt;Rc&lt;usvg::Mask&gt;&gt;, object_bbox: tiny_skia::Rect) -&gt; <span class="prelude-ty">Option</span>&lt;Mask&gt; {
-    <span class="kw">let </span>umask = umask<span class="question-mark">?</span>;
-
+<span class="kw">pub fn </span>apply(
+    mask: <span class="kw-2">&amp;</span>usvg::Mask,
+    ctx: <span class="kw-2">&amp;</span>Context,
+    object_bbox: tiny_skia::Rect,
+    transform: tiny_skia::Transform,
+    pixmap: <span class="kw-2">&amp;mut </span>tiny_skia::Pixmap,
+) {
     <span class="kw">let </span><span class="kw-2">mut </span>content_transform = tiny_skia::Transform::default();
-    <span class="kw">if </span>umask.content_units == usvg::Units::ObjectBoundingBox {
-        <span class="kw">let </span>object_bbox = object_bbox
-            .to_non_zero_rect()
-            .log_none(|| <span class="macro">log::warn!</span>(<span class="string">&quot;Masking of zero-sized shapes is not allowed.&quot;</span>))<span class="question-mark">?</span>;
+    <span class="kw">if </span>mask.content_units == usvg::Units::ObjectBoundingBox {
+        <span class="kw">let </span>object_bbox = <span class="kw">match </span>object_bbox.to_non_zero_rect() {
+            <span class="prelude-val">Some</span>(v) =&gt; v,
+            <span class="prelude-val">None </span>=&gt; {
+                <span class="macro">log::warn!</span>(<span class="string">&quot;Masking of zero-sized shapes is not allowed.&quot;</span>);
+                <span class="kw">return</span>;
+            }
+        };
 
         <span class="kw">let </span>ts = usvg::Transform::from_bbox(object_bbox);
         content_transform = ts;
     }
 
-    <span class="kw">let </span><span class="kw-2">mut </span>mask_all = <span class="bool-val">false</span>;
-    <span class="kw">if </span>umask.units == usvg::Units::ObjectBoundingBox &amp;&amp; object_bbox.to_non_zero_rect().is_none() {
+    <span class="kw">if </span>mask.units == usvg::Units::ObjectBoundingBox &amp;&amp; object_bbox.to_non_zero_rect().is_none() {
         <span class="comment">// `objectBoundingBox` units and zero-sized bbox? Clear the canvas and return.
         // Technically a UB, but this is what Chrome and Firefox do.
-        </span>mask_all = <span class="bool-val">true</span>;
+        </span>pixmap.fill(tiny_skia::Color::TRANSPARENT);
+        <span class="kw">return</span>;
     }
 
-    <span class="kw">let </span>region = <span class="kw">if </span>umask.units == usvg::Units::ObjectBoundingBox {
+    <span class="kw">let </span>region = <span class="kw">if </span>mask.units == usvg::Units::ObjectBoundingBox {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(bbox) = object_bbox.to_non_zero_rect() {
-            umask.rect.bbox_transform(bbox)
+            mask.rect.bbox_transform(bbox)
         } <span class="kw">else </span>{
             <span class="comment">// The actual values does not matter. Will not be used anyway.
             </span>tiny_skia::NonZeroRect::from_xywh(<span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">1.0</span>, <span class="number">1.0</span>).unwrap()
         }
     } <span class="kw">else </span>{
-        umask.rect
+        mask.rect
     };
-
-    <span class="kw">let </span>(children, <span class="kw">_</span>) = <span class="kw">crate</span>::tree::convert_node(umask.root.clone());
-    <span class="prelude-val">Some</span>(Mask {
-        mask_all,
-        region: region.to_rect(),
-        content_transform,
-        kind: umask.kind,
-        mask: convert(umask.mask.clone(), object_bbox).map(Box::new),
-        children,
-    })
-}
-
-<span class="kw">pub fn </span>apply(
-    mask: <span class="kw-2">&amp;</span>Mask,
-    ctx: <span class="kw-2">&amp;</span>Context,
-    transform: tiny_skia::Transform,
-    pixmap: <span class="kw-2">&amp;mut </span>tiny_skia::Pixmap,
-) {
-    <span class="kw">if </span>mask.mask_all {
-        pixmap.fill(tiny_skia::Color::TRANSPARENT);
-        <span class="kw">return</span>;
-    }
 
     <span class="kw">let </span><span class="kw-2">mut </span>mask_pixmap = tiny_skia::Pixmap::new(pixmap.width(), pixmap.height()).unwrap();
 
@@ -183,17 +132,18 @@
         // Mask has to be clipped by mask.region
         </span><span class="kw">let </span><span class="kw-2">mut </span>alpha_mask = tiny_skia::Mask::new(pixmap.width(), pixmap.height()).unwrap();
         alpha_mask.fill_path(
-            <span class="kw-2">&amp;</span>tiny_skia::PathBuilder::from_rect(mask.region),
+            <span class="kw-2">&amp;</span>tiny_skia::PathBuilder::from_rect(region.to_rect()),
             tiny_skia::FillRule::Winding,
             <span class="bool-val">true</span>,
             transform,
         );
 
-        <span class="kw">let </span>content_transform = transform.pre_concat(mask.content_transform);
+        <span class="kw">let </span>content_transform = transform.pre_concat(content_transform);
         <span class="kw">crate</span>::render::render_nodes(
-            <span class="kw-2">&amp;</span>mask.children,
+            <span class="kw-2">&amp;</span>mask.root,
             ctx,
             content_transform,
+            <span class="prelude-val">None</span>,
             <span class="kw-2">&amp;mut </span>mask_pixmap.as_mut(),
         );
 
@@ -201,7 +151,7 @@
     }
 
     <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>mask) = mask.mask {
-        <span class="self">self</span>::apply(mask, ctx, transform, pixmap);
+        <span class="self">self</span>::apply(<span class="kw-2">&amp;</span>mask.borrow(), ctx, object_bbox, transform, pixmap);
     }
 
     <span class="kw">let </span>mask_type = <span class="kw">match </span>mask.kind {

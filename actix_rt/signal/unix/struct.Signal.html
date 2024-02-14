@@ -31,15 +31,15 @@ signal kind, an OS signal-handler is installed which replaces the default
 platform behavior when that signal is received, <strong>for the duration of the
 entire process</strong>.</p>
 <p>For example, Unix systems will terminate a process by default when it
-receives SIGINT. But, when a <code>Signal</code> instance is created to listen for
-this signal, the next SIGINT that arrives will be translated to a stream
+receives <code>SIGINT</code>. But, when a <code>Signal</code> instance is created to listen for
+this signal, the next <code>SIGINT</code> that arrives will be translated to a stream
 event, and the process will continue to execute. <strong>Even if this <code>Signal</code>
-instance is dropped, subsequent SIGINT deliveries will end up captured by
+instance is dropped, subsequent <code>SIGINT</code> deliveries will end up captured by
 Tokio, and the default platform behavior will NOT be reset</strong>.</p>
 <p>Thus, applications should take care to ensure the expected signal behavior
 occurs as expected after listening for specific signals.</p>
 <h2 id="examples"><a href="#examples">Examples</a></h2>
-<p>Wait for SIGHUP</p>
+<p>Wait for <code>SIGHUP</code></p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>tokio::signal::unix::{signal, SignalKind};
 
@@ -61,7 +61,7 @@ occurs as expected after listening for specific signals.</p>
 <a href="../../../tokio/macro.select.html" title="macro tokio::select"><code>tokio::select!</code></a> statement and some other branch
 completes first, then it is guaranteed that no signal is lost.</p>
 <h5 id="examples-1"><a href="#examples-1">Examples</a></h5>
-<p>Wait for SIGHUP</p>
+<p>Wait for <code>SIGHUP</code></p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>tokio::signal::unix::{signal, SignalKind};
 

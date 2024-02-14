@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["NodeEdge"],"mod":["iterator"],"struct":["Ancestors","Children","Descendants","FollowingSiblings","Node","PrecedingSiblings","Traverse","WeakNode"]};

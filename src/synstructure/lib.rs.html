@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/synstructure-0.13.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="synstructure" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/synstructure-0.13.1/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="synstructure" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -2554,135 +2554,6 @@
 <a href="#2554" id="2554">2554</a>
 <a href="#2555" id="2555">2555</a>
 <a href="#2556" id="2556">2556</a>
-<a href="#2557" id="2557">2557</a>
-<a href="#2558" id="2558">2558</a>
-<a href="#2559" id="2559">2559</a>
-<a href="#2560" id="2560">2560</a>
-<a href="#2561" id="2561">2561</a>
-<a href="#2562" id="2562">2562</a>
-<a href="#2563" id="2563">2563</a>
-<a href="#2564" id="2564">2564</a>
-<a href="#2565" id="2565">2565</a>
-<a href="#2566" id="2566">2566</a>
-<a href="#2567" id="2567">2567</a>
-<a href="#2568" id="2568">2568</a>
-<a href="#2569" id="2569">2569</a>
-<a href="#2570" id="2570">2570</a>
-<a href="#2571" id="2571">2571</a>
-<a href="#2572" id="2572">2572</a>
-<a href="#2573" id="2573">2573</a>
-<a href="#2574" id="2574">2574</a>
-<a href="#2575" id="2575">2575</a>
-<a href="#2576" id="2576">2576</a>
-<a href="#2577" id="2577">2577</a>
-<a href="#2578" id="2578">2578</a>
-<a href="#2579" id="2579">2579</a>
-<a href="#2580" id="2580">2580</a>
-<a href="#2581" id="2581">2581</a>
-<a href="#2582" id="2582">2582</a>
-<a href="#2583" id="2583">2583</a>
-<a href="#2584" id="2584">2584</a>
-<a href="#2585" id="2585">2585</a>
-<a href="#2586" id="2586">2586</a>
-<a href="#2587" id="2587">2587</a>
-<a href="#2588" id="2588">2588</a>
-<a href="#2589" id="2589">2589</a>
-<a href="#2590" id="2590">2590</a>
-<a href="#2591" id="2591">2591</a>
-<a href="#2592" id="2592">2592</a>
-<a href="#2593" id="2593">2593</a>
-<a href="#2594" id="2594">2594</a>
-<a href="#2595" id="2595">2595</a>
-<a href="#2596" id="2596">2596</a>
-<a href="#2597" id="2597">2597</a>
-<a href="#2598" id="2598">2598</a>
-<a href="#2599" id="2599">2599</a>
-<a href="#2600" id="2600">2600</a>
-<a href="#2601" id="2601">2601</a>
-<a href="#2602" id="2602">2602</a>
-<a href="#2603" id="2603">2603</a>
-<a href="#2604" id="2604">2604</a>
-<a href="#2605" id="2605">2605</a>
-<a href="#2606" id="2606">2606</a>
-<a href="#2607" id="2607">2607</a>
-<a href="#2608" id="2608">2608</a>
-<a href="#2609" id="2609">2609</a>
-<a href="#2610" id="2610">2610</a>
-<a href="#2611" id="2611">2611</a>
-<a href="#2612" id="2612">2612</a>
-<a href="#2613" id="2613">2613</a>
-<a href="#2614" id="2614">2614</a>
-<a href="#2615" id="2615">2615</a>
-<a href="#2616" id="2616">2616</a>
-<a href="#2617" id="2617">2617</a>
-<a href="#2618" id="2618">2618</a>
-<a href="#2619" id="2619">2619</a>
-<a href="#2620" id="2620">2620</a>
-<a href="#2621" id="2621">2621</a>
-<a href="#2622" id="2622">2622</a>
-<a href="#2623" id="2623">2623</a>
-<a href="#2624" id="2624">2624</a>
-<a href="#2625" id="2625">2625</a>
-<a href="#2626" id="2626">2626</a>
-<a href="#2627" id="2627">2627</a>
-<a href="#2628" id="2628">2628</a>
-<a href="#2629" id="2629">2629</a>
-<a href="#2630" id="2630">2630</a>
-<a href="#2631" id="2631">2631</a>
-<a href="#2632" id="2632">2632</a>
-<a href="#2633" id="2633">2633</a>
-<a href="#2634" id="2634">2634</a>
-<a href="#2635" id="2635">2635</a>
-<a href="#2636" id="2636">2636</a>
-<a href="#2637" id="2637">2637</a>
-<a href="#2638" id="2638">2638</a>
-<a href="#2639" id="2639">2639</a>
-<a href="#2640" id="2640">2640</a>
-<a href="#2641" id="2641">2641</a>
-<a href="#2642" id="2642">2642</a>
-<a href="#2643" id="2643">2643</a>
-<a href="#2644" id="2644">2644</a>
-<a href="#2645" id="2645">2645</a>
-<a href="#2646" id="2646">2646</a>
-<a href="#2647" id="2647">2647</a>
-<a href="#2648" id="2648">2648</a>
-<a href="#2649" id="2649">2649</a>
-<a href="#2650" id="2650">2650</a>
-<a href="#2651" id="2651">2651</a>
-<a href="#2652" id="2652">2652</a>
-<a href="#2653" id="2653">2653</a>
-<a href="#2654" id="2654">2654</a>
-<a href="#2655" id="2655">2655</a>
-<a href="#2656" id="2656">2656</a>
-<a href="#2657" id="2657">2657</a>
-<a href="#2658" id="2658">2658</a>
-<a href="#2659" id="2659">2659</a>
-<a href="#2660" id="2660">2660</a>
-<a href="#2661" id="2661">2661</a>
-<a href="#2662" id="2662">2662</a>
-<a href="#2663" id="2663">2663</a>
-<a href="#2664" id="2664">2664</a>
-<a href="#2665" id="2665">2665</a>
-<a href="#2666" id="2666">2666</a>
-<a href="#2667" id="2667">2667</a>
-<a href="#2668" id="2668">2668</a>
-<a href="#2669" id="2669">2669</a>
-<a href="#2670" id="2670">2670</a>
-<a href="#2671" id="2671">2671</a>
-<a href="#2672" id="2672">2672</a>
-<a href="#2673" id="2673">2673</a>
-<a href="#2674" id="2674">2674</a>
-<a href="#2675" id="2675">2675</a>
-<a href="#2676" id="2676">2676</a>
-<a href="#2677" id="2677">2677</a>
-<a href="#2678" id="2678">2678</a>
-<a href="#2679" id="2679">2679</a>
-<a href="#2680" id="2680">2680</a>
-<a href="#2681" id="2681">2681</a>
-<a href="#2682" id="2682">2682</a>
-<a href="#2683" id="2683">2683</a>
-<a href="#2684" id="2684">2684</a>
-<a href="#2685" id="2685">2685</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! This crate provides helper types for matching against enum variants, and
 //! extracting bindings to each of the fields in the deriving Struct or Enum in
 //! a generic way.
@@ -2735,8 +2606,7 @@
 //!             }
 //!         }
 //!         expands to {
-//!             #[allow(non_upper_case_globals)]
-//!             const _DERIVE_synstructure_test_traits_WalkFields_FOR_A: () = {
+//!             const _: () = {
 //!                 extern crate synstructure_test_traits;
 //!                 impl&lt;T&gt; synstructure_test_traits::WalkFields for A&lt;T&gt;
 //!                     where T: synstructure_test_traits::WalkFields
@@ -2805,8 +2675,7 @@
 //!             }
 //!         }
 //!         expands to {
-//!             #[allow(non_upper_case_globals)]
-//!             const _DERIVE_synstructure_test_traits_Interest_FOR_A: () = {
+//!             const _: () = {
 //!                 extern crate synstructure_test_traits;
 //!                 impl&lt;T&gt; synstructure_test_traits::Interest for A&lt;T&gt;
 //!                     where T: synstructure_test_traits::Interest
@@ -2863,8 +2732,6 @@
 // implementations.
 </span><span class="attr">#[doc(hidden)]
 </span><span class="kw">pub use </span>quote::quote;
-
-<span class="kw">use </span>unicode_xid::UnicodeXID;
 
 <span class="kw">use </span>proc_macro2::{Span, TokenStream, TokenTree};
 
@@ -2937,22 +2804,6 @@
         }
     }
     tys
-}
-
-<span class="comment">// Internal method for sanitizing an identifier for hygiene purposes.
-</span><span class="kw">fn </span>sanitize_ident(s: <span class="kw-2">&amp;</span>str) -&gt; Ident {
-    <span class="kw">let </span><span class="kw-2">mut </span>res = String::with_capacity(s.len());
-    <span class="kw">for </span><span class="kw-2">mut </span>c <span class="kw">in </span>s.chars() {
-        <span class="kw">if </span>!UnicodeXID::is_xid_continue(c) {
-            c = <span class="string">&#39;_&#39;</span>;
-        }
-        <span class="comment">// Deduplicate consecutive _ characters.
-        </span><span class="kw">if </span>res.ends_with(<span class="string">&#39;_&#39;</span>) &amp;&amp; c == <span class="string">&#39;_&#39; </span>{
-            <span class="kw">continue</span>;
-        }
-        res.push(c);
-    }
-    Ident::new(<span class="kw-2">&amp;</span>res, Span::call_site())
 }
 
 <span class="comment">// Internal method to merge two Generics objects together intelligently.
@@ -3698,7 +3549,6 @@
 </span><span class="kw">pub struct </span>Structure&lt;<span class="lifetime">&#39;a</span>&gt; {
     variants: Vec&lt;VariantInfo&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     omitted_variants: bool,
-    underscore_const: bool,
     ast: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>DeriveInput,
     extra_impl: Vec&lt;GenericParam&gt;,
     extra_predicates: Vec&lt;WherePredicate&gt;,
@@ -3762,7 +3612,6 @@
         <span class="prelude-val">Ok</span>(Structure {
             variants,
             omitted_variants: <span class="bool-val">false</span>,
-            underscore_const: <span class="bool-val">false</span>,
             ast,
             extra_impl: <span class="macro">vec!</span>[],
             extra_predicates: <span class="macro">vec!</span>[],
@@ -4045,7 +3894,6 @@
                 .map(|variant| variant.drain_filter(<span class="kw-2">&amp;mut </span>f))
                 .collect(),
             omitted_variants: <span class="self">self</span>.omitted_variants,
-            underscore_const: <span class="self">self</span>.underscore_const,
             ast: <span class="self">self</span>.ast,
             extra_impl: <span class="self">self</span>.extra_impl.clone(),
             extra_predicates: <span class="self">self</span>.extra_predicates.clone(),
@@ -4076,9 +3924,7 @@
     ///         fn a() {}
     ///     }).to_string(),
     ///     quote!{
-    ///         #[allow(non_upper_case_globals)]
-    ///         #[doc(hidden)]
-    ///         const _DERIVE_krate_Trait_FOR_A: () = {
+    ///         const _: () = {
     ///             extern crate krate;
     ///             impl&lt;T, U&gt; krate::Trait for A&lt;T, U&gt;
     ///                 where T: std::fmt::Display,
@@ -4122,9 +3968,7 @@
     ///         fn a() {}
     ///     }).to_string(),
     ///     quote!{
-    ///         #[allow(non_upper_case_globals)]
-    ///         #[doc(hidden)]
-    ///         const _DERIVE_krate_Trait_FOR_A: () = {
+    ///         const _: () = {
     ///             extern crate krate;
     ///             impl&lt;T, U&gt; krate::Trait for A&lt;T, U&gt;
     ///                 where T: krate::Trait,
@@ -4236,7 +4080,6 @@
         <span class="kw">let </span><span class="kw-2">mut </span>other = <span class="self">Self </span>{
             variants: <span class="macro">vec!</span>[],
             omitted_variants: <span class="self">self</span>.omitted_variants,
-            underscore_const: <span class="self">self</span>.underscore_const,
             ast: <span class="self">self</span>.ast,
             extra_impl: <span class="self">self</span>.extra_impl.clone(),
             extra_predicates: <span class="self">self</span>.extra_predicates.clone(),
@@ -4407,9 +4250,7 @@
     ///         }
     ///     ).to_string(),
     ///     quote!{
-    ///         #[allow(non_upper_case_globals)]
-    ///         #[doc(hidden)]
-    ///         const _DERIVE_krate_Trait_X_FOR_A: () = {
+    ///         const _: () = {
     ///             extern crate krate;
     ///             impl&lt;T, U, X: krate::AnotherTrait&gt; krate::Trait&lt;X&gt; for A&lt;T, U&gt;
     ///                 where T : krate :: Trait &lt; X &gt;,
@@ -4502,49 +4343,8 @@
         }
     }
 
-    <span class="doccomment">/// Configure whether to use `const _` instead of a generated const name in
-    /// code generated by `gen_impl` and `bound_impl`.
-    ///
-    /// This syntax is only supported by rust 1.37, and later versions.
-    ///
-    /// Defaults to `false` for backwards compatibility reasons.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// # use synstructure::*;
-    /// let di: syn::DeriveInput = syn::parse_quote! {
-    ///     struct MyStruct;
-    /// };
-    /// let mut s = Structure::new(&amp;di);
-    ///
-    /// assert_eq!(
-    ///     s.underscore_const(true)
-    ///         .gen_impl(quote! { gen impl Trait for @Self { } })
-    ///         .to_string(),
-    ///     quote! {
-    ///         const _: () = {
-    ///             impl Trait for MyStruct { }
-    ///         };
-    ///     }
-    ///     .to_string()
-    /// );
-    ///
-    /// assert_eq!(
-    ///     s.underscore_const(false)
-    ///         .gen_impl(quote! { gen impl Trait for @Self { } })
-    ///         .to_string(),
-    ///     quote! {
-    ///         #[allow(non_upper_case_globals)]
-    ///         const _DERIVE_Trait_FOR_MyStruct: () = {
-    ///             impl Trait for MyStruct { }
-    ///         };
-    ///     }
-    ///     .to_string()
-    /// );
-    /// ```
-    </span><span class="kw">pub fn </span>underscore_const(<span class="kw-2">&amp;mut </span><span class="self">self</span>, enabled: bool) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
-        <span class="self">self</span>.underscore_const = enabled;
+    <span class="doccomment">/// This method is a no-op, underscore consts are used by default now.
+    </span><span class="kw">pub fn </span>underscore_const(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _enabled: bool) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
         <span class="self">self
     </span>}
 
@@ -4595,9 +4395,7 @@
     ///         fn a() {}
     ///     }).to_string(),
     ///     quote!{
-    ///         #[allow(non_upper_case_globals)]
-    ///         #[doc(hidden)]
-    ///         const _DERIVE_krate_Trait_FOR_A: () = {
+    ///         const _: () = {
     ///             extern crate krate;
     ///             impl&lt;T, U&gt; krate::Trait for A&lt;T, U&gt;
     ///                 where Option&lt;U&gt;: krate::Trait,
@@ -4665,9 +4463,7 @@
     ///         fn a() {}
     ///     }).to_string(),
     ///     quote!{
-    ///         #[allow(non_upper_case_globals)]
-    ///         #[doc(hidden)]
-    ///         const _DERIVE_krate_Trait_FOR_A: () = {
+    ///         const _: () = {
     ///             extern crate krate;
     ///             unsafe impl&lt;T, U&gt; krate::Trait for A&lt;T, U&gt;
     ///                 where Option&lt;U&gt;: krate::Trait,
@@ -4728,9 +4524,7 @@
     ///         fn a() {}
     ///     }).to_string(),
     ///     quote!{
-    ///         #[allow(non_upper_case_globals)]
-    ///         #[doc(hidden)]
-    ///         const _DERIVE_krate_Trait_FOR_A: () = {
+    ///         const _: () = {
     ///             extern crate krate;
     ///             impl&lt;T, U&gt; krate::Trait for A&lt;T, U&gt; {
     ///                 fn a() {}
@@ -4788,9 +4582,7 @@
     ///         fn a() {}
     ///     }).to_string(),
     ///     quote!{
-    ///         #[allow(non_upper_case_globals)]
-    ///         #[doc(hidden)]
-    ///         const _DERIVE_krate_Trait_FOR_A: () = {
+    ///         const _: () = {
     ///             extern crate krate;
     ///             unsafe impl&lt;T, U&gt; krate::Trait for A&lt;T, U&gt; {
     ///                 fn a() {}
@@ -4819,7 +4611,7 @@
         <span class="kw">let </span>mode = mode.unwrap_or(<span class="self">self</span>.add_bounds);
         <span class="kw">let </span>name = <span class="kw-2">&amp;</span><span class="self">self</span>.ast.ident;
         <span class="kw">let </span><span class="kw-2">mut </span>gen_clone = <span class="self">self</span>.ast.generics.clone();
-        gen_clone.params.extend(<span class="self">self</span>.extra_impl.clone().into_iter());
+        gen_clone.params.extend(<span class="self">self</span>.extra_impl.iter().cloned());
         <span class="kw">let </span>(impl_generics, <span class="kw">_</span>, <span class="kw">_</span>) = gen_clone.split_for_impl();
         <span class="kw">let </span>(<span class="kw">_</span>, ty_generics, where_clause) = <span class="self">self</span>.ast.generics.split_for_impl();
 
@@ -4848,23 +4640,8 @@
             }
         };
 
-        <span class="kw">if </span><span class="self">self</span>.underscore_const {
-            <span class="macro">quote! </span>{
-                <span class="kw">const _</span>: () = { #generated };
-            }
-        } <span class="kw">else </span>{
-            <span class="kw">let </span>dummy_const: Ident = sanitize_ident(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
-                <span class="string">&quot;_DERIVE_{}_FOR_{}&quot;</span>,
-                (<span class="kw-2">&amp;</span>bound).into_token_stream(),
-                name.into_token_stream(),
-            ));
-            <span class="macro">quote! </span>{
-                <span class="attr">#[allow(non_upper_case_globals)]
-                #[doc(hidden)]
-                </span><span class="kw">const </span>#dummy_const: () = {
-                    #generated
-                };
-            }
+        <span class="macro">quote! </span>{
+            <span class="kw">const _</span>: () = { #generated };
         }
     }
 
@@ -4910,7 +4687,7 @@
     ///
     /// # Hygiene
     ///
-    /// This method tries to handle hygiene intelligenly for both stable and
+    /// This method tries to handle hygiene intelligently for both stable and
     /// unstable proc-macro implementations, however there are visible
     /// differences.
     ///
@@ -4920,19 +4697,6 @@
     ///
     /// By default, the above invocation may generate an output like the
     /// following:
-    ///
-    /// ```ignore
-    /// const _DERIVE_krate_Trait_FOR_Struct: () = {
-    ///     extern crate krate;
-    ///     use krate::Trait as MyTrait;
-    ///     impl&lt;T&gt; MyTrait for Struct&lt;T&gt; where T: MyTrait {
-    ///         fn f(&amp;self) { ... }
-    ///     }
-    /// };
-    /// ```
-    ///
-    /// The `Structure` may also be configured with the
-    /// [`Structure::underscore_const`] method to generate `const _` instead.
     ///
     /// ```ignore
     /// const _: () = {
@@ -5005,8 +4769,7 @@
     ///         }
     ///     }).to_string(),
     ///     quote!{
-    ///         #[allow(non_upper_case_globals)]
-    ///         const _DERIVE_krate_Trait_FOR_A: () = {
+    ///         const _: () = {
     ///             extern crate krate;
     ///             impl&lt;T, U&gt; krate::Trait for A&lt;T, U&gt;
     ///             where
@@ -5031,8 +4794,7 @@
     ///         }
     ///     }).to_string(),
     ///     quote!{
-    ///         #[allow(non_upper_case_globals)]
-    ///         const _DERIVE_krate_Trait_X_FOR_A: () = {
+    ///         const _: () = {
     ///             extern crate krate;
     ///             impl&lt;X: krate::OtherTrait, T, U&gt; krate::Trait&lt;X&gt; for A&lt;T, U&gt;
     ///             where
@@ -5060,8 +4822,7 @@
     ///         }
     ///     }).to_string(),
     ///     quote!{
-    ///         #[allow(non_upper_case_globals)]
-    ///         const _DERIVE_krate_Trait_FOR_A: () = {
+    ///         const _: () = {
     ///             extern crate krate;
     ///             impl&lt;T, U&gt; krate::Trait for A&lt;T, U&gt;
     ///             where
@@ -5168,23 +4929,9 @@
         };
 
         <span class="kw">if </span>wrap {
-            <span class="kw">if </span><span class="self">self</span>.underscore_const {
-                <span class="prelude-val">Ok</span>(<span class="macro">quote! </span>{
-                    <span class="kw">const _</span>: () = { #generated };
-                })
-            } <span class="kw">else </span>{
-                <span class="kw">let </span>dummy_const: Ident = sanitize_ident(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
-                    <span class="string">&quot;_DERIVE_{}_FOR_{}&quot;</span>,
-                    (<span class="kw-2">&amp;</span>bound).into_token_stream(),
-                    name.into_token_stream(),
-                ));
-                <span class="prelude-val">Ok</span>(<span class="macro">quote! </span>{
-                    <span class="attr">#[allow(non_upper_case_globals)]
-                    </span><span class="kw">const </span>#dummy_const: () = {
-                        #generated
-                    };
-                })
-            }
+            <span class="prelude-val">Ok</span>(<span class="macro">quote! </span>{
+                <span class="kw">const _</span>: () = { #generated };
+            })
         } <span class="kw">else </span>{
             <span class="prelude-val">Ok</span>(generated)
         }
@@ -5210,8 +4957,7 @@
 /// # use quote::quote;
 /// assert_eq!(
 ///     synstructure::unpretty_print(quote! {
-///         #[allow(non_upper_case_globals)]
-///         const _DERIVE_krate_Trait_FOR_A: () = {
+///         const _: () = {
 ///             extern crate krate;
 ///             impl&lt;T, U&gt; krate::Trait for A&lt;T, U&gt;
 ///             where
@@ -5222,11 +4968,7 @@
 ///             }
 ///         };
 ///     }),
-///     &quot;# [
-///     allow (
-///         non_upper_case_globals)
-///     ]
-/// const _DERIVE_krate_Trait_FOR_A : (
+///     &quot;const _ : (
 ///     )
 /// = {
 ///     extern crate krate ;

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/lettre-0.11.3/src/message/mimebody.rs`."><title>mimebody.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="lettre" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../lettre/index.html"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="lettre"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/lettre-0.11.4/src/message/mimebody.rs`."><title>mimebody.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="lettre" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../lettre/index.html"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="lettre"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -708,6 +708,25 @@
 <a href="#708" id="708">708</a>
 <a href="#709" id="709">709</a>
 <a href="#710" id="710">710</a>
+<a href="#711" id="711">711</a>
+<a href="#712" id="712">712</a>
+<a href="#713" id="713">713</a>
+<a href="#714" id="714">714</a>
+<a href="#715" id="715">715</a>
+<a href="#716" id="716">716</a>
+<a href="#717" id="717">717</a>
+<a href="#718" id="718">718</a>
+<a href="#719" id="719">719</a>
+<a href="#720" id="720">720</a>
+<a href="#721" id="721">721</a>
+<a href="#722" id="722">722</a>
+<a href="#723" id="723">723</a>
+<a href="#724" id="724">724</a>
+<a href="#725" id="725">725</a>
+<a href="#726" id="726">726</a>
+<a href="#727" id="727">727</a>
+<a href="#728" id="728">728</a>
+<a href="#729" id="729">729</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::{io::Write, iter::repeat_with};
 
 <span class="kw">use </span>mime::Mime;
@@ -725,6 +744,16 @@
 
     <span class="doccomment">/// Multiple parts of content
     </span>Multi(MultiPart),
+}
+
+<span class="kw">impl </span>Part {
+    <span class="attr">#[cfg(feature = <span class="string">&quot;dkim&quot;</span>)]
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>format_body(<span class="kw-2">&amp;</span><span class="self">self</span>, out: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
+        <span class="kw">match </span><span class="self">self </span>{
+            Part::Single(part) =&gt; part.format_body(out),
+            Part::Multi(part) =&gt; part.format_body(out),
+        }
+    }
 }
 
 <span class="kw">impl </span>EmailFormat <span class="kw">for </span>Part {
@@ -842,6 +871,12 @@
         <span class="self">self</span>.format(<span class="kw-2">&amp;mut </span>out);
         out
     }
+
+    <span class="doccomment">/// Format only the signlepart body
+    </span><span class="kw">fn </span>format_body(<span class="kw-2">&amp;</span><span class="self">self</span>, out: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
+        out.extend_from_slice(<span class="kw-2">&amp;</span><span class="self">self</span>.body);
+        out.extend_from_slice(<span class="string">b&quot;\r\n&quot;</span>);
+    }
 }
 
 <span class="kw">impl </span>EmailFormat <span class="kw">for </span>SinglePart {
@@ -849,8 +884,7 @@
         <span class="macro">write!</span>(out, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.headers)
             .expect(<span class="string">&quot;A Write implementation panicked while formatting headers&quot;</span>);
         out.extend_from_slice(<span class="string">b&quot;\r\n&quot;</span>);
-        out.extend_from_slice(<span class="kw-2">&amp;</span><span class="self">self</span>.body);
-        out.extend_from_slice(<span class="string">b&quot;\r\n&quot;</span>);
+        <span class="self">self</span>.format_body(out);
     }
 }
 
@@ -1083,14 +1117,9 @@
         <span class="self">self</span>.format(<span class="kw-2">&amp;mut </span>out);
         out
     }
-}
 
-<span class="kw">impl </span>EmailFormat <span class="kw">for </span>MultiPart {
-    <span class="kw">fn </span>format(<span class="kw-2">&amp;</span><span class="self">self</span>, out: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
-        <span class="macro">write!</span>(out, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.headers)
-            .expect(<span class="string">&quot;A Write implementation panicked while formatting headers&quot;</span>);
-        out.extend_from_slice(<span class="string">b&quot;\r\n&quot;</span>);
-
+    <span class="doccomment">/// Format only the multipart body
+    </span><span class="kw">fn </span>format_body(<span class="kw-2">&amp;</span><span class="self">self</span>, out: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         <span class="kw">let </span>boundary = <span class="self">self</span>.boundary();
 
         <span class="kw">for </span>part <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.parts {
@@ -1103,6 +1132,15 @@
         out.extend_from_slice(<span class="string">b&quot;--&quot;</span>);
         out.extend_from_slice(boundary.as_bytes());
         out.extend_from_slice(<span class="string">b&quot;--\r\n&quot;</span>);
+    }
+}
+
+<span class="kw">impl </span>EmailFormat <span class="kw">for </span>MultiPart {
+    <span class="kw">fn </span>format(<span class="kw-2">&amp;</span><span class="self">self</span>, out: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
+        <span class="macro">write!</span>(out, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.headers)
+            .expect(<span class="string">&quot;A Write implementation panicked while formatting headers&quot;</span>);
+        out.extend_from_slice(<span class="string">b&quot;\r\n&quot;</span>);
+        <span class="self">self</span>.format_body(out);
     }
 }
 

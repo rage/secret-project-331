@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/itertools-0.12.0/src/adaptors/coalesce.rs`."><title>coalesce.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="itertools" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/itertools-0.12.1/src/adaptors/coalesce.rs`."><title>coalesce.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="itertools" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -233,68 +233,135 @@
 <a href="#233" id="233">233</a>
 <a href="#234" id="234">234</a>
 <a href="#235" id="235">235</a>
+<a href="#236" id="236">236</a>
+<a href="#237" id="237">237</a>
+<a href="#238" id="238">238</a>
+<a href="#239" id="239">239</a>
+<a href="#240" id="240">240</a>
+<a href="#241" id="241">241</a>
+<a href="#242" id="242">242</a>
+<a href="#243" id="243">243</a>
+<a href="#244" id="244">244</a>
+<a href="#245" id="245">245</a>
+<a href="#246" id="246">246</a>
+<a href="#247" id="247">247</a>
+<a href="#248" id="248">248</a>
+<a href="#249" id="249">249</a>
+<a href="#250" id="250">250</a>
+<a href="#251" id="251">251</a>
+<a href="#252" id="252">252</a>
+<a href="#253" id="253">253</a>
+<a href="#254" id="254">254</a>
+<a href="#255" id="255">255</a>
+<a href="#256" id="256">256</a>
+<a href="#257" id="257">257</a>
+<a href="#258" id="258">258</a>
+<a href="#259" id="259">259</a>
+<a href="#260" id="260">260</a>
+<a href="#261" id="261">261</a>
+<a href="#262" id="262">262</a>
+<a href="#263" id="263">263</a>
+<a href="#264" id="264">264</a>
+<a href="#265" id="265">265</a>
+<a href="#266" id="266">266</a>
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::iter::FusedIterator;
 
 <span class="kw">use </span><span class="kw">crate</span>::size_hint;
 
 <span class="attr">#[must_use = <span class="string">&quot;iterator adaptors are lazy and do nothing unless consumed&quot;</span>]
-</span><span class="kw">pub struct </span>CoalesceBy&lt;I, F, T&gt;
+</span><span class="kw">pub struct </span>CoalesceBy&lt;I, F, C&gt;
 <span class="kw">where
     </span>I: Iterator,
+    C: CountItem&lt;I::Item&gt;,
 {
     iter: I,
-    last: <span class="prelude-ty">Option</span>&lt;T&gt;,
+    <span class="doccomment">/// `last` is `None` while no item have been taken out of `iter` (at definition).
+    /// Then `last` will be `Some(Some(item))` until `iter` is exhausted,
+    /// in which case `last` will be `Some(None)`.
+    </span>last: <span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Option</span>&lt;C::CItem&gt;&gt;,
     f: F,
 }
 
-<span class="kw">impl</span>&lt;I: Clone, F: Clone, T: Clone&gt; Clone <span class="kw">for </span>CoalesceBy&lt;I, F, T&gt;
+<span class="kw">impl</span>&lt;I, F, C&gt; Clone <span class="kw">for </span>CoalesceBy&lt;I, F, C&gt;
 <span class="kw">where
-    </span>I: Iterator,
+    </span>I: Clone + Iterator,
+    F: Clone,
+    C: CountItem&lt;I::Item&gt;,
+    C::CItem: Clone,
 {
     <span class="macro">clone_fields!</span>(last, iter, f);
 }
 
-<span class="kw">impl</span>&lt;I, F, T&gt; fmt::Debug <span class="kw">for </span>CoalesceBy&lt;I, F, T&gt;
+<span class="kw">impl</span>&lt;I, F, C&gt; fmt::Debug <span class="kw">for </span>CoalesceBy&lt;I, F, C&gt;
 <span class="kw">where
     </span>I: Iterator + fmt::Debug,
-    T: fmt::Debug,
+    C: CountItem&lt;I::Item&gt;,
+    C::CItem: fmt::Debug,
 {
-    <span class="macro">debug_fmt_fields!</span>(CoalesceBy, iter);
+    <span class="macro">debug_fmt_fields!</span>(CoalesceBy, iter, last);
 }
 
 <span class="kw">pub trait </span>CoalescePredicate&lt;Item, T&gt; {
     <span class="kw">fn </span>coalesce_pair(<span class="kw-2">&amp;mut </span><span class="self">self</span>, t: T, item: Item) -&gt; <span class="prelude-ty">Result</span>&lt;T, (T, T)&gt;;
 }
 
-<span class="kw">impl</span>&lt;I, F, T&gt; Iterator <span class="kw">for </span>CoalesceBy&lt;I, F, T&gt;
+<span class="kw">impl</span>&lt;I, F, C&gt; Iterator <span class="kw">for </span>CoalesceBy&lt;I, F, C&gt;
 <span class="kw">where
     </span>I: Iterator,
-    F: CoalescePredicate&lt;I::Item, T&gt;,
+    F: CoalescePredicate&lt;I::Item, C::CItem&gt;,
+    C: CountItem&lt;I::Item&gt;,
 {
-    <span class="kw">type </span>Item = T;
+    <span class="kw">type </span>Item = C::CItem;
 
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
+        <span class="kw">let </span><span class="self">Self </span>{ iter, last, f } = <span class="self">self</span>;
         <span class="comment">// this fuses the iterator
-        </span><span class="kw">let </span>last = <span class="self">self</span>.last.take()<span class="question-mark">?</span>;
+        </span><span class="kw">let </span>init = <span class="kw">match </span>last {
+            <span class="prelude-val">Some</span>(elt) =&gt; elt.take(),
+            <span class="prelude-val">None </span>=&gt; {
+                <span class="kw-2">*</span>last = <span class="prelude-val">Some</span>(<span class="prelude-val">None</span>);
+                iter.next().map(C::new)
+            }
+        }<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>self_last = <span class="kw-2">&amp;mut </span><span class="self">self</span>.last;
-        <span class="kw">let </span>self_f = <span class="kw-2">&amp;mut </span><span class="self">self</span>.f;
         <span class="prelude-val">Some</span>(
-            <span class="self">self</span>.iter
-                .try_fold(last, |last, next| <span class="kw">match </span>self_f.coalesce_pair(last, next) {
-                    <span class="prelude-val">Ok</span>(joined) =&gt; <span class="prelude-val">Ok</span>(joined),
-                    <span class="prelude-val">Err</span>((last_, next_)) =&gt; {
-                        <span class="kw-2">*</span>self_last = <span class="prelude-val">Some</span>(next_);
-                        <span class="prelude-val">Err</span>(last_)
-                    }
-                })
-                .unwrap_or_else(|x| x),
+            iter.try_fold(init, |accum, next| <span class="kw">match </span>f.coalesce_pair(accum, next) {
+                <span class="prelude-val">Ok</span>(joined) =&gt; <span class="prelude-val">Ok</span>(joined),
+                <span class="prelude-val">Err</span>((last_, next_)) =&gt; {
+                    <span class="kw-2">*</span>last = <span class="prelude-val">Some</span>(<span class="prelude-val">Some</span>(next_));
+                    <span class="prelude-val">Err</span>(last_)
+                }
+            })
+            .unwrap_or_else(|x| x),
         )
     }
 
     <span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (usize, <span class="prelude-ty">Option</span>&lt;usize&gt;) {
-        <span class="kw">let </span>(low, hi) = size_hint::add_scalar(<span class="self">self</span>.iter.size_hint(), <span class="self">self</span>.last.is_some() <span class="kw">as </span>usize);
+        <span class="kw">let </span>(low, hi) = size_hint::add_scalar(
+            <span class="self">self</span>.iter.size_hint(),
+            <span class="macro">matches!</span>(<span class="self">self</span>.last, <span class="prelude-val">Some</span>(<span class="prelude-val">Some</span>(<span class="kw">_</span>))) <span class="kw">as </span>usize,
+        );
         ((low &gt; <span class="number">0</span>) <span class="kw">as </span>usize, hi)
     }
 
@@ -302,9 +369,13 @@
     <span class="kw">where
         </span>FnAcc: FnMut(Acc, <span class="self">Self</span>::Item) -&gt; Acc,
     {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(last) = <span class="self">self</span>.last {
-            <span class="kw">let </span><span class="kw-2">mut </span>f = <span class="self">self</span>.f;
-            <span class="kw">let </span>(last, acc) = <span class="self">self</span>.iter.fold((last, acc), |(last, acc), elt| {
+        <span class="kw">let </span><span class="self">Self </span>{
+            <span class="kw-2">mut </span>iter,
+            last,
+            <span class="kw-2">mut </span>f,
+        } = <span class="self">self</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(last) = last.unwrap_or_else(|| iter.next().map(C::new)) {
+            <span class="kw">let </span>(last, acc) = iter.fold((last, acc), |(last, acc), elt| {
                 <span class="kw">match </span>f.coalesce_pair(last, elt) {
                     <span class="prelude-val">Ok</span>(joined) =&gt; (joined, acc),
                     <span class="prelude-val">Err</span>((last_, next_)) =&gt; (next_, fn_acc(acc, last_)),
@@ -317,12 +388,43 @@
     }
 }
 
-<span class="kw">impl</span>&lt;I: Iterator, F: CoalescePredicate&lt;I::Item, T&gt;, T&gt; FusedIterator <span class="kw">for </span>CoalesceBy&lt;I, F, T&gt; {}
+<span class="kw">impl</span>&lt;I, F, C&gt; FusedIterator <span class="kw">for </span>CoalesceBy&lt;I, F, C&gt;
+<span class="kw">where
+    </span>I: Iterator,
+    F: CoalescePredicate&lt;I::Item, C::CItem&gt;,
+    C: CountItem&lt;I::Item&gt;,
+{
+}
+
+<span class="kw">pub struct </span>NoCount;
+
+<span class="kw">pub struct </span>WithCount;
+
+<span class="kw">pub trait </span>CountItem&lt;T&gt; {
+    <span class="kw">type </span>CItem;
+    <span class="kw">fn </span>new(t: T) -&gt; <span class="self">Self</span>::CItem;
+}
+
+<span class="kw">impl</span>&lt;T&gt; CountItem&lt;T&gt; <span class="kw">for </span>NoCount {
+    <span class="kw">type </span>CItem = T;
+    <span class="attr">#[inline(always)]
+    </span><span class="kw">fn </span>new(t: T) -&gt; T {
+        t
+    }
+}
+
+<span class="kw">impl</span>&lt;T&gt; CountItem&lt;T&gt; <span class="kw">for </span>WithCount {
+    <span class="kw">type </span>CItem = (usize, T);
+    <span class="attr">#[inline(always)]
+    </span><span class="kw">fn </span>new(t: T) -&gt; (usize, T) {
+        (<span class="number">1</span>, t)
+    }
+}
 
 <span class="doccomment">/// An iterator adaptor that may join together adjacent elements.
 ///
 /// See [`.coalesce()`](crate::Itertools::coalesce) for more information.
-</span><span class="kw">pub type </span>Coalesce&lt;I, F&gt; = CoalesceBy&lt;I, F, &lt;I <span class="kw">as </span>Iterator&gt;::Item&gt;;
+</span><span class="kw">pub type </span>Coalesce&lt;I, F&gt; = CoalesceBy&lt;I, F, NoCount&gt;;
 
 <span class="kw">impl</span>&lt;F, Item, T&gt; CoalescePredicate&lt;Item, T&gt; <span class="kw">for </span>F
 <span class="kw">where
@@ -334,12 +436,12 @@
 }
 
 <span class="doccomment">/// Create a new `Coalesce`.
-</span><span class="kw">pub fn </span>coalesce&lt;I, F&gt;(<span class="kw-2">mut </span>iter: I, f: F) -&gt; Coalesce&lt;I, F&gt;
+</span><span class="kw">pub fn </span>coalesce&lt;I, F&gt;(iter: I, f: F) -&gt; Coalesce&lt;I, F&gt;
 <span class="kw">where
     </span>I: Iterator,
 {
     Coalesce {
-        last: iter.next(),
+        last: <span class="prelude-val">None</span>,
         iter,
         f,
     }
@@ -348,7 +450,7 @@
 <span class="doccomment">/// An iterator adaptor that removes repeated duplicates, determining equality using a comparison function.
 ///
 /// See [`.dedup_by()`](crate::Itertools::dedup_by) or [`.dedup()`](crate::Itertools::dedup) for more information.
-</span><span class="kw">pub type </span>DedupBy&lt;I, Pred&gt; = CoalesceBy&lt;I, DedupPred2CoalescePred&lt;Pred&gt;, &lt;I <span class="kw">as </span>Iterator&gt;::Item&gt;;
+</span><span class="kw">pub type </span>DedupBy&lt;I, Pred&gt; = CoalesceBy&lt;I, DedupPred2CoalescePred&lt;Pred&gt;, NoCount&gt;;
 
 <span class="attr">#[derive(Clone)]
 </span><span class="kw">pub struct </span>DedupPred2CoalescePred&lt;DP&gt;(DP);
@@ -391,12 +493,12 @@
 }
 
 <span class="doccomment">/// Create a new `DedupBy`.
-</span><span class="kw">pub fn </span>dedup_by&lt;I, Pred&gt;(<span class="kw-2">mut </span>iter: I, dedup_pred: Pred) -&gt; DedupBy&lt;I, Pred&gt;
+</span><span class="kw">pub fn </span>dedup_by&lt;I, Pred&gt;(iter: I, dedup_pred: Pred) -&gt; DedupBy&lt;I, Pred&gt;
 <span class="kw">where
     </span>I: Iterator,
 {
     DedupBy {
-        last: iter.next(),
+        last: <span class="prelude-val">None</span>,
         iter,
         f: DedupPred2CoalescePred(dedup_pred),
     }
@@ -421,7 +523,7 @@
 /// See [`.dedup_by_with_count()`](crate::Itertools::dedup_by_with_count) or
 /// [`.dedup_with_count()`](crate::Itertools::dedup_with_count) for more information.
 </span><span class="kw">pub type </span>DedupByWithCount&lt;I, Pred&gt; =
-    CoalesceBy&lt;I, DedupPredWithCount2CoalescePred&lt;Pred&gt;, (usize, &lt;I <span class="kw">as </span>Iterator&gt;::Item)&gt;;
+    CoalesceBy&lt;I, DedupPredWithCount2CoalescePred&lt;Pred&gt;, WithCount&gt;;
 
 <span class="attr">#[derive(Clone, Debug)]
 </span><span class="kw">pub struct </span>DedupPredWithCount2CoalescePred&lt;DP&gt;(DP);
@@ -450,12 +552,12 @@
 </span><span class="kw">pub type </span>DedupWithCount&lt;I&gt; = DedupByWithCount&lt;I, DedupEq&gt;;
 
 <span class="doccomment">/// Create a new `DedupByWithCount`.
-</span><span class="kw">pub fn </span>dedup_by_with_count&lt;I, Pred&gt;(<span class="kw-2">mut </span>iter: I, dedup_pred: Pred) -&gt; DedupByWithCount&lt;I, Pred&gt;
+</span><span class="kw">pub fn </span>dedup_by_with_count&lt;I, Pred&gt;(iter: I, dedup_pred: Pred) -&gt; DedupByWithCount&lt;I, Pred&gt;
 <span class="kw">where
     </span>I: Iterator,
 {
     DedupByWithCount {
-        last: iter.next().map(|v| (<span class="number">1</span>, v)),
+        last: <span class="prelude-val">None</span>,
         iter,
         f: DedupPredWithCount2CoalescePred(dedup_pred),
     }

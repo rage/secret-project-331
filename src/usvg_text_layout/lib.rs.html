@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-text-layout-0.37.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg_text_layout" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-text-layout-0.38.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg_text_layout" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1852,29 +1852,6 @@
 <a href="#1852" id="1852">1852</a>
 <a href="#1853" id="1853">1853</a>
 <a href="#1854" id="1854">1854</a>
-<a href="#1855" id="1855">1855</a>
-<a href="#1856" id="1856">1856</a>
-<a href="#1857" id="1857">1857</a>
-<a href="#1858" id="1858">1858</a>
-<a href="#1859" id="1859">1859</a>
-<a href="#1860" id="1860">1860</a>
-<a href="#1861" id="1861">1861</a>
-<a href="#1862" id="1862">1862</a>
-<a href="#1863" id="1863">1863</a>
-<a href="#1864" id="1864">1864</a>
-<a href="#1865" id="1865">1865</a>
-<a href="#1866" id="1866">1866</a>
-<a href="#1867" id="1867">1867</a>
-<a href="#1868" id="1868">1868</a>
-<a href="#1869" id="1869">1869</a>
-<a href="#1870" id="1870">1870</a>
-<a href="#1871" id="1871">1871</a>
-<a href="#1872" id="1872">1872</a>
-<a href="#1873" id="1873">1873</a>
-<a href="#1874" id="1874">1874</a>
-<a href="#1875" id="1875">1875</a>
-<a href="#1876" id="1876">1876</a>
-<a href="#1877" id="1877">1877</a>
 </pre></div><pre class="rust"><code><span class="comment">// This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -1900,8 +1877,8 @@ An [SVG] text layout implementation on top of [usvg] crate.
 
 </span><span class="kw">pub use </span>fontdb;
 
+<span class="kw">use </span>std::cell::RefCell;
 <span class="kw">use </span>std::collections::HashMap;
-<span class="kw">use </span>std::convert::TryFrom;
 <span class="kw">use </span>std::num::NonZeroU16;
 <span class="kw">use </span>std::rc::Rc;
 
@@ -1912,71 +1889,48 @@ An [SVG] text layout implementation on top of [usvg] crate.
 <span class="kw">use </span>unicode_script::UnicodeScript;
 <span class="kw">use </span>usvg_tree::<span class="kw-2">*</span>;
 
-<span class="doccomment">/// A `usvg::Tree` extension trait.
-</span><span class="kw">pub trait </span>TreeTextToPath {
-    <span class="doccomment">/// Converts text nodes into paths.
-    </span><span class="kw">fn </span>convert_text(<span class="kw-2">&amp;mut </span><span class="self">self</span>, fontdb: <span class="kw-2">&amp;</span>fontdb::Database);
-}
-
-<span class="kw">impl </span>TreeTextToPath <span class="kw">for </span>usvg_tree::Tree {
-    <span class="kw">fn </span>convert_text(<span class="kw-2">&amp;mut </span><span class="self">self</span>, fontdb: <span class="kw-2">&amp;</span>fontdb::Database) {
-        convert_text(<span class="self">self</span>.root.clone(), fontdb);
-        <span class="self">self</span>.calculate_abs_transforms();
-    }
-}
-
-<span class="kw">fn </span>convert_text(root: Node, fontdb: <span class="kw-2">&amp;</span>fontdb::Database) {
-    <span class="kw">let </span><span class="kw-2">mut </span>text_nodes = Vec::new();
-    <span class="comment">// We have to update text nodes in clipPaths, masks and patterns as well.
-    </span><span class="kw">for </span>node <span class="kw">in </span>root.descendants() {
-        <span class="kw">if let </span>NodeKind::Text(<span class="kw">_</span>) = <span class="kw-2">*</span>node.borrow() {
-            text_nodes.push(node.clone());
-        }
-
-        <span class="kw">if let </span>NodeKind::Image(<span class="kw-2">ref mut </span>image) = <span class="kw-2">*</span>node.borrow_mut() {
-            <span class="kw">if let </span>ImageKind::SVG(<span class="kw-2">ref mut </span>tree) = image.kind {
-                tree.convert_text(fontdb);
-            }
-        }
-
-        node.subroots(|subroot| convert_text(subroot, fontdb))
-    }
-
-    <span class="kw">if </span>text_nodes.is_empty() {
-        <span class="kw">return</span>;
-    }
-
-    <span class="kw">for </span>node <span class="kw">in </span><span class="kw-2">&amp;</span>text_nodes {
-        <span class="kw">let </span>absolute_ts = node.parent().unwrap().abs_transform();
-        <span class="kw">if let </span>NodeKind::Text(<span class="kw-2">ref mut </span>text) = <span class="kw-2">*</span>node.borrow_mut() {
-            <span class="kw">if let </span><span class="prelude-val">Some</span>((node, bbox)) = convert_node(text, fontdb, absolute_ts) {
+<span class="doccomment">/// Converts text nodes into paths.
+</span><span class="kw">pub fn </span>convert_text(root: <span class="kw-2">&amp;mut </span>Group, fontdb: <span class="kw-2">&amp;</span>fontdb::Database) {
+    <span class="kw">for </span>node <span class="kw">in </span><span class="kw-2">&amp;mut </span>root.children {
+        <span class="kw">if let </span>Node::Text(<span class="kw-2">ref mut </span>text) = node {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>((node, bbox, stroke_bbox)) = convert_node(text, fontdb) {
                 text.bounding_box = <span class="prelude-val">Some</span>(bbox);
-                text.flattened = <span class="prelude-val">Some</span>(node);
+                <span class="comment">// TODO: test
+                </span>text.stroke_bounding_box = <span class="prelude-val">Some</span>(stroke_bbox);
+                text.flattened = <span class="prelude-val">Some</span>(Box::new(node));
             }
         }
+
+        <span class="kw">if let </span>Node::Group(<span class="kw-2">ref mut </span>g) = node {
+            convert_text(g, fontdb);
+        }
+
+        <span class="comment">// We have to update text nodes in clipPaths, masks and patterns as well.
+        </span>node.subroots_mut(|subroot| convert_text(subroot, fontdb))
     }
 }
 
 <span class="kw">fn </span>convert_node(
     text: <span class="kw-2">&amp;</span>Text,
     fontdb: <span class="kw-2">&amp;</span>fontdb::Database,
-    absolute_ts: Transform,
-) -&gt; <span class="prelude-ty">Option</span>&lt;(Node, NonZeroRect)&gt; {
-    <span class="kw">let </span>(new_paths, bbox) = text_to_paths(text, fontdb, absolute_ts)<span class="question-mark">?</span>;
+) -&gt; <span class="prelude-ty">Option</span>&lt;(Group, NonZeroRect, NonZeroRect)&gt; {
+    <span class="kw">let </span>(new_paths, bbox, stroke_bbox) = text_to_paths(text, fontdb)<span class="question-mark">?</span>;
 
-    <span class="kw">let </span>group = Node::new(NodeKind::Group(Group {
+    <span class="kw">let </span><span class="kw-2">mut </span>group = Group {
         id: text.id.clone(),
         ..Group::default()
-    }));
+    };
 
     <span class="kw">let </span>rendering_mode = resolve_rendering_mode(text);
     <span class="kw">for </span><span class="kw-2">mut </span>path <span class="kw">in </span>new_paths {
         fix_obj_bounding_box(<span class="kw-2">&amp;mut </span>path, bbox);
         path.rendering_mode = rendering_mode;
-        group.append_kind(NodeKind::Path(path));
+        group.children.push(Node::Path(Box::new(path)));
     }
 
-    <span class="prelude-val">Some</span>((group, bbox))
+    group.calculate_abs_transforms(Transform::identity());
+
+    <span class="prelude-val">Some</span>((group, bbox, stroke_bbox))
 }
 
 <span class="kw">trait </span>DatabaseExt {
@@ -2329,8 +2283,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
 <span class="kw">fn </span>text_to_paths(
     text_node: <span class="kw-2">&amp;</span>Text,
     fontdb: <span class="kw-2">&amp;</span>fontdb::Database,
-    abs_ts: Transform,
-) -&gt; <span class="prelude-ty">Option</span>&lt;(Vec&lt;Path&gt;, NonZeroRect)&gt; {
+) -&gt; <span class="prelude-ty">Option</span>&lt;(Vec&lt;Path&gt;, NonZeroRect, NonZeroRect)&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>fonts_cache: FontsCache = HashMap::new();
     <span class="kw">for </span>chunk <span class="kw">in </span><span class="kw-2">&amp;</span>text_node.chunks {
         <span class="kw">for </span>span <span class="kw">in </span><span class="kw-2">&amp;</span>chunk.spans {
@@ -2343,6 +2296,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
     }
 
     <span class="kw">let </span><span class="kw-2">mut </span>bbox = BBox::default();
+    <span class="kw">let </span><span class="kw-2">mut </span>stroke_bbox = BBox::default();
     <span class="kw">let </span><span class="kw-2">mut </span>char_offset = <span class="number">0</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>last_x = <span class="number">0.0</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>last_y = <span class="number">0.0</span>;
@@ -2368,7 +2322,6 @@ An [SVG] text layout implementation on top of [usvg] crate.
             chunk,
             char_offset,
             text_node.writing_mode,
-            abs_ts,
             <span class="kw-2">&amp;</span>fonts_cache,
             <span class="kw-2">&amp;mut </span>clusters,
         );
@@ -2413,6 +2366,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
                     convert_decoration(offset, span, font, decoration, <span class="kw-2">&amp;</span>decoration_spans, span_ts)
                 {
                     bbox = bbox.expand(path.data.bounds());
+                    stroke_bbox = stroke_bbox.expand(path.data.bounds());
                     new_paths.push(path);
                 }
             }
@@ -2427,12 +2381,19 @@ An [SVG] text layout implementation on top of [usvg] crate.
                     convert_decoration(offset, span, font, decoration, <span class="kw-2">&amp;</span>decoration_spans, span_ts)
                 {
                     bbox = bbox.expand(path.data.bounds());
+                    stroke_bbox = stroke_bbox.expand(path.data.bounds());
                     new_paths.push(path);
                 }
             }
 
             <span class="kw">if let </span><span class="prelude-val">Some</span>((path, span_bbox)) = convert_span(span, <span class="kw-2">&amp;mut </span>clusters, span_ts) {
                 bbox = bbox.expand(span_bbox);
+
+                <span class="comment">// TODO: find a way to cache it
+                </span><span class="kw">if let </span><span class="prelude-val">Some</span>(s_bbox) = path.calculate_stroke_bounding_box() {
+                    stroke_bbox = stroke_bbox.expand(s_bbox)
+                }
+
                 new_paths.push(path);
             }
 
@@ -2446,6 +2407,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
                     convert_decoration(offset, span, font, decoration, <span class="kw-2">&amp;</span>decoration_spans, span_ts)
                 {
                     bbox = bbox.expand(path.data.bounds());
+                    stroke_bbox = stroke_bbox.expand(path.data.bounds());
                     new_paths.push(path);
                 }
             }
@@ -2464,7 +2426,8 @@ An [SVG] text layout implementation on top of [usvg] crate.
     }
 
     <span class="kw">let </span>bbox = bbox.to_non_zero_rect()<span class="question-mark">?</span>;
-    <span class="prelude-val">Some</span>((new_paths, bbox))
+    <span class="kw">let </span>stroke_bbox = stroke_bbox.to_non_zero_rect().unwrap_or(bbox);
+    <span class="prelude-val">Some</span>((new_paths, bbox, stroke_bbox))
 }
 
 <span class="kw">fn </span>resolve_font(font: <span class="kw-2">&amp;</span>Font, fontdb: <span class="kw-2">&amp;</span>fontdb::Database) -&gt; <span class="prelude-ty">Option</span>&lt;ResolvedFont&gt; {
@@ -2581,6 +2544,9 @@ An [SVG] text layout implementation on top of [usvg] crate.
         paint_order: span.paint_order,
         rendering_mode: ShapeRendering::default(),
         data: Rc::new(path),
+        abs_transform: Transform::default(),
+        bounding_box: <span class="prelude-val">None</span>,
+        stroke_bounding_box: <span class="prelude-val">None</span>,
     };
 
     <span class="prelude-val">Some</span>((path, bbox))
@@ -2730,16 +2696,16 @@ An [SVG] text layout implementation on top of [usvg] crate.
             }))
         }
         Paint::Pattern(<span class="kw-2">ref </span>patt) =&gt; {
-            <span class="kw">let </span>transform = patt.transform.post_concat(ts);
-            Paint::Pattern(Rc::new(Pattern {
+            <span class="kw">let </span>transform = patt.borrow().transform.post_concat(ts);
+            Paint::Pattern(Rc::new(RefCell::new(Pattern {
                 id: String::new(),
                 units: Units::UserSpaceOnUse,
-                content_units: patt.content_units,
+                content_units: patt.borrow().content_units,
                 transform,
-                rect: patt.rect,
-                view_box: patt.view_box,
-                root: patt.root.clone().make_deep_copy(),
-            }))
+                rect: patt.borrow().rect,
+                view_box: patt.borrow().view_box,
+                root: patt.borrow().root.clone(),
+            })))
         }
     };
 
@@ -3236,7 +3202,6 @@ An [SVG] text layout implementation on top of [usvg] crate.
     chunk: <span class="kw-2">&amp;</span>TextChunk,
     char_offset: usize,
     writing_mode: WritingMode,
-    ts: Transform,
     fonts_cache: <span class="kw-2">&amp;</span>FontsCache,
     clusters: <span class="kw-2">&amp;mut </span>[OutlinedCluster],
 ) -&gt; (f32, f32) {
@@ -3250,7 +3215,6 @@ An [SVG] text layout implementation on top of [usvg] crate.
             char_offset,
             path,
             writing_mode,
-            ts,
             fonts_cache,
             clusters,
         ),
@@ -3301,7 +3265,6 @@ An [SVG] text layout implementation on top of [usvg] crate.
     char_offset: usize,
     path: <span class="kw-2">&amp;</span>TextPath,
     writing_mode: WritingMode,
-    ts: Transform,
     fonts_cache: <span class="kw-2">&amp;</span>FontsCache,
     clusters: <span class="kw-2">&amp;mut </span>[OutlinedCluster],
 ) -&gt; (f32, f32) {
@@ -3320,15 +3283,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
     <span class="kw">let </span>start_offset =
         chunk_offset + path.start_offset + process_anchor(chunk.anchor, clusters_length(clusters));
 
-    <span class="kw">let </span>normals = collect_normals(
-        text,
-        chunk,
-        clusters,
-        <span class="kw-2">&amp;</span>path.path,
-        char_offset,
-        start_offset,
-        ts,
-    );
+    <span class="kw">let </span>normals = collect_normals(text, chunk, clusters, <span class="kw-2">&amp;</span>path.path, char_offset, start_offset);
     <span class="kw">for </span>(cluster, normal) <span class="kw">in </span>clusters.iter_mut().zip(normals) {
         <span class="kw">let </span>(x, y, angle) = <span class="kw">match </span>normal {
             <span class="prelude-val">Some</span>(normal) =&gt; (normal.x, normal.y, normal.angle),
@@ -3413,7 +3368,6 @@ An [SVG] text layout implementation on top of [usvg] crate.
     path: <span class="kw-2">&amp;</span>tiny_skia_path::Path,
     char_offset: usize,
     offset: f32,
-    ts: Transform,
 ) -&gt; Vec&lt;<span class="prelude-ty">Option</span>&lt;PathNormal&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>offsets = Vec::with_capacity(clusters.len());
     <span class="kw">let </span><span class="kw-2">mut </span>normals = Vec::with_capacity(clusters.len());
@@ -3494,7 +3448,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
             <span class="comment">// Accuracy depends on a current scale.
             // When we have a tiny path scaled by a large value,
             // we have to increase out accuracy accordingly.
-            </span><span class="kw">let </span>(sx, sy) = ts.get_scale();
+            </span><span class="kw">let </span>(sx, sy) = text.abs_transform.get_scale();
             <span class="comment">// 1.0 acts as a threshold to prevent division by 0 and/or low accuracy.
             </span>base_arclen_accuracy / (sx * sy).sqrt().max(<span class="number">1.0</span>)
         };

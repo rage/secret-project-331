@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["Tree"]};
+window.SIDEBAR_ITEMS = {"fn":["render","render_node"]};

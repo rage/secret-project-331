@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/chrono-0.4.31/src/duration.rs`."><title>duration.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="chrono" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/chrono-0.4.33/src/duration.rs`."><title>duration.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="chrono" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -746,6 +746,66 @@
 <a href="#746" id="746">746</a>
 <a href="#747" id="747">747</a>
 <a href="#748" id="748">748</a>
+<a href="#749" id="749">749</a>
+<a href="#750" id="750">750</a>
+<a href="#751" id="751">751</a>
+<a href="#752" id="752">752</a>
+<a href="#753" id="753">753</a>
+<a href="#754" id="754">754</a>
+<a href="#755" id="755">755</a>
+<a href="#756" id="756">756</a>
+<a href="#757" id="757">757</a>
+<a href="#758" id="758">758</a>
+<a href="#759" id="759">759</a>
+<a href="#760" id="760">760</a>
+<a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
+<a href="#763" id="763">763</a>
+<a href="#764" id="764">764</a>
+<a href="#765" id="765">765</a>
+<a href="#766" id="766">766</a>
+<a href="#767" id="767">767</a>
+<a href="#768" id="768">768</a>
+<a href="#769" id="769">769</a>
+<a href="#770" id="770">770</a>
+<a href="#771" id="771">771</a>
+<a href="#772" id="772">772</a>
+<a href="#773" id="773">773</a>
+<a href="#774" id="774">774</a>
+<a href="#775" id="775">775</a>
+<a href="#776" id="776">776</a>
+<a href="#777" id="777">777</a>
+<a href="#778" id="778">778</a>
+<a href="#779" id="779">779</a>
+<a href="#780" id="780">780</a>
+<a href="#781" id="781">781</a>
+<a href="#782" id="782">782</a>
+<a href="#783" id="783">783</a>
+<a href="#784" id="784">784</a>
+<a href="#785" id="785">785</a>
+<a href="#786" id="786">786</a>
+<a href="#787" id="787">787</a>
+<a href="#788" id="788">788</a>
+<a href="#789" id="789">789</a>
+<a href="#790" id="790">790</a>
+<a href="#791" id="791">791</a>
+<a href="#792" id="792">792</a>
+<a href="#793" id="793">793</a>
+<a href="#794" id="794">794</a>
+<a href="#795" id="795">795</a>
+<a href="#796" id="796">796</a>
+<a href="#797" id="797">797</a>
+<a href="#798" id="798">798</a>
+<a href="#799" id="799">799</a>
+<a href="#800" id="800">800</a>
+<a href="#801" id="801">801</a>
+<a href="#802" id="802">802</a>
+<a href="#803" id="803">803</a>
+<a href="#804" id="804">804</a>
+<a href="#805" id="805">805</a>
+<a href="#806" id="806">806</a>
+<a href="#807" id="807">807</a>
+<a href="#808" id="808">808</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright 2012-2014 The Rust Project Developers. See the COPYRIGHT
 // file at the top-level directory of this distribution and at
 // http://rust-lang.org/COPYRIGHT.
@@ -758,13 +818,13 @@
 
 </span><span class="doccomment">//! Temporal quantification
 
-</span><span class="kw">use </span>core::ops::{Add, Div, Mul, Neg, Sub};
+</span><span class="kw">use </span>core::ops::{Add, AddAssign, Div, Mul, Neg, Sub, SubAssign};
 <span class="kw">use </span>core::time::Duration <span class="kw">as </span>StdDuration;
 <span class="kw">use </span>core::{fmt, i64};
 <span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
 </span><span class="kw">use </span>std::error::Error;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;rkyv&quot;</span>)]
+<span class="attr">#[cfg(any(feature = <span class="string">&quot;rkyv&quot;</span>, feature = <span class="string">&quot;rkyv-16&quot;</span>, feature = <span class="string">&quot;rkyv-32&quot;</span>, feature = <span class="string">&quot;rkyv-64&quot;</span>))]
 </span><span class="kw">use </span>rkyv::{Archive, Deserialize, Serialize};
 
 <span class="doccomment">/// The number of nanoseconds in a microsecond.
@@ -772,7 +832,7 @@
 <span class="doccomment">/// The number of nanoseconds in a millisecond.
 </span><span class="kw">const </span>NANOS_PER_MILLI: i32 = <span class="number">1_000_000</span>;
 <span class="doccomment">/// The number of nanoseconds in seconds.
-</span><span class="kw">const </span>NANOS_PER_SEC: i32 = <span class="number">1_000_000_000</span>;
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>NANOS_PER_SEC: i32 = <span class="number">1_000_000_000</span>;
 <span class="doccomment">/// The number of microseconds per second.
 </span><span class="kw">const </span>MICROS_PER_SEC: i64 = <span class="number">1_000_000</span>;
 <span class="doccomment">/// The number of milliseconds per second.
@@ -798,17 +858,23 @@
 <span class="doccomment">/// ISO 8601 time duration with nanosecond precision.
 ///
 /// This also allows for the negative duration; see individual methods for details.
-</span><span class="attr">#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug, Hash)]
-#[cfg_attr(feature = <span class="string">&quot;rkyv&quot;</span>, derive(Archive, Deserialize, Serialize))]
+</span><span class="attr">#[derive(Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord, Debug, Hash)]
+#[cfg_attr(
+    any(feature = <span class="string">&quot;rkyv&quot;</span>, feature = <span class="string">&quot;rkyv-16&quot;</span>, feature = <span class="string">&quot;rkyv-32&quot;</span>, feature = <span class="string">&quot;rkyv-64&quot;</span>),
+    derive(Archive, Deserialize, Serialize),
+    archive(compare(PartialEq, PartialOrd)),
+    archive_attr(derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug, Hash))
+)]
+#[cfg_attr(feature = <span class="string">&quot;rkyv-validation&quot;</span>, archive(check_bytes))]
 </span><span class="kw">pub struct </span>Duration {
     secs: i64,
     nanos: i32, <span class="comment">// Always 0 &lt;= nanos &lt; NANOS_PER_SEC
 </span>}
 
-<span class="doccomment">/// The minimum possible `Duration`: `i64::MIN` milliseconds.
+<span class="doccomment">/// The minimum possible `Duration`: `-i64::MAX` milliseconds.
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>MIN: Duration = Duration {
-    secs: i64::MIN / MILLIS_PER_SEC - <span class="number">1</span>,
-    nanos: NANOS_PER_SEC + (i64::MIN % MILLIS_PER_SEC) <span class="kw">as </span>i32 * NANOS_PER_MILLI,
+    secs: -i64::MAX / MILLIS_PER_SEC - <span class="number">1</span>,
+    nanos: NANOS_PER_SEC + (-i64::MAX % MILLIS_PER_SEC) <span class="kw">as </span>i32 * NANOS_PER_MILLI,
 };
 
 <span class="doccomment">/// The maximum possible `Duration`: `i64::MAX` milliseconds.
@@ -824,8 +890,15 @@
     </span><span class="attr">#[inline]
     #[must_use]
     </span><span class="kw">pub fn </span>weeks(weeks: i64) -&gt; Duration {
-        <span class="kw">let </span>secs = weeks.checked_mul(SECS_PER_WEEK).expect(<span class="string">&quot;Duration::weeks out of bounds&quot;</span>);
-        Duration::seconds(secs)
+        Duration::try_weeks(weeks).expect(<span class="string">&quot;Duration::weeks out of bounds&quot;</span>)
+    }
+
+    <span class="doccomment">/// Makes a new `Duration` with given number of weeks.
+    /// Equivalent to `Duration::seconds(weeks * 7 * 24 * 60 * 60)` with overflow checks.
+    /// Returns `None` when the duration is out of bounds.
+    </span><span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>try_weeks(weeks: i64) -&gt; <span class="prelude-ty">Option</span>&lt;Duration&gt; {
+        weeks.checked_mul(SECS_PER_WEEK).and_then(Duration::try_seconds)
     }
 
     <span class="doccomment">/// Makes a new `Duration` with given number of days.
@@ -834,8 +907,15 @@
     </span><span class="attr">#[inline]
     #[must_use]
     </span><span class="kw">pub fn </span>days(days: i64) -&gt; Duration {
-        <span class="kw">let </span>secs = days.checked_mul(SECS_PER_DAY).expect(<span class="string">&quot;Duration::days out of bounds&quot;</span>);
-        Duration::seconds(secs)
+        Duration::try_days(days).expect(<span class="string">&quot;Duration::days out of bounds&quot;</span>)
+    }
+
+    <span class="doccomment">/// Makes a new `Duration` with given number of days.
+    /// Equivalent to `Duration::seconds(days * 24 * 60 * 60)` with overflow checks.
+    /// Returns `None` when the duration is out of bounds.
+    </span><span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>try_days(days: i64) -&gt; <span class="prelude-ty">Option</span>&lt;Duration&gt; {
+        days.checked_mul(SECS_PER_DAY).and_then(Duration::try_seconds)
     }
 
     <span class="doccomment">/// Makes a new `Duration` with given number of hours.
@@ -844,8 +924,15 @@
     </span><span class="attr">#[inline]
     #[must_use]
     </span><span class="kw">pub fn </span>hours(hours: i64) -&gt; Duration {
-        <span class="kw">let </span>secs = hours.checked_mul(SECS_PER_HOUR).expect(<span class="string">&quot;Duration::hours ouf of bounds&quot;</span>);
-        Duration::seconds(secs)
+        Duration::try_hours(hours).expect(<span class="string">&quot;Duration::hours out of bounds&quot;</span>)
+    }
+
+    <span class="doccomment">/// Makes a new `Duration` with given number of hours.
+    /// Equivalent to `Duration::seconds(hours * 60 * 60)` with overflow checks.
+    /// Returns `None` when the duration is out of bounds.
+    </span><span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>try_hours(hours: i64) -&gt; <span class="prelude-ty">Option</span>&lt;Duration&gt; {
+        hours.checked_mul(SECS_PER_HOUR).and_then(Duration::try_seconds)
     }
 
     <span class="doccomment">/// Makes a new `Duration` with given number of minutes.
@@ -854,21 +941,36 @@
     </span><span class="attr">#[inline]
     #[must_use]
     </span><span class="kw">pub fn </span>minutes(minutes: i64) -&gt; Duration {
-        <span class="kw">let </span>secs = minutes.checked_mul(SECS_PER_MINUTE).expect(<span class="string">&quot;Duration::minutes out of bounds&quot;</span>);
-        Duration::seconds(secs)
+        Duration::try_minutes(minutes).expect(<span class="string">&quot;Duration::minutes out of bounds&quot;</span>)
+    }
+
+    <span class="doccomment">/// Makes a new `Duration` with given number of minutes.
+    /// Equivalent to `Duration::seconds(minutes * 60)` with overflow checks.
+    /// Returns `None` when the duration is out of bounds.
+    </span><span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>try_minutes(minutes: i64) -&gt; <span class="prelude-ty">Option</span>&lt;Duration&gt; {
+        minutes.checked_mul(SECS_PER_MINUTE).and_then(Duration::try_seconds)
     }
 
     <span class="doccomment">/// Makes a new `Duration` with given number of seconds.
     /// Panics when the duration is more than `i64::MAX` milliseconds
-    /// or less than `i64::MIN` milliseconds.
+    /// or less than `-i64::MAX` milliseconds.
     </span><span class="attr">#[inline]
     #[must_use]
     </span><span class="kw">pub fn </span>seconds(seconds: i64) -&gt; Duration {
+        Duration::try_seconds(seconds).expect(<span class="string">&quot;Duration::seconds out of bounds&quot;</span>)
+    }
+
+    <span class="doccomment">/// Makes a new `Duration` with given number of seconds.
+    /// Returns `None` when the duration is more than `i64::MAX` milliseconds
+    /// or less than `-i64::MAX` milliseconds.
+    </span><span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>try_seconds(seconds: i64) -&gt; <span class="prelude-ty">Option</span>&lt;Duration&gt; {
         <span class="kw">let </span>d = Duration { secs: seconds, nanos: <span class="number">0 </span>};
         <span class="kw">if </span>d &lt; MIN || d &gt; MAX {
-            <span class="macro">panic!</span>(<span class="string">&quot;Duration::seconds out of bounds&quot;</span>);
+            <span class="kw">return </span><span class="prelude-val">None</span>;
         }
-        d
+        <span class="prelude-val">Some</span>(d)
     }
 
     <span class="doccomment">/// Makes a new `Duration` with given number of milliseconds.
@@ -928,9 +1030,9 @@
     }
 
     <span class="doccomment">/// Returns the number of nanoseconds such that
-    /// `nanos_mod_sec() + num_seconds() * NANOS_PER_SEC` is the total number of
+    /// `subsec_nanos() + num_seconds() * NANOS_PER_SEC` is the total number of
     /// nanoseconds in the duration.
-    </span><span class="kw">const fn </span>nanos_mod_sec(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; i32 {
+    </span><span class="kw">pub const fn </span>subsec_nanos(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; i32 {
         <span class="kw">if </span><span class="self">self</span>.secs &lt; <span class="number">0 </span>&amp;&amp; <span class="self">self</span>.nanos &gt; <span class="number">0 </span>{
             <span class="self">self</span>.nanos - NANOS_PER_SEC
         } <span class="kw">else </span>{
@@ -943,7 +1045,7 @@
         <span class="comment">// A proper Duration will not overflow, because MIN and MAX are defined
         // such that the range is exactly i64 milliseconds.
         </span><span class="kw">let </span>secs_part = <span class="self">self</span>.num_seconds() * MILLIS_PER_SEC;
-        <span class="kw">let </span>nanos_part = <span class="self">self</span>.nanos_mod_sec() / NANOS_PER_MILLI;
+        <span class="kw">let </span>nanos_part = <span class="self">self</span>.subsec_nanos() / NANOS_PER_MILLI;
         secs_part + nanos_part <span class="kw">as </span>i64
     }
 
@@ -951,7 +1053,7 @@
     /// or `None` on overflow (exceeding 2^63 microseconds in either direction).
     </span><span class="kw">pub const fn </span>num_microseconds(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;i64&gt; {
         <span class="kw">let </span>secs_part = <span class="macro">try_opt!</span>(<span class="self">self</span>.num_seconds().checked_mul(MICROS_PER_SEC));
-        <span class="kw">let </span>nanos_part = <span class="self">self</span>.nanos_mod_sec() / NANOS_PER_MICRO;
+        <span class="kw">let </span>nanos_part = <span class="self">self</span>.subsec_nanos() / NANOS_PER_MICRO;
         secs_part.checked_add(nanos_part <span class="kw">as </span>i64)
     }
 
@@ -959,7 +1061,7 @@
     /// or `None` on overflow (exceeding 2^63 nanoseconds in either direction).
     </span><span class="kw">pub const fn </span>num_nanoseconds(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;i64&gt; {
         <span class="kw">let </span>secs_part = <span class="macro">try_opt!</span>(<span class="self">self</span>.num_seconds().checked_mul(NANOS_PER_SEC <span class="kw">as </span>i64));
-        <span class="kw">let </span>nanos_part = <span class="self">self</span>.nanos_mod_sec();
+        <span class="kw">let </span>nanos_part = <span class="self">self</span>.subsec_nanos();
         secs_part.checked_add(nanos_part <span class="kw">as </span>i64)
     }
 
@@ -1011,7 +1113,7 @@
         }
     }
 
-    <span class="doccomment">/// The minimum possible `Duration`: `i64::MIN` milliseconds.
+    <span class="doccomment">/// The minimum possible `Duration`: `-i64::MAX` milliseconds.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub const fn </span>min_value() -&gt; Duration {
         MIN
@@ -1080,13 +1182,7 @@
     <span class="kw">type </span>Output = Duration;
 
     <span class="kw">fn </span>add(<span class="self">self</span>, rhs: Duration) -&gt; Duration {
-        <span class="kw">let </span><span class="kw-2">mut </span>secs = <span class="self">self</span>.secs + rhs.secs;
-        <span class="kw">let </span><span class="kw-2">mut </span>nanos = <span class="self">self</span>.nanos + rhs.nanos;
-        <span class="kw">if </span>nanos &gt;= NANOS_PER_SEC {
-            nanos -= NANOS_PER_SEC;
-            secs += <span class="number">1</span>;
-        }
-        Duration { secs, nanos }
+        <span class="self">self</span>.checked_add(<span class="kw-2">&amp;</span>rhs).expect(<span class="string">&quot;`Duration + Duration` overflowed&quot;</span>)
     }
 }
 
@@ -1094,13 +1190,21 @@
     <span class="kw">type </span>Output = Duration;
 
     <span class="kw">fn </span>sub(<span class="self">self</span>, rhs: Duration) -&gt; Duration {
-        <span class="kw">let </span><span class="kw-2">mut </span>secs = <span class="self">self</span>.secs - rhs.secs;
-        <span class="kw">let </span><span class="kw-2">mut </span>nanos = <span class="self">self</span>.nanos - rhs.nanos;
-        <span class="kw">if </span>nanos &lt; <span class="number">0 </span>{
-            nanos += NANOS_PER_SEC;
-            secs -= <span class="number">1</span>;
-        }
-        Duration { secs, nanos }
+        <span class="self">self</span>.checked_sub(<span class="kw-2">&amp;</span>rhs).expect(<span class="string">&quot;`Duration - Duration` overflowed&quot;</span>)
+    }
+}
+
+<span class="kw">impl </span>AddAssign <span class="kw">for </span>Duration {
+    <span class="kw">fn </span>add_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rhs: Duration) {
+        <span class="kw">let </span>new = <span class="self">self</span>.checked_add(<span class="kw-2">&amp;</span>rhs).expect(<span class="string">&quot;`Duration + Duration` overflowed&quot;</span>);
+        <span class="kw-2">*</span><span class="self">self </span>= new;
+    }
+}
+
+<span class="kw">impl </span>SubAssign <span class="kw">for </span>Duration {
+    <span class="kw">fn </span>sub_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rhs: Duration) {
+        <span class="kw">let </span>new = <span class="self">self</span>.checked_sub(<span class="kw-2">&amp;</span>rhs).expect(<span class="string">&quot;`Duration - Duration` overflowed&quot;</span>);
+        <span class="kw-2">*</span><span class="self">self </span>= new;
     }
 }
 
@@ -1213,7 +1317,7 @@
 <span class="attr">#[cfg(feature = <span class="string">&quot;arbitrary&quot;</span>)]
 </span><span class="kw">impl </span>arbitrary::Arbitrary&lt;<span class="lifetime">&#39;_</span>&gt; <span class="kw">for </span>Duration {
     <span class="kw">fn </span>arbitrary(u: <span class="kw-2">&amp;mut </span>arbitrary::Unstructured) -&gt; arbitrary::Result&lt;Duration&gt; {
-        <span class="kw">const </span>MIN_SECS: i64 = i64::MIN / MILLIS_PER_SEC - <span class="number">1</span>;
+        <span class="kw">const </span>MIN_SECS: i64 = -i64::MAX / MILLIS_PER_SEC - <span class="number">1</span>;
         <span class="kw">const </span>MAX_SECS: i64 = i64::MAX / MILLIS_PER_SEC;
 
         <span class="kw">let </span>secs: i64 = u.int_in_range(MIN_SECS..=MAX_SECS)<span class="question-mark">?</span>;
@@ -1253,6 +1357,11 @@
             -(Duration::days(<span class="number">3</span>) + Duration::seconds(<span class="number">70</span>)),
             Duration::days(-<span class="number">4</span>) + Duration::seconds(<span class="number">86_400 </span>- <span class="number">70</span>)
         );
+
+        <span class="kw">let </span><span class="kw-2">mut </span>d = Duration::default();
+        d += Duration::minutes(<span class="number">1</span>);
+        d -= Duration::seconds(<span class="number">30</span>);
+        <span class="macro">assert_eq!</span>(d, Duration::seconds(<span class="number">30</span>));
     }
 
     <span class="attr">#[test]
@@ -1289,9 +1398,9 @@
         <span class="macro">assert_eq!</span>(Duration::microseconds(-<span class="number">999</span>).num_milliseconds(), <span class="number">0</span>);
         <span class="macro">assert_eq!</span>(Duration::microseconds(-<span class="number">1001</span>).num_milliseconds(), -<span class="number">1</span>);
         <span class="macro">assert_eq!</span>(Duration::milliseconds(i64::MAX).num_milliseconds(), i64::MAX);
-        <span class="macro">assert_eq!</span>(Duration::milliseconds(i64::MIN).num_milliseconds(), i64::MIN);
+        <span class="macro">assert_eq!</span>(Duration::milliseconds(-i64::MAX).num_milliseconds(), -i64::MAX);
         <span class="macro">assert_eq!</span>(MAX.num_milliseconds(), i64::MAX);
-        <span class="macro">assert_eq!</span>(MIN.num_milliseconds(), i64::MIN);
+        <span class="macro">assert_eq!</span>(MIN.num_milliseconds(), -i64::MAX);
     }
 
     <span class="attr">#[test]
@@ -1304,7 +1413,7 @@
         <span class="macro">assert_eq!</span>(Duration::nanoseconds(-<span class="number">999</span>).num_microseconds(), <span class="prelude-val">Some</span>(<span class="number">0</span>));
         <span class="macro">assert_eq!</span>(Duration::nanoseconds(-<span class="number">1001</span>).num_microseconds(), <span class="prelude-val">Some</span>(-<span class="number">1</span>));
         <span class="macro">assert_eq!</span>(Duration::microseconds(i64::MAX).num_microseconds(), <span class="prelude-val">Some</span>(i64::MAX));
-        <span class="macro">assert_eq!</span>(Duration::microseconds(i64::MIN).num_microseconds(), <span class="prelude-val">Some</span>(i64::MIN));
+        <span class="macro">assert_eq!</span>(Duration::microseconds(-i64::MAX).num_microseconds(), <span class="prelude-val">Some</span>(-i64::MAX));
         <span class="macro">assert_eq!</span>(MAX.num_microseconds(), <span class="prelude-val">None</span>);
         <span class="macro">assert_eq!</span>(MIN.num_microseconds(), <span class="prelude-val">None</span>);
 
@@ -1315,11 +1424,11 @@
             <span class="prelude-val">Some</span>(i64::MAX / MICROS_PER_DAY * MICROS_PER_DAY)
         );
         <span class="macro">assert_eq!</span>(
-            Duration::days(i64::MIN / MICROS_PER_DAY).num_microseconds(),
-            <span class="prelude-val">Some</span>(i64::MIN / MICROS_PER_DAY * MICROS_PER_DAY)
+            Duration::days(-i64::MAX / MICROS_PER_DAY).num_microseconds(),
+            <span class="prelude-val">Some</span>(-i64::MAX / MICROS_PER_DAY * MICROS_PER_DAY)
         );
         <span class="macro">assert_eq!</span>(Duration::days(i64::MAX / MICROS_PER_DAY + <span class="number">1</span>).num_microseconds(), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq!</span>(Duration::days(i64::MIN / MICROS_PER_DAY - <span class="number">1</span>).num_microseconds(), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(Duration::days(-i64::MAX / MICROS_PER_DAY - <span class="number">1</span>).num_microseconds(), <span class="prelude-val">None</span>);
     }
 
     <span class="attr">#[test]
@@ -1328,7 +1437,7 @@
         <span class="macro">assert_eq!</span>(Duration::nanoseconds(<span class="number">1</span>).num_nanoseconds(), <span class="prelude-val">Some</span>(<span class="number">1</span>));
         <span class="macro">assert_eq!</span>(Duration::nanoseconds(-<span class="number">1</span>).num_nanoseconds(), <span class="prelude-val">Some</span>(-<span class="number">1</span>));
         <span class="macro">assert_eq!</span>(Duration::nanoseconds(i64::MAX).num_nanoseconds(), <span class="prelude-val">Some</span>(i64::MAX));
-        <span class="macro">assert_eq!</span>(Duration::nanoseconds(i64::MIN).num_nanoseconds(), <span class="prelude-val">Some</span>(i64::MIN));
+        <span class="macro">assert_eq!</span>(Duration::nanoseconds(-i64::MAX).num_nanoseconds(), <span class="prelude-val">Some</span>(-i64::MAX));
         <span class="macro">assert_eq!</span>(MAX.num_nanoseconds(), <span class="prelude-val">None</span>);
         <span class="macro">assert_eq!</span>(MIN.num_nanoseconds(), <span class="prelude-val">None</span>);
 
@@ -1339,11 +1448,11 @@
             <span class="prelude-val">Some</span>(i64::MAX / NANOS_PER_DAY * NANOS_PER_DAY)
         );
         <span class="macro">assert_eq!</span>(
-            Duration::days(i64::MIN / NANOS_PER_DAY).num_nanoseconds(),
-            <span class="prelude-val">Some</span>(i64::MIN / NANOS_PER_DAY * NANOS_PER_DAY)
+            Duration::days(-i64::MAX / NANOS_PER_DAY).num_nanoseconds(),
+            <span class="prelude-val">Some</span>(-i64::MAX / NANOS_PER_DAY * NANOS_PER_DAY)
         );
         <span class="macro">assert_eq!</span>(Duration::days(i64::MAX / NANOS_PER_DAY + <span class="number">1</span>).num_nanoseconds(), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq!</span>(Duration::days(i64::MIN / NANOS_PER_DAY - <span class="number">1</span>).num_nanoseconds(), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(Duration::days(-i64::MAX / NANOS_PER_DAY - <span class="number">1</span>).num_nanoseconds(), <span class="prelude-val">None</span>);
     }
 
     <span class="attr">#[test]
@@ -1357,10 +1466,12 @@
             .is_none());
 
         <span class="macro">assert_eq!</span>(
-            Duration::milliseconds(i64::MIN).checked_sub(<span class="kw-2">&amp;</span>Duration::milliseconds(<span class="number">0</span>)),
-            <span class="prelude-val">Some</span>(Duration::milliseconds(i64::MIN))
+            Duration::milliseconds(-i64::MAX).checked_sub(<span class="kw-2">&amp;</span>Duration::milliseconds(<span class="number">0</span>)),
+            <span class="prelude-val">Some</span>(Duration::milliseconds(-i64::MAX))
         );
-        <span class="macro">assert!</span>(Duration::milliseconds(i64::MIN).checked_sub(<span class="kw-2">&amp;</span>Duration::milliseconds(<span class="number">1</span>)).is_none());
+        <span class="macro">assert!</span>(Duration::milliseconds(-i64::MAX)
+            .checked_sub(<span class="kw-2">&amp;</span>Duration::milliseconds(<span class="number">1</span>))
+            .is_none());
     }
 
     <span class="attr">#[test]
@@ -1374,6 +1485,7 @@
         <span class="macro">assert_eq!</span>(Duration::milliseconds(-<span class="number">1000</span>).abs(), Duration::milliseconds(<span class="number">1000</span>));
         <span class="macro">assert_eq!</span>(Duration::milliseconds(-<span class="number">1300</span>).abs(), Duration::milliseconds(<span class="number">1300</span>));
         <span class="macro">assert_eq!</span>(Duration::milliseconds(-<span class="number">1700</span>).abs(), Duration::milliseconds(<span class="number">1700</span>));
+        <span class="macro">assert_eq!</span>(Duration::milliseconds(-i64::MAX).abs(), Duration::milliseconds(i64::MAX));
     }
 
     <span class="attr">#[test]
@@ -1492,6 +1604,14 @@
             Duration::from_std(StdDuration::new(<span class="number">9_223_372_036_854_775</span>, <span class="number">807_000_001</span>)),
             <span class="prelude-val">Err</span>(OutOfRangeError(()))
         );
+    }
+
+    <span class="attr">#[test]
+    #[cfg(feature = <span class="string">&quot;rkyv-validation&quot;</span>)]
+    </span><span class="kw">fn </span>test_rkyv_validation() {
+        <span class="kw">let </span>duration = Duration::seconds(<span class="number">1</span>);
+        <span class="kw">let </span>bytes = rkyv::to_bytes::&lt;<span class="kw">_</span>, <span class="number">16</span>&gt;(<span class="kw-2">&amp;</span>duration).unwrap();
+        <span class="macro">assert_eq!</span>(rkyv::from_bytes::&lt;Duration&gt;(<span class="kw-2">&amp;</span>bytes).unwrap(), duration);
     }
 }
 </code></pre></div></section></main></body></html>

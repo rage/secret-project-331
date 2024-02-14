@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"trait":["TreeTextToPath"]};
+window.SIDEBAR_ITEMS = {"fn":["convert_text"]};

@@ -105,7 +105,7 @@ method.</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.from_std" class="method"><a class="src rightside" href="../../src/tokio/net/udp.rs.html#221">source</a><h4 class="code-header">pub fn <a href="#method.from_std" class="fn">from_std</a>(socket: <a class="struct" href="https://doc.rust-lang.org/1.75.0/std/net/udp/struct.UdpSocket.html" title="struct std::net::udp::UdpSocket">UdpSocket</a>) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.75.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="struct" href="struct.UdpSocket.html" title="struct actix_rt::net::UdpSocket">UdpSocket</a>, <a class="struct" href="https://doc.rust-lang.org/1.75.0/std/io/error/struct.Error.html" title="struct std::io::error::Error">Error</a>&gt;</h4></section></summary><div class="docblock"><p>Creates new <code>UdpSocket</code> from a previously bound <code>std::net::UdpSocket</code>.</p>
 <p>This function is intended to be used to wrap a UDP socket from the
 standard library in the Tokio equivalent.</p>
-<p>This can be used in conjunction with socket2’s <code>Socket</code> interface to
+<p>This can be used in conjunction with <code>socket2</code>’s <code>Socket</code> interface to
 configure a socket before it’s handed off, such as setting options like
 <code>reuse_address</code> or binding to multiple addresses.</p>
 <h5 id="notes"><a href="#notes">Notes</a></h5>
@@ -158,7 +158,7 @@ sock.connect(peer).<span class="kw">await</span><span class="question-mark">?</s
 <span class="macro">assert_eq!</span>(peer, sock.peer_addr()<span class="question-mark">?</span>);</code></pre></div>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.connect" class="method"><a class="src rightside" href="../../src/tokio/net/udp.rs.html#339">source</a><h4 class="code-header">pub async fn <a href="#method.connect" class="fn">connect</a>&lt;A&gt;(&amp;self, addr: A) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.75.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.75.0/std/primitive.unit.html">()</a>, <a class="struct" href="https://doc.rust-lang.org/1.75.0/std/io/error/struct.Error.html" title="struct std::io::error::Error">Error</a>&gt;<span class="where fmt-newline">where
     A: <a class="trait" href="../../tokio/net/addr/trait.ToSocketAddrs.html" title="trait tokio::net::addr::ToSocketAddrs">ToSocketAddrs</a>,</span></h4></section></summary><div class="docblock"><p>Connects the UDP socket setting the default destination for send() and
-limiting packets that are read via recv from the address specified in
+limiting packets that are read via <code>recv</code> from the address specified in
 <code>addr</code>.</p>
 <h5 id="example-4"><a href="#example-4">Example</a></h5>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>tokio::net::UdpSocket;
@@ -174,7 +174,7 @@ sock.connect(remote_addr).<span class="kw">await</span><span class="question-mar
 </span><span class="kw">let </span>_len = sock.send(<span class="kw-2">&amp;</span>buf[..len]).<span class="kw">await</span><span class="question-mark">?</span>;</code></pre></div>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.ready" class="method"><a class="src rightside" href="../../src/tokio/net/udp.rs.html#426">source</a><h4 class="code-header">pub async fn <a href="#method.ready" class="fn">ready</a>(&amp;self, interest: <a class="struct" href="../../tokio/io/interest/struct.Interest.html" title="struct tokio::io::interest::Interest">Interest</a>) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.75.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="struct" href="struct.Ready.html" title="struct actix_rt::net::Ready">Ready</a>, <a class="struct" href="https://doc.rust-lang.org/1.75.0/std/io/error/struct.Error.html" title="struct std::io::error::Error">Error</a>&gt;</h4></section></summary><div class="docblock"><p>Waits for any of the requested ready states.</p>
 <p>This function is usually paired with <code>try_recv()</code> or <code>try_send()</code>. It
-can be used to concurrently recv / send to the same socket on a single
+can be used to concurrently <code>recv</code> / <code>send</code> to the same socket on a single
 task without splitting the socket.</p>
 <p>The function may complete without the socket being ready. This is a
 false-positive and attempting an operation will return with
@@ -487,7 +487,7 @@ socket.</p>
 address to which it is <code>connect</code>ed.</p>
 <p>The <a href="struct.UdpSocket.html#method.connect" title="method actix_rt::net::UdpSocket::connect"><code>connect</code></a> method will connect this socket to a remote address. This method
 resolves to an error if the socket is not connected.</p>
-<p>Note that on multiple calls to a <code>poll_*</code> method in the recv direction, only the
+<p>Note that on multiple calls to a <code>poll_*</code> method in the <code>recv</code> direction, only the
 <code>Waker</code> from the <code>Context</code> passed to the most recent call will be scheduled to
 receive a wakeup.</p>
 <h5 id="return-value-3"><a href="#return-value-3">Return value</a></h5>
@@ -502,7 +502,7 @@ receive a wakeup.</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.try_recv" class="method"><a class="src rightside" href="../../src/tokio/net/udp.rs.html#874">source</a><h4 class="code-header">pub fn <a href="#method.try_recv" class="fn">try_recv</a>(&amp;self, buf: &amp;mut [<a class="primitive" href="https://doc.rust-lang.org/1.75.0/std/primitive.u8.html">u8</a>]) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.75.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.75.0/std/primitive.usize.html">usize</a>, <a class="struct" href="https://doc.rust-lang.org/1.75.0/std/io/error/struct.Error.html" title="struct std::io::error::Error">Error</a>&gt;</h4></section></summary><div class="docblock"><p>Tries to receive a single datagram message on the socket from the remote
 address to which it is connected. On success, returns the number of
 bytes read.</p>
-<p>This method must be called with valid byte array buf of sufficient size
+<p>This method must be called with valid byte array <code>buf</code> of sufficient size
 to hold the message bytes. If a message is too long to fit in the
 supplied buffer, excess bytes may be discarded.</p>
 <p>When there is no pending data, <code>Err(io::ErrorKind::WouldBlock)</code> is
@@ -546,7 +546,7 @@ returned. This function is usually paired with <code>readable()</code>.</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.try_recv_buf" class="method"><a class="src rightside" href="../../src/tokio/net/udp.rs.html#930">source</a><h4 class="code-header">pub fn <a href="#method.try_recv_buf" class="fn">try_recv_buf</a>&lt;B&gt;(&amp;self, buf: <a class="primitive" href="https://doc.rust-lang.org/1.75.0/std/primitive.reference.html">&amp;mut B</a>) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.75.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.75.0/std/primitive.usize.html">usize</a>, <a class="struct" href="https://doc.rust-lang.org/1.75.0/std/io/error/struct.Error.html" title="struct std::io::error::Error">Error</a>&gt;<span class="where fmt-newline">where
     B: <a class="trait" href="../../bytes/buf/buf_mut/trait.BufMut.html" title="trait bytes::buf::buf_mut::BufMut">BufMut</a>,</span></h4></section></summary><div class="docblock"><p>Tries to receive data from the stream into the provided buffer, advancing the
 buffer’s internal cursor, returning how many bytes were read.</p>
-<p>This method must be called with valid byte array buf of sufficient size
+<p>This method must be called with valid byte array <code>buf</code> of sufficient size
 to hold the message bytes. If a message is too long to fit in the
 supplied buffer, excess bytes may be discarded.</p>
 <p>This method can be used even if <code>buf</code> is uninitialized.</p>
@@ -590,7 +590,7 @@ returned. This function is usually paired with <code>readable()</code>.</p>
     B: <a class="trait" href="../../bytes/buf/buf_mut/trait.BufMut.html" title="trait bytes::buf::buf_mut::BufMut">BufMut</a>,</span></h4></section></summary><div class="docblock"><p>Receives a single datagram message on the socket from the remote address
 to which it is connected, advancing the buffer’s internal cursor,
 returning how many bytes were read.</p>
-<p>This method must be called with valid byte array buf of sufficient size
+<p>This method must be called with valid byte array <code>buf</code> of sufficient size
 to hold the message bytes. If a message is too long to fit in the
 supplied buffer, excess bytes may be discarded.</p>
 <p>This method can be used even if <code>buf</code> is uninitialized.</p>
@@ -617,7 +617,7 @@ supplied buffer, excess bytes may be discarded.</p>
 ) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.75.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;(<a class="primitive" href="https://doc.rust-lang.org/1.75.0/std/primitive.usize.html">usize</a>, <a class="enum" href="https://doc.rust-lang.org/1.75.0/core/net/socket_addr/enum.SocketAddr.html" title="enum core::net::socket_addr::SocketAddr">SocketAddr</a>), <a class="struct" href="https://doc.rust-lang.org/1.75.0/std/io/error/struct.Error.html" title="struct std::io::error::Error">Error</a>&gt;<span class="where fmt-newline">where
     B: <a class="trait" href="../../bytes/buf/buf_mut/trait.BufMut.html" title="trait bytes::buf::buf_mut::BufMut">BufMut</a>,</span></h4></section></summary><div class="docblock"><p>Tries to receive a single datagram message on the socket. On success,
 returns the number of bytes read and the origin.</p>
-<p>This method must be called with valid byte array buf of sufficient size
+<p>This method must be called with valid byte array <code>buf</code> of sufficient size
 to hold the message bytes. If a message is too long to fit in the
 supplied buffer, excess bytes may be discarded.</p>
 <p>This method can be used even if <code>buf</code> is uninitialized.</p>
@@ -668,7 +668,7 @@ It is important to be aware of this when designing your application-level protoc
 ) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.75.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;(<a class="primitive" href="https://doc.rust-lang.org/1.75.0/std/primitive.usize.html">usize</a>, <a class="enum" href="https://doc.rust-lang.org/1.75.0/core/net/socket_addr/enum.SocketAddr.html" title="enum core::net::socket_addr::SocketAddr">SocketAddr</a>), <a class="struct" href="https://doc.rust-lang.org/1.75.0/std/io/error/struct.Error.html" title="struct std::io::error::Error">Error</a>&gt;<span class="where fmt-newline">where
     B: <a class="trait" href="../../bytes/buf/buf_mut/trait.BufMut.html" title="trait bytes::buf::buf_mut::BufMut">BufMut</a>,</span></h4></section></summary><div class="docblock"><p>Receives a single datagram message on the socket, advancing the
 buffer’s internal cursor, returning how many bytes were read and the origin.</p>
-<p>This method must be called with valid byte array buf of sufficient size
+<p>This method must be called with valid byte array <code>buf</code> of sufficient size
 to hold the message bytes. If a message is too long to fit in the
 supplied buffer, excess bytes may be discarded.</p>
 <p>This method can be used even if <code>buf</code> is uninitialized.</p>
@@ -819,7 +819,7 @@ It is important to be aware of this when designing your application-level protoc
     cx: &amp;mut <a class="struct" href="https://doc.rust-lang.org/1.75.0/core/task/wake/struct.Context.html" title="struct core::task::wake::Context">Context</a>&lt;'_&gt;,
     buf: &amp;mut <a class="struct" href="../../tokio/io/read_buf/struct.ReadBuf.html" title="struct tokio::io::read_buf::ReadBuf">ReadBuf</a>&lt;'_&gt;
 ) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.75.0/core/task/poll/enum.Poll.html" title="enum core::task::poll::Poll">Poll</a>&lt;<a class="enum" href="https://doc.rust-lang.org/1.75.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="enum" href="https://doc.rust-lang.org/1.75.0/core/net/socket_addr/enum.SocketAddr.html" title="enum core::net::socket_addr::SocketAddr">SocketAddr</a>, <a class="struct" href="https://doc.rust-lang.org/1.75.0/std/io/error/struct.Error.html" title="struct std::io::error::Error">Error</a>&gt;&gt;</h4></section></summary><div class="docblock"><p>Attempts to receive a single datagram on the socket.</p>
-<p>Note that on multiple calls to a <code>poll_*</code> method in the recv direction, only the
+<p>Note that on multiple calls to a <code>poll_*</code> method in the <code>recv</code> direction, only the
 <code>Waker</code> from the <code>Context</code> passed to the most recent call will be scheduled to
 receive a wakeup.</p>
 <h5 id="return-value-5"><a href="#return-value-5">Return value</a></h5>
@@ -842,7 +842,7 @@ It is important to be aware of this when designing your application-level protoc
     buf: &amp;mut [<a class="primitive" href="https://doc.rust-lang.org/1.75.0/std/primitive.u8.html">u8</a>]
 ) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.75.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;(<a class="primitive" href="https://doc.rust-lang.org/1.75.0/std/primitive.usize.html">usize</a>, <a class="enum" href="https://doc.rust-lang.org/1.75.0/core/net/socket_addr/enum.SocketAddr.html" title="enum core::net::socket_addr::SocketAddr">SocketAddr</a>), <a class="struct" href="https://doc.rust-lang.org/1.75.0/std/io/error/struct.Error.html" title="struct std::io::error::Error">Error</a>&gt;</h4></section></summary><div class="docblock"><p>Tries to receive a single datagram message on the socket. On success,
 returns the number of bytes read and the origin.</p>
-<p>This method must be called with valid byte array buf of sufficient size
+<p>This method must be called with valid byte array <code>buf</code> of sufficient size
 to hold the message bytes. If a message is too long to fit in the
 supplied buffer, excess bytes may be discarded.</p>
 <p>When there is no pending data, <code>Err(io::ErrorKind::WouldBlock)</code> is
@@ -948,7 +948,7 @@ the data came.</p>
 <h5 id="notes-6"><a href="#notes-6">Notes</a></h5>
 <p>On Windows, if the data is larger than the buffer specified, the buffer
 is filled with the first part of the data, and <code>peek_from</code> returns the error
-WSAEMSGSIZE(10040). The excess data is lost.
+<code>WSAEMSGSIZE(10040)</code>. The excess data is lost.
 Make sure to always use a sufficiently large buffer to hold the
 maximum UDP packet size, which can be up to 65536 bytes in size.</p>
 <p>MacOS will return an error if you pass a zero-sized buffer.</p>
@@ -981,12 +981,12 @@ It is important to be aware of this when designing your application-level protoc
 ) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.75.0/core/task/poll/enum.Poll.html" title="enum core::task::poll::Poll">Poll</a>&lt;<a class="enum" href="https://doc.rust-lang.org/1.75.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="enum" href="https://doc.rust-lang.org/1.75.0/core/net/socket_addr/enum.SocketAddr.html" title="enum core::net::socket_addr::SocketAddr">SocketAddr</a>, <a class="struct" href="https://doc.rust-lang.org/1.75.0/std/io/error/struct.Error.html" title="struct std::io::error::Error">Error</a>&gt;&gt;</h4></section></summary><div class="docblock"><p>Receives data from the socket, without removing it from the input queue.
 On success, returns the sending address of the datagram.</p>
 <h5 id="notes-7"><a href="#notes-7">Notes</a></h5>
-<p>Note that on multiple calls to a <code>poll_*</code> method in the recv direction, only the
+<p>Note that on multiple calls to a <code>poll_*</code> method in the <code>recv</code> direction, only the
 <code>Waker</code> from the <code>Context</code> passed to the most recent call will be scheduled to
 receive a wakeup</p>
 <p>On Windows, if the data is larger than the buffer specified, the buffer
 is filled with the first part of the data, and peek returns the error
-WSAEMSGSIZE(10040). The excess data is lost.
+<code>WSAEMSGSIZE(10040)</code>. The excess data is lost.
 Make sure to always use a sufficiently large buffer to hold the
 maximum UDP packet size, which can be up to 65536 bytes in size.</p>
 <p>MacOS will return an error if you pass a zero-sized buffer.</p>
@@ -1017,7 +1017,7 @@ returned. This function is usually paired with <code>readable()</code>.</p>
 <h5 id="notes-8"><a href="#notes-8">Notes</a></h5>
 <p>On Windows, if the data is larger than the buffer specified, the buffer
 is filled with the first part of the data, and peek returns the error
-WSAEMSGSIZE(10040). The excess data is lost.
+<code>WSAEMSGSIZE(10040)</code>. The excess data is lost.
 Make sure to always use a sufficiently large buffer to hold the
 maximum UDP packet size, which can be up to 65536 bytes in size.</p>
 <p>MacOS will return an error if you pass a zero-sized buffer.</p>
@@ -1044,7 +1044,7 @@ scheduling a wakeup if empty.</p>
 <p>This is equivalent to calling <a href="struct.UdpSocket.html#method.poll_peek_from" title="method actix_rt::net::UdpSocket::poll_peek_from"><code>poll_peek_from</code></a> with a zero-sized buffer,
 but suppresses the <code>WSAEMSGSIZE</code> error on Windows and the “invalid argument” error on macOS.</p>
 <h5 id="notes-9"><a href="#notes-9">Notes</a></h5>
-<p>Note that on multiple calls to a <code>poll_*</code> method in the recv direction, only the
+<p>Note that on multiple calls to a <code>poll_*</code> method in the <code>recv</code> direction, only the
 <code>Waker</code> from the <code>Context</code> passed to the most recent call will be scheduled to
 receive a wakeup.</p>
 <p>Note that the socket address <strong>cannot</strong> be implicitly trusted, because it is relatively

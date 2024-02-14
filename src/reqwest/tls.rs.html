@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/reqwest-0.11.23/src/tls.rs`."><title>tls.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="reqwest" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/reqwest-0.11.24/src/tls.rs`."><title>tls.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="reqwest" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -528,25 +528,124 @@
 <a href="#528" id="528">528</a>
 <a href="#529" id="529">529</a>
 <a href="#530" id="530">530</a>
-</pre></div><pre class="rust"><code><span class="doccomment">//! TLS configuration
+<a href="#531" id="531">531</a>
+<a href="#532" id="532">532</a>
+<a href="#533" id="533">533</a>
+<a href="#534" id="534">534</a>
+<a href="#535" id="535">535</a>
+<a href="#536" id="536">536</a>
+<a href="#537" id="537">537</a>
+<a href="#538" id="538">538</a>
+<a href="#539" id="539">539</a>
+<a href="#540" id="540">540</a>
+<a href="#541" id="541">541</a>
+<a href="#542" id="542">542</a>
+<a href="#543" id="543">543</a>
+<a href="#544" id="544">544</a>
+<a href="#545" id="545">545</a>
+<a href="#546" id="546">546</a>
+<a href="#547" id="547">547</a>
+<a href="#548" id="548">548</a>
+<a href="#549" id="549">549</a>
+<a href="#550" id="550">550</a>
+<a href="#551" id="551">551</a>
+<a href="#552" id="552">552</a>
+<a href="#553" id="553">553</a>
+<a href="#554" id="554">554</a>
+<a href="#555" id="555">555</a>
+<a href="#556" id="556">556</a>
+<a href="#557" id="557">557</a>
+<a href="#558" id="558">558</a>
+<a href="#559" id="559">559</a>
+<a href="#560" id="560">560</a>
+<a href="#561" id="561">561</a>
+<a href="#562" id="562">562</a>
+<a href="#563" id="563">563</a>
+<a href="#564" id="564">564</a>
+<a href="#565" id="565">565</a>
+<a href="#566" id="566">566</a>
+<a href="#567" id="567">567</a>
+<a href="#568" id="568">568</a>
+<a href="#569" id="569">569</a>
+<a href="#570" id="570">570</a>
+<a href="#571" id="571">571</a>
+<a href="#572" id="572">572</a>
+<a href="#573" id="573">573</a>
+<a href="#574" id="574">574</a>
+<a href="#575" id="575">575</a>
+<a href="#576" id="576">576</a>
+<a href="#577" id="577">577</a>
+<a href="#578" id="578">578</a>
+<a href="#579" id="579">579</a>
+<a href="#580" id="580">580</a>
+<a href="#581" id="581">581</a>
+<a href="#582" id="582">582</a>
+<a href="#583" id="583">583</a>
+<a href="#584" id="584">584</a>
+<a href="#585" id="585">585</a>
+<a href="#586" id="586">586</a>
+<a href="#587" id="587">587</a>
+<a href="#588" id="588">588</a>
+<a href="#589" id="589">589</a>
+<a href="#590" id="590">590</a>
+<a href="#591" id="591">591</a>
+<a href="#592" id="592">592</a>
+<a href="#593" id="593">593</a>
+</pre></div><pre class="rust"><code><span class="doccomment">//! TLS configuration and types
 //!
-//! By default, a `Client` will make use of system-native transport layer
-//! security to connect to HTTPS destinations. This means schannel on Windows,
-//! Security-Framework on macOS, and OpenSSL on Linux.
+//! A `Client` will use transport layer security (TLS) by default to connect to
+//! HTTPS destinations.
 //!
-//! - Additional X509 certificates can be configured on a `ClientBuilder` with the
-//!   [`Certificate`] type.
-//! - Client certificates can be added to a `ClientBuilder` with the
-//!   [`Identity`] type.
-//! - Various parts of TLS can also be configured or even disabled on the
-//!   `ClientBuilder`.
+//! # Backends
+//!
+//! reqwest supports several TLS backends, enabled with Cargo features.
+//!
+//! ## default-tls
+//!
+//! reqwest will pick a TLS backend by default. This is true when the
+//! `default-tls` feature is enabled.
+//!
+//! While it currently uses `native-tls`, the feature set is designed to only
+//! enable configuration that is shared among available backends. This allows
+//! reqwest to change the default to `rustls` (or another) at some point in the
+//! future.
+//!
+//! &lt;div class=&quot;warning&quot;&gt;This feature is enabled by default, and takes
+//! precedence if any other crate enables it. This is true even if you declare
+//! `features = []`. You must set `no-default-features = false` instead.&lt;/div&gt;
+//!
+//! Since Cargo features are additive, other crates in your dependency tree can
+//! cause the default backend to be enabled. If you wish to ensure your
+//! `Client` uses a specific backend, call the appropriate builder methods
+//! (such as [`use_rustls_tls()`][]).
+//!
+//! [`use_rustls_tls()`]: crate::ClientBuilder::use_rustls_tls()
+//!
+//! ## native-tls
+//!
+//! This backend uses the [native-tls][] crate. That will try to use the system
+//! TLS on Windows and Mac, and OpenSSL on Linux targets.
+//!
+//! Enabling the feature explicitly allows for `native-tls`-specific
+//! configuration options.
+//!
+//! [native-tls]: https://crates.io/crates/native-tls
+//!
+//! ## rustls-tls
+//!
+//! This backend uses the [rustls][] crate, a TLS library written in Rust.
+//!
+//! [rustls]: https://crates.io/crates/rustls
 
 </span><span class="attr">#[cfg(feature = <span class="string">&quot;__rustls&quot;</span>)]
 </span><span class="kw">use </span>rustls::{
     client::HandshakeSignatureValid, client::ServerCertVerified, client::ServerCertVerifier,
     DigitallySignedStruct, Error <span class="kw">as </span>TLSError, ServerName,
 };
-<span class="kw">use </span>std::fmt;
+<span class="kw">use </span>std::{
+    fmt,
+    io::{BufRead, BufReader},
+};
 
 <span class="doccomment">/// Represents a server X509 certificate.
 </span><span class="attr">#[derive(Clone)]
@@ -635,6 +734,32 @@
         })
     }
 
+    <span class="doccomment">/// Create a collection of `Certificate`s from a PEM encoded certificate bundle.
+    /// Example byte sources may be `.crt`, `.cer` or `.pem` files.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use std::fs::File;
+    /// # use std::io::Read;
+    /// # fn cert() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {
+    /// let mut buf = Vec::new();
+    /// File::open(&quot;ca-bundle.crt&quot;)?
+    ///     .read_to_end(&amp;mut buf)?;
+    /// let certs = reqwest::Certificate::from_pem_bundle(&amp;buf)?;
+    /// # drop(certs);
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub fn </span>from_pem_bundle(pem_bundle: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="kw">crate</span>::Result&lt;Vec&lt;Certificate&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>reader = BufReader::new(pem_bundle);
+
+        <span class="self">Self</span>::read_pem_certs(<span class="kw-2">&amp;mut </span>reader)<span class="question-mark">?
+            </span>.iter()
+            .map(|cert_vec| Certificate::from_pem(<span class="kw-2">&amp;</span>cert_vec))
+            .collect::&lt;<span class="kw">crate</span>::Result&lt;Vec&lt;Certificate&gt;&gt;&gt;()
+    }
+
     <span class="attr">#[cfg(feature = <span class="string">&quot;native-tls-crate&quot;</span>)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>add_to_native_tls(<span class="self">self</span>, tls: <span class="kw-2">&amp;mut </span>native_tls_crate::TlsConnectorBuilder) {
         tls.add_root_certificate(<span class="self">self</span>.native);
@@ -652,12 +777,8 @@
                 .add(<span class="kw-2">&amp;</span>rustls::Certificate(buf))
                 .map_err(<span class="kw">crate</span>::error::builder)<span class="question-mark">?</span>,
             Cert::Pem(buf) =&gt; {
-                <span class="kw">let </span><span class="kw-2">mut </span>pem = Cursor::new(buf);
-                <span class="kw">let </span>certs = rustls_pemfile::certs(<span class="kw-2">&amp;mut </span>pem).map_err(|<span class="kw">_</span>| {
-                    <span class="kw">crate</span>::error::builder(TLSError::General(String::from(
-                        <span class="string">&quot;No valid certificate was found&quot;</span>,
-                    )))
-                })<span class="question-mark">?</span>;
+                <span class="kw">let </span><span class="kw-2">mut </span>reader = Cursor::new(buf);
+                <span class="kw">let </span>certs = <span class="self">Self</span>::read_pem_certs(<span class="kw-2">&amp;mut </span>reader)<span class="question-mark">?</span>;
                 <span class="kw">for </span>c <span class="kw">in </span>certs {
                     root_cert_store
                         .add(<span class="kw-2">&amp;</span>rustls::Certificate(c))
@@ -666,6 +787,11 @@
             }
         }
         <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="kw">fn </span>read_pem_certs(reader: <span class="kw-2">&amp;mut </span><span class="kw">impl </span>BufRead) -&gt; <span class="kw">crate</span>::Result&lt;Vec&lt;Vec&lt;u8&gt;&gt;&gt; {
+        rustls_pemfile::certs(reader)
+            .map_err(|<span class="kw">_</span>| <span class="kw">crate</span>::error::builder(<span class="string">&quot;invalid certificate encoding&quot;</span>))
     }
 }
 

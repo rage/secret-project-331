@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-parser-0.37.0/src/converter.rs`."><title>converter.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-parser-0.38.0/src/converter.rs`."><title>converter.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -735,9 +735,6 @@
 <a href="#735" id="735">735</a>
 <a href="#736" id="736">736</a>
 <a href="#737" id="737">737</a>
-<a href="#738" id="738">738</a>
-<a href="#739" id="739">739</a>
-<a href="#740" id="740">740</a>
 </pre></div><pre class="rust"><code><span class="comment">// This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -769,9 +766,9 @@
 
 <span class="attr">#[derive(Default)]
 </span><span class="kw">pub struct </span>Cache {
-    <span class="kw">pub </span>clip_paths: HashMap&lt;String, Rc&lt;ClipPath&gt;&gt;,
-    <span class="kw">pub </span>masks: HashMap&lt;String, Rc&lt;Mask&gt;&gt;,
-    <span class="kw">pub </span>filters: HashMap&lt;String, Rc&lt;usvg_tree::filter::Filter&gt;&gt;,
+    <span class="kw">pub </span>clip_paths: HashMap&lt;String, SharedClipPath&gt;,
+    <span class="kw">pub </span>masks: HashMap&lt;String, SharedMask&gt;,
+    <span class="kw">pub </span>filters: HashMap&lt;String, filter::SharedFilter&gt;,
     <span class="kw">pub </span>paint: HashMap&lt;String, Paint&gt;,
 }
 
@@ -896,7 +893,7 @@
     <span class="kw">let </span><span class="kw-2">mut </span>tree = Tree {
         size,
         view_box,
-        root: Node::new(NodeKind::Group(Group::default())),
+        root: Group::default(),
     };
 
     <span class="kw">if </span>!svg.is_visible_element(opt) {
@@ -915,10 +912,9 @@
     <span class="kw">let </span><span class="kw-2">mut </span>cache = Cache::default();
     convert_children(svg_doc.root(), <span class="kw-2">&amp;</span>state, <span class="kw-2">&amp;mut </span>cache, <span class="kw-2">&amp;mut </span>tree.root);
 
-    remove_empty_groups(<span class="kw-2">&amp;mut </span>tree);
-    tree.calculate_abs_transforms();
-
     <span class="kw">if </span>restore_viewbox {
+        tree.calculate_abs_transforms();
+        tree.calculate_bounding_boxes();
         calculate_svg_bbox(<span class="kw-2">&amp;mut </span>tree);
     }
 
@@ -995,17 +991,7 @@
 </span><span class="kw">fn </span>calculate_svg_bbox(tree: <span class="kw-2">&amp;mut </span>Tree) {
     <span class="kw">let </span><span class="kw-2">mut </span>right = <span class="number">0.0</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>bottom = <span class="number">0.0</span>;
-
-    <span class="kw">for </span>node <span class="kw">in </span>tree.root.descendants() {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(bbox) = node.calculate_bbox() {
-            <span class="kw">if </span>bbox.right() &gt; right {
-                right = bbox.right();
-            }
-            <span class="kw">if </span>bbox.bottom() &gt; bottom {
-                bottom = bbox.bottom();
-            }
-        }
-    }
+    calculate_svg_bbox_impl(<span class="kw-2">&amp;</span>tree.root, <span class="kw-2">&amp;mut </span>right, <span class="kw-2">&amp;mut </span>bottom);
 
     <span class="kw">if let </span><span class="prelude-val">Some</span>(rect) = NonZeroRect::from_xywh(<span class="number">0.0</span>, <span class="number">0.0</span>, right, bottom) {
         tree.view_box.rect = rect;
@@ -1016,12 +1002,29 @@
     }
 }
 
+<span class="kw">fn </span>calculate_svg_bbox_impl(parent: <span class="kw-2">&amp;</span>Group, right: <span class="kw-2">&amp;mut </span>f32, bottom: <span class="kw-2">&amp;mut </span>f32) {
+    <span class="kw">for </span>node <span class="kw">in </span><span class="kw-2">&amp;</span>parent.children {
+        <span class="kw">if let </span>Node::Group(<span class="kw-2">ref </span>group) = node {
+            calculate_svg_bbox_impl(group, right, bottom);
+        }
+
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(bbox) = node.abs_bounding_box() {
+            <span class="kw">if </span>bbox.right() &gt; <span class="kw-2">*</span>right {
+                <span class="kw-2">*</span>right = bbox.right();
+            }
+            <span class="kw">if </span>bbox.bottom() &gt; <span class="kw-2">*</span>bottom {
+                <span class="kw-2">*</span>bottom = bbox.bottom();
+            }
+        }
+    }
+}
+
 <span class="attr">#[inline(never)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>convert_children(
     parent_node: SvgNode,
     state: <span class="kw-2">&amp;</span>State,
     cache: <span class="kw-2">&amp;mut </span>Cache,
-    parent: <span class="kw-2">&amp;mut </span>Node,
+    parent: <span class="kw-2">&amp;mut </span>Group,
 ) {
     <span class="kw">for </span>node <span class="kw">in </span>parent_node.children() {
         convert_element(node, state, cache, parent);
@@ -1029,38 +1032,48 @@
 }
 
 <span class="attr">#[inline(never)]
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>convert_element(
-    node: SvgNode,
-    state: <span class="kw-2">&amp;</span>State,
-    cache: <span class="kw-2">&amp;mut </span>Cache,
-    parent: <span class="kw-2">&amp;mut </span>Node,
-) -&gt; <span class="prelude-ty">Option</span>&lt;Node&gt; {
-    <span class="kw">let </span>tag_name = node.tag_name()<span class="question-mark">?</span>;
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>convert_element(node: SvgNode, state: <span class="kw-2">&amp;</span>State, cache: <span class="kw-2">&amp;mut </span>Cache, parent: <span class="kw-2">&amp;mut </span>Group) {
+    <span class="kw">let </span>tag_name = <span class="kw">match </span>node.tag_name() {
+        <span class="prelude-val">Some</span>(v) =&gt; v,
+        <span class="prelude-val">None </span>=&gt; <span class="kw">return</span>,
+    };
 
     <span class="kw">if </span>!tag_name.is_graphic() &amp;&amp; !<span class="macro">matches!</span>(tag_name, EId::G | EId::Switch | EId::Svg) {
-        <span class="kw">return </span><span class="prelude-val">None</span>;
+        <span class="kw">return</span>;
     }
 
     <span class="kw">if </span>!node.is_visible_element(state.opt) {
-        <span class="kw">return </span><span class="prelude-val">None</span>;
+        <span class="kw">return</span>;
     }
 
     <span class="kw">if </span>tag_name == EId::Use {
         <span class="kw">crate</span>::use_node::convert(node, state, cache, parent);
-        <span class="kw">return </span><span class="prelude-val">None</span>;
+        <span class="kw">return</span>;
     }
 
     <span class="kw">if </span>tag_name == EId::Switch {
         <span class="kw">crate</span>::switch::convert(node, state, cache, parent);
-        <span class="kw">return </span><span class="prelude-val">None</span>;
+        <span class="kw">return</span>;
     }
 
-    <span class="kw">let </span>parent = <span class="kw-2">&amp;mut </span><span class="kw">match </span>convert_group(node, state, <span class="bool-val">false</span>, cache, parent) {
-        GroupKind::Create(g) =&gt; g,
-        GroupKind::Skip =&gt; parent.clone(),
-        GroupKind::Ignore =&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
-    };
+    <span class="kw">match </span>convert_group(node, state, <span class="bool-val">false</span>, cache) {
+        GroupKind::Create(<span class="kw-2">mut </span>g) =&gt; {
+            convert_element_impl(tag_name, node, state, cache, <span class="kw-2">&amp;mut </span>g);
+            parent.children.push(Node::Group(Box::new(g)));
+        }
+        GroupKind::Skip =&gt; convert_element_impl(tag_name, node, state, cache, parent),
+        GroupKind::Ignore =&gt; {}
+    }
+}
 
+<span class="attr">#[inline(never)]
+</span><span class="kw">fn </span>convert_element_impl(
+    tag_name: EId,
+    node: SvgNode,
+    state: <span class="kw-2">&amp;</span>State,
+    cache: <span class="kw-2">&amp;mut </span>Cache,
+    parent: <span class="kw-2">&amp;mut </span>Group,
+) {
     <span class="kw">match </span>tag_name {
         EId::Rect
         | EId::Circle
@@ -1092,8 +1105,6 @@
         }
         <span class="kw">_ </span>=&gt; {}
     }
-
-    <span class="prelude-val">Some</span>(parent.clone())
 }
 
 <span class="comment">// `clipPath` can have only shape and `text` children.
@@ -1105,7 +1116,7 @@
     clip_node: SvgNode,
     state: <span class="kw-2">&amp;</span>State,
     cache: <span class="kw-2">&amp;mut </span>Cache,
-    parent: <span class="kw-2">&amp;mut </span>Node,
+    parent: <span class="kw-2">&amp;mut </span>Group,
 ) {
     <span class="kw">for </span>node <span class="kw">in </span>clip_node.children() {
         <span class="kw">let </span>tag_name = <span class="kw">match </span>node.tag_name() {
@@ -1126,24 +1137,38 @@
             <span class="kw">continue</span>;
         }
 
-        <span class="kw">let </span>parent = <span class="kw-2">&amp;mut </span><span class="kw">match </span>convert_group(node, state, <span class="bool-val">false</span>, cache, parent) {
-            GroupKind::Create(g) =&gt; g,
-            GroupKind::Skip =&gt; parent.clone(),
+        <span class="kw">match </span>convert_group(node, state, <span class="bool-val">false</span>, cache) {
+            GroupKind::Create(<span class="kw-2">mut </span>g) =&gt; {
+                convert_clip_path_elements_impl(tag_name, node, state, cache, <span class="kw-2">&amp;mut </span>g);
+                parent.children.push(Node::Group(Box::new(g)));
+            }
+            GroupKind::Skip =&gt; {
+                convert_clip_path_elements_impl(tag_name, node, state, cache, parent)
+            }
             GroupKind::Ignore =&gt; <span class="kw">continue</span>,
-        };
+        }
+    }
+}
 
-        <span class="kw">match </span>tag_name {
-            EId::Rect | EId::Circle | EId::Ellipse | EId::Polyline | EId::Polygon | EId::Path =&gt; {
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(path) = <span class="kw">crate</span>::shapes::convert(node, state) {
-                    convert_path(node, path, state, cache, parent);
-                }
+<span class="attr">#[inline(never)]
+</span><span class="kw">fn </span>convert_clip_path_elements_impl(
+    tag_name: EId,
+    node: SvgNode,
+    state: <span class="kw-2">&amp;</span>State,
+    cache: <span class="kw-2">&amp;mut </span>Cache,
+    parent: <span class="kw-2">&amp;mut </span>Group,
+) {
+    <span class="kw">match </span>tag_name {
+        EId::Rect | EId::Circle | EId::Ellipse | EId::Polyline | EId::Polygon | EId::Path =&gt; {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(path) = <span class="kw">crate</span>::shapes::convert(node, state) {
+                convert_path(node, path, state, cache, parent);
             }
-            EId::Text =&gt; {
-                <span class="kw">crate</span>::text::convert(node, state, cache, parent);
-            }
-            <span class="kw">_ </span>=&gt; {
-                <span class="macro">log::warn!</span>(<span class="string">&quot;&#39;{}&#39; is no a valid &#39;clip-path&#39; child.&quot;</span>, tag_name);
-            }
+        }
+        EId::Text =&gt; {
+            <span class="kw">crate</span>::text::convert(node, state, cache, parent);
+        }
+        <span class="kw">_ </span>=&gt; {
+            <span class="macro">log::warn!</span>(<span class="string">&quot;&#39;{}&#39; is no a valid &#39;clip-path&#39; child.&quot;</span>, tag_name);
         }
     }
 }
@@ -1173,7 +1198,7 @@
 <span class="attr">#[derive(Debug)]
 </span><span class="kw">pub enum </span>GroupKind {
     <span class="doccomment">/// Creates a new group.
-    </span>Create(Node),
+    </span>Create(Group),
     <span class="doccomment">/// Skips an existing group, but processes its children.
     </span>Skip,
     <span class="doccomment">/// Skips an existing group and all its children.
@@ -1186,7 +1211,6 @@
     state: <span class="kw-2">&amp;</span>State,
     force: bool,
     cache: <span class="kw-2">&amp;mut </span>Cache,
-    parent: <span class="kw-2">&amp;mut </span>Node,
 ) -&gt; GroupKind {
     <span class="comment">// A `clipPath` child cannot have an opacity.
     </span><span class="kw">let </span>opacity = <span class="kw">if </span>state.parent_clip_path.is_none() {
@@ -1279,7 +1303,7 @@
             String::new()
         };
 
-        <span class="kw">let </span>g = parent.append_kind(NodeKind::Group(Group {
+        <span class="kw">let </span>g = Group {
             id,
             transform,
             abs_transform: Transform::identity(),
@@ -1289,7 +1313,11 @@
             clip_path,
             mask,
             filters,
-        }));
+            bounding_box: <span class="prelude-val">None</span>,
+            stroke_bounding_box: <span class="prelude-val">None</span>,
+            layer_bounding_box: <span class="prelude-val">None</span>,
+            children: Vec::new(),
+        };
 
         GroupKind::Create(g)
     } <span class="kw">else </span>{
@@ -1297,50 +1325,12 @@
     }
 }
 
-<span class="kw">fn </span>remove_empty_groups(tree: <span class="kw-2">&amp;mut </span>Tree) {
-    <span class="kw">fn </span>rm(parent: Node) -&gt; bool {
-        <span class="kw">let </span><span class="kw-2">mut </span>changed = <span class="bool-val">false</span>;
-
-        <span class="kw">let </span><span class="kw-2">mut </span>curr_node = parent.first_child();
-        <span class="kw">while let </span><span class="prelude-val">Some</span>(node) = curr_node {
-            curr_node = node.next_sibling();
-
-            <span class="kw">let </span>is_g = <span class="kw">if let </span>NodeKind::Group(<span class="kw-2">ref </span>g) = <span class="kw-2">*</span>node.borrow() {
-                <span class="comment">// Skip empty groups when they do not have a `filter` property.
-                // The `filter` property can be set on empty groups. For example:
-                //
-                // &lt;filter id=&quot;filter1&quot; filterUnits=&quot;userSpaceOnUse&quot;
-                //         x=&quot;20&quot; y=&quot;20&quot; width=&quot;160&quot; height=&quot;160&quot;&gt;
-                //   &lt;feFlood flood-color=&quot;green&quot;/&gt;
-                // &lt;/filter&gt;
-                // &lt;g filter=&quot;url(#filter1)&quot;/&gt;
-                </span>g.filters.is_empty()
-            } <span class="kw">else </span>{
-                <span class="bool-val">false
-            </span>};
-
-            <span class="kw">if </span>is_g &amp;&amp; !node.has_children() {
-                node.detach();
-                changed = <span class="bool-val">true</span>;
-            } <span class="kw">else </span>{
-                <span class="kw">if </span>rm(node) {
-                    changed = <span class="bool-val">true</span>;
-                }
-            }
-        }
-
-        changed
-    }
-
-    <span class="kw">while </span>rm(tree.root.clone()) {}
-}
-
 <span class="kw">fn </span>convert_path(
     node: SvgNode,
     path: Rc&lt;tiny_skia_path::Path&gt;,
     state: <span class="kw-2">&amp;</span>State,
     cache: <span class="kw-2">&amp;mut </span>Cache,
-    parent: <span class="kw-2">&amp;mut </span>Node,
+    parent: <span class="kw-2">&amp;mut </span>Group,
 ) {
     <span class="macro">debug_assert!</span>(path.len() &gt;= <span class="number">2</span>);
     <span class="kw">if </span>path.len() &lt; <span class="number">2 </span>{
@@ -1368,7 +1358,7 @@
 
     <span class="kw">let </span><span class="kw-2">mut </span>markers_node = <span class="prelude-val">None</span>;
     <span class="kw">if </span><span class="kw">crate</span>::marker::is_valid(node) &amp;&amp; visibility == Visibility::Visible {
-        <span class="kw">let </span><span class="kw-2">mut </span>marker = Node::new(NodeKind::Group(Group::default()));
+        <span class="kw">let </span><span class="kw-2">mut </span>marker = Group::default();
         <span class="kw">crate</span>::marker::convert(node, <span class="kw-2">&amp;</span>path, state, cache, <span class="kw-2">&amp;mut </span>marker);
         markers_node = <span class="prelude-val">Some</span>(marker);
     }
@@ -1388,54 +1378,58 @@
         paint_order,
         rendering_mode,
         data: path,
-    };
-
-    <span class="kw">let </span>append_marker = || {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(markers_node) = markers_node {
-            parent.append(markers_node);
-        }
-    };
-
-    <span class="kw">let </span>append_path = || {
-        parent.append(Node::new(NodeKind::Path(path.clone())));
+        abs_transform: Transform::default(),
+        bounding_box: <span class="prelude-val">None</span>,
+        stroke_bounding_box: <span class="prelude-val">None</span>,
     };
 
     <span class="kw">match </span>raw_paint_order.order {
         [PaintOrderKind::Markers, <span class="kw">_</span>, <span class="kw">_</span>] =&gt; {
-            append_marker();
-            append_path();
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(markers_node) = markers_node {
+                parent.children.push(Node::Group(Box::new(markers_node)));
+            }
+
+            parent.children.push(Node::Path(Box::new(path.clone())));
         }
         [first, PaintOrderKind::Markers, last] =&gt; {
-            <span class="kw">let </span>append_single_paint_path = |paint_order_kind: PaintOrderKind| <span class="kw">match </span>paint_order_kind
-            {
-                PaintOrderKind::Fill =&gt; {
-                    <span class="kw">if </span>path.fill.is_some() {
-                        <span class="kw">let </span><span class="kw-2">mut </span>fill_path = path.clone();
-                        fill_path.stroke = <span class="prelude-val">None</span>;
-                        fill_path.id = String::new();
-                        parent.append(Node::new(NodeKind::Path(fill_path)));
-                    }
-                }
-                PaintOrderKind::Stroke =&gt; {
-                    <span class="kw">if </span>path.stroke.is_some() {
-                        <span class="kw">let </span><span class="kw-2">mut </span>stroke_path = path.clone();
-                        stroke_path.fill = <span class="prelude-val">None</span>;
-                        stroke_path.id = String::new();
-                        parent.append(Node::new(NodeKind::Path(stroke_path)));
-                    }
-                }
-                <span class="kw">_ </span>=&gt; {}
-            };
+            append_single_paint_path(first, <span class="kw-2">&amp;</span>path, parent);
 
-            append_single_paint_path(first);
-            append_marker();
-            append_single_paint_path(last)
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(markers_node) = markers_node {
+                parent.children.push(Node::Group(Box::new(markers_node)));
+            }
+
+            append_single_paint_path(last, <span class="kw-2">&amp;</span>path, parent);
         }
         [<span class="kw">_</span>, <span class="kw">_</span>, PaintOrderKind::Markers] =&gt; {
-            append_path();
-            append_marker();
+            parent.children.push(Node::Path(Box::new(path.clone())));
+
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(markers_node) = markers_node {
+                parent.children.push(Node::Group(Box::new(markers_node)));
+            }
         }
-        <span class="kw">_ </span>=&gt; append_path(),
+        <span class="kw">_ </span>=&gt; parent.children.push(Node::Path(Box::new(path.clone()))),
+    }
+}
+
+<span class="kw">fn </span>append_single_paint_path(paint_order_kind: PaintOrderKind, path: <span class="kw-2">&amp;</span>Path, parent: <span class="kw-2">&amp;mut </span>Group) {
+    <span class="kw">match </span>paint_order_kind {
+        PaintOrderKind::Fill =&gt; {
+            <span class="kw">if </span>path.fill.is_some() {
+                <span class="kw">let </span><span class="kw-2">mut </span>fill_path = path.clone();
+                fill_path.stroke = <span class="prelude-val">None</span>;
+                fill_path.id = String::new();
+                parent.children.push(Node::Path(Box::new(fill_path)));
+            }
+        }
+        PaintOrderKind::Stroke =&gt; {
+            <span class="kw">if </span>path.stroke.is_some() {
+                <span class="kw">let </span><span class="kw-2">mut </span>stroke_path = path.clone();
+                stroke_path.fill = <span class="prelude-val">None</span>;
+                stroke_path.id = String::new();
+                parent.children.push(Node::Path(Box::new(stroke_path)));
+            }
+        }
+        <span class="kw">_ </span>=&gt; {}
     }
 }
 

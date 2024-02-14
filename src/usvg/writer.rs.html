@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-0.37.0/src/writer.rs`."><title>writer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-0.38.0/src/writer.rs`."><title>writer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1762,6 +1762,49 @@
 <a href="#1762" id="1762">1762</a>
 <a href="#1763" id="1763">1763</a>
 <a href="#1764" id="1764">1764</a>
+<a href="#1765" id="1765">1765</a>
+<a href="#1766" id="1766">1766</a>
+<a href="#1767" id="1767">1767</a>
+<a href="#1768" id="1768">1768</a>
+<a href="#1769" id="1769">1769</a>
+<a href="#1770" id="1770">1770</a>
+<a href="#1771" id="1771">1771</a>
+<a href="#1772" id="1772">1772</a>
+<a href="#1773" id="1773">1773</a>
+<a href="#1774" id="1774">1774</a>
+<a href="#1775" id="1775">1775</a>
+<a href="#1776" id="1776">1776</a>
+<a href="#1777" id="1777">1777</a>
+<a href="#1778" id="1778">1778</a>
+<a href="#1779" id="1779">1779</a>
+<a href="#1780" id="1780">1780</a>
+<a href="#1781" id="1781">1781</a>
+<a href="#1782" id="1782">1782</a>
+<a href="#1783" id="1783">1783</a>
+<a href="#1784" id="1784">1784</a>
+<a href="#1785" id="1785">1785</a>
+<a href="#1786" id="1786">1786</a>
+<a href="#1787" id="1787">1787</a>
+<a href="#1788" id="1788">1788</a>
+<a href="#1789" id="1789">1789</a>
+<a href="#1790" id="1790">1790</a>
+<a href="#1791" id="1791">1791</a>
+<a href="#1792" id="1792">1792</a>
+<a href="#1793" id="1793">1793</a>
+<a href="#1794" id="1794">1794</a>
+<a href="#1795" id="1795">1795</a>
+<a href="#1796" id="1796">1796</a>
+<a href="#1797" id="1797">1797</a>
+<a href="#1798" id="1798">1798</a>
+<a href="#1799" id="1799">1799</a>
+<a href="#1800" id="1800">1800</a>
+<a href="#1801" id="1801">1801</a>
+<a href="#1802" id="1802">1802</a>
+<a href="#1803" id="1803">1803</a>
+<a href="#1804" id="1804">1804</a>
+<a href="#1805" id="1805">1805</a>
+<a href="#1806" id="1806">1806</a>
+<a href="#1807" id="1807">1807</a>
 </pre></div><pre class="rust"><code><span class="comment">// This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -1771,10 +1814,11 @@
 <span class="kw">use </span>std::io::Write;
 <span class="kw">use </span>std::rc::Rc;
 
-<span class="kw">use </span><span class="kw">crate</span>::TreeWriting;
 <span class="kw">use </span>usvg_parser::{AId, EId};
 <span class="kw">use </span>usvg_tree::<span class="kw-2">*</span>;
 <span class="kw">use </span>xmlwriter::XmlWriter;
+
+<span class="kw">use </span><span class="kw">crate</span>::TreeWriting;
 
 <span class="doccomment">/// Checks that type has a default value.
 </span><span class="kw">trait </span>IsDefault: Default {
@@ -1902,11 +1946,8 @@
         id
     }
 
-    <span class="kw">fn </span>push_defs_id&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, node: <span class="kw-2">&amp;</span>Rc&lt;T&gt;, id: String) {
-        <span class="kw">let </span>key = Rc::as_ptr(node) <span class="kw">as </span>usize;
-        <span class="kw">if </span>!<span class="self">self</span>.id_map.contains_key(<span class="kw-2">&amp;</span>key) {
-            <span class="self">self</span>.id_map.insert(key, id);
-        }
+    <span class="kw">fn </span>push_defs_id(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: usize, id: String) {
+        <span class="self">self</span>.id_map.entry(key).or_insert(id);
     }
 
     <span class="kw">fn </span>get_defs_id&lt;T&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, node: <span class="kw-2">&amp;</span>Rc&lt;T&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
@@ -1915,9 +1956,9 @@
         <span class="self">self</span>.id_map.get(<span class="kw-2">&amp;</span>key).map(|v| v.as_str())
     }
 
-    <span class="kw">fn </span>prepare_defs_id&lt;T, F: Fn(<span class="kw-2">&amp;mut </span>WriterContext) -&gt; String&gt;(
+    <span class="kw">fn </span>prepare_defs_id&lt;F: Fn(<span class="kw-2">&amp;mut </span>WriterContext) -&gt; String&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        node: <span class="kw-2">&amp;</span>Rc&lt;T&gt;,
+        ptr: usize,
         id: <span class="kw-2">&amp;</span>str,
         xml: <span class="kw-2">&amp;mut </span>XmlWriter,
         f: F,
@@ -1926,10 +1967,10 @@
         </span><span class="kw">if </span>id.is_empty() {
             <span class="kw">let </span>id = f(<span class="self">self</span>);
             xml.write_id_attribute(<span class="kw-2">&amp;</span>id, <span class="self">self</span>);
-            <span class="self">self</span>.push_defs_id(node, id);
+            <span class="self">self</span>.push_defs_id(ptr, id);
         } <span class="kw">else </span>{
             xml.write_id_attribute(id, <span class="self">self</span>);
-            <span class="self">self</span>.push_defs_id(node, id.to_string());
+            <span class="self">self</span>.push_defs_id(ptr, id.to_string());
         }
     }
 }
@@ -1983,38 +2024,38 @@
         Paint::Color(<span class="kw">_</span>) =&gt; {}
         Paint::LinearGradient(<span class="kw-2">ref </span>gradient) =&gt; ctx.push_id(<span class="kw-2">&amp;</span>gradient.id),
         Paint::RadialGradient(<span class="kw-2">ref </span>gradient) =&gt; ctx.push_id(<span class="kw-2">&amp;</span>gradient.id),
-        Paint::Pattern(<span class="kw-2">ref </span>pattern) =&gt; ctx.push_id(<span class="kw-2">&amp;</span>pattern.id),
+        Paint::Pattern(<span class="kw-2">ref </span>pattern) =&gt; ctx.push_id(<span class="kw-2">&amp;</span>pattern.borrow().id),
     });
 
     tree.clip_paths(|clip_path| {
-        ctx.push_id(<span class="kw-2">&amp;</span>clip_path.id);
+        ctx.push_id(<span class="kw-2">&amp;</span>clip_path.borrow().id);
     });
 
     tree.masks(|mask| {
-        ctx.push_id(<span class="kw-2">&amp;</span>mask.id);
+        ctx.push_id(<span class="kw-2">&amp;</span>mask.borrow().id);
     });
 
     tree.filters(|filter| {
-        ctx.push_id(<span class="kw-2">&amp;</span>filter.id);
+        ctx.push_id(<span class="kw-2">&amp;</span>filter.borrow().id);
     });
 
     collect_node_ids(<span class="kw-2">&amp;</span>tree.root, ctx);
 }
 
-<span class="kw">fn </span>collect_node_ids(parent: <span class="kw-2">&amp;</span>Node, ctx: <span class="kw-2">&amp;mut </span>WriterContext) {
-    <span class="kw">for </span>node <span class="kw">in </span>parent.children() {
-        <span class="kw">match </span><span class="kw-2">*</span>node.borrow() {
-            NodeKind::Path(<span class="kw-2">ref </span>path) =&gt; {
+<span class="kw">fn </span>collect_node_ids(parent: <span class="kw-2">&amp;</span>Group, ctx: <span class="kw-2">&amp;mut </span>WriterContext) {
+    <span class="kw">for </span>node <span class="kw">in </span><span class="kw-2">&amp;</span>parent.children {
+        <span class="kw">match </span>node {
+            Node::Path(<span class="kw-2">ref </span>path) =&gt; {
                 ctx.push_id(<span class="kw-2">&amp;</span>path.id);
             }
-            NodeKind::Image(<span class="kw-2">ref </span>image) =&gt; {
+            Node::Image(<span class="kw-2">ref </span>image) =&gt; {
                 ctx.push_id(<span class="kw-2">&amp;</span>image.id);
             }
-            NodeKind::Group(<span class="kw-2">ref </span>group) =&gt; {
+            Node::Group(<span class="kw-2">ref </span>group) =&gt; {
                 ctx.push_id(<span class="kw-2">&amp;</span>group.id);
-                collect_node_ids(<span class="kw-2">&amp;</span>node, ctx);
+                collect_node_ids(group, ctx);
             }
-            NodeKind::Text(<span class="kw-2">ref </span>text) =&gt; {
+            Node::Text(<span class="kw-2">ref </span>text) =&gt; {
                 ctx.push_id(<span class="kw-2">&amp;</span>text.id);
             }
         }
@@ -2031,19 +2072,24 @@
 
     <span class="kw">let </span><span class="kw-2">mut </span>written_fe_image_nodes: Vec&lt;String&gt; = Vec::new();
     <span class="kw">for </span>filter <span class="kw">in </span>filters {
+        <span class="kw">let </span>filter_ptr = Rc::as_ptr(<span class="kw-2">&amp;</span>filter) <span class="kw">as </span>usize;
+
+        <span class="kw">let </span>filter = filter.borrow();
         <span class="kw">for </span>fe <span class="kw">in </span><span class="kw-2">&amp;</span>filter.primitives {
             <span class="kw">if let </span>filter::Kind::Image(<span class="kw-2">ref </span>img) = fe.kind {
                 <span class="kw">if let </span>filter::ImageKind::Use(<span class="kw-2">ref </span>node) = img.data {
-                    <span class="kw">if </span>!written_fe_image_nodes.iter().any(|id| id == <span class="kw-2">&amp;*</span>node.id()) {
-                        write_element(node, <span class="bool-val">false</span>, ctx, xml);
-                        written_fe_image_nodes.push(node.id().to_string());
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(child) = node.children.first() {
+                        <span class="kw">if </span>!written_fe_image_nodes.iter().any(|id| id == child.id()) {
+                            write_element(child, <span class="bool-val">false</span>, ctx, xml);
+                            written_fe_image_nodes.push(child.id().to_string());
+                        }
                     }
                 }
             }
         }
 
         xml.start_svg_element(EId::Filter);
-        ctx.prepare_defs_id(<span class="kw-2">&amp;</span>filter, <span class="kw-2">&amp;</span>filter.id, xml, |ctx| ctx.gen_filter_id());
+        ctx.prepare_defs_id(filter_ptr, <span class="kw-2">&amp;</span>filter.id, xml, |ctx| ctx.gen_filter_id());
         xml.write_rect_attrs(filter.rect);
         xml.write_units(AId::FilterUnits, filter.units, Units::ObjectBoundingBox);
         xml.write_units(
@@ -2190,11 +2236,13 @@
                             xml.write_image_data(kind);
                         }
                         filter::ImageKind::Use(<span class="kw-2">ref </span>node) =&gt; {
-                            <span class="kw">let </span>prefix = ctx.opt.id_prefix.as_deref().unwrap_or_default();
-                            xml.write_attribute_fmt(
-                                <span class="string">&quot;xlink:href&quot;</span>,
-                                <span class="macro">format_args!</span>(<span class="string">&quot;#{}{}&quot;</span>, prefix, node.id()),
-                            );
+                            <span class="kw">if let </span><span class="prelude-val">Some</span>(child) = node.children.first() {
+                                <span class="kw">let </span>prefix = ctx.opt.id_prefix.as_deref().unwrap_or_default();
+                                xml.write_attribute_fmt(
+                                    <span class="string">&quot;xlink:href&quot;</span>,
+                                    <span class="macro">format_args!</span>(<span class="string">&quot;#{}{}&quot;</span>, prefix, child.id()),
+                                );
+                            }
                         }
                     }
 
@@ -2402,7 +2450,8 @@
             Paint::Color(<span class="kw">_</span>) =&gt; {}
             Paint::LinearGradient(lg) =&gt; {
                 xml.start_svg_element(EId::LinearGradient);
-                ctx.prepare_defs_id(<span class="kw-2">&amp;</span>lg, <span class="kw-2">&amp;</span>lg.id, xml, |ctx| ctx.gen_linear_gradient_id());
+                <span class="kw">let </span>lg_ptr = Rc::as_ptr(lg) <span class="kw">as </span>usize;
+                ctx.prepare_defs_id(lg_ptr, <span class="kw-2">&amp;</span>lg.id, xml, |ctx| ctx.gen_linear_gradient_id());
                 xml.write_svg_attribute(AId::X1, <span class="kw-2">&amp;</span>lg.x1);
                 xml.write_svg_attribute(AId::Y1, <span class="kw-2">&amp;</span>lg.y1);
                 xml.write_svg_attribute(AId::X2, <span class="kw-2">&amp;</span>lg.x2);
@@ -2412,7 +2461,8 @@
             }
             Paint::RadialGradient(rg) =&gt; {
                 xml.start_svg_element(EId::RadialGradient);
-                ctx.prepare_defs_id(<span class="kw-2">&amp;</span>rg, <span class="kw-2">&amp;</span>rg.id, xml, |ctx| ctx.gen_radial_gradient_id());
+                <span class="kw">let </span>rg_ptr = Rc::as_ptr(rg) <span class="kw">as </span>usize;
+                ctx.prepare_defs_id(rg_ptr, <span class="kw-2">&amp;</span>rg.id, xml, |ctx| ctx.gen_radial_gradient_id());
                 xml.write_svg_attribute(AId::Cx, <span class="kw-2">&amp;</span>rg.cx);
                 xml.write_svg_attribute(AId::Cy, <span class="kw-2">&amp;</span>rg.cy);
                 xml.write_svg_attribute(AId::R, <span class="kw-2">&amp;</span>rg.r.get());
@@ -2433,8 +2483,10 @@
 
     </span><span class="kw">for </span>paint <span class="kw">in </span>paint_servers {
         <span class="kw">if let </span>Paint::Pattern(pattern) = paint {
+            <span class="kw">let </span>pattern_ptr = Rc::as_ptr(<span class="kw-2">&amp;</span>pattern) <span class="kw">as </span>usize;
+            <span class="kw">let </span>pattern = pattern.borrow();
             xml.start_svg_element(EId::Pattern);
-            ctx.prepare_defs_id(<span class="kw-2">&amp;</span>pattern, <span class="kw-2">&amp;</span>pattern.id, xml, |ctx| ctx.gen_pattern_id());
+            ctx.prepare_defs_id(pattern_ptr, <span class="kw-2">&amp;</span>pattern.id, xml, |ctx| ctx.gen_pattern_id());
             xml.write_rect_attrs(pattern.rect);
             xml.write_units(AId::PatternUnits, pattern.units, Units::ObjectBoundingBox);
             xml.write_units(
@@ -2463,15 +2515,17 @@
         }
     });
     <span class="kw">for </span>clip <span class="kw">in </span>clip_paths {
+        <span class="kw">let </span>clip_ptr = Rc::as_ptr(<span class="kw-2">&amp;</span>clip) <span class="kw">as </span>usize;
+        <span class="kw">let </span>clip = clip.borrow();
         xml.start_svg_element(EId::ClipPath);
-        ctx.prepare_defs_id(<span class="kw-2">&amp;</span>clip, <span class="kw-2">&amp;</span>clip.id, xml, |ctx| ctx.gen_clip_path_id());
+        ctx.prepare_defs_id(clip_ptr, <span class="kw-2">&amp;</span>clip.id, xml, |ctx| ctx.gen_clip_path_id());
         xml.write_units(AId::ClipPathUnits, clip.units, Units::UserSpaceOnUse);
         xml.write_transform(AId::Transform, clip.transform, ctx);
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>clip) = clip.clip_path {
             <span class="comment">// TODO: usvg-parser guarantees that this id is never empty,
             //       but a manually created `Tree` is not. Figure out what to do.
-            </span>xml.write_func_iri(AId::ClipPath, <span class="kw-2">&amp;</span>clip.id, ctx);
+            </span>xml.write_func_iri(AId::ClipPath, <span class="kw-2">&amp;</span>clip.borrow().id, ctx);
         }
 
         write_elements(<span class="kw-2">&amp;</span>clip.root, <span class="bool-val">true</span>, ctx, xml);
@@ -2486,8 +2540,10 @@
         }
     });
     <span class="kw">for </span>mask <span class="kw">in </span>masks {
+        <span class="kw">let </span>mask_ptr = Rc::as_ptr(<span class="kw-2">&amp;</span>mask) <span class="kw">as </span>usize;
+        <span class="kw">let </span>mask = mask.borrow();
         xml.start_svg_element(EId::Mask);
-        ctx.prepare_defs_id(<span class="kw-2">&amp;</span>mask, <span class="kw-2">&amp;</span>mask.id, xml, |ctx| ctx.gen_mask_id());
+        ctx.prepare_defs_id(mask_ptr, <span class="kw-2">&amp;</span>mask.id, xml, |ctx| ctx.gen_mask_id());
         <span class="kw">if </span>mask.kind == MaskType::Alpha {
             xml.write_svg_attribute(AId::MaskType, <span class="string">&quot;alpha&quot;</span>);
         }
@@ -2502,7 +2558,7 @@
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>mask) = mask.mask {
             <span class="comment">// TODO: usvg-parser guarantees that this id is never empty,
             //       but a manually created `Tree` is not. Figure out what to do.
-            </span>xml.write_func_iri(AId::Mask, <span class="kw-2">&amp;</span>mask.id, ctx);
+            </span>xml.write_func_iri(AId::Mask, <span class="kw-2">&amp;</span>mask.borrow().id, ctx);
         }
 
         write_elements(<span class="kw-2">&amp;</span>mask.root, <span class="bool-val">false</span>, ctx, xml);
@@ -2511,9 +2567,11 @@
     }
 }
 
-<span class="kw">fn </span>write_text_path_paths(node: <span class="kw-2">&amp;</span>Node, ctx: <span class="kw-2">&amp;mut </span>WriterContext, xml: <span class="kw-2">&amp;mut </span>XmlWriter) {
-    <span class="kw">for </span>node <span class="kw">in </span>node.descendants() {
-        <span class="kw">if let </span>NodeKind::Text(<span class="kw-2">ref </span>text) = <span class="kw-2">*</span>node.borrow() {
+<span class="kw">fn </span>write_text_path_paths(parent: <span class="kw-2">&amp;</span>Group, ctx: <span class="kw-2">&amp;mut </span>WriterContext, xml: <span class="kw-2">&amp;mut </span>XmlWriter) {
+    <span class="kw">for </span>node <span class="kw">in </span><span class="kw-2">&amp;</span>parent.children {
+        <span class="kw">if let </span>Node::Group(<span class="kw-2">ref </span>group) = node {
+            write_text_path_paths(group, ctx, xml);
+        } <span class="kw">else if let </span>Node::Text(<span class="kw-2">ref </span>text) = node {
             <span class="kw">for </span>chunk <span class="kw">in </span><span class="kw-2">&amp;</span>text.chunks {
                 <span class="kw">if let </span>TextFlow::Path(<span class="kw-2">ref </span>text_path) = chunk.text_flow {
                     <span class="kw">let </span>path = Path {
@@ -2524,6 +2582,9 @@
                         stroke: <span class="prelude-val">None</span>,
                         rendering_mode: ShapeRendering::default(),
                         paint_order: PaintOrder::default(),
+                        abs_transform: Transform::default(),
+                        bounding_box: <span class="prelude-val">None</span>,
+                        stroke_bounding_box: <span class="prelude-val">None</span>,
                     };
                     write_path(<span class="kw-2">&amp;</span>path, <span class="bool-val">false</span>, Transform::default(), <span class="prelude-val">None</span>, ctx, xml);
                     ctx.text_path_map
@@ -2532,22 +2593,27 @@
             }
         }
 
-        node.subroots(|subroot| write_text_path_paths(<span class="kw-2">&amp;</span>subroot, ctx, xml));
+        node.subroots(|subroot| write_text_path_paths(subroot, ctx, xml));
     }
 }
 
-<span class="kw">fn </span>write_elements(parent: <span class="kw-2">&amp;</span>Node, is_clip_path: bool, ctx: <span class="kw-2">&amp;mut </span>WriterContext, xml: <span class="kw-2">&amp;mut </span>XmlWriter) {
-    <span class="kw">for </span>n <span class="kw">in </span>parent.children() {
-        write_element(<span class="kw-2">&amp;</span>n, is_clip_path, ctx, xml);
+<span class="kw">fn </span>write_elements(
+    parent: <span class="kw-2">&amp;</span>Group,
+    is_clip_path: bool,
+    ctx: <span class="kw-2">&amp;mut </span>WriterContext,
+    xml: <span class="kw-2">&amp;mut </span>XmlWriter,
+) {
+    <span class="kw">for </span>n <span class="kw">in </span><span class="kw-2">&amp;</span>parent.children {
+        write_element(n, is_clip_path, ctx, xml);
     }
 }
 
 <span class="kw">fn </span>write_element(node: <span class="kw-2">&amp;</span>Node, is_clip_path: bool, ctx: <span class="kw-2">&amp;mut </span>WriterContext, xml: <span class="kw-2">&amp;mut </span>XmlWriter) {
-    <span class="kw">match </span><span class="kw-2">*</span>node.borrow() {
-        NodeKind::Path(<span class="kw-2">ref </span>p) =&gt; {
+    <span class="kw">match </span>node {
+        Node::Path(<span class="kw-2">ref </span>p) =&gt; {
             write_path(p, is_clip_path, Transform::default(), <span class="prelude-val">None</span>, ctx, xml);
         }
-        NodeKind::Image(<span class="kw-2">ref </span>img) =&gt; {
+        Node::Image(<span class="kw-2">ref </span>img) =&gt; {
             xml.start_svg_element(EId::Image);
             <span class="kw">if </span>!img.id.is_empty() {
                 xml.write_id_attribute(<span class="kw-2">&amp;</span>img.id, ctx);
@@ -2571,109 +2637,12 @@
 
             xml.end_element();
         }
-        NodeKind::Group(<span class="kw-2">ref </span>g) =&gt; {
-            <span class="kw">if </span>is_clip_path {
-                <span class="comment">// The `clipPath` element in SVG doesn&#39;t allow groups, only shapes and text.
-                // The problem is that in `usvg` we can set a `clip-path` only on groups.
-                // So in cases when a `clipPath` child has a `clip-path` as well,
-                // it would be inside a group. And we have to skip this group during writing.
-                //
-                // Basically, the following SVG:
-                //
-                // &lt;clipPath id=&quot;clip&quot;&gt;
-                //   &lt;path clip-path=&quot;url(#clip-nested)&quot;/&gt;
-                // &lt;/clipPath&gt;
-                //
-                // will be represented in usvg as:
-                //
-                // &lt;clipPath id=&quot;clip&quot;&gt;
-                //   &lt;g clip-path=&quot;url(#clip-nested)&quot;&gt;
-                //      &lt;path/&gt;
-                //   &lt;/g&gt;
-                // &lt;/clipPath&gt;
-                //
-                //
-                // Same with text. Text elements will be converted into groups,
-                // but only the group&#39;s children should be written.
-                </span><span class="kw">for </span>child <span class="kw">in </span>node.children() {
-                    <span class="kw">if let </span>NodeKind::Path(<span class="kw-2">ref </span>path) = <span class="kw-2">*</span>child.borrow() {
-                        <span class="kw">let </span>clip_id = g.clip_path.as_ref().map(|cp| cp.id.as_str());
-                        write_path(path, is_clip_path, g.transform, clip_id, ctx, xml);
-                    }
-                }
-                <span class="kw">return</span>;
-            }
-
-            xml.start_svg_element(EId::G);
-            <span class="kw">if </span>!g.id.is_empty() {
-                xml.write_id_attribute(<span class="kw-2">&amp;</span>g.id, ctx);
-            };
-
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>clip) = g.clip_path {
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(id) = ctx.get_defs_id(clip) {
-                    xml.write_func_iri(AId::ClipPath, id, ctx);
-                }
-            }
-
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>mask) = g.mask {
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(id) = ctx.get_defs_id(mask) {
-                    xml.write_func_iri(AId::Mask, id, ctx);
-                }
-            }
-
-            <span class="kw">if </span>!g.filters.is_empty() {
-                <span class="kw">let </span>prefix = ctx.opt.id_prefix.as_deref().unwrap_or_default();
-                <span class="kw">let </span>ids: Vec&lt;<span class="kw">_</span>&gt; = g
-                    .filters
-                    .iter()
-                    .filter_map(|filter| ctx.get_defs_id(filter))
-                    .map(|id| <span class="macro">format!</span>(<span class="string">&quot;url(#{}{})&quot;</span>, prefix, id))
-                    .collect();
-                xml.write_svg_attribute(AId::Filter, <span class="kw-2">&amp;</span>ids.join(<span class="string">&quot; &quot;</span>));
-            }
-
-            <span class="kw">if </span>g.opacity != Opacity::ONE {
-                xml.write_svg_attribute(AId::Opacity, <span class="kw-2">&amp;</span>g.opacity.get());
-            }
-
-            xml.write_transform(AId::Transform, g.transform, ctx);
-
-            <span class="kw">if </span>g.blend_mode != BlendMode::Normal || g.isolate {
-                <span class="kw">let </span>blend_mode = <span class="kw">match </span>g.blend_mode {
-                    BlendMode::Normal =&gt; <span class="string">&quot;normal&quot;</span>,
-                    BlendMode::Multiply =&gt; <span class="string">&quot;multiply&quot;</span>,
-                    BlendMode::Screen =&gt; <span class="string">&quot;screen&quot;</span>,
-                    BlendMode::Overlay =&gt; <span class="string">&quot;overlay&quot;</span>,
-                    BlendMode::Darken =&gt; <span class="string">&quot;darken&quot;</span>,
-                    BlendMode::Lighten =&gt; <span class="string">&quot;lighten&quot;</span>,
-                    BlendMode::ColorDodge =&gt; <span class="string">&quot;color-dodge&quot;</span>,
-                    BlendMode::ColorBurn =&gt; <span class="string">&quot;color-burn&quot;</span>,
-                    BlendMode::HardLight =&gt; <span class="string">&quot;hard-light&quot;</span>,
-                    BlendMode::SoftLight =&gt; <span class="string">&quot;soft-light&quot;</span>,
-                    BlendMode::Difference =&gt; <span class="string">&quot;difference&quot;</span>,
-                    BlendMode::Exclusion =&gt; <span class="string">&quot;exclusion&quot;</span>,
-                    BlendMode::Hue =&gt; <span class="string">&quot;hue&quot;</span>,
-                    BlendMode::Saturation =&gt; <span class="string">&quot;saturation&quot;</span>,
-                    BlendMode::Color =&gt; <span class="string">&quot;color&quot;</span>,
-                    BlendMode::Luminosity =&gt; <span class="string">&quot;luminosity&quot;</span>,
-                };
-
-                <span class="comment">// For reasons unknown, `mix-blend-mode` and `isolation` must be written
-                // as `style` attribute.
-                </span><span class="kw">let </span>isolation = <span class="kw">if </span>g.isolate { <span class="string">&quot;isolate&quot; </span>} <span class="kw">else </span>{ <span class="string">&quot;auto&quot; </span>};
-                xml.write_attribute_fmt(
-                    AId::Style.to_str(),
-                    <span class="macro">format_args!</span>(<span class="string">&quot;mix-blend-mode:{};isolation:{}&quot;</span>, blend_mode, isolation),
-                );
-            }
-
-            write_elements(node, <span class="bool-val">false</span>, ctx, xml);
-
-            xml.end_element();
+        Node::Group(<span class="kw-2">ref </span>g) =&gt; {
+            write_group_element(g, is_clip_path, ctx, xml);
         }
-        NodeKind::Text(<span class="kw-2">ref </span>text) =&gt; {
+        Node::Text(<span class="kw-2">ref </span>text) =&gt; {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>flattened) = text.flattened {
-                write_element(flattened, is_clip_path, ctx, xml);
+                write_group_element(flattened, is_clip_path, ctx, xml);
             } <span class="kw">else </span>{
                 xml.start_svg_element(EId::Text);
 
@@ -2787,6 +2756,119 @@
             }
         }
     }
+}
+
+<span class="kw">fn </span>write_group_element(
+    g: <span class="kw-2">&amp;</span>Group,
+    is_clip_path: bool,
+    ctx: <span class="kw-2">&amp;mut </span>WriterContext,
+    xml: <span class="kw-2">&amp;mut </span>XmlWriter,
+) {
+    <span class="kw">if </span>is_clip_path {
+        <span class="comment">// The `clipPath` element in SVG doesn&#39;t allow groups, only shapes and text.
+        // The problem is that in `usvg` we can set a `clip-path` only on groups.
+        // So in cases when a `clipPath` child has a `clip-path` as well,
+        // it would be inside a group. And we have to skip this group during writing.
+        //
+        // Basically, the following SVG:
+        //
+        // &lt;clipPath id=&quot;clip&quot;&gt;
+        //   &lt;path clip-path=&quot;url(#clip-nested)&quot;/&gt;
+        // &lt;/clipPath&gt;
+        //
+        // will be represented in usvg as:
+        //
+        // &lt;clipPath id=&quot;clip&quot;&gt;
+        //   &lt;g clip-path=&quot;url(#clip-nested)&quot;&gt;
+        //      &lt;path/&gt;
+        //   &lt;/g&gt;
+        // &lt;/clipPath&gt;
+        //
+        //
+        // Same with text. Text elements will be converted into groups,
+        // but only the group&#39;s children should be written.
+        </span><span class="kw">for </span>child <span class="kw">in </span><span class="kw-2">&amp;</span>g.children {
+            <span class="kw">if let </span>Node::Path(<span class="kw-2">ref </span>path) = child {
+                <span class="kw">let </span>clip_id = g.clip_path.as_ref().map(|cp| cp.borrow().id.to_string());
+                write_path(
+                    path,
+                    is_clip_path,
+                    g.transform,
+                    clip_id.as_deref(),
+                    ctx,
+                    xml,
+                );
+            }
+        }
+        <span class="kw">return</span>;
+    }
+
+    xml.start_svg_element(EId::G);
+    <span class="kw">if </span>!g.id.is_empty() {
+        xml.write_id_attribute(<span class="kw-2">&amp;</span>g.id, ctx);
+    };
+
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>clip) = g.clip_path {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(id) = ctx.get_defs_id(clip) {
+            xml.write_func_iri(AId::ClipPath, id, ctx);
+        }
+    }
+
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>mask) = g.mask {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(id) = ctx.get_defs_id(mask) {
+            xml.write_func_iri(AId::Mask, id, ctx);
+        }
+    }
+
+    <span class="kw">if </span>!g.filters.is_empty() {
+        <span class="kw">let </span>prefix = ctx.opt.id_prefix.as_deref().unwrap_or_default();
+        <span class="kw">let </span>ids: Vec&lt;<span class="kw">_</span>&gt; = g
+            .filters
+            .iter()
+            .filter_map(|filter| ctx.get_defs_id(filter))
+            .map(|id| <span class="macro">format!</span>(<span class="string">&quot;url(#{}{})&quot;</span>, prefix, id))
+            .collect();
+        xml.write_svg_attribute(AId::Filter, <span class="kw-2">&amp;</span>ids.join(<span class="string">&quot; &quot;</span>));
+    }
+
+    <span class="kw">if </span>g.opacity != Opacity::ONE {
+        xml.write_svg_attribute(AId::Opacity, <span class="kw-2">&amp;</span>g.opacity.get());
+    }
+
+    xml.write_transform(AId::Transform, g.transform, ctx);
+
+    <span class="kw">if </span>g.blend_mode != BlendMode::Normal || g.isolate {
+        <span class="kw">let </span>blend_mode = <span class="kw">match </span>g.blend_mode {
+            BlendMode::Normal =&gt; <span class="string">&quot;normal&quot;</span>,
+            BlendMode::Multiply =&gt; <span class="string">&quot;multiply&quot;</span>,
+            BlendMode::Screen =&gt; <span class="string">&quot;screen&quot;</span>,
+            BlendMode::Overlay =&gt; <span class="string">&quot;overlay&quot;</span>,
+            BlendMode::Darken =&gt; <span class="string">&quot;darken&quot;</span>,
+            BlendMode::Lighten =&gt; <span class="string">&quot;lighten&quot;</span>,
+            BlendMode::ColorDodge =&gt; <span class="string">&quot;color-dodge&quot;</span>,
+            BlendMode::ColorBurn =&gt; <span class="string">&quot;color-burn&quot;</span>,
+            BlendMode::HardLight =&gt; <span class="string">&quot;hard-light&quot;</span>,
+            BlendMode::SoftLight =&gt; <span class="string">&quot;soft-light&quot;</span>,
+            BlendMode::Difference =&gt; <span class="string">&quot;difference&quot;</span>,
+            BlendMode::Exclusion =&gt; <span class="string">&quot;exclusion&quot;</span>,
+            BlendMode::Hue =&gt; <span class="string">&quot;hue&quot;</span>,
+            BlendMode::Saturation =&gt; <span class="string">&quot;saturation&quot;</span>,
+            BlendMode::Color =&gt; <span class="string">&quot;color&quot;</span>,
+            BlendMode::Luminosity =&gt; <span class="string">&quot;luminosity&quot;</span>,
+        };
+
+        <span class="comment">// For reasons unknown, `mix-blend-mode` and `isolation` must be written
+        // as `style` attribute.
+        </span><span class="kw">let </span>isolation = <span class="kw">if </span>g.isolate { <span class="string">&quot;isolate&quot; </span>} <span class="kw">else </span>{ <span class="string">&quot;auto&quot; </span>};
+        xml.write_attribute_fmt(
+            AId::Style.to_str(),
+            <span class="macro">format_args!</span>(<span class="string">&quot;mix-blend-mode:{};isolation:{}&quot;</span>, blend_mode, isolation),
+        );
+    }
+
+    write_elements(g, <span class="bool-val">false</span>, ctx, xml);
+
+    xml.end_element();
 }
 
 <span class="kw">trait </span>XmlWriterExt {
@@ -3053,12 +3135,13 @@
     }
 }
 
-<span class="kw">fn </span>has_xlink(node: <span class="kw-2">&amp;</span>Node) -&gt; bool {
-    <span class="kw">for </span>n <span class="kw">in </span>node.descendants() {
-        <span class="kw">match </span><span class="kw-2">*</span>n.borrow() {
-            NodeKind::Group(<span class="kw-2">ref </span>g) =&gt; {
+<span class="kw">fn </span>has_xlink(parent: <span class="kw-2">&amp;</span>Group) -&gt; bool {
+    <span class="kw">for </span>node <span class="kw">in </span><span class="kw-2">&amp;</span>parent.children {
+        <span class="kw">match </span>node {
+            Node::Group(<span class="kw-2">ref </span>g) =&gt; {
                 <span class="kw">for </span>filter <span class="kw">in </span><span class="kw-2">&amp;</span>g.filters {
                     <span class="kw">if </span>filter
+                        .borrow()
                         .primitives
                         .iter()
                         .any(|p| <span class="macro">matches!</span>(p.kind, filter::Kind::Image(<span class="kw">_</span>)))
@@ -3068,26 +3151,29 @@
                 }
 
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>mask) = g.mask {
-                    <span class="kw">if </span>has_xlink(<span class="kw-2">&amp;</span>mask.root) {
+                    <span class="kw">if </span>has_xlink(<span class="kw-2">&amp;</span>mask.borrow().root) {
                         <span class="kw">return </span><span class="bool-val">true</span>;
                     }
 
-                    <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>sub_mask) = mask.mask {
-                        <span class="kw">if </span>has_xlink(<span class="kw-2">&amp;</span>sub_mask.root) {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>sub_mask) = mask.borrow().mask {
+                        <span class="kw">if </span>has_xlink(<span class="kw-2">&amp;</span>sub_mask.borrow().root) {
                             <span class="kw">return </span><span class="bool-val">true</span>;
                         }
                     }
                 }
+
+                <span class="kw">if </span>has_xlink(g) {
+                    <span class="kw">return </span><span class="bool-val">true</span>;
+                }
             }
-            NodeKind::Image(<span class="kw">_</span>) =&gt; {
+            Node::Image(<span class="kw">_</span>) =&gt; {
                 <span class="kw">return </span><span class="bool-val">true</span>;
             }
-            NodeKind::Text(<span class="kw-2">ref </span>text) =&gt; {
+            Node::Text(<span class="kw-2">ref </span>text) =&gt; {
                 <span class="kw">if </span>text
                     .chunks
                     .iter()
-                    .find(|t| <span class="macro">matches!</span>(t.text_flow, TextFlow::Path(<span class="kw">_</span>)))
-                    .is_some()
+                    .any(|t| <span class="macro">matches!</span>(t.text_flow, TextFlow::Path(<span class="kw">_</span>)))
                 {
                     <span class="kw">return </span><span class="bool-val">true</span>;
                 }
@@ -3096,7 +3182,7 @@
         }
 
         <span class="kw">let </span><span class="kw-2">mut </span>present = <span class="bool-val">false</span>;
-        n.subroots(|root| present |= has_xlink(<span class="kw-2">&amp;</span>root));
+        node.subroots(|root| present |= has_xlink(root));
         <span class="kw">if </span>present {
             <span class="kw">return </span><span class="bool-val">true</span>;
         }
@@ -3385,7 +3471,7 @@
 ) {
     xml.start_svg_element(EId::Tspan);
 
-    <span class="kw">if </span>span.font.families.len() &gt; <span class="number">0 </span>{
+    <span class="kw">if </span>!span.font.families.is_empty() {
         <span class="kw">let </span>families = <span class="kw">if </span>span.font.families.len() == <span class="number">1 </span>{
             span.font.families[<span class="number">0</span>].clone()
         } <span class="kw">else </span>{

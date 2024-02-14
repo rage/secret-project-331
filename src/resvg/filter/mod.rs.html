@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/resvg-0.37.0/src/filter/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="resvg" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/resvg-0.38.0/src/filter/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="resvg" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1275,107 +1275,6 @@
 <a href="#1275" id="1275">1275</a>
 <a href="#1276" id="1276">1276</a>
 <a href="#1277" id="1277">1277</a>
-<a href="#1278" id="1278">1278</a>
-<a href="#1279" id="1279">1279</a>
-<a href="#1280" id="1280">1280</a>
-<a href="#1281" id="1281">1281</a>
-<a href="#1282" id="1282">1282</a>
-<a href="#1283" id="1283">1283</a>
-<a href="#1284" id="1284">1284</a>
-<a href="#1285" id="1285">1285</a>
-<a href="#1286" id="1286">1286</a>
-<a href="#1287" id="1287">1287</a>
-<a href="#1288" id="1288">1288</a>
-<a href="#1289" id="1289">1289</a>
-<a href="#1290" id="1290">1290</a>
-<a href="#1291" id="1291">1291</a>
-<a href="#1292" id="1292">1292</a>
-<a href="#1293" id="1293">1293</a>
-<a href="#1294" id="1294">1294</a>
-<a href="#1295" id="1295">1295</a>
-<a href="#1296" id="1296">1296</a>
-<a href="#1297" id="1297">1297</a>
-<a href="#1298" id="1298">1298</a>
-<a href="#1299" id="1299">1299</a>
-<a href="#1300" id="1300">1300</a>
-<a href="#1301" id="1301">1301</a>
-<a href="#1302" id="1302">1302</a>
-<a href="#1303" id="1303">1303</a>
-<a href="#1304" id="1304">1304</a>
-<a href="#1305" id="1305">1305</a>
-<a href="#1306" id="1306">1306</a>
-<a href="#1307" id="1307">1307</a>
-<a href="#1308" id="1308">1308</a>
-<a href="#1309" id="1309">1309</a>
-<a href="#1310" id="1310">1310</a>
-<a href="#1311" id="1311">1311</a>
-<a href="#1312" id="1312">1312</a>
-<a href="#1313" id="1313">1313</a>
-<a href="#1314" id="1314">1314</a>
-<a href="#1315" id="1315">1315</a>
-<a href="#1316" id="1316">1316</a>
-<a href="#1317" id="1317">1317</a>
-<a href="#1318" id="1318">1318</a>
-<a href="#1319" id="1319">1319</a>
-<a href="#1320" id="1320">1320</a>
-<a href="#1321" id="1321">1321</a>
-<a href="#1322" id="1322">1322</a>
-<a href="#1323" id="1323">1323</a>
-<a href="#1324" id="1324">1324</a>
-<a href="#1325" id="1325">1325</a>
-<a href="#1326" id="1326">1326</a>
-<a href="#1327" id="1327">1327</a>
-<a href="#1328" id="1328">1328</a>
-<a href="#1329" id="1329">1329</a>
-<a href="#1330" id="1330">1330</a>
-<a href="#1331" id="1331">1331</a>
-<a href="#1332" id="1332">1332</a>
-<a href="#1333" id="1333">1333</a>
-<a href="#1334" id="1334">1334</a>
-<a href="#1335" id="1335">1335</a>
-<a href="#1336" id="1336">1336</a>
-<a href="#1337" id="1337">1337</a>
-<a href="#1338" id="1338">1338</a>
-<a href="#1339" id="1339">1339</a>
-<a href="#1340" id="1340">1340</a>
-<a href="#1341" id="1341">1341</a>
-<a href="#1342" id="1342">1342</a>
-<a href="#1343" id="1343">1343</a>
-<a href="#1344" id="1344">1344</a>
-<a href="#1345" id="1345">1345</a>
-<a href="#1346" id="1346">1346</a>
-<a href="#1347" id="1347">1347</a>
-<a href="#1348" id="1348">1348</a>
-<a href="#1349" id="1349">1349</a>
-<a href="#1350" id="1350">1350</a>
-<a href="#1351" id="1351">1351</a>
-<a href="#1352" id="1352">1352</a>
-<a href="#1353" id="1353">1353</a>
-<a href="#1354" id="1354">1354</a>
-<a href="#1355" id="1355">1355</a>
-<a href="#1356" id="1356">1356</a>
-<a href="#1357" id="1357">1357</a>
-<a href="#1358" id="1358">1358</a>
-<a href="#1359" id="1359">1359</a>
-<a href="#1360" id="1360">1360</a>
-<a href="#1361" id="1361">1361</a>
-<a href="#1362" id="1362">1362</a>
-<a href="#1363" id="1363">1363</a>
-<a href="#1364" id="1364">1364</a>
-<a href="#1365" id="1365">1365</a>
-<a href="#1366" id="1366">1366</a>
-<a href="#1367" id="1367">1367</a>
-<a href="#1368" id="1368">1368</a>
-<a href="#1369" id="1369">1369</a>
-<a href="#1370" id="1370">1370</a>
-<a href="#1371" id="1371">1371</a>
-<a href="#1372" id="1372">1372</a>
-<a href="#1373" id="1373">1373</a>
-<a href="#1374" id="1374">1374</a>
-<a href="#1375" id="1375">1375</a>
-<a href="#1376" id="1376">1376</a>
-<a href="#1377" id="1377">1377</a>
-<a href="#1378" id="1378">1378</a>
 </pre></div><pre class="rust"><code><span class="comment">// This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -1385,8 +1284,6 @@
 <span class="kw">use </span>rgb::{FromSlice, RGBA8};
 <span class="kw">use </span>tiny_skia::IntRect;
 <span class="kw">use </span>usvg::{ApproxEqUlps, ApproxZeroUlps};
-
-<span class="kw">use </span><span class="kw">crate</span>::tree::Node;
 
 <span class="kw">mod </span>box_blur;
 <span class="kw">mod </span>color_matrix;
@@ -1461,134 +1358,6 @@
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>pixel_at_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, x: u32, y: u32) -&gt; <span class="kw-2">&amp;mut </span>RGBA8 {
         <span class="kw-2">&amp;mut </span><span class="self">self</span>.data[(<span class="self">self</span>.width * y + x) <span class="kw">as </span>usize]
-    }
-}
-
-<span class="kw">pub struct </span>Primitive {
-    <span class="kw">pub </span>region: tiny_skia::NonZeroRect,
-    <span class="kw">pub </span>color_interpolation: usvg::filter::ColorInterpolation,
-    <span class="kw">pub </span>result: String,
-    <span class="kw">pub </span>kind: usvg::filter::Kind,
-}
-
-<span class="kw">pub struct </span>Filter {
-    <span class="kw">pub </span>region: tiny_skia::NonZeroRect,
-    <span class="kw">pub </span>primitives: Vec&lt;Primitive&gt;,
-}
-
-<span class="kw">pub fn </span>convert(
-    ufilters: <span class="kw-2">&amp;</span>[Rc&lt;usvg::filter::Filter&gt;],
-    object_bbox: <span class="prelude-ty">Option</span>&lt;tiny_skia::Rect&gt;,
-) -&gt; (Vec&lt;Filter&gt;, <span class="prelude-ty">Option</span>&lt;tiny_skia::Rect&gt;) {
-    <span class="kw">let </span>object_bbox = object_bbox.and_then(|bbox| bbox.to_non_zero_rect());
-
-    <span class="kw">let </span>region = <span class="kw">match </span>calc_filters_region(ufilters, object_bbox) {
-        <span class="prelude-val">Some</span>(v) =&gt; v,
-        <span class="prelude-val">None </span>=&gt; <span class="kw">return </span>(Vec::new(), <span class="prelude-val">None</span>),
-    };
-
-    <span class="kw">let </span><span class="kw-2">mut </span>filters = Vec::new();
-    <span class="kw">for </span>ufilter <span class="kw">in </span>ufilters {
-        <span class="kw">let </span>filter = <span class="kw">match </span>convert_filter(ufilter, object_bbox, region) {
-            <span class="prelude-val">Some</span>(v) =&gt; v,
-            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span>(Vec::new(), <span class="prelude-val">None</span>),
-        };
-        filters.push(filter);
-    }
-
-    (filters, <span class="prelude-val">Some</span>(region.to_rect()))
-}
-
-<span class="kw">fn </span>convert_filter(
-    ufilter: <span class="kw-2">&amp;</span>usvg::filter::Filter,
-    object_bbox: <span class="prelude-ty">Option</span>&lt;tiny_skia::NonZeroRect&gt;,
-    region: tiny_skia::NonZeroRect,
-) -&gt; <span class="prelude-ty">Option</span>&lt;Filter&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>primitives = Vec::with_capacity(ufilter.primitives.len());
-    <span class="kw">for </span>uprimitive <span class="kw">in </span><span class="kw-2">&amp;</span>ufilter.primitives {
-        <span class="kw">let </span>subregion = <span class="kw">match </span>calc_subregion(ufilter, uprimitive, object_bbox, region) {
-            <span class="prelude-val">Some</span>(v) =&gt; v,
-            <span class="prelude-val">None </span>=&gt; {
-                <span class="macro">log::warn!</span>(<span class="string">&quot;Invalid filter primitive region.&quot;</span>);
-                <span class="kw">continue</span>;
-            }
-        };
-
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(kind) = convert_primitive(uprimitive, ufilter.primitive_units, object_bbox) {
-            primitives.push(Primitive {
-                region: subregion,
-                color_interpolation: uprimitive.color_interpolation,
-                result: uprimitive.result.clone(),
-                kind,
-            });
-        }
-    }
-
-    <span class="prelude-val">Some</span>(Filter { region, primitives })
-}
-
-<span class="kw">fn </span>convert_primitive(
-    uprimitive: <span class="kw-2">&amp;</span>usvg::filter::Primitive,
-    units: usvg::Units,
-    object_bbox: <span class="prelude-ty">Option</span>&lt;tiny_skia::NonZeroRect&gt;,
-) -&gt; <span class="prelude-ty">Option</span>&lt;usvg::filter::Kind&gt; {
-    <span class="kw">match </span>uprimitive.kind {
-        usvg::filter::Kind::DisplacementMap(<span class="kw-2">ref </span>fe) =&gt; {
-            <span class="kw">let </span>(sx, <span class="kw">_</span>) = scale_coordinates(fe.scale, fe.scale, units, object_bbox)<span class="question-mark">?</span>;
-            <span class="prelude-val">Some</span>(usvg::filter::Kind::DisplacementMap(
-                usvg::filter::DisplacementMap {
-                    input1: fe.input1.clone(),
-                    input2: fe.input2.clone(),
-                    scale: sx,
-                    x_channel_selector: fe.x_channel_selector,
-                    y_channel_selector: fe.y_channel_selector,
-                },
-            ))
-        }
-        usvg::filter::Kind::DropShadow(<span class="kw-2">ref </span>fe) =&gt; {
-            <span class="kw">let </span>(dx, dy) = scale_coordinates(fe.dx, fe.dy, units, object_bbox)<span class="question-mark">?</span>;
-            <span class="kw">let </span>(std_dev_x, std_dev_y) =
-                scale_coordinates(fe.std_dev_x.get(), fe.std_dev_y.get(), units, object_bbox)<span class="question-mark">?</span>;
-            <span class="prelude-val">Some</span>(usvg::filter::Kind::DropShadow(usvg::filter::DropShadow {
-                input: fe.input.clone(),
-                dx,
-                dy,
-                std_dev_x: usvg::PositiveF32::new(std_dev_x).unwrap_or_default(),
-                std_dev_y: usvg::PositiveF32::new(std_dev_y).unwrap_or_default(),
-                color: fe.color,
-                opacity: fe.opacity,
-            }))
-        }
-        usvg::filter::Kind::GaussianBlur(<span class="kw-2">ref </span>fe) =&gt; {
-            <span class="kw">let </span>(std_dev_x, std_dev_y) =
-                scale_coordinates(fe.std_dev_x.get(), fe.std_dev_y.get(), units, object_bbox)<span class="question-mark">?</span>;
-            <span class="prelude-val">Some</span>(usvg::filter::Kind::GaussianBlur(
-                usvg::filter::GaussianBlur {
-                    input: fe.input.clone(),
-                    std_dev_x: usvg::PositiveF32::new(std_dev_x).unwrap_or_default(),
-                    std_dev_y: usvg::PositiveF32::new(std_dev_y).unwrap_or_default(),
-                },
-            ))
-        }
-        usvg::filter::Kind::Morphology(<span class="kw-2">ref </span>fe) =&gt; {
-            <span class="kw">let </span>(radius_x, radius_y) =
-                scale_coordinates(fe.radius_x.get(), fe.radius_y.get(), units, object_bbox)<span class="question-mark">?</span>;
-            <span class="prelude-val">Some</span>(usvg::filter::Kind::Morphology(usvg::filter::Morphology {
-                input: fe.input.clone(),
-                operator: fe.operator,
-                radius_x: usvg::PositiveF32::new(radius_x).unwrap_or_default(),
-                radius_y: usvg::PositiveF32::new(radius_y).unwrap_or_default(),
-            }))
-        }
-        usvg::filter::Kind::Offset(<span class="kw-2">ref </span>fe) =&gt; {
-            <span class="kw">let </span>(dx, dy) = scale_coordinates(fe.dx, fe.dy, units, object_bbox)<span class="question-mark">?</span>;
-            <span class="prelude-val">Some</span>(usvg::filter::Kind::Offset(usvg::filter::Offset {
-                input: fe.input.clone(),
-                dx,
-                dy,
-            }))
-        }
-        <span class="kw">_ </span>=&gt; <span class="prelude-val">Some</span>(uprimitive.kind.clone()),
     }
 }
 
@@ -1841,8 +1610,13 @@
     image: Image,
 }
 
-<span class="kw">pub fn </span>apply(filter: <span class="kw-2">&amp;</span>Filter, ts: tiny_skia::Transform, source: <span class="kw-2">&amp;mut </span>tiny_skia::Pixmap) {
-    <span class="kw">let </span>result = apply_inner(filter, ts, source);
+<span class="kw">pub fn </span>apply(
+    group: <span class="kw-2">&amp;</span>usvg::Group,
+    filter: <span class="kw-2">&amp;</span>usvg::filter::Filter,
+    ts: tiny_skia::Transform,
+    source: <span class="kw-2">&amp;mut </span>tiny_skia::Pixmap,
+) {
+    <span class="kw">let </span>result = apply_inner(group, filter, ts, source);
     <span class="kw">let </span>result = result.and_then(|image| apply_to_canvas(image, source));
 
     <span class="comment">// Clear on error.
@@ -1860,22 +1634,30 @@
 }
 
 <span class="kw">fn </span>apply_inner(
-    filter: <span class="kw-2">&amp;</span>Filter,
+    group: <span class="kw-2">&amp;</span>usvg::Group,
+    filter: <span class="kw-2">&amp;</span>usvg::filter::Filter,
     ts: usvg::Transform,
     source: <span class="kw-2">&amp;mut </span>tiny_skia::Pixmap,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Image, Error&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>results: Vec&lt;FilterResult&gt; = Vec::new();
-
-    <span class="kw">let </span>region = filter
-        .region
+    <span class="kw">let </span>bbox = group.bounding_box;
+    <span class="kw">let </span>filter_region = group.filters_bounding_box().ok_or(Error::InvalidRegion)<span class="question-mark">?</span>;
+    <span class="kw">let </span>region = filter_region
         .transform(ts)
         .map(|r| r.to_int_rect())
         .ok_or(Error::InvalidRegion)<span class="question-mark">?</span>;
 
+    <span class="kw">let </span><span class="kw-2">mut </span>results: Vec&lt;FilterResult&gt; = Vec::new();
+
     <span class="kw">for </span>primitive <span class="kw">in </span><span class="kw-2">&amp;</span>filter.primitives {
-        <span class="kw">let </span>cs = primitive.color_interpolation;
-        <span class="kw">let </span><span class="kw-2">mut </span>subregion = primitive
-            .region
+        <span class="kw">let </span>subregion = <span class="kw">match </span>calc_subregion(filter, primitive, bbox, filter_region) {
+            <span class="prelude-val">Some</span>(v) =&gt; v,
+            <span class="prelude-val">None </span>=&gt; {
+                <span class="macro">log::warn!</span>(<span class="string">&quot;Invalid filter primitive region.&quot;</span>);
+                <span class="kw">continue</span>;
+            }
+        };
+
+        <span class="kw">let </span><span class="kw-2">mut </span>subregion = subregion
             .transform(ts)
             .map(|r| r.to_int_rect())
             .ok_or(Error::InvalidRegion)<span class="question-mark">?</span>;
@@ -1889,6 +1671,8 @@
             }
         }
 
+        <span class="kw">let </span>cs = primitive.color_interpolation;
+
         <span class="kw">let </span><span class="kw-2">mut </span>result = <span class="kw">match </span>primitive.kind {
             usvg::filter::Kind::Blend(<span class="kw-2">ref </span>fe) =&gt; {
                 <span class="kw">let </span>input1 = get_input(<span class="kw-2">&amp;</span>fe.input1, region, source, <span class="kw-2">&amp;</span>results)<span class="question-mark">?</span>;
@@ -1897,16 +1681,16 @@
             }
             usvg::filter::Kind::DropShadow(<span class="kw-2">ref </span>fe) =&gt; {
                 <span class="kw">let </span>input = get_input(<span class="kw-2">&amp;</span>fe.input, region, source, <span class="kw-2">&amp;</span>results)<span class="question-mark">?</span>;
-                apply_drop_shadow(fe, cs, ts, input)
+                apply_drop_shadow(fe, filter.primitive_units, cs, bbox, ts, input)
             }
             usvg::filter::Kind::Flood(<span class="kw-2">ref </span>fe) =&gt; apply_flood(fe, region),
             usvg::filter::Kind::GaussianBlur(<span class="kw-2">ref </span>fe) =&gt; {
                 <span class="kw">let </span>input = get_input(<span class="kw-2">&amp;</span>fe.input, region, source, <span class="kw-2">&amp;</span>results)<span class="question-mark">?</span>;
-                apply_blur(fe, cs, ts, input)
+                apply_blur(fe, filter.primitive_units, cs, bbox, ts, input)
             }
             usvg::filter::Kind::Offset(<span class="kw-2">ref </span>fe) =&gt; {
                 <span class="kw">let </span>input = get_input(<span class="kw-2">&amp;</span>fe.input, region, source, <span class="kw-2">&amp;</span>results)<span class="question-mark">?</span>;
-                apply_offset(fe, ts, input)
+                apply_offset(fe, filter.primitive_units, bbox, ts, input)
             }
             usvg::filter::Kind::Composite(<span class="kw-2">ref </span>fe) =&gt; {
                 <span class="kw">let </span>input1 = get_input(<span class="kw-2">&amp;</span>fe.input1, region, source, <span class="kw-2">&amp;</span>results)<span class="question-mark">?</span>;
@@ -1933,12 +1717,21 @@
             }
             usvg::filter::Kind::Morphology(<span class="kw-2">ref </span>fe) =&gt; {
                 <span class="kw">let </span>input = get_input(<span class="kw-2">&amp;</span>fe.input, region, source, <span class="kw-2">&amp;</span>results)<span class="question-mark">?</span>;
-                apply_morphology(fe, cs, ts, input)
+                apply_morphology(fe, filter.primitive_units, cs, bbox, ts, input)
             }
             usvg::filter::Kind::DisplacementMap(<span class="kw-2">ref </span>fe) =&gt; {
                 <span class="kw">let </span>input1 = get_input(<span class="kw-2">&amp;</span>fe.input1, region, source, <span class="kw-2">&amp;</span>results)<span class="question-mark">?</span>;
                 <span class="kw">let </span>input2 = get_input(<span class="kw-2">&amp;</span>fe.input2, region, source, <span class="kw-2">&amp;</span>results)<span class="question-mark">?</span>;
-                apply_displacement_map(fe, region, cs, ts, input1, input2)
+                apply_displacement_map(
+                    fe,
+                    region,
+                    filter.primitive_units,
+                    cs,
+                    bbox,
+                    ts,
+                    input1,
+                    input2,
+                )
             }
             usvg::filter::Kind::Turbulence(<span class="kw-2">ref </span>fe) =&gt; apply_turbulence(fe, region, cs, ts),
             usvg::filter::Kind::DiffuseLighting(<span class="kw-2">ref </span>fe) =&gt; {
@@ -2017,41 +1810,10 @@
     }
 }
 
-<span class="comment">// TODO: merge with mask region logic
-</span><span class="kw">fn </span>calc_region(
-    filter: <span class="kw-2">&amp;</span>usvg::filter::Filter,
-    object_bbox: <span class="prelude-ty">Option</span>&lt;tiny_skia::NonZeroRect&gt;,
-) -&gt; <span class="prelude-ty">Option</span>&lt;tiny_skia::NonZeroRect&gt; {
-    <span class="kw">if </span>filter.units == usvg::Units::ObjectBoundingBox {
-        <span class="prelude-val">Some</span>(filter.rect.bbox_transform(object_bbox<span class="question-mark">?</span>))
-    } <span class="kw">else </span>{
-        <span class="prelude-val">Some</span>(filter.rect)
-    }
-}
-
-<span class="kw">pub fn </span>calc_filters_region(
-    filters: <span class="kw-2">&amp;</span>[Rc&lt;usvg::filter::Filter&gt;],
-    object_bbox: <span class="prelude-ty">Option</span>&lt;tiny_skia::NonZeroRect&gt;,
-) -&gt; <span class="prelude-ty">Option</span>&lt;tiny_skia::NonZeroRect&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>global_region = usvg::BBox::default();
-
-    <span class="kw">for </span>filter <span class="kw">in </span>filters {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(region) = calc_region(filter, object_bbox) {
-            global_region = global_region.expand(usvg::BBox::from(region));
-        }
-    }
-
-    <span class="kw">if </span>!global_region.is_default() {
-        global_region.to_non_zero_rect()
-    } <span class="kw">else </span>{
-        <span class="prelude-val">None
-    </span>}
-}
-
 <span class="kw">fn </span>calc_subregion(
     filter: <span class="kw-2">&amp;</span>usvg::filter::Filter,
     primitive: <span class="kw-2">&amp;</span>usvg::filter::Primitive,
-    bbox: <span class="prelude-ty">Option</span>&lt;tiny_skia::NonZeroRect&gt;,
+    bbox: <span class="prelude-ty">Option</span>&lt;tiny_skia::Rect&gt;,
     region: tiny_skia::NonZeroRect,
 ) -&gt; <span class="prelude-ty">Option</span>&lt;tiny_skia::NonZeroRect&gt; {
     <span class="comment">// TODO: rewrite/simplify/explain/whatever
@@ -2060,7 +1822,7 @@
         usvg::filter::Kind::Flood(..) | usvg::filter::Kind::Image(..) =&gt; {
             <span class="comment">// `feImage` uses the object bbox.
             </span><span class="kw">if </span>filter.primitive_units == usvg::Units::ObjectBoundingBox {
-                <span class="kw">let </span>bbox = bbox<span class="question-mark">?</span>;
+                <span class="kw">let </span>bbox = bbox<span class="question-mark">?</span>.to_non_zero_rect()<span class="question-mark">?</span>;
 
                 <span class="comment">// TODO: wrong
                 // let ts_bbox = tiny_skia::Rect::new(ts.e, ts.f, ts.a, ts.d).unwrap();
@@ -2165,17 +1927,23 @@
 
 <span class="kw">fn </span>apply_drop_shadow(
     fe: <span class="kw-2">&amp;</span>usvg::filter::DropShadow,
+    units: usvg::Units,
     cs: usvg::filter::ColorInterpolation,
+    bbox: <span class="prelude-ty">Option</span>&lt;usvg::Rect&gt;,
     ts: usvg::Transform,
     input: Image,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Image, Error&gt; {
+    <span class="kw">let </span>(dx, dy) = <span class="kw">match </span>scale_coordinates(fe.dx, fe.dy, units, bbox, ts) {
+        <span class="prelude-val">Some</span>(v) =&gt; v,
+        <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(input),
+    };
+
     <span class="kw">let </span><span class="kw-2">mut </span>pixmap = tiny_skia::Pixmap::try_create(input.width(), input.height())<span class="question-mark">?</span>;
     <span class="kw">let </span>input_pixmap = input.into_color_space(cs)<span class="question-mark">?</span>.take()<span class="question-mark">?</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>shadow_pixmap = input_pixmap.clone();
 
-    <span class="kw">let </span>(sx, sy) = ts.get_scale();
     <span class="kw">if let </span><span class="prelude-val">Some</span>((std_dx, std_dy, use_box_blur)) =
-        resolve_std_dev(fe.std_dev_x.get() * sx, fe.std_dev_y.get() * sy)
+        resolve_std_dev(fe.std_dev_x.get(), fe.std_dev_y.get(), units, bbox, ts)
     {
         <span class="kw">if </span>use_box_blur {
             box_blur::apply(std_dx, std_dy, shadow_pixmap.as_image_ref_mut());
@@ -2203,8 +1971,8 @@
     }
 
     pixmap.draw_pixmap(
-        (fe.dx * sx) <span class="kw">as </span>i32,
-        (fe.dy * sy) <span class="kw">as </span>i32,
+        dx <span class="kw">as </span>i32,
+        dy <span class="kw">as </span>i32,
         shadow_pixmap.as_ref(),
         <span class="kw-2">&amp;</span>tiny_skia::PixmapPaint::default(),
         tiny_skia::Transform::identity(),
@@ -2225,13 +1993,14 @@
 
 <span class="kw">fn </span>apply_blur(
     fe: <span class="kw-2">&amp;</span>usvg::filter::GaussianBlur,
+    units: usvg::Units,
     cs: usvg::filter::ColorInterpolation,
+    bbox: <span class="prelude-ty">Option</span>&lt;usvg::Rect&gt;,
     ts: usvg::Transform,
     input: Image,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Image, Error&gt; {
-    <span class="kw">let </span>(sx, sy) = ts.get_scale();
     <span class="kw">let </span>(std_dx, std_dy, use_box_blur) =
-        <span class="kw">match </span>resolve_std_dev(fe.std_dev_x.get() * sx, fe.std_dev_y.get() * sy) {
+        <span class="kw">match </span>resolve_std_dev(fe.std_dev_x.get(), fe.std_dev_y.get(), units, bbox, ts) {
             <span class="prelude-val">Some</span>(v) =&gt; v,
             <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(input),
         };
@@ -2249,12 +2018,15 @@
 
 <span class="kw">fn </span>apply_offset(
     fe: <span class="kw-2">&amp;</span>usvg::filter::Offset,
+    units: usvg::Units,
+    bbox: <span class="prelude-ty">Option</span>&lt;usvg::Rect&gt;,
     ts: usvg::Transform,
     input: Image,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Image, Error&gt; {
-    <span class="kw">let </span>(sx, sy) = ts.get_scale();
-    <span class="kw">let </span>dx = fe.dx * sx;
-    <span class="kw">let </span>dy = fe.dy * sy;
+    <span class="kw">let </span>(dx, dy) = <span class="kw">match </span>scale_coordinates(fe.dx, fe.dy, units, bbox, ts) {
+        <span class="prelude-val">Some</span>(v) =&gt; v,
+        <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(input),
+    };
 
     <span class="kw">if </span>dx.approx_zero_ulps(<span class="number">4</span>) &amp;&amp; dy.approx_zero_ulps(<span class="number">4</span>) {
         <span class="kw">return </span><span class="prelude-val">Ok</span>(input);
@@ -2299,7 +2071,7 @@
         <span class="number">0</span>,
         input1.as_ref().as_ref(),
         <span class="kw-2">&amp;</span>tiny_skia::PixmapPaint {
-            blend_mode: <span class="kw">crate</span>::tree::convert_blend_mode(fe.mode),
+            blend_mode: <span class="kw">crate</span>::render::convert_blend_mode(fe.mode),
             ..tiny_skia::PixmapPaint::default()
         },
         tiny_skia::Transform::identity(),
@@ -2463,28 +2235,36 @@
                 aspect: fe.aspect,
             };
 
-            <span class="kw">let </span>uimage = usvg::Image {
+            <span class="kw">let </span>image = usvg::Image {
                 id: String::new(),
                 visibility: usvg::Visibility::Visible,
                 view_box,
                 rendering_mode: fe.rendering_mode,
                 kind: kind.clone(),
+                abs_transform: usvg::Transform::default(),
+                bounding_box: <span class="prelude-val">Some</span>(view_box.rect),
             };
 
-            <span class="kw">let </span><span class="kw-2">mut </span>children = Vec::new();
-            <span class="kw">crate</span>::image::convert(<span class="kw-2">&amp;</span>uimage, <span class="kw-2">&amp;mut </span>children);
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(Node::Image(image)) = children.first() {
-                <span class="kw">crate</span>::image::render_image(image, transform, <span class="kw-2">&amp;mut </span>pixmap.as_mut());
-            }
+            <span class="kw">crate</span>::image::render(<span class="kw-2">&amp;</span>image, transform, <span class="kw-2">&amp;mut </span>pixmap.as_mut());
         }
         usvg::filter::ImageKind::Use(<span class="kw-2">ref </span>node) =&gt; {
             <span class="kw">let </span>(sx, sy) = ts.get_scale();
-            <span class="kw">let </span>transform = tiny_skia::Transform::from_scale(sx, sy);
 
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>rtree) = <span class="kw">crate</span>::Tree::from_usvg_node(node) {
-                rtree.view_box.rect = rtree.view_box.rect.translate_to(<span class="number">0.0</span>, <span class="number">0.0</span>).unwrap();
-                rtree.render(transform, <span class="kw-2">&amp;mut </span>pixmap.as_mut());
-            }
+            <span class="kw">let </span>transform = tiny_skia::Transform::from_row(
+                sx,
+                <span class="number">0.0</span>,
+                <span class="number">0.0</span>,
+                sy,
+                subregion.x() <span class="kw">as </span>f32,
+                subregion.y() <span class="kw">as </span>f32,
+            );
+
+            <span class="kw">let </span>ctx = <span class="kw">crate</span>::render::Context {
+                max_bbox: tiny_skia::IntRect::from_xywh(<span class="number">0</span>, <span class="number">0</span>, region.width(), region.height())
+                    .unwrap(),
+            };
+
+            <span class="kw">crate</span>::render::render_nodes(node, <span class="kw-2">&amp;</span>ctx, transform, <span class="prelude-val">None</span>, <span class="kw-2">&amp;mut </span>pixmap.as_mut());
         }
     }
 
@@ -2540,15 +2320,18 @@
 
 <span class="kw">fn </span>apply_morphology(
     fe: <span class="kw-2">&amp;</span>usvg::filter::Morphology,
+    units: usvg::Units,
     cs: usvg::filter::ColorInterpolation,
+    bbox: <span class="prelude-ty">Option</span>&lt;usvg::Rect&gt;,
     ts: usvg::Transform,
     input: Image,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Image, Error&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>pixmap = input.into_color_space(cs)<span class="question-mark">?</span>.take()<span class="question-mark">?</span>;
 
-    <span class="kw">let </span>(sx, sy) = ts.get_scale();
-    <span class="kw">let </span>rx = fe.radius_x.get() * sx;
-    <span class="kw">let </span>ry = fe.radius_y.get() * sy;
+    <span class="kw">let </span>(rx, ry) = <span class="kw">match </span>scale_coordinates(fe.radius_x.get(), fe.radius_y.get(), units, bbox, ts) {
+        <span class="prelude-val">Some</span>(v) =&gt; v,
+        <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(Image::from_image(pixmap, cs)),
+    };
 
     <span class="kw">if </span>!(rx &gt; <span class="number">0.0 </span>&amp;&amp; ry &gt; <span class="number">0.0</span>) {
         pixmap.clear();
@@ -2563,7 +2346,9 @@
 <span class="kw">fn </span>apply_displacement_map(
     fe: <span class="kw-2">&amp;</span>usvg::filter::DisplacementMap,
     region: IntRect,
+    units: usvg::Units,
     cs: usvg::filter::ColorInterpolation,
+    bbox: <span class="prelude-ty">Option</span>&lt;usvg::Rect&gt;,
     ts: usvg::Transform,
     input1: Image,
     input2: Image,
@@ -2573,7 +2358,10 @@
 
     <span class="kw">let </span><span class="kw-2">mut </span>pixmap = tiny_skia::Pixmap::try_create(region.width(), region.height())<span class="question-mark">?</span>;
 
-    <span class="kw">let </span>(sx, sy) = ts.get_scale();
+    <span class="kw">let </span>(sx, sy) = <span class="kw">match </span>scale_coordinates(fe.scale, fe.scale, units, bbox, ts) {
+        <span class="prelude-val">Some</span>(v) =&gt; v,
+        <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(Image::from_image(pixmap1, cs)),
+    };
 
     displacement_map::apply(
         fe,
@@ -2717,7 +2505,15 @@
 <span class="doccomment">/// Calculates Gaussian blur sigmas for the current world transform.
 ///
 /// If the last flag is set, then a box blur should be used. Or IIR otherwise.
-</span><span class="kw">fn </span>resolve_std_dev(<span class="kw-2">mut </span>std_dx: f32, <span class="kw-2">mut </span>std_dy: f32) -&gt; <span class="prelude-ty">Option</span>&lt;(f64, f64, bool)&gt; {
+</span><span class="kw">fn </span>resolve_std_dev(
+    std_dx: f32,
+    std_dy: f32,
+    units: usvg::Units,
+    bbox: <span class="prelude-ty">Option</span>&lt;usvg::Rect&gt;,
+    ts: usvg::Transform,
+) -&gt; <span class="prelude-ty">Option</span>&lt;(f64, f64, bool)&gt; {
+    <span class="kw">let </span>(<span class="kw-2">mut </span>std_dx, <span class="kw-2">mut </span>std_dy) = scale_coordinates(std_dx, std_dy, units, bbox, ts)<span class="question-mark">?</span>;
+
     <span class="comment">// &#39;A negative value or a value of zero disables the effect of the given filter primitive
     // (i.e., the result is the filter input image).&#39;
     </span><span class="kw">if </span>std_dx.approx_eq_ulps(<span class="kw-2">&amp;</span><span class="number">0.0</span>, <span class="number">4</span>) &amp;&amp; std_dy.approx_eq_ulps(<span class="kw-2">&amp;</span><span class="number">0.0</span>, <span class="number">4</span>) {
@@ -2745,13 +2541,15 @@
     x: f32,
     y: f32,
     units: usvg::Units,
-    bbox: <span class="prelude-ty">Option</span>&lt;tiny_skia::NonZeroRect&gt;,
+    bbox: <span class="prelude-ty">Option</span>&lt;tiny_skia::Rect&gt;,
+    ts: usvg::Transform,
 ) -&gt; <span class="prelude-ty">Option</span>&lt;(f32, f32)&gt; {
+    <span class="kw">let </span>(sx, sy) = ts.get_scale();
     <span class="kw">if </span>units == usvg::Units::ObjectBoundingBox {
         <span class="kw">let </span>bbox = bbox<span class="question-mark">?</span>;
-        <span class="prelude-val">Some</span>((x * bbox.width(), y * bbox.height()))
+        <span class="prelude-val">Some</span>((x * sx * bbox.width(), y * sy * bbox.height()))
     } <span class="kw">else </span>{
-        <span class="prelude-val">Some</span>((x, y))
+        <span class="prelude-val">Some</span>((x * sx, y * sy))
     }
 }
 </code></pre></div></section></main></body></html>

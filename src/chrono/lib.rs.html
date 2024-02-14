@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/chrono-0.4.31/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="chrono" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/chrono-0.4.33/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="chrono" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -617,6 +617,33 @@
 <a href="#617" id="617">617</a>
 <a href="#618" id="618">618</a>
 <a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a>
+<a href="#624" id="624">624</a>
+<a href="#625" id="625">625</a>
+<a href="#626" id="626">626</a>
+<a href="#627" id="627">627</a>
+<a href="#628" id="628">628</a>
+<a href="#629" id="629">629</a>
+<a href="#630" id="630">630</a>
+<a href="#631" id="631">631</a>
+<a href="#632" id="632">632</a>
+<a href="#633" id="633">633</a>
+<a href="#634" id="634">634</a>
+<a href="#635" id="635">635</a>
+<a href="#636" id="636">636</a>
+<a href="#637" id="637">637</a>
+<a href="#638" id="638">638</a>
+<a href="#639" id="639">639</a>
+<a href="#640" id="640">640</a>
+<a href="#641" id="641">641</a>
+<a href="#642" id="642">642</a>
+<a href="#643" id="643">643</a>
+<a href="#644" id="644">644</a>
+<a href="#645" id="645">645</a>
+<a href="#646" id="646">646</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! # Chrono: Date and Time for Rust
 //!
 
@@ -727,21 +754,28 @@
 //! or in the local time zone
 //! ([`Local::now()`](./offset/struct.Local.html#method.now)).
 //!
+</span><span class="attr">#![cfg_attr(not(feature = <span class="string">&quot;now&quot;</span>), doc = <span class="string">&quot;```ignore&quot;</span>)]
+#![cfg_attr(feature = <span class="string">&quot;now&quot;</span>, doc = <span class="string">&quot;```rust&quot;</span>)]
+</span><span class="doccomment">//! use chrono::prelude::*;
+//!
+//! let utc: DateTime&lt;Utc&gt; = Utc::now();       // e.g. `2014-11-28T12:45:59.324310806Z`
+//! # let _ = utc;
+//! ```
+//!
 </span><span class="attr">#![cfg_attr(not(feature = <span class="string">&quot;clock&quot;</span>), doc = <span class="string">&quot;```ignore&quot;</span>)]
 #![cfg_attr(feature = <span class="string">&quot;clock&quot;</span>, doc = <span class="string">&quot;```rust&quot;</span>)]
 </span><span class="doccomment">//! use chrono::prelude::*;
 //!
-//! let utc: DateTime&lt;Utc&gt; = Utc::now();       // e.g. `2014-11-28T12:45:59.324310806Z`
 //! let local: DateTime&lt;Local&gt; = Local::now(); // e.g. `2014-11-28T21:45:59.324310806+09:00`
-//! # let _ = utc; let _ = local;
+//! # let _ = local;
 //! ```
 //!
 //! Alternatively, you can create your own date and time.
 //! This is a bit verbose due to Rust&#39;s lack of function and method overloading,
 //! but in turn we get a rich combination of initialization methods.
 //!
-</span><span class="attr">#![cfg_attr(not(feature = <span class="string">&quot;std&quot;</span>), doc = <span class="string">&quot;```ignore&quot;</span>)]
-#![cfg_attr(feature = <span class="string">&quot;std&quot;</span>, doc = <span class="string">&quot;```rust&quot;</span>)]
+</span><span class="attr">#![cfg_attr(not(feature = <span class="string">&quot;now&quot;</span>), doc = <span class="string">&quot;```ignore&quot;</span>)]
+#![cfg_attr(feature = <span class="string">&quot;now&quot;</span>, doc = <span class="string">&quot;```rust&quot;</span>)]
 </span><span class="doccomment">//! use chrono::prelude::*;
 //! use chrono::offset::LocalResult;
 //!
@@ -765,12 +799,14 @@
 //! assert_eq!(Utc.with_ymd_and_hms(2014, 7, 8, 80, 15, 33), LocalResult::None);
 //! assert_eq!(Utc.with_ymd_and_hms(2014, 7, 38, 21, 15, 33), LocalResult::None);
 //!
+//! # #[cfg(feature = &quot;clock&quot;)] {
 //! // other time zone objects can be used to construct a local datetime.
 //! // obviously, `local_dt` is normally different from `dt`, but `fixed_dt` should be identical.
 //! let local_dt = Local.from_local_datetime(&amp;NaiveDate::from_ymd_opt(2014, 7, 8).unwrap().and_hms_milli_opt(9, 10, 11, 12).unwrap()).unwrap();
 //! let fixed_dt = FixedOffset::east_opt(9 * 3600).unwrap().from_local_datetime(&amp;NaiveDate::from_ymd_opt(2014, 7, 8).unwrap().and_hms_milli_opt(18, 10, 11, 12).unwrap()).unwrap();
 //! assert_eq!(dt, fixed_dt);
 //! # let _ = local_dt;
+//! # }
 //! # Some(())
 //! # }
 //! # doctest().unwrap();
@@ -846,7 +882,7 @@
 //! # #[allow(unused_imports)]
 //! use chrono::prelude::*;
 //!
-//! # #[cfg(feature = &quot;unstable-locales&quot;)]
+//! # #[cfg(all(feature = &quot;unstable-locales&quot;, feature = &quot;alloc&quot;))]
 //! # fn test() {
 //! let dt = Utc.with_ymd_and_hms(2014, 11, 28, 12, 0, 9).unwrap();
 //! assert_eq!(dt.format(&quot;%Y-%m-%d %H:%M:%S&quot;).to_string(), &quot;2014-11-28 12:00:09&quot;);
@@ -863,9 +899,9 @@
 //! let dt_nano = NaiveDate::from_ymd_opt(2014, 11, 28).unwrap().and_hms_nano_opt(12, 0, 9, 1).unwrap().and_local_timezone(Utc).unwrap();
 //! assert_eq!(format!(&quot;{:?}&quot;, dt_nano), &quot;2014-11-28T12:00:09.000000001Z&quot;);
 //! # }
-//! # #[cfg(not(feature = &quot;unstable-locales&quot;))]
+//! # #[cfg(not(all(feature = &quot;unstable-locales&quot;, feature = &quot;alloc&quot;)))]
 //! # fn test() {}
-//! # if cfg!(feature = &quot;unstable-locales&quot;) {
+//! # if cfg!(all(feature = &quot;unstable-locales&quot;, feature = &quot;alloc&quot;)) {
 //! #    test();
 //! # }
 //! ```
@@ -978,7 +1014,7 @@
 //!
 //! ## Rust version requirements
 //!
-//! The Minimum Supported Rust Version (MSRV) is currently **Rust 1.57.0**.
+//! The Minimum Supported Rust Version (MSRV) is currently **Rust 1.61.0**.
 //!
 //! The MSRV is explicitly tested in CI. It may be bumped in minor releases, but this is not done
 //! lightly.
@@ -1088,7 +1124,7 @@
 </span><span class="comment">// can remove this if/when rustc-serialize support is removed
 // keeps clippy happy in the meantime
 </span><span class="attr">#![cfg_attr(feature = <span class="string">&quot;rustc-serialize&quot;</span>, allow(deprecated))]
-#![cfg_attr(docsrs, feature(doc_cfg))]
+#![cfg_attr(docsrs, feature(doc_auto_cfg))]
 
 #[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
 </span><span class="kw">extern crate </span>alloc;
@@ -1096,75 +1132,73 @@
 <span class="kw">mod </span>duration;
 <span class="kw">pub use </span>duration::Duration;
 <span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+#[doc(no_inline)]
 </span><span class="kw">pub use </span>duration::OutOfRangeError;
 
 <span class="kw">use </span>core::fmt;
 
 <span class="doccomment">/// A convenience module appropriate for glob imports (`use chrono::prelude::*;`).
 </span><span class="kw">pub mod </span>prelude {
-    <span class="attr">#[doc(no_inline)]
-    #[allow(deprecated)]
+    <span class="attr">#[allow(deprecated)]
     </span><span class="kw">pub use </span><span class="kw">crate</span>::Date;
     <span class="attr">#[cfg(feature = <span class="string">&quot;clock&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;clock&quot;</span>)))]
-    #[doc(no_inline)]
     </span><span class="kw">pub use </span><span class="kw">crate</span>::Local;
-    <span class="attr">#[cfg(feature = <span class="string">&quot;unstable-locales&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;unstable-locales&quot;</span>)))]
-    #[doc(no_inline)]
+    <span class="attr">#[cfg(all(feature = <span class="string">&quot;unstable-locales&quot;</span>, feature = <span class="string">&quot;alloc&quot;</span>))]
     </span><span class="kw">pub use </span><span class="kw">crate</span>::Locale;
-    <span class="attr">#[doc(no_inline)]
-    </span><span class="kw">pub use </span><span class="kw">crate</span>::SubsecRound;
-    <span class="attr">#[doc(no_inline)]
-    </span><span class="kw">pub use crate</span>::{DateTime, SecondsFormat};
-    <span class="attr">#[doc(no_inline)]
-    </span><span class="kw">pub use crate</span>::{Datelike, Month, Timelike, Weekday};
-    <span class="attr">#[doc(no_inline)]
-    </span><span class="kw">pub use crate</span>::{FixedOffset, Utc};
-    <span class="attr">#[doc(no_inline)]
-    </span><span class="kw">pub use crate</span>::{NaiveDate, NaiveDateTime, NaiveTime};
-    <span class="attr">#[doc(no_inline)]
-    </span><span class="kw">pub use crate</span>::{Offset, TimeZone};
+    <span class="kw">pub use </span><span class="kw">crate</span>::SubsecRound;
+    <span class="kw">pub use crate</span>::{DateTime, SecondsFormat};
+    <span class="kw">pub use crate</span>::{Datelike, Month, Timelike, Weekday};
+    <span class="kw">pub use crate</span>::{FixedOffset, Utc};
+    <span class="kw">pub use crate</span>::{NaiveDate, NaiveDateTime, NaiveTime};
+    <span class="kw">pub use crate</span>::{Offset, TimeZone};
 }
 
 <span class="kw">mod </span>date;
 <span class="attr">#[allow(deprecated)]
-</span><span class="kw">pub use </span>date::{Date, MAX_DATE, MIN_DATE};
+</span><span class="kw">pub use </span>date::Date;
+<span class="attr">#[doc(no_inline)]
+#[allow(deprecated)]
+</span><span class="kw">pub use </span>date::{MAX_DATE, MIN_DATE};
 
 <span class="kw">mod </span>datetime;
 <span class="attr">#[cfg(feature = <span class="string">&quot;rustc-serialize&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;rustc-serialize&quot;</span>)))]
 </span><span class="kw">pub use </span>datetime::rustc_serialize::TsSeconds;
+<span class="kw">pub use </span>datetime::DateTime;
 <span class="attr">#[allow(deprecated)]
-</span><span class="kw">pub use </span>datetime::{DateTime, SecondsFormat, MAX_DATETIME, MIN_DATETIME};
+#[doc(no_inline)]
+</span><span class="kw">pub use </span>datetime::{MAX_DATETIME, MIN_DATETIME};
 
 <span class="kw">pub mod </span>format;
 <span class="doccomment">/// L10n locales.
 </span><span class="attr">#[cfg(feature = <span class="string">&quot;unstable-locales&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;unstable-locales&quot;</span>)))]
 </span><span class="kw">pub use </span>format::Locale;
-<span class="kw">pub use </span>format::{ParseError, ParseResult};
+<span class="kw">pub use </span>format::{ParseError, ParseResult, SecondsFormat};
 
 <span class="kw">pub mod </span>naive;
-<span class="attr">#[doc(no_inline)]
-</span><span class="kw">pub use </span>naive::{Days, IsoWeek, NaiveDate, NaiveDateTime, NaiveTime, NaiveWeek};
+<span class="attr">#[doc(inline)]
+</span><span class="kw">pub use </span>naive::{Days, NaiveDate, NaiveDateTime, NaiveTime};
+<span class="kw">pub use </span>naive::{IsoWeek, NaiveWeek};
 
 <span class="kw">pub mod </span>offset;
 <span class="attr">#[cfg(feature = <span class="string">&quot;clock&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;clock&quot;</span>)))]
-#[doc(no_inline)]
+#[doc(inline)]
 </span><span class="kw">pub use </span>offset::Local;
-<span class="attr">#[doc(no_inline)]
-</span><span class="kw">pub use </span>offset::{FixedOffset, LocalResult, Offset, TimeZone, Utc};
+<span class="kw">pub use </span>offset::LocalResult;
+<span class="attr">#[doc(inline)]
+</span><span class="kw">pub use </span>offset::{FixedOffset, Offset, TimeZone, Utc};
 
-<span class="kw">mod </span>round;
+<span class="kw">pub mod </span>round;
 <span class="kw">pub use </span>round::{DurationRound, RoundingError, SubsecRound};
 
 <span class="kw">mod </span>weekday;
-<span class="kw">pub use </span>weekday::{ParseWeekdayError, Weekday};
+<span class="attr">#[doc(no_inline)]
+</span><span class="kw">pub use </span>weekday::ParseWeekdayError;
+<span class="kw">pub use </span>weekday::Weekday;
 
 <span class="kw">mod </span>month;
-<span class="kw">pub use </span>month::{Month, Months, ParseMonthError};
+<span class="attr">#[doc(no_inline)]
+</span><span class="kw">pub use </span>month::ParseMonthError;
+<span class="kw">pub use </span>month::{Month, Months};
 
 <span class="kw">mod </span>traits;
 <span class="kw">pub use </span>traits::{Datelike, Timelike};
@@ -1183,9 +1217,27 @@
 /// [1]: https://tools.ietf.org/html/rfc3339
 /// [2]: https://serde.rs/field-attrs.html#with
 </span><span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;serde&quot;</span>)))]
 </span><span class="kw">pub mod </span>serde {
     <span class="kw">pub use </span><span class="kw">super</span>::datetime::serde::<span class="kw-2">*</span>;
+}
+
+<span class="doccomment">/// Zero-copy serialization/deserialization with rkyv.
+///
+/// This module re-exports the `Archived*` versions of chrono&#39;s types.
+</span><span class="attr">#[cfg(any(feature = <span class="string">&quot;rkyv&quot;</span>, feature = <span class="string">&quot;rkyv-16&quot;</span>, feature = <span class="string">&quot;rkyv-32&quot;</span>, feature = <span class="string">&quot;rkyv-64&quot;</span>))]
+</span><span class="kw">pub mod </span>rkyv {
+    <span class="kw">pub use </span><span class="kw">crate</span>::datetime::ArchivedDateTime;
+    <span class="kw">pub use </span><span class="kw">crate</span>::duration::ArchivedDuration;
+    <span class="kw">pub use </span><span class="kw">crate</span>::month::ArchivedMonth;
+    <span class="kw">pub use </span><span class="kw">crate</span>::naive::date::ArchivedNaiveDate;
+    <span class="kw">pub use </span><span class="kw">crate</span>::naive::datetime::ArchivedNaiveDateTime;
+    <span class="kw">pub use </span><span class="kw">crate</span>::naive::isoweek::ArchivedIsoWeek;
+    <span class="kw">pub use </span><span class="kw">crate</span>::naive::time::ArchivedNaiveTime;
+    <span class="kw">pub use </span><span class="kw">crate</span>::offset::fixed::ArchivedFixedOffset;
+    <span class="attr">#[cfg(feature = <span class="string">&quot;clock&quot;</span>)]
+    </span><span class="kw">pub use </span><span class="kw">crate</span>::offset::local::ArchivedLocal;
+    <span class="kw">pub use </span><span class="kw">crate</span>::offset::utc::ArchivedUtc;
+    <span class="kw">pub use </span><span class="kw">crate</span>::weekday::ArchivedWeekday;
 }
 
 <span class="doccomment">/// Out of range error type used in various converting APIs
@@ -1217,6 +1269,7 @@
 
 <span class="doccomment">/// Workaround because `?` is not (yet) available in const context.
 </span><span class="attr">#[macro_export]
+#[doc(hidden)]
 </span><span class="macro">macro_rules! </span>try_opt {
     (<span class="macro-nonterminal">$e</span>:expr) =&gt; {
         <span class="kw">match </span><span class="macro-nonterminal">$e </span>{
@@ -1228,6 +1281,7 @@
 
 <span class="doccomment">/// Workaround because `.expect()` is not (yet) available in const context.
 </span><span class="attr">#[macro_export]
+#[doc(hidden)]
 </span><span class="macro">macro_rules! </span>expect {
     (<span class="macro-nonterminal">$e</span>:expr, <span class="macro-nonterminal">$m</span>:literal) =&gt; {
         <span class="kw">match </span><span class="macro-nonterminal">$e </span>{

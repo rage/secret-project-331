@@ -338,6 +338,7 @@ export async function takeScreenshotAndComparetoSnapshot(
       await expect(screenshotTarget).toHaveScreenshot(screenshotName, screenshotOptions)
     }
   } catch (e: unknown) {
+    await page.waitForTimeout(600)
     testInfo.config.updateSnapshots = originalUpdateSnapshotsSetting
     const savedYCoordinate = await imageSavedPageYCoordinate(pathToImage)
     if (
@@ -347,11 +348,25 @@ export async function takeScreenshotAndComparetoSnapshot(
       console.log(
         `Found a saved y coordinate of ${savedYCoordinate}. Scrolling to it for the screenshot comparison.`,
       )
-      page.evaluate((savedYCoordinate) => {
-        window.scrollTo(0, savedYCoordinate)
-      }, savedYCoordinate)
+      let yCoordinateRightNTimes = 0
+      let totalTries = 0
+      do {
+        await page.evaluate((savedYCoordinate) => {
+          window.scrollTo(0, savedYCoordinate)
+        }, savedYCoordinate)
+        const observedYCoordinate = await page.evaluate(() => window.scrollY)
+        if (observedYCoordinate === savedYCoordinate) {
+          yCoordinateRightNTimes++
+        }
+        if (totalTries > 100) {
+          throw new Error(`Could not scroll to the saved y coordinate`)
+        }
+        await page.waitForTimeout(100)
+
+        totalTries++
+      } while (yCoordinateRightNTimes < 3)
     }
-    await page.waitForTimeout(600)
+
     if (isPage(screenshotTarget)) {
       await expect(screenshotTarget).toHaveScreenshot(screenshotName, screenshotOptions)
     } else {

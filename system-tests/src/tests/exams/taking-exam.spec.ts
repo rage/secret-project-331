@@ -21,6 +21,9 @@ test("Can start an exam and can answer exercises", async ({ page, headless }, te
 
   page.on("dialog", (dialog) => dialog.accept())
   await page.locator(`button:text("Start the exam!")`).click()
+  await page
+    .getByText("In this exam you're supposed to answer to two easy questions. Good luck!")
+    .waitFor()
   await expectScreenshotsToMatchSnapshots({
     headless,
     testInfo,
@@ -33,10 +36,9 @@ test("Can start an exam and can answer exercises", async ({ page, headless }, te
     axeSkip: ["frame-title-unique"],
   })
   await page.evaluate(() => {
-    window.scrollTo(0, 500)
+    window.scrollTo(0, 929)
   })
 
-  await page.getByText("Answer this question.").first().scrollIntoViewIfNeeded()
   await page
     .frameLocator("iframe")
     .first()
@@ -46,6 +48,13 @@ test("Can start an exam and can answer exercises", async ({ page, headless }, te
 
   await page.frameLocator("iframe").first().getByText("cargo").click()
   await page.locator("button:text('Submit')").first().click()
+  await page.getByRole("button", { name: "try again" }).waitFor()
+  await page
+    .frameLocator("iframe")
+    .first()
+    .getByText("Which one is the Rust package manager?")
+    .first()
+    .waitFor()
   await expectScreenshotsToMatchSnapshots({
     headless,
     testInfo,

@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/router"
 import React, { useContext, useEffect, useId, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -39,19 +39,21 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
   onClose,
   manualOpen = false,
 }) => {
-  const { i18n, t } = useTranslation()
+  const queryClient = useQueryClient()
+  const { i18n } = useTranslation()
+  const [dialogLanguage, setDialogLanguage] = useState(i18n.language)
+  const { t } = useTranslation("course-material", { lng: dialogLanguage })
   const loginState = useContext(LoginStateContext)
   const pageState = useContext(PageContext)
   const dialogTitleId = useId()
   const router = useRouter()
 
-  const [selectedLangCourseId, setSelectLanguage] = React.useState(
+  const [selectedLangCourseId, setSelectedLangCourseId] = React.useState(
     pageState.settings?.current_course_id ?? pageState.pageData?.course_id ?? "",
   )
-  const [languageChanged, setIsLanguageChanged] = React.useState(false)
 
   const [submitError, setSubmitError] = useState<unknown>()
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(manualOpen)
   const sortInstances = () => {
     getCourseInstances.data?.sort((a, b) => (a.name ?? "").localeCompare(b.name ?? ""))
   }
@@ -79,6 +81,8 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
     const signedIn = !!loginState.signedIn
     const shouldChooseInstance =
       pageState.state === "ready" && pageState.instance === null && pageState.settings === null
+    console.log("setOpen", (signedIn && shouldChooseInstance) || (signedIn && manualOpen))
+    console.log(JSON.stringify({ signedIn, shouldChooseInstance, manualOpen }, undefined, 2))
     setOpen((signedIn && shouldChooseInstance) || (signedIn && manualOpen))
   }, [loginState, pageState, manualOpen])
 
@@ -89,18 +93,21 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
   >(
     async (variables) => {
       const newLanguage = newLangcode ?? ""
-      const selectedLanguage = newLanguage.split("-")
+      const languageChanged = i18n.language === newLanguage
       i18n.changeLanguage(newLanguage)
       // eslint-disable-next-line i18next/no-literal-string
-      document.cookie = `${LANGUAGE_COOKIE_KEY}=${selectedLanguage[0]}; path=/; SameSite=Strict; max-age=31536000;`
+      document.cookie = `${LANGUAGE_COOKIE_KEY}=${newLanguage}; path=/; SameSite=Strict; max-age=31536000;`
 
       try {
         await postSaveCourseSettings(variables.instanceId, {
           background_question_answers: variables.backgroundQuestionAnswers,
         })
+
+        await queryClient.invalidateQueries()
         if (languageChanged && newUrl) {
           await router.push(newUrl)
         }
+
         if (pageState.refetchPage) {
           // eslint-disable-next-line i18next/no-literal-string
           console.info("Refetching page because the course instance has changed")
@@ -152,10 +159,10 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
           {t("title-course-settings")}
         </h1>
         <SelectCourseLanguage
-          selectedCourseId={selectedLangCourseId}
-          setSelectLanguage={setSelectLanguage}
-          savedCourseId={pageState.settings?.current_course_id}
-          setIsLanguageChanged={setIsLanguageChanged}
+          selectedLangCourseId={selectedLangCourseId}
+          setSelectedLangCourseId={setSelectedLangCourseId}
+          setDialogLanguage={setDialogLanguage}
+          dialogLanguage={dialogLanguage}
         />
         {getCourseInstances.isError && (
           <ErrorBanner variant={"readOnly"} error={getCourseInstances.error} />
@@ -168,11 +175,12 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
             initialSelectedInstanceId={
               pageState.settings?.current_course_instance_id ?? pageState.instance?.id
             }
-            languageChanged={languageChanged}
+            languageChanged={i18n.language === dialogLanguage}
+            dialogLanguage={dialogLanguage}
           />
         )}
       </div>
-      {languageChanged && (
+      {i18n.language !== dialogLanguage && (
         <div
           className={css`
             background: ${baseTheme.colors.green[100]};

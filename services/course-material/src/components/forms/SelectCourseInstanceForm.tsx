@@ -39,12 +39,19 @@ interface SelectCourseInstanceFormProps {
   >
   initialSelectedInstanceId?: string
   languageChanged: boolean
+  dialogLanguage: string
 }
 
 const SelectCourseInstanceForm: React.FC<
   React.PropsWithChildren<SelectCourseInstanceFormProps>
-> = ({ courseInstances, submitMutation, initialSelectedInstanceId, languageChanged }) => {
-  const { t } = useTranslation()
+> = ({
+  courseInstances,
+  submitMutation,
+  initialSelectedInstanceId,
+  languageChanged,
+  dialogLanguage,
+}) => {
+  const { t } = useTranslation("course-material", { lng: dialogLanguage })
   const [instance, setInstance] = useState(
     figureOutInitialValue(courseInstances, initialSelectedInstanceId),
   )

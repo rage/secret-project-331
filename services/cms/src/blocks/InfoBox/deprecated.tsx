@@ -31,7 +31,6 @@ export const Deprecated1: BlockDeprecation<Deprecated1InfoBoxComponentProps> = {
     )
   },
   isEligible: (attributes) => {
-    console.log("isEligible", attributes)
     return Boolean(attributes.title || attributes.bodyText)
   },
   // @ts-ignore: wat

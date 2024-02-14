@@ -34,7 +34,6 @@ const EditProposalPage: React.FC<React.PropsWithChildren<Props>> = ({
     queryFn: () => fetchEditProposals(courseId, pending, page, limit),
     select: (data) => data.filter((p) => p.pending === pending),
   })
-  console.log("All proposals: ", getEditProposalList)
 
   const proposalsForDeletedBlocks = getEditProposalList.data?.filter(
     (p) => p.block_proposals[0].type === "edited-block-no-longer-exists",

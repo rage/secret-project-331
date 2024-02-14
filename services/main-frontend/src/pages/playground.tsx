@@ -93,9 +93,9 @@ const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
   )
 
   const onMessage = (message: unknown, responsePort: MessagePort) => {
-    console.log(responsePort)
+    console.info(responsePort)
     // eslint-disable-next-line i18next/no-literal-string
-    console.log("received message from iframe", message)
+    console.info("received message from iframe", message)
   }
 
   useEffect(() => {
@@ -109,8 +109,8 @@ const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
       setCombinedUrl(newUrl.toString())
       setInvalidUrl(false)
     } catch (error) {
-      console.log(error)
       setInvalidUrl(true)
+      console.error(error)
     }
   }, [exampleUrl, exampleWidth])
 

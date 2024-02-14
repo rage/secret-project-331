@@ -312,7 +312,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
       if (msg.tag == "TimedOut") {
         console.error("websocket timed out")
       } else if (msg.tag == "Registered") {
-        console.log("Registered websocket", msg.data)
+        console.info("Registered websocket", msg.data)
         setWebsocketId(msg.data)
       } else if (msg.tag == "ExerciseTaskGradingResult") {
         submitAnswerMutation.mutate({ type: "fromWebsocket", data: msg.data })

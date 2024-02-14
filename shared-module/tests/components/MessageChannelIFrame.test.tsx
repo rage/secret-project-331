@@ -34,7 +34,7 @@ test("It renders", async () => {
           data: { public_spec: {}, previous_submission: null },
         }}
         onMessageFromIframe={(message, responsePort) => {
-          console.log(message, responsePort)
+          console.info(message, responsePort)
         }}
         title="test"
       />

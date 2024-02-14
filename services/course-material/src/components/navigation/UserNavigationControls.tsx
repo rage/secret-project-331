@@ -55,7 +55,6 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
       {showSettings && (
         <CourseSettingsModal
           onClose={() => {
-            console.log("onclose called")
             setShowSettings(false)
           }}
           manualOpen={showSettings}

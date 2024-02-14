@@ -81,8 +81,7 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
     const signedIn = !!loginState.signedIn
     const shouldChooseInstance =
       pageState.state === "ready" && pageState.instance === null && pageState.settings === null
-    console.log("setOpen", (signedIn && shouldChooseInstance) || (signedIn && manualOpen))
-    console.log(JSON.stringify({ signedIn, shouldChooseInstance, manualOpen }, undefined, 2))
+
     setOpen((signedIn && shouldChooseInstance) || (signedIn && manualOpen))
   }, [loginState, pageState, manualOpen])
 

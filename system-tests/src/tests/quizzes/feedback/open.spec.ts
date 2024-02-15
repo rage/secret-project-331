@@ -44,6 +44,8 @@ test("quizzes open feedback", async ({ page, headless }, testInfo) => {
     .fill("19999-01-01")
 
   await page.getByText("Submit").click()
+  await page.getByText("Try again").waitFor()
+  await page.locator(`text=This is an extra submit message from the teacher.`).waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,

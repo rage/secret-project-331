@@ -53,7 +53,11 @@ test("Creating a new language version works", async ({ page, headless }, testInf
   await page.getByText(`Like this.`).first().waitFor()
 
   await page.goto("about:blank")
-  await page.goto("http://project-331.local/org/uh-cs/courses/introduction-to-localizing/chapter-1")
+  await page.goto("http://project-331.local/org/uh-cs/courses/introduction-to-localizing/")
+  await page.getByText("Chapter 1").click()
+  await expect(page).toHaveURL(
+    "http://project-331.local/org/uh-cs/courses/introduction-to-localizing/chapter-1",
+  )
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,

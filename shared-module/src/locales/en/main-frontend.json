@@ -179,6 +179,7 @@
   "error-unknown-in-component": "Unknown error when rendering {{component}}",
   "exam-created-succesfully": "Exam created succesfully",
   "exam-duplicated-succesfully": "Exam duplicated succesfully",
+  "exam-edited-successfully": "Exam edited successfully",
   "exam-list": "Exams",
   "exercise": "Exercise",
   "exercise-repositories-add": "Add exercise repository",

@@ -165,6 +165,44 @@ async fn duplicate_exam(
 }
 
 /**
+POST `/api/v0/main-frontend/organizations/{organization_id}/edit-exam` - edits an exam.
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn edit_exam(
+    pool: web::Data<PgPool>,
+    exam_id: web::Path<Uuid>,
+    payload: web::Json<NewExam>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+    let mut tx = conn.begin().await?;
+
+    let exam = payload.0;
+    let token = authorize(
+        &mut tx,
+        Act::CreateCoursesOrExams,
+        Some(user.id),
+        Res::Exam(*exam_id),
+    )
+    .await?;
+
+    models::exams::edit(
+        &mut tx,
+        *exam_id,
+        Some(exam.name.as_str()),
+        exam.starts_at,
+        exam.ends_at,
+        Some(exam.time_minutes),
+        Some(exam.minimum_points_treshold),
+    )
+    .await?;
+
+    tx.commit().await?;
+
+    token.authorized_ok(web::Json(()))
+}
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -180,5 +218,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             "/{id}/export-submissions",
             web::get().to(export_submissions),
         )
+        .route("/{id}/edit-exam", web::post().to(edit_exam))
         .route("/{id}/duplicate", web::post().to(duplicate_exam));
 }

@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import EditExamDialog from "../../../../components/page-specific/manage/courses/id/exams/EditExamDialog"
 import {
   fetchExam,
   fetchOrganizationExams,
@@ -27,6 +28,8 @@ interface OrganizationPageProps {
 const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = ({ query }) => {
   const { t } = useTranslation()
   const getExam = useQuery({ queryKey: [`exam-${query.id}`], queryFn: () => fetchExam(query.id) })
+
+  const [editExamFormOpen, setEditExamFormOpen] = useState(false)
   const [newCourse, setNewCourse] = useState("")
   const setCourseMutation = useToastMutation(
     ({ examId, courseId }: { examId: string; courseId: string }) => {
@@ -125,6 +128,36 @@ const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = (
               <a href={`/api/v0/main-frontend/exams/${getExam.data.id}/export-submissions`}>
                 {t("link-export-submissions")}
               </a>
+            </li>
+            <li>
+              <a href={`/org/${organizationSlug}/exams/testExam/${getExam.data.id}`}>
+                {t("link-test-exam")}
+              </a>
+            </li>
+            <li>
+              <div
+                className={css`
+                  margin-bottom: 1rem;
+                `}
+              >
+                <EditExamDialog
+                  initialData={getExam.data || null}
+                  examId={getExam.data.id}
+                  organizationId={organizationId || ""}
+                  open={editExamFormOpen}
+                  close={() => {
+                    setEditExamFormOpen(!setEditExamFormOpen)
+                    getExam.refetch()
+                  }}
+                />
+              </div>
+              <Button
+                size="medium"
+                variant="primary"
+                onClick={() => setEditExamFormOpen(!editExamFormOpen)}
+              >
+                {t("edit-exam")}
+              </Button>
             </li>
           </ul>
           <h2>{t("courses")}</h2>

@@ -176,6 +176,7 @@
   "error-unknown-in-component": "Määrittelemätön virhe komponentissa {{component}}",
   "exam-created-succesfully": "Koe luotu",
   "exam-duplicated-succesfully": "Koe monistettu",
+  "exam-edited-successfully": "Koe muokattu",
   "exam-list": "Kokeet",
   "exercise": "Tehtävä",
   "exercise-repositories-add": "Add exercise repository",

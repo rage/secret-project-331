@@ -42,15 +42,17 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
     (course) => !course.is_draft,
   )
 
-  const langCode = courseVersionsList?.find((course) => course.id === selectedLangCourseId)
-    ?.language_code
+  const langCode = courseVersionsList?.find(
+    (course) => course.id === selectedLangCourseId,
+  )?.language_code
 
   // Gets courseId and languageCode of the chosen language
   const onChange = useCallback(
     (event: { target: { value: string } }) => {
       const changedCourseId = event.target.value
-      const newLangCode = courseVersionsList?.find((course) => course.id === changedCourseId)
-        ?.language_code
+      const newLangCode = courseVersionsList?.find(
+        (course) => course.id === changedCourseId,
+      )?.language_code
 
       if (newLangCode) {
         setDialogLanguage(newLangCode)

@@ -70,9 +70,9 @@ const useReferences = (courseId: string) => {
           // eslint-disable-next-line i18next/no-literal-string
           r.style.position = "relative"
           // eslint-disable-next-line i18next/no-literal-string
-          r.innerHTML = `<span style="color: #46749B;"}>[${citationsMap.get(
-            r.dataset.citationId ?? "",
-          )?.citationNumber}]</span>`
+          r.innerHTML = `<span style="color: #46749B;"}>[${
+            citationsMap.get(r.dataset.citationId ?? "")?.citationNumber
+          }]</span>`
         })
       }
     }

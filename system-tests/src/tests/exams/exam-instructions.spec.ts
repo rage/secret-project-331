@@ -14,9 +14,14 @@ test("Editing exam instructions works", async ({ page, headless }, testInfo) => 
     ),
   ])
 
-  await page.locator("text=Ongoing short timerManage >> a").nth(1).click()
+  await page
+    .locator("li")
+    .filter({ hasText: "Ongoing short timerManage" })
+    .getByRole("link")
+    .nth(1)
+    .click()
 
-  await page.locator("text=Edit exam instructions").click()
+  await page.getByText("Edit exam instructions").click()
 
   await page.locator(`[aria-label="Add default block"]`).click()
   await page
@@ -38,7 +43,7 @@ test("Editing exam instructions works", async ({ page, headless }, testInfo) => 
     "/",
   )
 
-  await page.locator("text=List").click()
+  await page.getByText("List").click()
 
   await page
     .locator('[aria-label="Block\\:\\ List item"]')
@@ -62,12 +67,12 @@ test("Editing exam instructions works", async ({ page, headless }, testInfo) => 
 
   await page.goto("http://project-331.local/org/uh-cs")
 
-  await page.locator("text=Ongoing short timer").click()
+  await page.getByText("Ongoing short timer").click()
   await expectScreenshotsToMatchSnapshots({
     headless,
     testInfo,
     screenshotTarget: page.locator("id=exam-instructions"),
     snapshotName: "exam-instructions",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=These are the instructions")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("These are the instructions")],
   })
 })

@@ -25,7 +25,9 @@ export const setChapterImage = async (chapterId: string, file: File): Promise<Ch
   const data = new FormData()
   // eslint-disable-next-line i18next/no-literal-string
   data.append("file", file, file.name || "unknown")
-  const response = await mainFrontendClient.put(`/chapters/${chapterId}/image`, data)
+  const response = await mainFrontendClient.put(`/chapters/${chapterId}/image`, data, {
+    headers: { "Content-Type": "multipart/form-data" },
+  })
   return validateResponse(response, isChapter)
 }
 

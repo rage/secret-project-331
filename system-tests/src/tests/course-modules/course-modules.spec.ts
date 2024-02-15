@@ -10,7 +10,7 @@ test("Course modules test", async ({ page, headless }, testInfo) => {
   test.slow()
   // navigate to module page
   await page.goto("http://project-331.local/organizations")
-  await page.locator("text=University of Helsinki, Department of Computer Science").click()
+  await page.getByText("University of Helsinki, Department of Computer Science").click()
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
   await page.locator("[aria-label=\"Manage course \\'Course Modules\\'\"] path").click()
   await expect(page).toHaveURL(
@@ -41,7 +41,7 @@ test("Course modules test", async ({ page, headless }, testInfo) => {
   })
 
   // reset deletion
-  await page.locator("text=Reset").click()
+  await page.getByText("Reset").click()
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
@@ -55,13 +55,13 @@ test("Course modules test", async ({ page, headless }, testInfo) => {
   await page.locator('[placeholder="Name of module"]').fill("invalid module")
   await page.locator("#new-module-start").selectOption("2")
   await page.locator("#new-module-ends").selectOption("3")
-  await page.locator("text=Confirm").click()
+  await page.getByText("Confirm").click()
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
     testInfo,
     snapshotName: "after-creating-new-module",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=1: invalid module")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("1: invalid module")],
     screenshotOptions: { fullPage: true },
     // arbitrary large scroll coordinate to fix the position of any popup menus to be consistent and out of the way
     scrollToYCoordinate: 100_000,
@@ -77,7 +77,7 @@ test("Course modules test", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "after-updating-new-module",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=1: valid module")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("1: valid module")],
     screenshotOptions: { fullPage: true },
     // arbitrary large scroll coordinate to fix the position of any popup menus to be consistent and out of the way
     scrollToYCoordinate: 100_000,
@@ -105,14 +105,14 @@ test("Course modules test", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "after-last-update",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=2: renamed module")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("2: renamed module")],
     screenshotOptions: { fullPage: true },
     // arbitrary large scroll coordinate to fix the position of any popup menus to be consistent and out of the way
     scrollToYCoordinate: 100_000,
   })
 
   // save changes
-  await page.locator("text=Save changes").click()
+  await page.getByText("Save changes").click()
   await page.getByText("Success").first().waitFor()
 
   await expectScreenshotsToMatchSnapshots({

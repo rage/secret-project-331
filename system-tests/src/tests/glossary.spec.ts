@@ -2,6 +2,7 @@ import { test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
+import { waitForFooterTranslationsToLoad } from "../utils/waitingUtils"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -12,10 +13,10 @@ test("glossary test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
-    page.locator("text=University of Helsinki, Department of Computer Science").click(),
+    page.getByText("University of Helsinki, Department of Computer Science").click(),
   ])
 
-  await page.locator("text=Glossary course").click()
+  await page.getByText("Glossary course").click()
 
   await selectCourseInstanceIfPrompted(page)
 
@@ -32,7 +33,7 @@ test("glossary test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
-    page.locator("text=University of Helsinki, Department of Computer Science").click(),
+    page.getByText("University of Helsinki, Department of Computer Science").click(),
   ])
 
   await page.locator("[aria-label=\"Manage course 'Glossary course'\"] svg").click()
@@ -40,14 +41,14 @@ test("glossary test", async ({ page, headless }, testInfo) => {
   await Promise.all([page.getByRole("tab", { name: "Glossary" }).click()])
 
   await page.getByRole("button", { name: "Edit" }).first().click()
-  await page.locator("text=Cancel").click()
+  await page.getByText("Cancel").click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
     testInfo,
     snapshotName: "initial-glossary-management-page",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Manage glossary")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("Manage glossary")],
   })
 
   await page.getByRole("button", { name: "Delete" }).first().click()
@@ -70,14 +71,15 @@ test("glossary test", async ({ page, headless }, testInfo) => {
   await page.locator(`div:text-is("Success")`).waitFor()
   // The save button reloads the data in the background and that might make the added-new-term screenshot unstable without the reload.
   await page.reload()
-  await page.locator("text=efgh").waitFor()
+  await page.getByText("efgh").waitFor()
+  await waitForFooterTranslationsToLoad(page)
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
     testInfo,
     snapshotName: "added-new-term",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=efgh")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("efgh")],
     scrollToYCoordinate: 538,
   })
 
@@ -88,7 +90,7 @@ test("glossary test", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "editing-term",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=updated term")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("updated term")],
     clearNotifications: true,
   })
 
@@ -110,7 +112,7 @@ test("glossary test", async ({ page, headless }, testInfo) => {
   })
 
   await page.goto("http://project-331.local/org/uh-cs/courses/glossary-course/glossary")
-  await page.locator("text=Give feedback").waitFor()
+  await page.getByText("Give feedback").waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,

@@ -11,10 +11,10 @@ test("find hidden page", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
-    page.locator("text=University of Helsinki, Department of Computer Science").click(),
+    page.getByText("University of Helsinki, Department of Computer Science").click(),
   ])
 
-  await page.locator("text=Introduction to everything").click()
+  await page.getByText("Introduction to everything").click()
 
   await selectCourseInstanceIfPrompted(page)
 
@@ -36,7 +36,7 @@ test("find hidden page", async ({ page, headless }, testInfo) => {
     },
   })
 
-  await page.locator("text=Welcome to Introduction to Everything").click()
+  await page.getByText("Welcome to Introduction to Everything").click()
 
   await page.goto("http://project-331.local/org/uh-cs/courses/introduction-to-everything/hidden")
 

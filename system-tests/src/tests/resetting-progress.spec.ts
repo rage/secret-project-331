@@ -22,7 +22,7 @@ test("Resetting teacher's own progress resets points", async ({ page }) => {
   await page.getByRole("button", { name: "Submit" }).first().click()
   await page.getByText("Good job!").waitFor()
   // await page.getByText("Points:1/1").waitFor()
-  await page.waitForSelector('div.points:has-text("1⁄1")')
+  await page.locator('div.points:has-text("1⁄1")').waitFor()
   await page.getByRole("navigation", { name: "Navigation menu" }).click()
   await page.getByRole("button", { name: "Open menu" }).click()
   await page.getByRole("button", { name: "Manage course" }).click()

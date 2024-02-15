@@ -11,7 +11,7 @@ test("Creating a new language version works", async ({ page, headless }, testInf
   await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
-    page.locator("text=University of Helsinki, Department of Computer Science").click(),
+    page.getByText("University of Helsinki, Department of Computer Science").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
@@ -42,13 +42,13 @@ test("Creating a new language version works", async ({ page, headless }, testInf
 
   await page.goto("http://project-331.local/org/uh-cs")
 
-  await page.locator("text=Johdatus lokalisointiin").click()
+  await page.getByText("Johdatus lokalisointiin").click()
 
   await selectCourseInstanceIfPrompted(page)
 
   await Promise.all([page.click('#content a >> :nth-match(div:has-text("Luku 1The Basics"), 3)')])
 
-  await page.locator("text=1Page One").click()
+  await page.getByText("1Page One").click()
 
   await page.getByText(`Like this.`).first().waitFor()
 
@@ -65,7 +65,7 @@ test("Creating a new language version works", async ({ page, headless }, testInf
     ],
   })
 
-  await page.locator("text=Johdatus lokalisointiin").click()
+  await page.getByText("Johdatus lokalisointiin").click()
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs/courses/johdatus-lokalisointiin")
 })
 
@@ -73,7 +73,7 @@ test("creator of the language version has permissions to the new version", async
   await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
-    page.locator("text=University of Helsinki, Department of Computer Science").click(),
+    page.getByText("University of Helsinki, Department of Computer Science").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 

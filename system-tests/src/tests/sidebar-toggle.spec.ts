@@ -18,21 +18,21 @@ test("Changing view in the cms sidebar works", async ({ page, headless }, testIn
   await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
-    page.locator("text=University of Helsinki, Department of Mathematics and Statistics").click(),
+    page.getByText("University of Helsinki, Department of Mathematics and Statistics").click(),
   ])
 
   await page
     .locator("[aria-label=\"Manage\\ course\\ \\'Introduction\\ to\\ Statistics\\'\"] svg")
     .click()
 
-  await page.locator("text=Pages").click()
+  await page.getByText("Pages").click()
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/f307d05f-be34-4148-bb0c-21d6f7a35cdb/pages",
   )
 
-  await page.locator("text=Edit page").click()
+  await page.getByText("Edit page").click()
 
-  await page.locator("text=Welcome to...").click()
+  await page.getByText("Welcome to...").click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
@@ -54,7 +54,7 @@ test("Changing view in the cms sidebar works", async ({ page, headless }, testIn
     headless,
     testInfo,
     snapshotName: "block-list",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Course Objective Section").first()],
+    waitForTheseToBeVisibleAndStable: [page.getByText("Course Objective Section").first()],
     axeSkip: gutenbergAxeSkip,
     skipMobile: true,
   })

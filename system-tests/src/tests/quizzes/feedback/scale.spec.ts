@@ -11,7 +11,7 @@ test("quizzes open feedback", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
-    await page.locator("text=University of Helsinki, Department of Computer Science").click(),
+    await page.getByText("University of Helsinki, Department of Computer Science").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
@@ -19,13 +19,13 @@ test("quizzes open feedback", async ({ page, headless }, testInfo) => {
 
   await selectCourseInstanceIfPrompted(page)
 
-  await page.locator("text=The Basics").click()
+  await page.getByText("The Basics").click()
 
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1",
   )
 
-  await page.locator("text=scale").first().click()
+  await page.getByText("scale").first().click()
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/scale",
   )
@@ -39,7 +39,7 @@ test("quizzes open feedback", async ({ page, headless }, testInfo) => {
     .frameLocator("iframe")
     .locator('text=Please rate this 12 >> span:has-text("1")')
     .check()
-  await page.locator("text=Submit").click()
+  await page.getByText("Submit").click()
   await page.frameLocator("iframe").locator(`input[aria-label="3"]:disabled`).first().waitFor()
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,

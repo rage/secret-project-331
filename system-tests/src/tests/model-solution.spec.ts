@@ -13,7 +13,7 @@ test.describe("Model solutions", () => {
     await page.goto("http://project-331.local/organizations")
 
     await Promise.all([
-      await page.locator("text=University of Helsinki, Department of Computer Science").click(),
+      await page.getByText("University of Helsinki, Department of Computer Science").click(),
     ])
     await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
@@ -23,10 +23,10 @@ test.describe("Model solutions", () => {
 
     // await Promise.all([
     //
-    //   page.locator("text=view submissions").click(),
+    //   page.getByText("view submissions").click(),
     // ])
-    await page.locator("text=Exercises").click()
-    await page.locator("text=Best exercise").first().click()
+    await page.getByText("Exercises").click()
+    await page.getByText("Best exercise").first().click()
     await page.locator(`text="Submission time"`).waitFor()
     await page.click("td > a")
 
@@ -39,7 +39,7 @@ test.describe("Model solutions", () => {
       headless,
       testInfo,
       snapshotName: "model-solutions-in-submissions",
-      waitForTheseToBeVisibleAndStable: [frame.locator("text=a")],
+      waitForTheseToBeVisibleAndStable: [frame.getByText("a")],
 
       beforeScreenshot: async () => {
         await page.evaluate(() => {
@@ -65,18 +65,18 @@ test.describe("Model solutions", () => {
     await page.goto("http://project-331.local/organizations")
 
     await Promise.all([
-      await page.locator("text=University of Helsinki, Department of Computer Science").click(),
+      await page.getByText("University of Helsinki, Department of Computer Science").click(),
     ])
     await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
-    await page.locator("text=Model solutions").click()
+    await page.getByText("Model solutions").click()
 
     await selectCourseInstanceIfPrompted(page)
 
-    await page.locator("text=The Basics").click()
+    await page.getByText("The Basics").click()
     await expectUrlPathWithRandomUuid(page, "/org/uh-cs/courses/model-solutions/chapter-1")
 
-    await page.locator("text=Page One").first().click()
+    await page.getByText("Page One").first().click()
     await expectUrlPathWithRandomUuid(page, "/org/uh-cs/courses/model-solutions/chapter-1/page-1")
     // Wait for the frame to be visible
     // eslint-disable-next-line playwright/no-networkidle
@@ -88,7 +88,7 @@ test.describe("Model solutions", () => {
       headless,
       testInfo,
       snapshotName: "model-solutions-in-exercises",
-      waitForTheseToBeVisibleAndStable: [frame.locator("text=a")],
+      waitForTheseToBeVisibleAndStable: [frame.getByText("a")],
     })
   })
 })

@@ -1,9 +1,0 @@
-{
-  "author_name": "Mooc.fi",
-  "author_url": "http://project-331.local",
-  "html": "<iframe src='http://project-331.local/oembed' style='width: 99%;' height='500' title='OEmbed iFrame'></iframe>",
-  "provider_name": "project",
-  "provider_url": "http://project-331.local",
-  "title": "OEmbed",
-  "version": "1.0"
-}

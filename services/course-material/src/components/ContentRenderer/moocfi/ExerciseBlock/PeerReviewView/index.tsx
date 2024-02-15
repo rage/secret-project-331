@@ -21,12 +21,7 @@ const PeerReviewView: React.FC<React.PropsWithChildren<PeerReviewViewProps>> = (
   const { t } = useTranslation()
 
   return (
-    <div
-      className={css`
-        padding-top: 3rem;
-      `}
-      id={getPeerReviewBeginningScrollingId(props.exerciseId)}
-    >
+    <div id={getPeerReviewBeginningScrollingId(props.exerciseId)}>
       <h3
         className={css`
           font-weight: 600;

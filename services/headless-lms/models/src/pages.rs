@@ -27,7 +27,7 @@ use crate::{
     CourseOrExamId, SpecFetcher,
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Page {
     pub id: Uuid,
@@ -47,7 +47,7 @@ pub struct Page {
     pub page_language_group_id: Option<Uuid>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PageInfo {
     pub page_id: Uuid,
@@ -58,7 +58,7 @@ pub struct PageInfo {
     pub organization_slug: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PageAudioFiles {
     pub id: Uuid,
@@ -75,7 +75,7 @@ impl Page {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CoursePageWithUserData {
     pub page: Page,
@@ -86,7 +86,7 @@ pub struct CoursePageWithUserData {
     pub is_test_mode: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PageWithExercises {
     #[serde(flatten)]
@@ -122,7 +122,7 @@ pub struct PageDetailsUpdate {
     pub url_path: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NormalizedCmsExerciseTask {
     pub id: Uuid,
@@ -131,7 +131,7 @@ pub struct NormalizedCmsExerciseTask {
     pub private_spec: Option<serde_json::Value>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PageRoutingData {
     pub url_path: String,
@@ -143,7 +143,7 @@ pub struct PageRoutingData {
     pub chapter_front_page_id: Option<Uuid>,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 pub struct PageMetadata {
     pub page_id: Uuid,
     pub order_number: i32,
@@ -153,7 +153,7 @@ pub struct PageMetadata {
     pub exam_id: Option<Uuid>,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PageChapterAndCourseInformation {
     pub chapter_name: Option<String>,
@@ -187,12 +187,12 @@ pub struct ContentManagementPage {
     pub organization_id: Uuid,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct SearchRequest {
     pub query: String,
 }
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PageNavigationInformation {
     pub chapter_front_page: Option<PageRoutingData>,
@@ -200,7 +200,7 @@ pub struct PageNavigationInformation {
     pub previous_page: Option<PageRoutingData>,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseWithExerciseTasks {
     id: Uuid,
@@ -215,7 +215,7 @@ pub struct ExerciseWithExerciseTasks {
     score_maximum: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct IsChapterFrontPage {
     pub is_chapter_front_page: bool,
@@ -911,7 +911,7 @@ impl CmsPageExercise {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CmsPageExerciseSlide {
     pub id: Uuid,
@@ -929,7 +929,7 @@ impl From<ExerciseSlide> for CmsPageExerciseSlide {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CmsPageExerciseTask {
     pub id: Uuid,
@@ -3397,7 +3397,7 @@ mod test {
         assert!(pr_res.get(&pr_id).unwrap().accepting_threshold == 0.5);
 
         assert!(prq_res.get(&prq_id).unwrap().question == *"juu");
-        assert_eq!(pr_res.get(&pr_id).unwrap().points_are_all_or_nothing, false);
+        assert!(!pr_res.get(&pr_id).unwrap().points_are_all_or_nothing);
         assert_eq!(prq_res.get(&prq_id).unwrap().weight, 0.31);
     }
 

@@ -9,7 +9,7 @@
         "Varchar",
         "Int4",
         "Varchar",
-        "Int4",
+        "Float4",
         "Bool",
         "Int4",
         "Int4",

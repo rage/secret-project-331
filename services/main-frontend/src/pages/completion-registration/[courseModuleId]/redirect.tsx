@@ -33,7 +33,16 @@ const CompletionRedirectPage: React.FC<React.PropsWithChildren<CompletionRedirec
 
   return (
     <>
-      {userCompletionInformation.isError && <ErrorBanner error={userCompletionInformation.error} />}
+      {userCompletionInformation.isError && (
+        <ErrorBanner
+          error={
+            // @ts-expect-error: Using property from axios
+            userCompletionInformation.error.request.status !== 404
+              ? userCompletionInformation.error
+              : t("completion-registration-link-not-found")
+          }
+        />
+      )}
       {userCompletionInformation.isPending && <Spinner variant={"medium"} />}
       {userCompletionInformation.isSuccess && (
         <div>

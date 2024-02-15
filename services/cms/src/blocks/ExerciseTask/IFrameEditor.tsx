@@ -1,4 +1,3 @@
-import { Alert } from "@mui/lab"
 import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 import { useMemoOne } from "use-memo-one"
@@ -6,6 +5,7 @@ import { v5 } from "uuid"
 
 import { SIDEBAR_WIDTH_PX } from "../../components/Layout"
 import CourseContext from "../../contexts/CourseContext"
+import ErrorBanner from "../../shared-module/common/components/ErrorBanner"
 import MessageChannelIFrame from "../../shared-module/common/components/MessageChannelIFrame"
 import Spinner from "../../shared-module/common/components/Spinner"
 import LoginStateContext from "../../shared-module/common/contexts/LoginStateContext"
@@ -55,7 +55,7 @@ const ExerciseTaskIFrameEditor: React.FC<
   }, [privateSpec])
 
   if (!url || url.trim() === "") {
-    return <Alert severity="error">{t("error-cannot-render-exercise-task-missing-url")}</Alert>
+    return <ErrorBanner error={t("error-cannot-render-exercise-task-missing-url")} />
   }
 
   if (!userInfo.data) {

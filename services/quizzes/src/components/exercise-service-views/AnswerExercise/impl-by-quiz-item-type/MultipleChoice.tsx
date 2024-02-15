@@ -1,11 +1,11 @@
 import { css, cx } from "@emotion/css"
+import { InfoCircle } from "@vectopus/atlas-icons-react"
 import _ from "lodash"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { UserItemAnswerMultiplechoice } from "../../../../../types/quizTypes/answer"
 import { PublicSpecQuizItemMultiplechoice } from "../../../../../types/quizTypes/publicSpec"
-import { baseTheme } from "../../../../shared-module/common/styles"
 import { respondToOrLarger } from "../../../../shared-module/common/styles/respond"
 import withErrorBoundary from "../../../../shared-module/common/utils/withErrorBoundary"
 import { quizTheme } from "../../../../styles/QuizStyles"
@@ -14,18 +14,16 @@ import { sanitizeFlexDirection } from "../../../../util/css-sanitization"
 import { orderArrayWithId } from "../../../../util/randomizer"
 import ParsedText from "../../../ParsedText"
 
+import {
+  QUIZ_TITLE_STYLE,
+  TWO_DIMENSIONAL_BUTTON_SELECTED,
+  TWO_DIMENSIONAL_BUTTON_STYLES,
+} from "./AnswerQuizStyles"
+
 import { QuizItemComponentProps } from "."
 
-const optionButton = css`
-  align-items: center;
-  border: none;
-  display: flex;
-  flex: 1;
-  justify-content: center;
-  margin: 0.3rem 0.3rem 0.3rem 0;
-  padding: 1rem;
-  transition: background-color 0.2s;
-  text-align: left;
+export const optionButton = css`
+  ${TWO_DIMENSIONAL_BUTTON_STYLES}
 `
 
 const optionButtonColumn = css`
@@ -36,8 +34,7 @@ const optionButtonColumn = css`
 
 // eslint-disable-next-line i18next/no-literal-string
 const optionButtonSelected = css`
-  background: ${quizTheme.selectedItemBackground};
-  color: ${quizTheme.selectedItemColor};
+  ${TWO_DIMENSIONAL_BUTTON_SELECTED}
 `
 
 export interface LeftBorderedDivProps {
@@ -99,10 +96,7 @@ const MultipleChoice: React.FunctionComponent<
     >
       <div
         className={css`
-          /* font-size: ${quizTheme.quizTitleFontSize}; */
-          font-weight: bold;
-          font-family: "Raleway", sans-serif;
-          font-size: clamp(18px, 2vw, 20px) !important;
+          ${QUIZ_TITLE_STYLE}
         `}
       >
         <ParsedText parseLatex parseMarkdown inline text={quizItem.title} />
@@ -123,6 +117,10 @@ const MultipleChoice: React.FunctionComponent<
 
           ${respondToOrLarger.sm} {
             flex-direction: ${direction};
+            ${direction === ROW &&
+            `
+              column-gap: 0.625rem;
+            `}
           }
         `}
       >
@@ -149,12 +147,20 @@ const MultipleChoice: React.FunctionComponent<
       {quizItem.allowSelectingMultipleOptions && (
         <div
           className={css`
-            font-size: 13px;
-            color: ${baseTheme.colors.gray[500]};
-            margin: 0.3rem auto;
-            width: fit-content;
+            font-size: 0.813rem;
+            color: #564f23;
+            margin: 0.6rem 0;
+            width: 100%;
+            background: #f6f2da;
+            font-size: 1.125rem;
+            padding: 0.75rem 0.875rem;
+            display: flex;
+            align-items: center;
+            border-radius: 0.25rem;
+            column-gap: 0.6rem;
           `}
         >
+          <InfoCircle size={20} weight="bold" color="7A3F75" />
           {t("select-all-correct-options")}
         </div>
       )}

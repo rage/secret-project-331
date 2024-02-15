@@ -1,5 +1,3 @@
-import LoadingButton from "@mui/lab/LoadingButton"
-import { FloppyDiskSave } from "@vectopus/atlas-icons-react"
 import { BlockInstance } from "@wordpress/blocks"
 import dynamic from "next/dynamic"
 import React, { useContext, useState } from "react"
@@ -9,6 +7,7 @@ import { allowedEmailCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import CourseContext from "../../contexts/CourseContext"
 import mediaUploadBuilder from "../../services/backend/media/mediaUpload"
 import { EmailTemplate, EmailTemplateUpdate } from "../../shared-module/common/bindings"
+import Button from "../../shared-module/common/components/Button"
 import Spinner from "../../shared-module/common/components/Spinner"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
@@ -76,15 +75,9 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
       <div className="editor__component">
         <div>
           {error && <pre>{error}</pre>}
-          <LoadingButton
-            // eslint-disable-next-line i18next/no-literal-string
-            loadingPosition="start"
-            startIcon={<FloppyDiskSave size={15} />}
-            loading={saving}
-            onClick={handleOnSave}
-          >
+          <Button variant="primary" size="medium" disabled={saving} onClick={handleOnSave}>
             {t("save")}
-          </LoadingButton>
+          </Button>
 
           <UpdateEmailDetailsForm
             name={name}

@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct User {
     pub id: Uuid,

@@ -155,7 +155,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
         {courseId && (
           <CourseSettingsModal
             onClose={() => {
-              onRefresh
+              onRefresh()
               setShouldFetchResearchFormData(true)
             }}
           />

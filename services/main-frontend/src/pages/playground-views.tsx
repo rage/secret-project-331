@@ -43,7 +43,6 @@ import withNoSsr from "../shared-module/common/utils/withNoSsr"
 
 interface PlaygroundFields {
   url: string
-  width: string
   private_spec: string
   showIframeBorders: boolean
   disableSandbox: boolean
@@ -175,7 +174,6 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
     defaultValues: {
       // eslint-disable-next-line i18next/no-literal-string
       url: localStorage.getItem("service-info-url") ?? DEFAULT_SERVICE_INFO_URL,
-      width: narrowContainerWidthPx.toString(),
       // eslint-disable-next-line i18next/no-literal-string
       private_spec: "null",
       showIframeBorders: true,
@@ -186,7 +184,6 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
     },
   })
 
-  const width = watch("width")
   const url = watch("url")
   const privateSpec = watch("private_spec")
   const showIframeBorders = watch("showIframeBorders")
@@ -316,7 +313,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
       if (msg.tag == "TimedOut") {
         console.error("websocket timed out")
       } else if (msg.tag == "Registered") {
-        console.log("Registered websocket", msg.data)
+        console.info("Registered websocket", msg.data)
         setWebsocketId(msg.data)
       } else if (msg.tag == "ExerciseTaskGradingResult") {
         submitAnswerMutation.mutate({ type: "fromWebsocket", data: msg.data })
@@ -420,11 +417,6 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
             )}
           </ServiceInfoUrlGridArea>
           <MiscSettingsGridArea>
-            <TextField
-              placeholder={t("label-width")}
-              label={t("label-width")}
-              {...register("width")}
-            />
             <CheckBox label={t("show-iframe-borders")} {...register("showIframeBorders")} />
             <CheckBox label={t("disable-sandbox")} {...register("disableSandbox")} />
             <TextField
@@ -670,7 +662,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
             <>
               {currentView === "exercise-editor" && (
                 <PlaygroundExerciseEditorIframe
-                  url={`${exerciseServiceHost}${serviceInfoQuery.data.user_interface_iframe_path}?width=${width}`}
+                  url={`${exerciseServiceHost}${serviceInfoQuery.data.user_interface_iframe_path}`}
                   privateSpec={privateSpecParsed}
                   setCurrentStateReceivedFromIframe={setCurrentStateReceivedFromIframe}
                   showIframeBorders={showIframeBorders}
@@ -725,7 +717,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
                     }}
                   />
                   <PlaygroundExerciseIframe
-                    url={`${exerciseServiceHost}${serviceInfoQuery.data.user_interface_iframe_path}?width=${width}`}
+                    url={`${exerciseServiceHost}${serviceInfoQuery.data.user_interface_iframe_path}`}
                     publicSpecQuery={publicSpecQuery}
                     setCurrentStateReceivedFromIframe={setCurrentStateReceivedFromIframe}
                     showIframeBorders={showIframeBorders}
@@ -763,7 +755,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
                     }}
                   />
                   <PlaygroundViewSubmissionIframe
-                    url={`${exerciseServiceHost}${serviceInfoQuery.data.user_interface_iframe_path}?width=${width}`}
+                    url={`${exerciseServiceHost}${serviceInfoQuery.data.user_interface_iframe_path}`}
                     publicSpecQuery={publicSpecQuery}
                     setCurrentStateReceivedFromIframe={setCurrentStateReceivedFromIframe}
                     showIframeBorders={showIframeBorders}

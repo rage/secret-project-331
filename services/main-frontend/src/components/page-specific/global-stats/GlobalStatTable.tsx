@@ -1,26 +1,61 @@
 import { css } from "@emotion/css"
 import { UseQueryResult } from "@tanstack/react-query"
 import { groupBy, mapValues, sortBy } from "lodash"
-import { Fragment, useMemo } from "react"
+import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { GlobalStatEntry } from "../../../shared-module/common/bindings"
+import {
+  GlobalCourseModuleStatEntry,
+  GlobalStatEntry,
+} from "../../../shared-module/common/bindings"
 import ErrorBanner from "../../../shared-module/common/components/ErrorBanner"
 import Spinner from "../../../shared-module/common/components/Spinner"
 import withErrorBoundary from "../../../shared-module/common/utils/withErrorBoundary"
 import FullWidthTable, { FullWidthTableRow } from "../../tables/FullWidthTable"
 
-interface GlobalStatTableProps {
+type RegularStatTableProps = {
   query: UseQueryResult<GlobalStatEntry[]>
+  moduleStats: false
 }
 
-const GlobalStatTable: React.FC<GlobalStatTableProps> = ({ query }) => {
+type ModuleStatTableProps = {
+  query: UseQueryResult<GlobalCourseModuleStatEntry[]>
+  moduleStats: true
+}
+
+type GlobalStatTableProps = RegularStatTableProps | ModuleStatTableProps
+
+const GlobalStatTable: React.FC<GlobalStatTableProps> = ({ query, moduleStats }) => {
   const { t } = useTranslation()
+  const transformedData: GlobalStatEntry[] = useMemo(() => {
+    if (!query.data) {
+      return []
+    }
+    if (!moduleStats) {
+      return query.data
+    }
+    const res = query.data
+      ?.filter(
+        (entry) =>
+          entry.course_module_ects_credits !== null && entry.course_module_ects_credits !== 0,
+      )
+      .map(
+        (entry) =>
+          ({
+            ...entry,
+            course_name: `${entry.course_name} (${
+              entry.course_module_name ?? t("default-module")
+            })`,
+            value: entry.value * (entry.course_module_ects_credits ?? 0),
+          }) satisfies GlobalStatEntry,
+      )
+    return res
+  }, [moduleStats, query.data, t])
   const data = useMemo(() => {
-    const data = sortBy(query.data || [], ["organization_name", "name"])
+    const data = sortBy(transformedData || [], ["organization_name", "name"])
     const groupedByOrg = groupBy(data, (entry) => entry.organization_id)
     return mapValues(groupedByOrg, (entries) => groupBy(entries, (entry) => entry.course_id))
-  }, [query.data])
+  }, [transformedData])
   const allYears = useMemo(() => {
     const years = Array.from(new Set(query.data?.map((entry) => Number(entry.year))))
     years.sort((a, b) => a - b)
@@ -68,7 +103,7 @@ const GlobalStatTable: React.FC<GlobalStatTableProps> = ({ query }) => {
                     {firstEntry.organization_name}
                   </td>
                 )}
-                <td>{firstEntry.name}</td>
+                <td>{firstEntry.course_name}</td>
                 {allYears.map((year) => {
                   const entry = entries.find((entry) => entry.year === String(year))
                   return <td key={year}>{entry ? entry.value : "-"}</td>

@@ -29,7 +29,7 @@ Content-Type: application/json
 }
 ```
 */
-#[generated_doc]
+
 #[instrument(skip(pool, file_store, app_conf))]
 async fn post_new_chapter(
     request_id: RequestId,
@@ -72,7 +72,7 @@ async fn post_new_chapter(
 /**
 DELETE `/api/v0/main-frontend/chapters/:chapter_id` - Delete a chapter.
 */
-#[generated_doc]
+
 #[instrument(skip(pool, file_store, app_conf))]
 async fn delete_chapter(
     chapter_id: web::Path<String>,
@@ -116,7 +116,7 @@ Content-Type: application/json
 
 ```
 */
-#[generated_doc]
+
 #[instrument(skip(payload, pool, file_store, app_conf))]
 async fn update_chapter(
     payload: web::Json<ChapterUpdate>,
@@ -151,7 +151,7 @@ Content-Type: multipart/form-data
 BINARY_DATA
 ```
 */
-#[generated_doc]
+
 #[instrument(skip(request, payload, pool, file_store, app_conf))]
 async fn set_chapter_image(
     request: HttpRequest,
@@ -222,7 +222,7 @@ Request:
 DELETE /api/v0/main-frontend/chapters/d332f3d9-39a5-4a18-80f4-251727693c37/image HTTP/1.1
 ```
 */
-#[generated_doc]
+
 #[instrument(skip(pool, file_store))]
 async fn remove_chapter_image(
     chapter_id: web::Path<Uuid>,

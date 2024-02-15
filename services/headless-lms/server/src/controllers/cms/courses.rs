@@ -1,13 +1,15 @@
-//! Controllers for requests starting with `/api/v0/cms/organizations`.
+//! Controllers for requests starting with `/api/v0/cms/courses`.
 
 use crate::prelude::*;
 
 use models::{
+    course_instances::CourseInstance,
     pages::{Page, PageVisibility},
     peer_review_configs::{self, CmsPeerReviewConfiguration},
     peer_review_questions::normalize_cms_peer_review_questions,
 };
 
+use crate::prelude::models::course_modules::CourseModule;
 use models::research_forms::{
     NewResearchForm, NewResearchFormQuestion, ResearchForm, ResearchFormQuestion,
 };
@@ -26,7 +28,7 @@ Content-Type: multipart/form-data
 BINARY_DATA
 ```
 */
-#[generated_doc]
+
 #[instrument(skip(payload, request, pool, file_store, app_conf))]
 async fn add_media(
     course_id: web::Path<Uuid>,
@@ -55,7 +57,6 @@ async fn add_media(
     token.authorized_ok(web::Json(UploadResult { url: download_url }))
 }
 
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_course_default_peer_review_configuration(
     course_id: web::Path<Uuid>,
@@ -88,7 +89,6 @@ async fn get_course_default_peer_review_configuration(
     }))
 }
 
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn put_course_default_peer_review_configuration(
     course_id: web::Path<Uuid>,
@@ -117,7 +117,6 @@ async fn put_course_default_peer_review_configuration(
 /**
 GET `/api/v0/cms/courses/:course_id/pages` - Gets all pages for a course.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_all_pages(
     course_id: web::Path<Uuid>,
@@ -140,7 +139,7 @@ async fn get_all_pages(
 /**
 PUT `/api/v0/cms/courses/:course_id/research-consent-form` - Upserts courses research form from Gutenberg research form edit.
 */
-#[generated_doc]
+
 #[instrument(skip(pool, payload))]
 async fn upsert_course_research_form(
     payload: web::Json<NewResearchForm>,
@@ -165,7 +164,6 @@ async fn upsert_course_research_form(
 /**
 GET `/api/v0/cms/courses/:course_id/research-consent-form` - Fetches courses research form with course id.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_research_form_with_course_id(
     course_id: web::Path<Uuid>,
@@ -186,7 +184,6 @@ async fn get_research_form_with_course_id(
 PUT `/api/v0/cms/courses/:course_id/research-consent-form-question` - Upserts questions for the courses research form from Gutenberg research form edit.
 */
 
-#[generated_doc]
 #[instrument(skip(pool, payload))]
 async fn upsert_course_research_form_question(
     payload: web::Json<NewResearchFormQuestion>,
@@ -201,6 +198,38 @@ async fn upsert_course_research_form_question(
     let res = models::research_forms::upsert_research_form_questions(&mut conn, &question).await?;
 
     token.authorized_ok(web::Json(res))
+}
+
+/**
+GET `/api/v0/cms/courses/:course_id/modules`
+Returns modules in the course.
+*/
+#[instrument(skip(pool))]
+async fn get_course_modules(
+    course_id: web::Path<Uuid>,
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<Vec<CourseModule>>> {
+    let mut conn = pool.acquire().await?;
+    let course_modules = models::course_modules::get_by_course_id(&mut conn, *course_id).await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    token.authorized_ok(web::Json(course_modules))
+}
+
+/**
+GET `/api/v0/cms/courses/:course_id/course-instances` - Returns all course instances for given course id.
+*/
+#[instrument(skip(pool))]
+async fn get_course_instances(
+    course_id: web::Path<Uuid>,
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<Vec<CourseInstance>>> {
+    let mut conn = pool.acquire().await?;
+    let instances =
+        models::course_instances::get_course_instances_for_course(&mut conn, *course_id).await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    token.authorized_ok(web::Json(instances))
 }
 
 /**
@@ -232,5 +261,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/research-consent-form",
             web::put().to(upsert_course_research_form),
+        )
+        .route("/{course_id}/modules", web::get().to(get_course_modules))
+        .route(
+            "/{course_id}/course-instances",
+            web::get().to(get_course_instances),
         );
 }

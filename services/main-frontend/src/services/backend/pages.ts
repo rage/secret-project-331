@@ -67,7 +67,6 @@ export const postPageAudioFile = async (pageId: string, file: File): Promise<boo
   const data = new FormData()
   // eslint-disable-next-line i18next/no-literal-string
   data.append("file", file, file.name || "unknown")
-  console.log("data", data)
   const response = await mainFrontendClient.post(`/page_audio/${pageId}`, data)
   return validateResponse(response, isBoolean)
 }

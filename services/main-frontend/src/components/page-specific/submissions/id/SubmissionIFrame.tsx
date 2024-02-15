@@ -1,4 +1,3 @@
-import { Alert } from "@mui/lab"
 import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -6,6 +5,7 @@ import {
   CourseMaterialExerciseTask,
   StudentExerciseTaskSubmissionResult,
 } from "../../../../shared-module/common/bindings"
+import ErrorBanner from "../../../../shared-module/common/components/ErrorBanner"
 import MessageChannelIFrame from "../../../../shared-module/common/components/MessageChannelIFrame"
 import LoginStateContext from "../../../../shared-module/common/contexts/LoginStateContext"
 import getGuestPseudonymousUserId from "../../../../shared-module/common/utils/getGuestPseudonymousUserId"
@@ -33,16 +33,14 @@ const SubmissionIFrame: React.FC<React.PropsWithChildren<SubmissionIFrameProps>>
     !coursematerialExerciseTask.exercise_iframe_url ||
     coursematerialExerciseTask.exercise_iframe_url.trim() === ""
   ) {
-    return <Alert severity="error">{t("error-cannot-render-exercise-task-missing-url")}</Alert>
+    return <ErrorBanner error={t("error-cannot-render-exercise-task-missing-url")} />
   }
   if (!coursematerialExerciseTask.previous_submission_grading) {
-    return <Alert severity="error">{t("error-cannot-render-exercise-task-missing-url")}</Alert>
+    return <ErrorBanner error={t("error-cannot-render-exercise-task-missing-url")} />
   }
 
   if (!coursematerialExerciseTask.previous_submission) {
-    return (
-      <Alert severity="error">{t("error-cannot-render-exercise-task-missing-submission")}</Alert>
-    )
+    return <ErrorBanner error={t("error-cannot-render-exercise-task-missing-submission")} />
   }
   const state: SubmissionState = {
     public_spec: coursematerialExerciseTask.public_spec,
@@ -57,9 +55,9 @@ const SubmissionIFrame: React.FC<React.PropsWithChildren<SubmissionIFrameProps>>
 
   return (
     <MessageChannelIFrame
-      url={`${coursematerialExerciseTask.exercise_iframe_url}?width=700`} // todo: move constants to shared
+      url={`${coursematerialExerciseTask.exercise_iframe_url}`}
       onMessageFromIframe={(messageContainer, _responsePort) => {
-        console.log(messageContainer)
+        console.info(messageContainer)
       }}
       postThisStateToIFrame={{
         view_type: VIEW_SUBMISSION,

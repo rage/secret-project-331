@@ -12,9 +12,11 @@ const MapEditor: React.FC<React.PropsWithChildren<BlockEditProps<Record<string, 
 }) => {
   const { t } = useTranslation()
   return (
-    <BlockPlaceholderWrapper id={clientId}>
-      <h3>{t("map-block-placeholder")}</h3>
-      <p>{t("map-block-placeholder-explanation")}</p>
+    <BlockPlaceholderWrapper
+      id={clientId}
+      title={t("map-block-placeholder")}
+      explanation={t("map-block-placeholder-explanation")}
+    >
       <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
     </BlockPlaceholderWrapper>
   )

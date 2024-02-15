@@ -1,5 +1,3 @@
-import { css } from "@emotion/css"
-import { useRouter } from "next/router"
 import React, { useState } from "react"
 import ReactDOM from "react-dom"
 import { useTranslation } from "react-i18next"
@@ -63,12 +61,6 @@ export type State =
 const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { i18n } = useTranslation()
   const [state, setState] = useState<State | null>(null)
-  const router = useRouter()
-  const rawMaxWidth = router?.query?.width
-  let maxWidth: number | null = 500
-  if (rawMaxWidth) {
-    maxWidth = Number(rawMaxWidth)
-  }
 
   const port = useExerciseServiceParentConnection((messageData) => {
     if (forgivingIsSetStateMessage(messageData)) {
@@ -95,9 +87,6 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
           // An exercise might be edited after the previous submission and some item answers in the previous submission might be for a quiz item that has been removed from the exercise.
           // We'll filter out those answers here so that we don't submit answers to non-existing quiz items.
           if (quiz_answer) {
-            console.log("quiz_answer", quiz_answer)
-            console.log("publicSpec", publicSpec)
-            console.log("wat")
             quiz_answer = {
               ...(quiz_answer as UserAnswer),
               itemAnswers: (quiz_answer as UserAnswer).itemAnswers.filter((itemAnswer) =>
@@ -107,7 +96,7 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
               ),
             } satisfies UserAnswer
           }
-          console.log("quiz_answer after filtering", quiz_answer)
+
           setState({
             viewType: messageData.view_type,
             publicSpec: publicSpec as PublicSpecQuiz,
@@ -215,13 +204,7 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
 
   return (
     <HeightTrackingContainer port={port}>
-      <div
-        className={css`
-          width: 100%;
-          ${maxWidth && `max-width: ${maxWidth}px;`}
-          margin: 0 auto;
-        `}
-      >
+      <div>
         <Renderer port={port} setState={setState} state={state} />
       </div>
     </HeightTrackingContainer>

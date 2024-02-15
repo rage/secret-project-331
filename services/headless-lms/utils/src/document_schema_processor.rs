@@ -28,7 +28,7 @@ macro_rules! attributes {
     }};
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct GutenbergBlock {
     #[serde(rename = "clientId")]
     pub client_id: Uuid,

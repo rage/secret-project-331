@@ -1,7 +1,6 @@
 import { css } from "@emotion/css"
-import { faQuestion as faIcon } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useQuery } from "@tanstack/react-query"
+import { Question } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -77,7 +76,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
                   align-items: center;
                 `}
               >
-                <FontAwesomeIcon icon={faIcon} />
+                <Question />
               </div>
               <div
                 className={css`

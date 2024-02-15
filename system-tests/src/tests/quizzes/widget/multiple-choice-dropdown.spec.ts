@@ -25,12 +25,12 @@ test("widget, multiple-choice-dropdown screenshot test", async ({ page, headless
   })
 
   await frame
-    .locator(`select:right-of(:text("How many different CSS hexadecimal color codes there are?"))`)
+    .locator(`select:below(:text("How many different CSS hexadecimal color codes there are?"))`)
     .first()
     .selectOption({ label: "at least two" })
 
   await frame
-    .locator(`select:right-of(:text("What other ways there are to represent colors in CSS?"))`)
+    .locator(`select:below(:text("What other ways there are to represent colors in CSS?"))`)
     .first()
     .selectOption({ label: "RGB -color system" })
 

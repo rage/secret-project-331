@@ -5,7 +5,6 @@ use crate::prelude::*;
 /**
 GET `/api/v0/main-frontend/user-details/[id]` - Find user details by user id
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 pub async fn get_user_details(
     user: AuthUser,
@@ -28,7 +27,6 @@ pub async fn get_user_details(
 /**
 GET `/api/v0/main-frontend/user-details/search-by-email` - Allows to search user by their email
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 pub async fn search_users_by_email(
     user: AuthUser,
@@ -52,7 +50,6 @@ pub async fn search_users_by_email(
 /**
 GET `/api/v0/main-frontend/user-details/search-by-other-details` - Allows to search user by their names etc.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 pub async fn search_users_by_other_details(
     user: AuthUser,
@@ -77,7 +74,6 @@ pub async fn search_users_by_other_details(
 /**
 GET `/api/v0/main-frontend/user-details/search-fuzzy-match` - Allows to find the right user details in cases where there is a small typing error in the search query
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 pub async fn search_users_fuzzy_match(
     user: AuthUser,

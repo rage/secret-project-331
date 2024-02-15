@@ -2,10 +2,10 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { CheckCircle, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
 import { UserItemAnswerMatrix } from "../../../../../types/quizTypes/answer"
 import { PublicSpecQuizItemMatrix } from "../../../../../types/quizTypes/publicSpec"
-import { baseTheme } from "../../../../shared-module/common/styles"
 import withErrorBoundary from "../../../../shared-module/common/utils/withErrorBoundary"
 
 import { QuizItemSubmissionComponentProps } from "."
@@ -13,22 +13,64 @@ import { QuizItemSubmissionComponentProps } from "."
 const MatrixTableContainer = styled.table`
   margin: auto;
   margin-top: 1rem;
-  background-color: gray;
   border-collapse: collapse;
+
   td {
-    border: 2px solid #e1e1e199;
+    border-top: none;
   }
-  &tr:first-child td {
-    border-top: 4px;
+
+  tr:last-child td {
+    border-bottom: none;
   }
-  &tr td:first-child {
-    border-left: 4px;
+
+  tr td:last-child {
+    border-right: none;
   }
-  &tr:last-child td {
-    border-bottom: 4px;
+
+  tr td:first-child {
+    border-left: none;
   }
-  &tr td:last-child {
-    border-right: 4px;
+
+  tbody {
+    border-left: 0.125rem solid #718dbf;
+    border-right: 0.125rem solid #718dbf;
+    position: relative;
+  }
+
+  .top-left:before {
+    position: absolute;
+    content: "";
+    width: 0.938rem;
+    border-top: 0.125rem solid #718dbf;
+    top: 0%;
+    left: -0.8%;
+  }
+
+  .top-right:before {
+    position: absolute;
+    content: "";
+    width: 0.938rem;
+    border-top: 0.125rem solid #718dbf;
+    top: 0%;
+    right: -0.6%;
+  }
+
+  .bottom-left:before {
+    position: absolute;
+    content: "";
+    width: 0.938rem;
+    border-bottom: 0.125rem solid #718dbf;
+    bottom: 0%;
+    left: -0.8%;
+  }
+
+  .bottom-right {
+    position: absolute;
+    content: "";
+    width: 0.938rem;
+    border-bottom: 0.125rem solid #718dbf;
+    bottom: 0%;
+    right: -0.6%;
   }
 `
 
@@ -43,6 +85,7 @@ const MatrixSubmission: React.FC<
   const modelSolution = quiz_item_model_solution as UserItemAnswerMatrix | null
   const correctAnswers = modelSolution?.matrix
   const studentAnswers = user_quiz_item_answer.matrix
+  const { t } = useTranslation()
 
   if (!studentAnswers) {
     // eslint-disable-next-line i18next/no-literal-string
@@ -57,6 +100,12 @@ const MatrixSubmission: React.FC<
     isStudentsAnswer: boolean,
   ): isCellCorrectObject => {
     if (!correctAnswers) {
+      if (!isStudentsAnswer && modelSolution?.optionCells) {
+        return {
+          text: modelSolution.optionCells[row][column],
+          correct: null,
+        }
+      }
       return {
         text: studentAnswers[row][column],
         correct: null,
@@ -73,7 +122,46 @@ const MatrixSubmission: React.FC<
       correct: correct,
     }
   }
-  const tempArray = [0, 1, 2, 3, 4, 5]
+  const rowsCountArray: number[] = []
+  const columnsCountArray: number[] = []
+
+  const modelSolutionRowsCountArray: number[] = []
+  const modelSolutionColumnsCountArray: number[] = []
+
+  const containsNonEmptyString = (arr: string[]): boolean =>
+    arr.some((item) => typeof item === "string" && item.trim() !== "")
+
+  const modelSolutionMatrix = modelSolution?.optionCells
+
+  const populateRowsAndColumns = (
+    matrixArr: string[][] | undefined,
+    column: number[],
+    row: number[],
+  ) => {
+    let countRows = 0
+    let countColumns = 0
+    return matrixArr?.forEach((answer, index) => {
+      if (containsNonEmptyString(answer)) {
+        column.push(countRows)
+        countRows += 1
+        index == 0 &&
+          answer?.forEach((item) => {
+            if (item !== "") {
+              row.push(countColumns)
+              countColumns += 1
+            }
+          })
+      }
+    })
+  }
+
+  populateRowsAndColumns(studentAnswers, columnsCountArray, rowsCountArray)
+  populateRowsAndColumns(
+    modelSolutionMatrix,
+    modelSolutionColumnsCountArray,
+    modelSolutionRowsCountArray,
+  )
+
   if (isIncorrect) {
     return (
       <div
@@ -87,15 +175,38 @@ const MatrixSubmission: React.FC<
         <div>
           <MatrixTable
             isStudentsAnswer={true}
-            tempArray={tempArray}
+            rowsCountArray={rowsCountArray}
+            columnsCountArray={columnsCountArray}
             findOptionText={findOptionText}
           ></MatrixTable>
-          {correctAnswers && <XmarkCircle color="red" size={20} />}
+          {correctAnswers && <XmarkCircle color="#D75861" size={20} />}
         </div>
-        {correctAnswers && (
+        {modelSolutionMatrix && (
           <div>
-            <MatrixTable tempArray={tempArray} findOptionText={findOptionText}></MatrixTable>
-            <CheckCircle color="green" size={20} />
+            <MatrixTable
+              rowsCountArray={modelSolutionRowsCountArray}
+              columnsCountArray={modelSolutionColumnsCountArray}
+              findOptionText={findOptionText}
+            ></MatrixTable>
+            <div
+              className={css`
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin-top: 0.563rem;
+
+                p {
+                  font-family: Raleway, sans-serif;
+                  color: #4c5868;
+                  font-weight: 500;
+                  font-size: 1rem;
+                  margin-left: 0.3rem;
+                }
+              `}
+            >
+              <CheckCircle color="#69AF8A" size={18} />
+              <p>{t("correct-option-tag")}</p>
+            </div>
           </div>
         )}
       </div>
@@ -105,7 +216,8 @@ const MatrixSubmission: React.FC<
       <MatrixTable
         // eslint-disable-next-line i18next/no-literal-string
         aria-label="single"
-        tempArray={tempArray}
+        rowsCountArray={rowsCountArray}
+        columnsCountArray={columnsCountArray}
         findOptionText={findOptionText}
       ></MatrixTable>
     )
@@ -113,24 +225,30 @@ const MatrixSubmission: React.FC<
 }
 
 interface MatrixTableProps {
-  tempArray: number[]
+  rowsCountArray: number[]
+  columnsCountArray: number[]
   findOptionText: (column: number, row: number, isStudentsAnswer: boolean) => isCellCorrectObject
   isStudentsAnswer?: boolean
 }
 
 const MatrixTable: React.FC<React.PropsWithChildren<MatrixTableProps>> = ({
-  tempArray,
+  rowsCountArray,
+  columnsCountArray,
   findOptionText,
   isStudentsAnswer = false,
 }) => {
   return (
     <MatrixTableContainer>
       <tbody>
+        <div className="top-left"></div>
+        <div className="top-right"></div>
+        <div className="bottom-left"></div>
+        <div className="bottom-right"></div>
         <>
-          {tempArray.map((row) => {
+          {rowsCountArray.map((row) => {
             return (
               <tr key={`row${row}`}>
-                {tempArray.map((column) => {
+                {columnsCountArray.map((column) => {
                   const cell = findOptionText(column, row, isStudentsAnswer)
                   if (cell !== null) {
                     return (
@@ -139,7 +257,7 @@ const MatrixTable: React.FC<React.PropsWithChildren<MatrixTableProps>> = ({
                         className={css`
                           padding: 0;
                           font-size: 2.8vw;
-                          font-size: 22px;
+                          font-size: 1.375rem;
                           font-family:
                             Josefin Sans,
                             sans-serif;
@@ -150,29 +268,30 @@ const MatrixTable: React.FC<React.PropsWithChildren<MatrixTableProps>> = ({
                             display: flex;
                             align-items: center;
                             justify-content: center;
-                            width: 50px;
-                            height: 50px;
+                            width: 3.125rem;
+                            height: 3.125rem;
                             border: 0;
                             outline: none;
                             text-align: center;
                             resize: none;
                             ${cell.text.length === 0 &&
                             `
-                              background-color: #ECECEC;
+                              background-color: #f5f6f7;
                             `}
                             ${cell.text !== "" &&
                             `
-                                background-color: #DBDBDB;
+                                background-color: #f9f9f9;
+                                color: #4C5868;
                                 `}
                                 ${cell.correct === false &&
-                            `background-color: ${baseTheme.colors.red[200]};
+                            `background-color: #bfbec6;
                                 `}
                           `}
                         >
                           <p
                             className={css`
                               position: relative;
-                              bottom: -3px;
+                              bottom: -0.188rem;
                             `}
                           >
                             {cell.text}

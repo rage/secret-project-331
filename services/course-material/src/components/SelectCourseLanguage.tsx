@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import React, { useContext, useEffect } from "react"
+import React, { useCallback, useContext, useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
 import PageContext from "../contexts/PageContext"
@@ -19,22 +19,21 @@ import withErrorBoundary from "../shared-module/common/utils/withErrorBoundary"
 import { GetLanguageFlag, getLanguageName } from "./modals/ChooseCourseLanguage"
 
 export interface CourseTranslationsListProps {
-  selectedCourseId: string
-  savedCourseId: string | undefined
-  setIsLanguageChanged(languageChanged: boolean): void
-  setSelectLanguage(setLanguage: string): void
+  selectedLangCourseId: string
+  setSelectedLangCourseId(setLanguage: string): void
+  setDialogLanguage: React.Dispatch<React.SetStateAction<string>>
+  dialogLanguage: string
 }
 
 const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsListProps>> = ({
-  setIsLanguageChanged,
-  setSelectLanguage,
-  selectedCourseId,
-  savedCourseId,
+  selectedLangCourseId,
+  setSelectedLangCourseId,
+  setDialogLanguage,
+  dialogLanguage,
 }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation("course-material", { lng: dialogLanguage })
   const pageState = useContext(PageContext)
   const currentCourseId = pageState.pageData?.course_id
-  const { i18n } = useTranslation()
   const useCourseLanguageVersionsList = useQuery({
     queryKey: [formatLanguageVersionsQueryKey(currentCourseId ?? ""), currentCourseId],
     queryFn: () => fetchCourseLanguageVersions(currentCourseId ?? ""),
@@ -43,27 +42,26 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
     (course) => !course.is_draft,
   )
 
-  const langCode = courseVersionsList?.find((course) => course.id === selectedCourseId)
-    ?.language_code
+  const langCode = courseVersionsList?.find(
+    (course) => course.id === selectedLangCourseId,
+  )?.language_code
 
-  //Gets courseId and languageCode of the chosen language
-  const onChange = (event: { target: { value: string } }) => {
-    const changedCourseId = event.target.value
-    const newLangCode = courseVersionsList?.find((course) => course.id === changedCourseId)
-      ?.language_code
+  // Gets courseId and languageCode of the chosen language
+  const onChange = useCallback(
+    (event: { target: { value: string } }) => {
+      const changedCourseId = event.target.value
+      const newLangCode = courseVersionsList?.find(
+        (course) => course.id === changedCourseId,
+      )?.language_code
 
-    if (newLangCode) {
-      i18n.changeLanguage(newLangCode)
-    }
+      if (newLangCode) {
+        setDialogLanguage(newLangCode)
+      }
 
-    setSelectLanguage(changedCourseId)
-
-    if (savedCourseId === undefined || savedCourseId === changedCourseId) {
-      setIsLanguageChanged(false)
-    } else {
-      setIsLanguageChanged(true)
-    }
-  }
+      setSelectedLangCourseId(changedCourseId)
+    },
+    [courseVersionsList, setDialogLanguage, setSelectedLangCourseId],
+  )
 
   //Puts the current course at the top of the list
   if (courseVersionsList) {
@@ -79,9 +77,9 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
       if (!firstLanguageVersion) {
         return
       }
-      i18n.changeLanguage(firstLanguageVersion.language_code)
+      setDialogLanguage(firstLanguageVersion.language_code)
     }
-  }, [currentCourseId, courseVersionsList, langCode, i18n])
+  }, [currentCourseId, courseVersionsList, langCode, setDialogLanguage])
 
   if (useCourseLanguageVersionsList.isPending) {
     return <Spinner variant="medium" />
@@ -134,7 +132,7 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
           `}
           id="changeLanguage"
           onChange={onChange}
-          defaultValue={selectedCourseId}
+          defaultValue={selectedLangCourseId}
         >
           {courseVersionsList?.map((course) => (
             <option key={course.id} value={course.id}>

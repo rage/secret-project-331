@@ -18,7 +18,7 @@ Content-Type: multipart/form-data
 BINARY_DATA
 ```
 */
-#[generated_doc]
+
 #[instrument(skip(payload, request, file_store, app_conf))]
 async fn add_media(
     pool: web::Data<PgPool>,
@@ -48,7 +48,6 @@ async fn add_media(
 /**
 GET `/api/v0/cms/exams/:exam_id/edit` - Get the exam instructions for Gutenberg Editor.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_exam_instructions(
     pool: web::Data<PgPool>,
@@ -73,7 +72,7 @@ Request:
 PUT /api/v0/cms/exams/d86cf910-4d26-40e9-8c9c-1cc35294fdbb/edit HTTP/1.1
 ```
 */
-#[generated_doc]
+
 #[instrument(skip(pool, payload))]
 async fn update_exam_instructions(
     payload: web::Json<ExamInstructionsUpdate>,

@@ -1,7 +1,7 @@
-import { Alert } from "@mui/lab"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import ErrorBanner from "../../../../shared-module/common/components/ErrorBanner"
 import MessageChannelIFrame from "../../../../shared-module/common/components/MessageChannelIFrame"
 import { IframeState } from "../../../../shared-module/common/exercise-service-protocol-types"
 import { isMessageFromIframe } from "../../../../shared-module/common/exercise-service-protocol-types.guard"
@@ -22,7 +22,7 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
 }) => {
   const { t } = useTranslation()
   if (!url || url.trim() === "") {
-    return <Alert severity="error">{t("cannot-render-exercise-task-missing-url")}</Alert>
+    return <ErrorBanner error={t("cannot-render-exercise-task-missing-url")} />
   }
 
   return (

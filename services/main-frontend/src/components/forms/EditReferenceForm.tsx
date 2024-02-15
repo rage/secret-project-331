@@ -55,7 +55,6 @@ const EditReferenceForm: React.FC<React.PropsWithChildren<EditReferenceFormProps
         citation_key: editedReference.id,
       })
     } catch (error: unknown) {
-      console.log(error)
       setErrorMessage(t("reference-parsing-error"))
       setTimeout(() => {
         setErrorMessage(EMPTY_STRING)
@@ -68,7 +67,7 @@ const EditReferenceForm: React.FC<React.PropsWithChildren<EditReferenceFormProps
     const cite = new Cite(reference.reference)
     defaultValueReference = cite.get({ type: "string", style: "bibtex", lang: "en-US" })
   } catch (error: unknown) {
-    console.log(error)
+    console.warn(error)
   }
 
   return (

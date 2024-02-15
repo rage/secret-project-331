@@ -10,6 +10,18 @@ import { quizTheme } from "../../../../styles/QuizStyles"
 
 import { QuizItemComponentProps } from "."
 
+const SelectInputIcon = () => {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" role="presentation">
+      <path
+        d="M8.292 10.293a1.009 1.009 0 000 1.419l2.939 2.965c.218.215.5.322.779.322s.556-.107.769-.322l2.93-2.955a1.01 1.01 0 000-1.419.987.987 0 00-1.406 0l-2.298 2.317-2.307-2.327a.99.99 0 00-1.406 0z"
+        fill="#57606f"
+        fillRule="evenodd"
+      ></path>
+    </svg>
+  )
+}
+
 const MultipleChoiceDropdown: React.FunctionComponent<
   React.PropsWithChildren<
     QuizItemComponentProps<
@@ -46,24 +58,8 @@ const MultipleChoiceDropdown: React.FunctionComponent<
     return optionAnswers[0] ?? null
   }, [quizItemAnswerState?.selectedOptionIds])
   return (
-    <div
-      className={css`
-        display: flex;
-        flex: 1;
-        flex-direction: column;
-        justify-content: space-between;
-        align-items: center;
-        ${respondToOrLarger.sm} {
-          flex-direction: row;
-        }
-      `}
-    >
-      <div
-        className={css`
-          flex-direction: column;
-          width: 70%;
-        `}
-      >
+    <div>
+      <div>
         <div
           className={css`
             margin: 0.5rem 0;
@@ -74,9 +70,11 @@ const MultipleChoiceDropdown: React.FunctionComponent<
             <>
               <h2
                 className={css`
-                  font-family: "Raleway", sans-serif;
-                  font-weight: bold;
                   font-size: ${quizTheme.quizTitleFontSize} !important;
+                  font-weight: 500;
+                  color: #4c5868;
+                  font-family: "Raleway", sans-serif;
+                  margin-bottom: 1rem;
                 `}
               >
                 {quizItem.title}
@@ -94,7 +92,7 @@ const MultipleChoiceDropdown: React.FunctionComponent<
               <>
                 <h3
                   className={css`
-                    font-size: clamp(18px, 2vw, 20px) !important;
+                    font-size: 1.25rem !important;
                   `}
                 >
                   {quizItem.body}
@@ -107,9 +105,22 @@ const MultipleChoiceDropdown: React.FunctionComponent<
       <div
         className={css`
           display: flex;
-          width: 30%;
+          width: 80%;
           align-items: center;
-          margin: 0.5rem 0;
+          margin-bottom: 0.5rem;
+          position: relative;
+
+          ${respondToOrLarger.sm} {
+            width: 40%;
+          }
+
+          .select-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            right: 10px;
+            pointer-events: none;
+          }
         `}
       >
         <select
@@ -118,15 +129,26 @@ const MultipleChoiceDropdown: React.FunctionComponent<
           className={css`
             display: grid;
             width: 100%;
-            border: 1px solid #e0e0e0;
-            border-radius: 3px;
-            padding: 10px 12px;
-            font-size: 18px;
+            border-radius: 0.25rem;
+            border: none;
+            padding: 0.5rem 2rem 0.5rem 0.625rem;
+            font-size: 1.125rem;
             cursor: pointer;
-            background: #f9f9f9;
+            border: 0.188rem solid #dfe1e6;
+            background: none;
+            min-height: 2.5rem;
             grid-template-areas: "select";
             align-items: center;
-            margin-left: 0.5rem;
+            color: #4c5868;
+            appearance: none;
+            background: transparent;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+
+            :hover {
+              background: #f9f9f9;
+            }
           `}
         >
           <option
@@ -137,7 +159,7 @@ const MultipleChoiceDropdown: React.FunctionComponent<
               display: flex;
             `}
           >
-            {t("answer")}
+            {t("select")}
           </option>
           {quizItem.options.map((o) => (
             <option
@@ -152,6 +174,9 @@ const MultipleChoiceDropdown: React.FunctionComponent<
             </option>
           ))}
         </select>
+        <div className="select-arrow">
+          <SelectInputIcon />
+        </div>
       </div>
     </div>
   )

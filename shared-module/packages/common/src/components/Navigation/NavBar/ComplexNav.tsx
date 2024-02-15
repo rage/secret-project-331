@@ -1,10 +1,8 @@
 import { css, cx, keyframes } from "@emotion/css"
-import styled from "@emotion/styled"
-import { faFingerprint } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import MOOCfi from "../../../img/moocfiLogo.svg"
 import { baseTheme } from "../../../styles"
 import { respondToOrLarger } from "../../../styles/respond"
 import { runCallbackIfEnterPressed } from "../../../utils/accessibility"
@@ -219,11 +217,6 @@ const secondaryLink = css`
   }
 `
 
-const StyledIcon = styled(FontAwesomeIcon)`
-  font-size: 1.8rem;
-  color: ${baseTheme.colors.gray[700]};
-`
-
 const Navigation: React.FC<
   React.PropsWithChildren<React.PropsWithChildren<NavigationProps>>
 > = () => {
@@ -235,8 +228,8 @@ const Navigation: React.FC<
   return (
     <nav role="navigation" className={cx(navbarItems)}>
       <div className={cx(navbarLogo)}>
-        <a href="/" aria-label={t("home-page")} role="button">
-          <StyledIcon icon={faFingerprint} aria-label={t("home-page")}></StyledIcon>
+        <a href="/" aria-label={t("home-page")}>
+          <MOOCfi />
         </a>
       </div>
       <div

@@ -44,7 +44,7 @@ pub struct AuthUser {
     upstream_id: Option<i32>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 #[serde(rename_all = "snake_case")]
 pub struct ActionOnResource {
@@ -191,7 +191,7 @@ pub enum Action {
 }
 
 /// The target of an action.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 #[serde(rename_all = "snake_case", tag = "type", content = "id")]
 pub enum Resource {
@@ -632,12 +632,13 @@ fn has_permission(user_role: UserRole, action: Action) -> bool {
                 | Grade
                 | Duplicate
                 | DeleteAnswer
-                | EditRole(Teacher | Assistant | Reviewer | MaterialViewer)
+                | EditRole(Teacher | Assistant | Reviewer | MaterialViewer | StatsViewer)
                 | CreateCoursesOrExams
                 | ViewMaterial
                 | UploadFile
                 | ViewUserProgressOrDetails
                 | ViewInternalCourseStructure
+                | ViewStats
         ),
         Assistant => matches!(
             action,
@@ -662,6 +663,7 @@ fn has_permission(user_role: UserRole, action: Action) -> bool {
                 View | ViewMaterial | ViewUserProgressOrDetails | ViewInternalCourseStructure
             )
         }
+        StatsViewer => matches!(action, ViewStats),
     }
 }
 
@@ -888,12 +890,16 @@ pub async fn authenticate_test_user(
         models::users::get_by_email(conn, "assistant@example.com").await?
     } else if email == "creator@example.com" && password == "creator" {
         models::users::get_by_email(conn, "creator@example.com").await?
-    } else if email == "student1@example.com" && password == "student.1" {
+    } else if email == "student1@example.com" && password == "student1" {
         models::users::get_by_email(conn, "student1@example.com").await?
-    } else if email == "student2@example.com" && password == "student.2" {
+    } else if email == "student2@example.com" && password == "student2" {
         models::users::get_by_email(conn, "student2@example.com").await?
-    } else if email == "student3@example.com" && password == "student.3" {
+    } else if email == "student3@example.com" && password == "student3" {
         models::users::get_by_email(conn, "student3@example.com").await?
+    } else if email == "student4@example.com" && password == "student4" {
+        models::users::get_by_email(conn, "student4@example.com").await?
+    } else if email == "student5@example.com" && password == "student5" {
+        models::users::get_by_email(conn, "student5@example.com").await?
     } else if email == "teaching-and-learning-services@example.com"
         && password == "teaching-and-learning-services"
     {

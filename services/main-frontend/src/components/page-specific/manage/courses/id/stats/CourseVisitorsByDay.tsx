@@ -28,7 +28,7 @@ const CourseVisitorsByDay: React.FC<React.PropsWithChildren<CourseVisitorsByDayP
       return null
     }
     const allDates = new Set(query.data.map((o) => o.visit_date))
-    console.log({ allDates })
+
     // Total by date
     const totalByDate: { [date: string]: number } = Array.from(allDates).reduce((acc, date) => {
       const count = query.data.filter((o) => o.visit_date === date).length

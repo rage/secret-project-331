@@ -17,12 +17,12 @@ export const addExerciseRepository = async (
     git_url: gitUrl,
     deploy_key: deployKey.length > 0 ? deployKey : null,
   }
-  return mainFrontendClient.post(`/exercise-repositories/new`, data, { responseType: "json" })
+  return mainFrontendClient.post(`/exercise-repositories/new`, data)
 }
 
 export const editExerciseRepository = async (id: string, gitUrl: string): Promise<void> => {
   const data: unknown = { url: gitUrl }
-  return mainFrontendClient.put(`/exercise-repositories/${id}`, data, { responseType: "json" })
+  return mainFrontendClient.put(`/exercise-repositories/${id}`, data)
 }
 
 export const getExerciseRepositories = async (
@@ -37,12 +37,10 @@ export const getExerciseRepositories = async (
   } else {
     throw "No course or exam id given"
   }
-  const res = await mainFrontendClient.get(url, {
-    responseType: "json",
-  })
+  const res = await mainFrontendClient.get(url)
   return validateResponse(res, isArray(isExerciseRepository))
 }
 
 export const deleteExerciseRepository = async (id: string): Promise<void> => {
-  await mainFrontendClient.delete(`/exercise-repositories/${id}`, { responseType: "json" })
+  await mainFrontendClient.delete(`/exercise-repositories/${id}`)
 }

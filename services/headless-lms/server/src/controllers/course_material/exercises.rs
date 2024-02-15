@@ -31,7 +31,6 @@ relevant context so that doing the exercise is possible based on the response.
 This endpoint does not expose exercise's private spec because it would
 expose the correct answers to the user.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_exercise(
     pool: web::Data<PgPool>,
@@ -106,7 +105,6 @@ GET `/api/v0/course-material/exercises/:exercise_id/peer-review` - Get peer revi
 
 This request will fail if the user is not in the peer review stage yet because the information included in the peer review often exposes the correct solution to the exercise.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_peer_review_for_exercise(
     pool: web::Data<PgPool>,
@@ -153,7 +151,6 @@ async fn get_peer_review_for_exercise(
 /**
 GET `/api/v0/course-material/exercises/:exercise_id/peer-review-received` - Get peer review recieved from other student for an exercise. This includes peer review submitted and the question asociated with it.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_peer_reviews_received(
     pool: web::Data<PgPool>,
@@ -193,7 +190,6 @@ Content-Type: application/json
 }
 ```
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn post_submission(
     pool: web::Data<PgPool>,
@@ -229,7 +225,6 @@ async fn post_submission(
  * This operation is only valid for exercises marked for peer reviews. No further submissions will be
  * accepted after posting to this endpoint.
  */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn start_peer_review(
     pool: web::Data<PgPool>,
@@ -259,7 +254,6 @@ async fn start_peer_review(
  * POST `/api/v0/course-material/exercises/:exercise_id/peer-reviews - Post a peer review for an
  * exercise submission.
  */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn submit_peer_review(
     pool: web::Data<PgPool>,

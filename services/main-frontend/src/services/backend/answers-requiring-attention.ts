@@ -18,7 +18,6 @@ export const fetchAnswersRequiringAttention = async (
   const response = await mainFrontendClient.get(
     `/exercises/${exerciseId}/answers-requiring-attention`,
     {
-      responseType: "json",
       params: { page, limit },
     },
   )
@@ -34,9 +33,6 @@ export const updateAnswerRequiringAttention = async ({
   const response = await mainFrontendClient.put(
     `/exercise-slide-submissions/update-answer-requiring-attention`,
     { user_exercise_state_id, exercise_id, action, manual_points },
-    {
-      headers: { "Content-Type": "application/json" },
-    },
   )
   return validateResponse(response, isUserExerciseState)
 }

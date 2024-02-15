@@ -57,9 +57,9 @@ export default function managePageOrderReducer(
           (c) => c.front_page_id !== null,
         )
         const chapters = action.payload.chapters.filter((c) => c.id !== null)
-        const ordered = orderBy(action.payload.pages, (page) => page.order_number)
+        const orderedPages = orderBy([...action.payload.pages], (page) => page.order_number)
 
-        const withoutFrontpages = ordered.filter(
+        const withoutFrontpages = orderedPages.filter(
           (page) =>
             !(
               page.url_path.trim() === "/" ||
@@ -67,7 +67,7 @@ export default function managePageOrderReducer(
             ),
         )
         const groupedWithoutFrontpages = groupBy(withoutFrontpages, (page) => page.chapter_id)
-        const onlyFrontPages = ordered.filter(
+        const onlyFrontPages = orderedPages.filter(
           (page) =>
             page.url_path.trim() === "/" ||
             chaptersWithFrontpages.some((c) => c.front_page_id === page.id),
@@ -164,8 +164,12 @@ export default function managePageOrderReducer(
             console.info(
               `Updating page order number for ${page.id} from ${page.order_number} to ${expectedOrderNumber}`,
             )
-            page.order_number = expectedOrderNumber
-            draftState.unsavedChanges = true
+            try {
+              page.order_number = expectedOrderNumber
+              draftState.unsavedChanges = true
+            } catch (e) {
+              console.warn(`Could not update page order number for ${page.id}`, e)
+            }
           }
         })
       })

@@ -15,7 +15,6 @@ export const fetchFeedback = async (
 
   const response = await mainFrontendClient.get(`/courses/${courseId}/feedback`, {
     params,
-    responseType: "json",
   })
   return validateResponse(response, isArray(isFeedback))
 }
@@ -29,7 +28,5 @@ export const markAsRead = async (feedbackId: string, read: boolean): Promise<voi
   const data: MarkAsRead = {
     read: read,
   }
-  await mainFrontendClient.post(`/feedback/${feedbackId}`, data, {
-    headers: { "Content-Type": "application/json" },
-  })
+  await mainFrontendClient.post(`/feedback/${feedbackId}`, data)
 }

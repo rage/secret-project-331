@@ -34,7 +34,7 @@ impl Cache {
                     return false;
                 };
                 match conn
-                    .set_ex::<_, _, ()>(key, value, expires_in.as_secs() as usize)
+                    .set_ex::<_, _, ()>(key, value, expires_in.as_secs())
                     .await
                 {
                     Ok(_) => true,

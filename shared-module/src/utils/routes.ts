@@ -12,3 +12,11 @@ export function manageCourseRoute(courseId: string) {
 export function organizationFrontPageRoute(organizationSlug: string) {
   return `/org/${organizationSlug}`
 }
+
+export function loginRoute(returnTo: string) {
+  return `/login?return_to=${encodeURIComponent(returnTo)}`
+}
+
+export function signUpRoute(returnTo: string) {
+  return `/signup?return_to=${encodeURIComponent(returnTo)}`
+}

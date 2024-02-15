@@ -2,7 +2,6 @@ use models::page_audio_files::PageAudioFile;
 
 use crate::prelude::*;
 
-#[generated_doc]
 async fn get_page_audio(
     page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,

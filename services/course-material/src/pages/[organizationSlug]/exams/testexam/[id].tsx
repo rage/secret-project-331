@@ -1,7 +1,7 @@
 /* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import { addMinutes, differenceInSeconds, isPast, min } from "date-fns"
+import { addMinutes, differenceInSeconds, isPast, min, parseISO } from "date-fns"
 import React, { useCallback, useContext, useEffect, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -298,7 +298,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
           />
           {examInfo}
           <ExamTimer
-            startedAt={exam.data.enrollment_data.enrollment.started_at}
+            startedAt={parseISO(exam.data.enrollment_data.enrollment.started_at)}
             endsAt={endsAt}
             secondsLeft={secondsLeft}
           />

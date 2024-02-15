@@ -6,30 +6,25 @@ import { validateFile } from "../../shared-module/utils/files"
 import { mainFrontendClient } from "../mainFrontendClient"
 
 export const fetchOrganizations = async (): Promise<Array<Organization>> => {
-  const response = await mainFrontendClient.get("/organizations", { responseType: "json" })
+  const response = await mainFrontendClient.get("/organizations")
   return validateResponse(response, isArray(isOrganization))
 }
 
 export const fetchOrganization = async (organizationId: string): Promise<Organization> => {
-  const response = await mainFrontendClient.get(`/organizations/${organizationId}`, {
-    responseType: "json",
-  })
+  const response = await mainFrontendClient.get(`/organizations/${organizationId}`)
   return validateResponse(response, isOrganization)
 }
 
 export const fetchOrganizationBySlug = async (organizationSlug: string): Promise<Organization> => {
-  const res = await mainFrontendClient.get(`/org/${organizationSlug}`, { responseType: "json" })
+  const res = await mainFrontendClient.get(`/org/${organizationSlug}`)
   return res.data
 }
 
 export const fetchOrganizationCourseCount = async (
   organizationId: string,
 ): Promise<CourseCount> => {
-  const data = (
-    await mainFrontendClient.get(`/organizations/${organizationId}/courses/count`, {
-      responseType: "json",
-    })
-  ).data
+  const data = (await mainFrontendClient.get(`/organizations/${organizationId}/courses/count`, {}))
+    .data
   return data
 }
 
@@ -37,9 +32,7 @@ export const fetchOrganizationActiveCourseCount = async (
   organizationId: string,
 ): Promise<CourseCount> => {
   const data = (
-    await mainFrontendClient.get(`/organizations/${organizationId}/courses/active/count`, {
-      responseType: "json",
-    })
+    await mainFrontendClient.get(`/organizations/${organizationId}/courses/active/count`, {})
   ).data
   return data
 }
@@ -50,7 +43,6 @@ export const fetchOrganizationCourses = async (
   limit: number,
 ): Promise<Array<Course>> => {
   const response = await mainFrontendClient.get(`/organizations/${organizationId}/courses`, {
-    responseType: "json",
     params: {
       page,
       limit,
@@ -65,7 +57,6 @@ export const fetchOrganizationActiveCourses = async (
   limit: number,
 ): Promise<Array<Course>> => {
   const response = await mainFrontendClient.get(`/organizations/${organizationId}/courses/active`, {
-    responseType: "json",
     params: {
       page,
       limit,
@@ -83,7 +74,9 @@ export const setOrganizationImage = async (
   const data = new FormData()
   // eslint-disable-next-line i18next/no-literal-string
   data.append("file", file, file.name || "unknown")
-  const response = await mainFrontendClient.put(`/organizations/${organizationId}/image`, data)
+  const response = await mainFrontendClient.put(`/organizations/${organizationId}/image`, data, {
+    headers: { "Content-Type": "multipart/form-data" },
+  })
   return validateResponse(response, isOrganization)
 }
 

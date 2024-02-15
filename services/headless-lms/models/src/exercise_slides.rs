@@ -12,7 +12,7 @@ pub struct NewExerciseSlide {
     order_number: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseSlide {
     pub id: Uuid,

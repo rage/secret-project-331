@@ -13,14 +13,14 @@ license.workspace = true
 headless-lms-utils = { path = "../utils" }
 
 # An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
-tokio = { version = "1.34.0", features = [
+tokio = { version = "1.36.0", features = [
   "fs",
   "io-util",
   "sync",
   "parking_lot",
 ] }
 # An implementation of futures and streams featuring zero allocations, composability, and itera…
-futures = "0.3.29"
+futures = "0.3.30"
 # A `dotenv` implementation for Rust
 dotenv = "0.15.0"
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
@@ -33,17 +33,17 @@ sqlx = { version = "0.7.3", features = [
   "json",
 ] }
 # A library to generate and parse UUIDs.
-uuid = { version = "1.6.1", features = ["serde", "v4", "v5"] }
+uuid = { version = "1.7.0", features = ["serde", "v4", "v5"] }
 # A generic serialization/deserialization framework
-serde = { version = "1.0.193", features = ["derive"] }
+serde = { version = "1.0.196", features = ["derive"] }
 # Date and time library for Rust
-chrono = { version = "0.4.31", features = ["serde"] }
+chrono = { version = "0.4.33", features = ["serde"] }
 # A JSON serialization file format
-serde_json = "1.0.108"
+serde_json = "1.0.113"
 # Adds #[derive(x)] macros for more traits
 derive_more = "0.99.17"
 # Extra iterator adaptors, iterator methods, free functions, and macros.
-itertools = "0.12.0"
+itertools = "0.12.1"
 # URL library for Rust, based on the WHATWG URL Standard
 url = "2.5.0"
 # Application-level tracing for Rust.
@@ -53,9 +53,9 @@ tracing-error = "0.2.0"
 #  A library to acquire a stack trace (backtrace) at runtime in a Rust program. Should be removed after Rust 1.65.
 backtrace = "0.3.69"
 # This library provides a convenient derive macro for the standard library's std::error::Error trait.
-thiserror = "1.0.50"
+thiserror = "1.0.56"
 # generate typescript bindings from rust types
-ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "07712bf04007472aeeb065091261b3b64c019381", features = [
+ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "94bf3c040ece6627b69f0d7095c0a5e2984adc86", features = [
   "bytes-impl",
   "chrono-impl",
   "serde-compat",
@@ -63,11 +63,11 @@ ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "07712bf04007472aeeb0
   "uuid-impl",
 ], optional = true }
 # Email client
-lettre = "0.11.2"
+lettre = "0.11.1"
 # Random number generators and other randomness functionality.
 rand = "0.8.5"
 # Flexible concrete Error type built on std::error::Error
-anyhow = "1.0.75"
+anyhow = "1.0.79"
 
 [dev-dependencies]
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.
@@ -79,7 +79,7 @@ tracing-error = "0.2.0"
 # Utilities for implementing and composing `tracing` subscribers.
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 # HTTP mocking for Rust.
-mockito = "1.2.0"
+mockito = "1.1.1"
 
 [features]
 ts_rs = ["ts-rs", "headless-lms-utils/ts_rs"]

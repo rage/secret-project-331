@@ -1,6 +1,7 @@
 import { test } from "@playwright/test"
 
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
+import { waitForFooterTranslationsToLoad } from "../../utils/waitingUtils"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
@@ -20,6 +21,8 @@ test("Spacers should not break text editing under them, block inserter should no
     .getByRole("row", { name: "Glossary /chapter-1 Edit page Dropdown menu" })
     .getByRole("button", { name: "Edit page" })
     .click()
+  await page.getByRole("button", { name: "Add block" }).waitFor()
+  await waitForFooterTranslationsToLoad(page)
   await page.getByRole("button", { name: "Add block" }).click()
   await page.getByRole("option", { name: "Paragraph" }).click()
   await page
@@ -27,6 +30,12 @@ test("Spacers should not break text editing under them, block inserter should no
       name: "Empty block; start writing or type forward slash to choose a block",
     })
     .waitFor()
+  await page
+    .getByRole("document", {
+      name: "Empty block; start writing or type forward slash to choose a block",
+    })
+    .fill("This text should remain editable")
+  await page.getByText("This text should remain editable").press("Control+A")
   // In this screenshot the plus sign for inserting a new block should not be on top of the typing caret.
   await expectScreenshotsToMatchSnapshots({
     headless,
@@ -35,11 +44,6 @@ test("Spacers should not break text editing under them, block inserter should no
     snapshotName: "new-block-inserter-should-not-obscure-typing-caret",
     axeSkip: ["aria-allowed-attr", "aria-allowed-role", "region", "heading-order"],
   })
-  await page
-    .getByRole("document", {
-      name: "Empty block; start writing or type forward slash to choose a block",
-    })
-    .fill("This text should remain editable")
   await page
     .getByText("Pages in chapter placeholderThis block is placed on each chapter front page, e.g")
     .click()

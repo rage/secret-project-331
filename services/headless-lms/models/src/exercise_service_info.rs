@@ -10,7 +10,7 @@ use crate::{
     prelude::*,
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct ExerciseServiceInfo {
     pub exercise_service_id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -21,7 +21,7 @@ pub struct ExerciseServiceInfo {
     pub model_solution_spec_endpoint_path: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct PathInfo {
     pub exercise_service_id: Uuid,
     pub user_interface_iframe_path: String,
@@ -30,13 +30,13 @@ pub struct PathInfo {
     pub model_solution_spec_endpoint_path: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseMaterialExerciseServiceInfo {
     pub exercise_iframe_url: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseServiceInfoApi {
     pub service_name: String,

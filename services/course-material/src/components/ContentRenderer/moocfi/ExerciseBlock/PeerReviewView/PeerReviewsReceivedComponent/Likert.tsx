@@ -4,9 +4,9 @@ import { useTranslation } from "react-i18next"
 
 import { headingFont } from "../../../../../../shared-module/styles"
 
-import SVGMatcher from "./SVGmatcher"
+import { Agree, NeitherAgreeNorDisagree, StronglyDisagree } from "./LikertSvgs"
 
-interface LinkertProps {
+interface LikertProps {
   question: string
   index: number
   content: number | null
@@ -37,7 +37,7 @@ const IconContainer = styled.div`
 
 /* eslint-disable i18next/no-literal-string */
 const Icon = styled.div<StyledProps>`
-  width: 150px;
+  width: 130px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -47,37 +47,44 @@ const Icon = styled.div<StyledProps>`
   cursor: pointer;
   border-radius: 4px;
   transition: all 0.2s;
+  text-align: center;
 
   svg .bg {
     fill: ${({ active }) => active && "#ffd93b"};
   }
 
-  .linkert-scale-text {
+  .likert-scale-text {
     margin-top: 6px;
     font-size: 15px;
     font-weight: 600;
     color: ${({ active }) => (active ? "#ffffff" : "#313947")};
     font-family: ${headingFont};
+    height: 25px;
   }
 `
 
-const Likert: React.FC<LinkertProps> = ({ question, content, index }) => {
+const Likert: React.FC<LikertProps> = ({ question, content, index }) => {
   const { t } = useTranslation()
-  const arr: { text: string }[] = [
+  const arr: { text: string; svg: () => React.JSX.Element }[] = [
     {
       text: t("likert-scale-strongly-disagree"),
+      svg: StronglyDisagree,
     },
     {
       text: t("likert-scale-disagree"),
+      svg: Agree,
     },
     {
       text: t("likert-scale-neither-agree-nor-disagree"),
+      svg: NeitherAgreeNorDisagree,
     },
     {
       text: t("likert-scale-agree"),
+      svg: Agree,
     },
     {
       text: t("likert-scale-strongly-agree"),
+      svg: StronglyDisagree,
     },
   ]
 
@@ -87,8 +94,8 @@ const Likert: React.FC<LinkertProps> = ({ question, content, index }) => {
       <IconContainer>
         {arr.map((option, n) => (
           <Icon key={n} active={content === n + 1}>
-            {SVGMatcher(option.text.toLowerCase())}
-            <p className="linkert-scale-text">{option.text}</p>
+            {<option.svg />}
+            <p className="likert-scale-text">{option.text}</p>
           </Icon>
         ))}
       </IconContainer>

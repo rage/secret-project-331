@@ -12,9 +12,11 @@ const CourseGridEditor: React.FC<
 > = ({ clientId }) => {
   const { t } = useTranslation()
   return (
-    <BlockPlaceholderWrapper id={clientId}>
-      <h3>{t("glossary-placeholder")}</h3>
-      <p>{t("glossary-placeholder-explanation")}</p>
+    <BlockPlaceholderWrapper
+      id={clientId}
+      title={t("glossary-placeholder")}
+      explanation={t("glossary-placeholder-explanation")}
+    >
       <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
     </BlockPlaceholderWrapper>
   )

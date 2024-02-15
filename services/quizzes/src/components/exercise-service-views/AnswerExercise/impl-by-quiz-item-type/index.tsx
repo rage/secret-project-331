@@ -271,7 +271,6 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
   const { selected, updateState } = useQuizzesUserAnswerOutputState<UserAnswer>((uAnswer) => {
     return uAnswer
   })
-  console.log("Widget")
 
   return (
     <FlexWrapper wideScreenDirection={direction}>

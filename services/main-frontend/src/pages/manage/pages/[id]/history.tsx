@@ -2,6 +2,7 @@ import { useRouter } from "next/router"
 import { useTranslation } from "react-i18next"
 
 import HistoryView from "../../../../components/page-specific/manage/pages/id/history/HistoryView"
+import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
 
 const History: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
@@ -25,4 +26,4 @@ const History: React.FC<React.PropsWithChildren<unknown>> = () => {
   )
 }
 
-export default History
+export default withSignedIn(History)

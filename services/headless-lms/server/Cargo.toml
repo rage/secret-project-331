@@ -17,27 +17,27 @@ mooc-langs-api = { path = "../langs-api" }
 doc-macro = { path = "../doc-macro" }
 
 # Actix Web is a powerful, pragmatic, and extremely fast web framework for Rust
-actix-web = "4.4.0"
+actix-web = "4.3.1"
 # Static file serving for Actix Web
-actix-files = "0.6.2"
+actix-files = "0.6.5"
 # Multipart form support for Actix web.
 actix-multipart = "0.6.1"
 # Strongly Typed Mimes
 mime = "0.3.17"
 # An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
-tokio = { version = "1.34.0", features = ["fs", "io-util"] }
+tokio = { version = "1.36.0", features = ["fs", "io-util"] }
 # Utilities to work with `Stream` and `tokio`.
 tokio-stream = "0.1.14"
 # An implementation of futures and streams featuring zero allocations, composability, and itera…
-futures = "0.3.29"
+futures = "0.3.30"
 # Common utilities and extension traits for the futures-rs library.
-futures-util = "0.3.29"
+futures-util = "0.3.30"
 # A `dotenv` implementation for Rust
 dotenv = "0.15.0"
 # A simple library to work with listenfds passed from the outside (systemd/catflap socket activation)
 listenfd = "1.0.1"
 # Flexible concrete Error type built on std::error::Error
-anyhow = "1.0.75"
+anyhow = "1.0.79"
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
 sqlx = { version = "0.7.3", features = [
   "postgres",
@@ -48,27 +48,27 @@ sqlx = { version = "0.7.3", features = [
   "json",
 ] }
 # A library to generate and parse UUIDs.
-uuid = { version = "1.6.1", features = ["serde", "v4", "v5"] }
+uuid = { version = "1.7.0", features = ["serde", "v4", "v5"] }
 # A generic serialization/deserialization framework
-serde = { version = "1.0.193", features = ["derive"] }
+serde = { version = "1.0.196", features = ["derive"] }
 # Date and time library for Rust
-chrono = { version = "0.4.31", features = ["serde"] }
+chrono = { version = "0.4.33", features = ["serde"] }
 # A JSON serialization file format
-serde_json = "1.0.108"
+serde_json = "1.0.113"
 # Adds #[derive(x)] macros for more traits
 derive_more = "0.99.17"
 # Types and traits for working with bytes
 bytes = "1.5.0"
 # Extra iterator adaptors, iterator methods, free functions, and macros.
-itertools = "0.12.0"
+itertools = "0.12.1"
 # the BLAKE3 hash function
 blake3 = "1.5.0"
 # Recursively walk a directory.
 walkdir = "2.4.0"
 # higher level HTTP client library
-reqwest = { version = "0.11.22", features = ["brotli", "gzip", "json"] }
+reqwest = { version = "0.11.24", features = ["brotli", "gzip", "json"] }
 # Sessions for Actix web
-actix-session = { version = "0.8.0", features = ["cookie-session"] }
+actix-session = { version = "0.7.2", features = ["cookie-session"] }
 # An extensible, strongly-typed implementation of OAuth2
 oauth2 = "4.4.2"
 # URL library for Rust, based on the WHATWG URL Standard
@@ -84,9 +84,9 @@ backtrace = "0.3.69"
 # Provides compatibility between `tracing` and the `log` crate.
 tracing-log = "0.2.0"
 # This library provides a convenient derive macro for the standard library's std::error::Error trait.
-thiserror = "1.0.50"
+thiserror = "1.0.56"
 # generate typescript bindings from rust types
-ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "07712bf04007472aeeb065091261b3b64c019381", features = [
+ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "94bf3c040ece6627b69f0d7095c0a5e2984adc86", features = [
   "chrono-impl",
   "serde-compat",
   "serde-json-impl",
@@ -94,17 +94,17 @@ ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "07712bf04007472aeeb0
 ], optional = true }
 # restricting the transitive dependencies of actix-web during beta.
 # HTTP primitives for the Actix ecosystem .
-actix-http = "3.4.0"
+actix-http = "3.3.1"
 # Fast CSV parsing with support for serde.
 csv = "1.3.0"
 # Email client
-lettre = "0.11.2"
+lettre = "0.11.1"
 # An implementation of regular expressions for Rust.
-regex = "1.10.2"
+regex = "1.10.3"
 # Single assignment cells and lazy values.
-once_cell = "1.18.0"
+once_cell = "1.19.0"
 # Rate limiting middleware for actix-web
-actix-extensible-rate-limit = "0.2.1"
+actix-extensible-rate-limit = "0.3.1"
 # Detect if a user-agent is a known bot
 isbot = "0.1.3"
 # user-agent strings parser
@@ -112,7 +112,7 @@ woothee = "0.13.0"
 # Bindings to libgit2 for interoperating with git repositories.
 git2 = "0.18.1"
 # A library for managing temporary files and directories.
-tempfile = "3.8.1"
+tempfile = "3.9.0"
 #  Binding for the zstd compression library.
 zstd = "0.13.0" # matches the version from actix-http
 # A Rust implementation of a TAR file reader and writer.
@@ -126,11 +126,11 @@ hmac = "0.12.1"
 # Pure Rust implementation of the SHA-2 hash function family.
 sha2 = "0.10.8"
 # Websocket support for actix-web
-actix-web-actors = "4.2.0"
+actix-web-actors = "4.3.0"
 # Actors for actix-web-actors
-actix = "0.13.1"
+actix = "0.13.0"
 # Type erasure for async trait methods
-async-trait = "0.1.74"
+async-trait = "0.1.77"
 # Utilities for working with Tokio.
 tokio-util = "0.7.10"
 
@@ -138,7 +138,7 @@ tokio-util = "0.7.10"
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.
 pretty_assertions = "1.4.0"
 # HTTP mocking for Rust.
-mockito = "1.2.0"
+mockito = "1.1.1"
 # Random number generators and other randomness functionality.
 rand = "0.8.5"
 

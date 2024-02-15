@@ -130,7 +130,7 @@ const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = (
               </a>
             </li>
             <li>
-              <a href={`/org/${organizationSlug}/exams/testExam/${getExam.data.id}`}>
+              <a href={`/org/${organizationSlug}/exams/testexam/${getExam.data.id}`}>
                 {t("link-test-exam")}
               </a>
             </li>

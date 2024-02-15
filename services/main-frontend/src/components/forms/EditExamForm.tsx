@@ -42,17 +42,16 @@ const EditExamForm: React.FC<React.PropsWithChildren<EditExamFormProps>> = ({
   } = useForm<EditExamFields>()
 
   const onEditExamWrapper = handleSubmit((data) => {
-    console.log(data.timeMinutes),
-      onEditExam({
-        name: data.name,
-        starts_at: new Date(data.startsAt),
-        ends_at: new Date(data.endsAt),
-        time_minutes: Number(data.timeMinutes),
-        minimum_points_treshold: data.automaticCompletionEnabled
-          ? Number(data.minimumPointsTreshold)
-          : 0,
-        organization_id: organizationId,
-      })
+    onEditExam({
+      name: data.name,
+      starts_at: new Date(data.startsAt),
+      ends_at: new Date(data.endsAt),
+      time_minutes: Number(data.timeMinutes),
+      minimum_points_treshold: data.automaticCompletionEnabled
+        ? Number(data.minimumPointsTreshold)
+        : 0,
+      organization_id: organizationId,
+    })
   })
 
   const automaticEnabled = watch("automaticCompletionEnabled")

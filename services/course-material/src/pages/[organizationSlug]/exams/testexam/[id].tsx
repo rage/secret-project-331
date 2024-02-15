@@ -31,6 +31,7 @@ import CheckBox from "../../../../shared-module/components/InputFields/CheckBox"
 import Spinner from "../../../../shared-module/components/Spinner"
 import HideTextInSystemTests from "../../../../shared-module/components/system-tests/HideTextInSystemTests"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
+import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
 import { baseTheme } from "../../../../shared-module/styles"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import dontRenderUntilQueryParametersReady, {
@@ -46,7 +47,6 @@ interface ExamProps {
 const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
   const { t, i18n } = useTranslation()
   const examId = query.id
-
   const [showExamAnswers, setShowExamAnswers] = useState<boolean>(false)
   const [pageState, pageStateDispatch] = useReducer(
     pageStateReducer,
@@ -56,21 +56,35 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
   const now = useTime(5000)
 
   const exam = useQuery({
-    queryKey: [`exam-page-${examId}-fetch-exam-for-testing`],
+    queryKey: [`exam-page-testexam-${examId}-fetch-exam-for-testing`],
     queryFn: () => fetchExamForTesting(examId),
   })
 
-  const resetExam = useQuery({
-    queryKey: [`exam-page-${examId}-reset-exam-progress`],
-    queryFn: () => resetExamProgress(examId),
-    enabled: false,
-  })
+  const showAnswersMutation = useToastMutation(
+    (showAnswers: boolean) => updateShowExerciseAnswers(examId, showAnswers),
+    {
+      notify: false,
+    },
+    {
+      onSuccess: async () => {
+        exam.refetch()
+        window.location.reload()
+      },
+    },
+  )
 
-  const updateShowAnswers = useQuery({
-    queryKey: [`exam-page-${examId}-update-show-exercise-answers`, showExamAnswers],
-    queryFn: () => updateShowExerciseAnswers(examId, showExamAnswers),
-    enabled: false,
-  })
+  const resetExamMutation = useToastMutation(
+    () => resetExamProgress(examId),
+    {
+      notify: false,
+    },
+    {
+      onSuccess: async () => {
+        exam.refetch()
+        window.location.reload()
+      },
+    },
+  )
 
   useEffect(() => {
     if (exam.isError) {
@@ -88,7 +102,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
           isTest: false,
         },
       })
-      // setShowExamAnswers(exam.data.enrollment_data.enrollment.show_exercise_answers ?? false)
+      setShowExamAnswers(exam.data.enrollment_data.enrollment.show_exercise_answers ?? false)
     } else {
       // eslint-disable-next-line i18next/no-literal-string
       pageStateDispatch({ type: "setLoading" })
@@ -110,26 +124,21 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
   }, [layoutContext, query.organizationSlug])
 
   const handleRefresh = useCallback(async () => {
-    console.log("1", exam)
     await exam.refetch()
-    console.log("2", exam)
   }, [exam])
 
-  //this
   const handleTimeOverModalClose = useCallback(async () => {
     await handleRefresh()
   }, [handleRefresh])
 
-  const handleResetProgress = () => {
-    resetExam.refetch()
-    exam.refetch()
-  }
+  const handleResetProgress = useCallback(async () => {
+    resetExamMutation.mutate()
+  }, [resetExamMutation])
 
-  const handleShowAnswers = () => {
-    updateShowAnswers.refetch()
-    exam.refetch()
-    //usemutation reset?
-  }
+  const handleShowAnswers = useCallback(async () => {
+    setShowExamAnswers(!showExamAnswers)
+    showAnswersMutation.mutate(!showExamAnswers)
+  }, [showAnswersMutation, showExamAnswers])
 
   if (exam.isPending) {
     return <Spinner variant="medium" />
@@ -278,7 +287,6 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
       ])
     : addMinutes(exam.data.enrollment_data.enrollment.started_at, exam.data.time_minutes)
   const secondsLeft = differenceInSeconds(endsAt, now)
-
   return (
     <>
       <CoursePageDispatch.Provider value={pageStateDispatch}>
@@ -320,7 +328,6 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
               label={"show answers"}
               checked={showExamAnswers}
               onChange={() => {
-                setShowExamAnswers(!showExamAnswers)
                 handleShowAnswers()
               }}
             />

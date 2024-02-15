@@ -347,15 +347,15 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route("/{id}/enroll", web::post().to(enroll))
         .route("/{id}", web::get().to(fetch_exam_for_user))
         .route(
-            "/{id}/fetch-exam-for-testing",
+            "/testexam/{id}/fetch-exam-for-testing",
             web::get().to(fetch_exam_for_testing),
         )
         .route(
-            "/{id}/update-show-exercise-answers",
+            "/testexam/{id}/update-show-exercise-answers",
             web::post().to(update_show_exercise_answers),
         )
         .route(
-            "/{id}/reset-exam-progress",
-            web::get().to(reset_exam_progress),
+            "/testexam/{id}/reset-exam-progress",
+            web::post().to(reset_exam_progress),
         );
 }

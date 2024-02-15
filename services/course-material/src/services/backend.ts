@@ -411,14 +411,17 @@ export const fetchExam = async (examId: string): Promise<ExamData> => {
 }
 
 export const fetchExamForTesting = async (examId: string): Promise<ExamData> => {
-  const response = await courseMaterialClient.get(`/exams/${examId}/fetch-exam-for-testing`, {
-    responseType: "json",
-  })
+  const response = await courseMaterialClient.get(
+    `/exams/testexam/${examId}/fetch-exam-for-testing`,
+    {
+      responseType: "json",
+    },
+  )
   return validateResponse(response, isExamData)
 }
 
 export const resetExamProgress = async (examId: string): Promise<void> => {
-  const response = await courseMaterialClient.get(`/exams/${examId}/reset-exam-progress`)
+  const response = await courseMaterialClient.post(`/exams/testexam/${examId}/reset-exam-progress`)
   return response.data
 }
 
@@ -427,7 +430,7 @@ export const updateShowExerciseAnswers = async (
   showExerciseAnswers: boolean,
 ): Promise<void> => {
   await courseMaterialClient.post(
-    `/exams/${examId}/update-show-exercise-answers`,
+    `/exams/testexam/${examId}/update-show-exercise-answers`,
     { show_exercise_answers: showExerciseAnswers },
     {
       responseType: "json",

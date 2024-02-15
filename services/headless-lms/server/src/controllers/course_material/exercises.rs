@@ -48,22 +48,21 @@ async fn get_exercise(
     )
     .await?;
 
-    let user_enrollment = models::exams::get_enrollment(
-        &mut conn,
-        course_material_exercise.exercise.exam_id.unwrap(),
-        user_id.unwrap(),
-    )
-    .await?;
-
-    // Check if teacher is testing an exam and wants to see the exercise answers
     let mut should_clear_grading_information = true;
-    if let Some(enrollment) = user_enrollment {
-        if let Some(show_answers) = enrollment.show_exercise_answers {
-            if enrollment.is_teacher_testing && show_answers {
-                should_clear_grading_information = false;
+    // Check if teacher is testing an exam and wants to see the exercise answers
+    if let Some(exam_id) = course_material_exercise.exercise.exam_id {
+        let user_enrollment =
+            models::exams::get_enrollment(&mut conn, exam_id, user_id.unwrap()).await?;
+
+        if let Some(enrollment) = user_enrollment {
+            if let Some(show_answers) = enrollment.show_exercise_answers {
+                if enrollment.is_teacher_testing && show_answers {
+                    should_clear_grading_information = false;
+                }
             }
         }
     }
+
     if course_material_exercise.can_post_submission
         && course_material_exercise.exercise.exam_id.is_some()
         && should_clear_grading_information

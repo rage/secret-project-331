@@ -5,7 +5,7 @@ test.use({
 })
 
 test("Chaning page path works and redirects correctly", async ({ page }) => {
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
   await page.getByLabel("University of Helsinki, Department of Mathematics and Statistics").click()
   await page.getByLabel("Manage course 'Change Path'").click()
   await page.getByRole("tab", { name: "Pages" }).click()

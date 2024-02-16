@@ -8,7 +8,7 @@ test.use({
 
 test("Organization list renders", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/manage/exercise-services")
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,

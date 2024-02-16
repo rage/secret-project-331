@@ -7,7 +7,7 @@ test.use({
 })
 
 test("Resetting teacher's own progress resets points", async ({ page }) => {
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
   await page
     .getByRole("link", { name: "University of Helsinki, Department of Mathematics and Statistics" })
     .click()
@@ -46,7 +46,7 @@ test("Teacher can reset progress for all students on draft courses", async ({ pa
       storageState: "src/states/student1@example.com.json",
     })
     const studentPage = await studentContext.newPage()
-    await studentPage.goto("http://project-331.local/")
+    await studentPage.goto("http://project-331.local/organizations")
     await studentPage
       .getByRole("link", {
         name: "University of Helsinki, Department of Mathematics and Statistics",

@@ -22,7 +22,7 @@ test.describe("Uploading media as admin", async () => {
       PlaywrightWorkerArgs &
       PlaywrightWorkerOptions) => {
       // Executed before each test
-      await page.goto("http://project-331.local")
+      await page.goto("http://project-331.local/organizations")
     },
   )
 

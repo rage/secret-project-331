@@ -159,6 +159,94 @@ WHERE deleted_at IS NULL;
     Ok(courses)
 }
 
+pub async fn all_courses_user_enrolled_to(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> ModelResult<Vec<Course>> {
+    let courses = sqlx::query_as!(
+        Course,
+        r#"
+SELECT id,
+  name,
+  created_at,
+  updated_at,
+  organization_id,
+  deleted_at,
+  slug,
+  content_search_language::text,
+  language_code,
+  copied_from,
+  course_language_group_id,
+  description,
+  is_draft,
+  is_test_mode,
+  base_module_completion_requires_n_submodule_completions
+FROM courses
+WHERE courses.deleted_at IS NULL
+  AND id IN (
+    SELECT current_course_id
+    FROM user_course_settings
+    WHERE deleted_at IS NULL
+      AND user_id = $1
+  )
+"#,
+        user_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(courses)
+}
+
+pub async fn all_courses_with_roles_for_user(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> ModelResult<Vec<Course>> {
+    let courses = sqlx::query_as!(
+        Course,
+        r#"
+SELECT id,
+  name,
+  created_at,
+  updated_at,
+  organization_id,
+  deleted_at,
+  slug,
+  content_search_language::text,
+  language_code,
+  copied_from,
+  course_language_group_id,
+  description,
+  is_draft,
+  is_test_mode,
+  base_module_completion_requires_n_submodule_completions
+FROM courses
+WHERE courses.deleted_at IS NULL
+  AND (
+    id IN (
+      SELECT course_id
+      FROM roles
+      WHERE deleted_at IS NULL
+        AND user_id = $1
+        AND course_id IS NOT NULL
+    )
+    OR (
+      id IN (
+        SELECT ci.course_id
+        FROM course_instances ci
+          JOIN ROLES r ON r.course_instance_id = ci.id
+        WHERE r.user_id = $1
+          AND r.deleted_at IS NULL
+          AND ci.deleted_at IS NULL
+      )
+    )
+  ) "#,
+        user_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(courses)
+}
+
 pub async fn get_all_language_versions_of_course(
     conn: &mut PgConnection,
     course: &Course,

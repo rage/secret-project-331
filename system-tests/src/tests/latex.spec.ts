@@ -10,7 +10,7 @@ test.use({
 })
 
 test("latex-block renders", async ({ page, headless }, testInfo) => {
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
     await page

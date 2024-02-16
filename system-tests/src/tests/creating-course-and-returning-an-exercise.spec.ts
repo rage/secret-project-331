@@ -12,7 +12,7 @@ test.use({
 })
 
 test("Creating a course an returning an exercise works", async ({ page }) => {
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
     page.getByText("University of Helsinki, Department of Computer Science").click(),

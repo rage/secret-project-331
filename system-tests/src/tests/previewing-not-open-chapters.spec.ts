@@ -8,7 +8,7 @@ test.use({
 
 test("Teachers can preview chapters that are not open yet", async ({ page, browser }) => {
   // Teachers can preview chapters that are not open yet
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
   await page
     .getByRole("link", { name: "University of Helsinki, Department of Mathematics and Statistics" })
     .click()

@@ -8,7 +8,7 @@ test.use({
 })
 
 test("Can create a new research form for a course", async ({ page }) => {
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
   await page
     .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
     .click()

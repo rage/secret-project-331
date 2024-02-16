@@ -72,8 +72,9 @@ if (!config.use) {
 
 if (process.env.SLOWMO) {
   const launchOptions = config.use.launchOptions as LaunchOptions
-  launchOptions.slowMo = envToNumber(process.env.SLOWMO, 200)
+  launchOptions.slowMo = envToNumber(process.env.SLOWMO, 1000)
   config.timeout = 600000
+  config.use.video = "on"
 }
 
 if (process.env.RECORD_VIDEO) {

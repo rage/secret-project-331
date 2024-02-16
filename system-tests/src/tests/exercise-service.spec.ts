@@ -17,7 +17,7 @@ const replaceTimeComponentDates = async (page: Page) => {
 }
 
 test("can add and delete exercise service", async ({ page, headless }, testInfo) => {
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local")
   await page.evaluate(() => {
     window.scrollTo(0, 700)
   })

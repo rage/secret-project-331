@@ -11,7 +11,7 @@ test.use({
 test("Making proposed edits works", async ({ page, headless }, testInfo) => {
   test.slow()
 
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
     page.getByText("University of Helsinki, Department of Computer Science").click(),
@@ -101,7 +101,7 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
 
   await page.getByText("Feedback submitted successfully").waitFor()
 
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
     page.getByText("University of Helsinki, Department of Computer Science").click(),

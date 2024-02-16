@@ -8,7 +8,7 @@ test("Research consent form is visible on login, if not yet answered", async ({
   headless,
 }, testInfo) => {
   await test.step("Research consent form is visible on login, if not yet answered", async () => {
-    await page.goto("http://project-331.local/")
+    await page.goto("http://project-331.local/organizations")
     await page.getByRole("button", { name: "Open menu" }).click()
     await page.getByRole("button", { name: "Log in" }).click()
     await page.click(`label:has-text("Email")`)
@@ -49,7 +49,7 @@ test("Research consent form is visible on login, if not yet answered", async ({
   })
 
   await test.step("Can change research consent", async () => {
-    await page.goto("http://project-331.local/")
+    await page.goto("http://project-331.local/organizations")
     await page
       .getByRole("link", {
         name: "University of Helsinki, Department of Mathematics and Statistics",

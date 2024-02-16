@@ -62,6 +62,13 @@ spec:
                 name: main-frontend
                 port:
                   number: 3000
+          - path: /organizations
+            pathType: Exact
+            backend:
+              service:
+                name: main-frontend
+                port:
+                  number: 3000
           - path: /
             pathType: Prefix
             backend:

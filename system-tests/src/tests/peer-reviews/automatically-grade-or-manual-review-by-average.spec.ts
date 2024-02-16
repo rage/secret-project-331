@@ -33,7 +33,7 @@ test.describe("test AutomaticallyGradeOrManualReviewByAverage behavior", () => {
     const teacherPage = await context3.newPage()
 
     // Student 1 answers a question
-    await student1Page.goto("http://project-331.local/")
+    await student1Page.goto("http://project-331.local/organizations")
     await student1Page
       .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
       .click()
@@ -48,7 +48,7 @@ test.describe("test AutomaticallyGradeOrManualReviewByAverage behavior", () => {
     await student1Page.getByText("Try again").waitFor()
 
     // Student 2 answers a question
-    await student2Page.goto("http://project-331.local/")
+    await student2Page.goto("http://project-331.local/organizations")
     await student2Page
       .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
       .click()
@@ -107,7 +107,7 @@ test.describe("test AutomaticallyGradeOrManualReviewByAverage behavior", () => {
     })
 
     // Teacher reviews answers
-    await teacherPage.goto("http://project-331.local/")
+    await teacherPage.goto("http://project-331.local/organizations")
     await teacherPage
       .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
       .click()

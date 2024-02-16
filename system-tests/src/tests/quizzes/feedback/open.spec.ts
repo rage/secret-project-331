@@ -9,7 +9,7 @@ test.use({
 })
 
 test("quizzes open feedback", async ({ page, headless }, testInfo) => {
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
     await page.getByText("University of Helsinki, Department of Computer Science").click(),
@@ -44,6 +44,8 @@ test("quizzes open feedback", async ({ page, headless }, testInfo) => {
     .fill("19999-01-01")
 
   await page.getByText("Submit").click()
+  await page.getByText("Try again").waitFor()
+  await page.locator(`text=This is an extra submit message from the teacher.`).waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,

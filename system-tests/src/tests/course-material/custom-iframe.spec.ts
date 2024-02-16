@@ -15,7 +15,7 @@ test("Custom iframe blocks work", async ({ page, headless }, testInfo) => {
       body: `<body><style> body { background-color: black; color: white; font-family: "Arial"; } </style><h1>Example domain</h1><p>This is a mocked response from example.com.</p></body>`,
     }),
   )
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
   await page
     .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
     .click()

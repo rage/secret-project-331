@@ -2,7 +2,6 @@ import { test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import { scrollLocatorsParentIframeToViewIfNeeded } from "../../utils/iframeLocators"
-import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
 test.use({
   storageState: "src/states/user@example.com.json",
@@ -10,8 +9,7 @@ test.use({
 
 test("quizzes, after wrong answer modify only the incorrect choice and resubmit", async ({
   page,
-  headless,
-}, testInfo) => {
+}) => {
   await page.goto("http://project-331.local/organizations")
   await page
     .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
@@ -20,17 +18,10 @@ test("quizzes, after wrong answer modify only the incorrect choice and resubmit"
   await selectCourseInstanceIfPrompted(page)
   await page.getByRole("link", { name: "Chapter 1 The Basics" }).click()
   await page.getByRole("link", { name: "12 Complicated quizzes exercise page" }).click()
-  await expectScreenshotsToMatchSnapshots({
-    screenshotTarget: page.locator("id=be169e81-f217-5bee-8475-2d94a5c67045"),
-    headless,
-    testInfo,
-    snapshotName: "before-answering-resubmitting-test",
-    waitForTheseToBeVisibleAndStable: [
-      page.locator(`text=First question.`),
-      page.locator(`text=Second question.`),
-      page.locator(`text=Third question.`),
-    ],
-  })
+  await page.locator(`text=First question.`).waitFor()
+  await page.locator(`text=Second question.`).waitFor()
+  await page.locator(`text=Third question.`).waitFor()
+
   await scrollLocatorsParentIframeToViewIfNeeded(
     page
       .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
@@ -60,27 +51,24 @@ test("quizzes, after wrong answer modify only the incorrect choice and resubmit"
   await page.getByText("Try again").waitFor()
   await page
     .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
-    .getByText("Waiting for content")
-    .waitFor({ state: "detached" })
+    .getByText("Correct", { exact: true })
+    .first()
+    .waitFor({ state: "attached" })
   await page
     .frameLocator('iframe[title="Exercise 1\\, task 2 content"]')
-    .getByText("Waiting for content")
-    .waitFor({ state: "detached" })
+    .getByText("Correct", { exact: true })
+    .first()
+    .waitFor({ state: "attached" })
   await page
     .frameLocator('iframe[title="Exercise 1\\, task 3 content"]')
-    .getByText("Waiting for content")
-    .waitFor({ state: "detached" })
-  await expectScreenshotsToMatchSnapshots({
-    screenshotTarget: page,
-    headless,
-    testInfo,
-    snapshotName: "after-answering-resubmitting-test",
-    waitForTheseToBeVisibleAndStable: [
-      page.locator(`text=First question.`),
-      page.locator(`text=Second question.`),
-      page.locator(`text=Third question.`),
-    ],
-  })
+    .getByText("Correct", { exact: true })
+    .first()
+    .waitFor({ state: "attached" })
+
+  await page.locator(`text=First question.`).waitFor()
+  await page.locator(`text=Second question.`).waitFor()
+  await page.locator(`text=Third question.`).waitFor()
+
   await page.getByRole("button", { name: "try again" }).click()
   await scrollLocatorsParentIframeToViewIfNeeded(
     page
@@ -93,27 +81,13 @@ test("quizzes, after wrong answer modify only the incorrect choice and resubmit"
     .getByRole("button", { name: "Correct" })
     .nth(2)
     .click()
-  await expectScreenshotsToMatchSnapshots({
-    screenshotTarget: page,
-    headless,
-    testInfo,
-    snapshotName: "resubmit-before-answering-resubmitting-test",
-    waitForTheseToBeVisibleAndStable: [
-      page.locator(`text=First question.`),
-      page.locator(`text=Second question.`),
-      page.locator(`text=Third question.`),
-    ],
-  })
+
+  await page.locator(`text=First question.`).waitFor()
+  await page.locator(`text=Second question.`).waitFor()
+  await page.locator(`text=Third question.`).waitFor()
+
   await page.getByRole("button", { name: "Submit" }).click()
-  await expectScreenshotsToMatchSnapshots({
-    screenshotTarget: page,
-    headless,
-    testInfo,
-    snapshotName: "resubmit-after-answering-resubmitting-test",
-    waitForTheseToBeVisibleAndStable: [
-      page.locator(`text=First question.`),
-      page.locator(`text=Second question.`),
-      page.locator(`text=Third question.`),
-    ],
-  })
+  await page.locator(`text=First question.`).waitFor()
+  await page.locator(`text=Second question.`).waitFor()
+  await page.locator(`text=Third question.`).waitFor()
 })

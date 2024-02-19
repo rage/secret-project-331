@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { InnerBlocks } from "@wordpress/block-editor"
-import { BlockEditProps } from "@wordpress/blocks"
+import { BlockEditProps, TemplateArray } from "@wordpress/blocks"
 import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -11,6 +11,7 @@ import { primaryFont, typography } from "../../../shared-module/styles"
 import { gutenbergControlsHidden } from "../../../styles/EditorStyles"
 
 const ALLOWED_NESTED_BLOCKS = ["moocfi/exercise-task"]
+const INNER_BLOCKS_TEMPLATE: TemplateArray = [["moocfi/exercise-task", {}]]
 
 const ExerciseSlideEditorCard = styled.div`
   padding: 2rem 2rem;
@@ -45,7 +46,7 @@ const ExerciseSlideEditor: React.FC<
         {t("slide-title", { number: attributes.order_number + 1 })}
       </div>
       <div className={gutenbergControlsHidden}>
-        <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
+        <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} template={INNER_BLOCKS_TEMPLATE} />
       </div>
       <div>
         <Button variant="secondary" size="medium" onClick={handleAddNewTask}>

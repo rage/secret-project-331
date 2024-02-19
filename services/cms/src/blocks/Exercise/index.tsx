@@ -20,6 +20,14 @@ export interface ExerciseAttributes {
   use_course_default_peer_review: boolean
 }
 
+/**
+ * How the exercise block works:
+ * The exercise block is the most complicated block in the system. This complexity is not accidental, but rather a result of the requirements for this block.
+ *
+ * ## TODO: decribe the inner blocks structure (https://github.com/WordPress/gutenberg/issues/6808)
+ *
+ * ## TODO: describe how attributes are handled: normalization and denormalization
+ */
 const ExerciseConfiguration: BlockConfiguration<ExerciseAttributes> = {
   title: "Exercise",
   description: "Exercise",

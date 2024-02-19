@@ -1,11 +1,11 @@
 import { css } from "@emotion/css"
 import { useTranslation } from "react-i18next"
 
-import useAllExerciseServices from "../../../hooks/useAllExerciseServices"
-import { ExerciseServiceIframeRenderingInfo } from "../../../shared-module/bindings"
-import Button from "../../../shared-module/components/Button"
-import ErrorBanner from "../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../shared-module/components/Spinner"
+import useAllExerciseServices from "../../../../hooks/useAllExerciseServices"
+import { ExerciseServiceIframeRenderingInfo } from "../../../../shared-module/bindings"
+import Button from "../../../../shared-module/components/Button"
+import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
+import Spinner from "../../../../shared-module/components/Spinner"
 
 interface Props {
   onChooseItem: (task: ExerciseServiceIframeRenderingInfo) => void

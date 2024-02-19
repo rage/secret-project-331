@@ -15,6 +15,7 @@ import {
   PeerReviewQuestion,
   PeerReviewQuestionType,
 } from "../shared-module/bindings"
+import Accordion from "../shared-module/components/Accordion"
 import Button from "../shared-module/components/Button"
 import ErrorBanner from "../shared-module/components/ErrorBanner"
 import CheckBox from "../shared-module/components/InputFields/CheckBox"

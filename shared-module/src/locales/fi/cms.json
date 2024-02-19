@@ -66,6 +66,7 @@
   "pages-in-chapter-placeholder-explanation": "Tämä lohko sijoitetaan jokaisen luvun etusivulle, esim. /luku-1/ helpottaaksesi navigointia eri alaosioihin.",
   "partners-block": "Yhteistyökumppanit lohko",
   "partners-block-description": "Yhteistyökumppanit lohkoa käytetään yhteistyökumppaneiden logojen näyttämiseen etusivulla.",
+  "peer-and-self-review-configuration": "Vertais- ja itsearvioinnin asetukset",
   "peer-review-accepting-threshold": "Vertaisarvion hyväksymiskynnys",
   "peer-review-processing-strategy": "Vertaisarvion käsittelystrategia",
   "peer-review-question": "Vertaisarvion kysymys",

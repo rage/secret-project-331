@@ -3,7 +3,7 @@ import { BlockConfiguration, BlockEditProps } from "@wordpress/blocks"
 import { ComponentType, useEffect } from "react"
 import { v4 } from "uuid"
 
-import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
+import { MOOCFI_CATEGORY_SLUG } from "../../../utils/Gutenberg/modifyGutenbergCategories"
 
 import ExerciseTaskEditor, { ExerciseTaskAttributes } from "./ExerciseTaskEditor"
 import ExerciseTaskSave from "./ExerciseTaskSave"

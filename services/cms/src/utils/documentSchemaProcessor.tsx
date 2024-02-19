@@ -4,8 +4,8 @@ import { BlockInstance } from "@wordpress/blocks"
 import { v4 } from "uuid"
 
 import { ExerciseAttributes } from "../blocks/Exercise"
-import { ExerciseSlideAttributes } from "../blocks/ExerciseSlide/ExerciseSlideEditor"
-import { ExerciseTaskAttributes } from "../blocks/ExerciseTask/ExerciseTaskEditor"
+import { ExerciseSlideAttributes } from "../blocks/Exercise/ExerciseSlide/ExerciseSlideEditor"
+import { ExerciseTaskAttributes } from "../blocks/Exercise/ExerciseTask/ExerciseTaskEditor"
 import {
   CmsPageExercise,
   CmsPageExerciseSlide,

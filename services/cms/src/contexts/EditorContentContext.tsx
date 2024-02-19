@@ -4,8 +4,8 @@ import { BlockInstance } from "@wordpress/blocks"
 import React, { Dispatch } from "react"
 import { v4 } from "uuid"
 
-import { ExerciseSlideAttributes } from "../blocks/ExerciseSlide/ExerciseSlideEditor"
-import { ExerciseTaskAttributes } from "../blocks/ExerciseTask/ExerciseTaskEditor"
+import { ExerciseSlideAttributes } from "../blocks/Exercise/ExerciseSlide/ExerciseSlideEditor"
+import { ExerciseTaskAttributes } from "../blocks/Exercise/ExerciseTask/ExerciseTaskEditor"
 
 // Context
 

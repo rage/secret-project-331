@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 import PeerReviewEditor from "../../components/PeerReviewEditor"
 import { EditorContentDispatch } from "../../contexts/EditorContentContext"
 import PageContext from "../../contexts/PageContext"
+import Accordion from "../../shared-module/components/Accordion"
 import Button from "../../shared-module/components/Button"
 import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
 import Centered from "../../shared-module/components/Centering/Centered"
@@ -144,13 +145,18 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<BlockEditProps<ExerciseAt
                 />
               </div>
               {courseId && (
-                <PeerReviewEditor
-                  attributes={attributes}
-                  setAttributes={setAttributes}
-                  exerciseId={attributes.id}
-                  courseId={courseId}
-                  courseGlobalEditor={false}
-                />
+                <Accordion variant="detail">
+                  <details>
+                    <summary>{t("peer-and-self-review-configuration")}</summary>
+                    <PeerReviewEditor
+                      attributes={attributes}
+                      setAttributes={setAttributes}
+                      exerciseId={attributes.id}
+                      courseId={courseId}
+                      courseGlobalEditor={false}
+                    />
+                  </details>
+                </Accordion>
               )}
             </div>
             <div className={gutenbergControlsHidden}>

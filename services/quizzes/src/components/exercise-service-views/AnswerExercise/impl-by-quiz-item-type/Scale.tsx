@@ -5,7 +5,7 @@ import { UserItemAnswerScale } from "../../../../../types/quizTypes/answer"
 import { PublicSpecQuizItemScale } from "../../../../../types/quizTypes/publicSpec"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
-import MarkdownText from "../../../MarkdownText"
+import ParsedText from "../../../ParsedText"
 
 import { QUIZ_TITLE_STYLE } from "./AnswerQuizStyles"
 
@@ -63,7 +63,7 @@ const Scale: React.FC<QuizItemComponentProps<PublicSpecQuizItemScale, UserItemAn
             }
           `}
         >
-          <MarkdownText text={quizItem.title} />
+          <ParsedText inline parseLatex parseMarkdown text={quizItem.title} />
         </div>
       )}
       <div

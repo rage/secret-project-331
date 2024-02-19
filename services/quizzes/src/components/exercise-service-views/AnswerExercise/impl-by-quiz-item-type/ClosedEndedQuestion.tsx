@@ -7,7 +7,7 @@ import { PublicSpecQuizItemClosedEndedQuestion } from "../../../../../types/quiz
 import TextField from "../../../../shared-module/components/InputFields/TextField"
 import { stripNonPrintableCharacters } from "../../../../shared-module/utils/strings"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
-import MarkdownText from "../../../MarkdownText"
+import ParsedText from "../../../ParsedText"
 import CloseEndedQuestionWrapper from "../../../Shared/CloseEndedQuestionWrapper"
 
 import { QuizItemComponentProps } from "."
@@ -54,8 +54,12 @@ const ClosedEndedQuestion: React.FC<
 
   return (
     <CloseEndedQuestionWrapper wideScreenDirection={quizDirection}>
-      <div>{quizItem.title && <MarkdownText text={quizItem.title} />}</div>
-      <div>{quizItem.body && <MarkdownText text={quizItem.body} />}</div>
+      <div>
+        {quizItem.title && <ParsedText inline parseLatex parseMarkdown text={quizItem.title} />}
+      </div>
+      <div>
+        {quizItem.body && <ParsedText inline parseLatex parseMarkdown text={quizItem.body} />}
+      </div>
       <div>
         <TextField
           id={fieldId}

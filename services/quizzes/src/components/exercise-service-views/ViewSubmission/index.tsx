@@ -39,6 +39,7 @@ import { baseTheme } from "../../../shared-module/styles"
 import { COLUMN } from "../../../util/constants"
 import { FlexDirection, sanitizeFlexDirection } from "../../../util/css-sanitization"
 import FlexWrapper from "../../FlexWrapper"
+import ParsedText from "../../ParsedText"
 
 import CheckBoxFeedback from "./impl-by-quiz-item-type/Checkbox"
 import ChooseN from "./impl-by-quiz-item-type/ChooseN"
@@ -177,7 +178,8 @@ const SubmissionFeedback: React.FC<{
     if (
       !customItemFeedback?.endsWith(".") &&
       !customItemFeedback?.endsWith("!") &&
-      !customItemFeedback?.endsWith("?")
+      !customItemFeedback?.endsWith("?") &&
+      !customItemFeedback?.endsWith("]")
     ) {
       return customItemFeedback + "."
     }
@@ -201,8 +203,11 @@ const SubmissionFeedback: React.FC<{
         column-gap: 0.8rem;
       `}
     >
-      <BullhornMegaphone size={20} weight="bold" color="7A3F75" /> {mapScoreToFeedback(userScore)}{" "}
-      {customItemFeedback}
+      <BullhornMegaphone size={20} weight="bold" color="7A3F75" />{" "}
+      <span>
+        {mapScoreToFeedback(userScore)}{" "}
+        <ParsedText inline parseLatex parseMarkdown text={customItemFeedback} />
+      </span>
     </div>
   )
 }

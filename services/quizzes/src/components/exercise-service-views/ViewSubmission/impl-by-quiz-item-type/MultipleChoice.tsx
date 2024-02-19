@@ -10,7 +10,6 @@ import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary
 import { quizTheme } from "../../../../styles/QuizStyles"
 import { FlexDirection, sanitizeFlexDirection } from "../../../../util/css-sanitization"
 import { orderArrayWithId } from "../../../../util/randomizer"
-import MarkdownText from "../../../MarkdownText"
 import ParsedText from "../../../ParsedText"
 
 import { QuizItemSubmissionComponentProps } from "."
@@ -99,7 +98,9 @@ const MultipleChoiceSubmission: React.FC<
           margin: 0.5rem 0;
         `}
       >
-        {public_quiz_item.body && <MarkdownText text={public_quiz_item.body} />}
+        {public_quiz_item.body && (
+          <ParsedText inline parseLatex parseMarkdown text={public_quiz_item.body} />
+        )}
       </p>
       <div
         className={css`

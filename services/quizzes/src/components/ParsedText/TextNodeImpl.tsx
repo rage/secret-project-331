@@ -10,13 +10,14 @@ const sanitizeHTML = (dirty: string) => {
   }).toString()
 }
 
-const TextNodeImpl: React.FC<React.PropsWithChildren<TextNodeProps>> = ({ text }) => {
+const TextNodeImpl: React.FC<React.PropsWithChildren<TextNodeProps>> = ({ text, inline }) => {
+  const Tag = inline ? "span" : "div"
   return (
-    <div
+    <Tag
       dangerouslySetInnerHTML={{
         __html: sanitizeHTML(text),
       }}
-    ></div>
+    ></Tag>
   )
 }
 

@@ -96,7 +96,14 @@ const parseLatex = (text: string, displayMode: boolean) => {
  * @returns Markdown in HTML
  */
 const parseMarkdown = (text: string) => {
-  return htmlWriter.render(markdownParser.parse(text))
+  const res = htmlWriter.render(markdownParser.parse(text))
+  // This one is usually used with only one line of text and markdown wraps all text into paragraps. If this is the case, we'll remove wrapping paragrap tags so that the styling of the text is not messed up by the extra tag.
+  const countOfParagraphTags = (res.match(/<p>/g) || []).length
+  if (countOfParagraphTags === 1) {
+    return res.replace(/<p>/, "").replace(/<\/p>/, "").trim()
+  }
+
+  return res.trim()
 }
 
 /**

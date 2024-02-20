@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
-  IframeState,
+  ExtendedIframeState,
   MessageFromIframe,
   SetLanguageMessage,
   SetStateMessage,
@@ -19,7 +19,7 @@ import BreakFromCentered, { BreakFromCenteredProps } from "./Centering/BreakFrom
 
 interface MessageChannelIFrameProps {
   url: string
-  postThisStateToIFrame: IframeState | null
+  postThisStateToIFrame: ExtendedIframeState | null
   onMessageFromIframe: (message: MessageFromIframe, responsePort: MessagePort) => void
   breakFromCenteredProps?: BreakFromCenteredProps
   title: string

@@ -1427,7 +1427,8 @@ fn models() {
             id,
             name: "Example exercise".to_string(),
             slug: "example-exercise".to_string(),
-            public_iframe_url: "https://example.com/iframe".to_string()
+            public_iframe_url: "https://example.com/iframe".to_string(),
+            has_custom_view: false
         }
     );
     doc!(CmsPeerReviewConfiguration {

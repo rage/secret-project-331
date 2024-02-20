@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT *\nFROM course_modules\nWHERE course_id = $1\n  AND name IS NULL\n  AND order_number = 0\n  AND deleted_at IS NULL\n        ",
+  "query": "\nSELECT *\nFROM course_modules\nWHERE course_id = $1\n  AND name IS NULL\n  AND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -112,5 +112,5 @@
       false
     ]
   },
-  "hash": "ee186fc1b8fd129fbfc96ede2df1eb0513d4d0e5c2f5bf5a17cdc088f8d3af1b"
+  "hash": "ea0349456e96617af60df991d87884f3275d8f8f78f7105db2644aeeebd05b9c"
 }

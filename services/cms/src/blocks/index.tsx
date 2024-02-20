@@ -11,6 +11,7 @@ import CourseChapterGrid from "./CourseChapterGrid"
 import CourseObjectiveSection from "./CourseObjectiveSection"
 import CourseProgress from "./CourseProgress"
 import Exercise from "./Exercise"
+import ExerciseCustomView from "./ExerciseCustomView"
 import ExerciseInChapter from "./ExerciseInChapter"
 import ExerciseSlide from "./ExerciseSlide"
 import ExerciseTask from "./ExerciseTask"
@@ -60,6 +61,7 @@ export const blockTypeMapForPages = [
   ["moocfi/author", Author],
   ["moocfi/author-inner-block", AuthorInnerBlock],
   ["moocfi/conditional-block", ConditionalBlock],
+  ["moocfi/exercise-custom-view-block", ExerciseCustomView],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as Array<[string, BlockConfiguration<Record<string, any>>]>
 
@@ -77,6 +79,8 @@ export const blockTypeMapForFrontPages = [
   ["moocfi/landing-page-copy-text", LandingPageCopyText],
   ["moocfi/iframe", Iframe],
   ["moocfi/map", Map],
+  ["moocfi/conditional-block", ConditionalBlock],
+  ["moocfi/exercise-custom-view-block", ExerciseCustomView],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as Array<[string, BlockConfiguration<Record<string, any>>]>
 

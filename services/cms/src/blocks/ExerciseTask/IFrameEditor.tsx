@@ -9,7 +9,7 @@ import CourseContext from "../../contexts/CourseContext"
 import MessageChannelIFrame from "../../shared-module/components/MessageChannelIFrame"
 import Spinner from "../../shared-module/components/Spinner"
 import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
-import { IframeState } from "../../shared-module/exercise-service-protocol-types"
+import { ExerciseIframeState } from "../../shared-module/exercise-service-protocol-types"
 import { isMessageFromIframe } from "../../shared-module/exercise-service-protocol-types.guard"
 import useMedia from "../../shared-module/hooks/useMedia"
 import useUserInfo from "../../shared-module/hooks/useUserInfo"
@@ -39,7 +39,7 @@ const ExerciseTaskIFrameEditor: React.FC<
 
   const largeScreen = useMedia(respondToOrLarger.xl)
 
-  const postThisStateToIFrame: IframeState = useMemoOne(() => {
+  const postThisStateToIFrame: ExerciseIframeState = useMemoOne(() => {
     return {
       view_type: VIEW_TYPE,
       exercise_task_id: exerciseTaskId,

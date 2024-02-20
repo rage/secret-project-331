@@ -37,12 +37,17 @@
         "ordinal": 6,
         "name": "user_interface_iframe_path",
         "type_info": "Varchar"
+      },
+      {
+        "ordinal": 7,
+        "name": "has_custom_view",
+        "type_info": "Bool"
       }
     ],
     "parameters": {
       "Left": ["Uuid"]
     },
-    "nullable": [false, false, false, false, false, false, false]
+    "nullable": [false, false, false, false, false, false, false, false]
   },
   "hash": "744d6db0137323cc6398d3dacc9a6a59866b6e23798c33e118a0683f6a58cd36"
 }

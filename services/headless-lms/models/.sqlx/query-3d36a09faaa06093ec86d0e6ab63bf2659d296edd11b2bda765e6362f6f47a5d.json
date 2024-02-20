@@ -1,0 +1,43 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id,\n  created_at,\n  exercise_id,\n  exercise_task_id,\n  feedback_json,\n  feedback_text\nFROM exercise_task_gradings g\nWHERE deleted_at IS NULL\n  AND g.exercise_task_id IN (\n    SELECT distinct (t.id)\n    FROM exercise_tasks t\n    WHERE t.exercise_type = $2\n      AND deleted_at IS NULL\n      AND t.exercise_slide_id IN (\n        SELECT s.exercise_slide_id\n        FROM exercise_slide_submissions s\n        WHERE s.user_id = $1\n          AND s.course_instance_id = $4\n          AND deleted_at IS NULL\n          AND s.exercise_id IN (\n            SELECT id\n            FROM exercises e\n            WHERE e.chapter_id IN (\n                SELECT id\n                FROM chapters c\n                WHERE c.course_module_id = $3\n                AND deleted_at IS NULL\n              )\n          )\n      )\n  )\n      ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "exercise_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "exercise_task_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "feedback_json",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 5,
+        "name": "feedback_text",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "Text", "Uuid", "Uuid"]
+    },
+    "nullable": [false, false, false, false, true, true]
+  },
+  "hash": "3d36a09faaa06093ec86d0e6ab63bf2659d296edd11b2bda765e6362f6f47a5d"
+}

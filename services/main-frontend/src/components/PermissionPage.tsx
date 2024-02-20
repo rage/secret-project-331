@@ -27,6 +27,7 @@ const TEACHER: UserRole = "Teacher"
 const COURSE_OR_EXAM_CREATOR: UserRole = "CourseOrExamCreator"
 const MATERIAL_VIEWER: UserRole = "MaterialViewer"
 const TEACHING_AND_LEARNING_SERVICES: UserRole = "TeachingAndLearningServices"
+const STATS_VIEWER: UserRole = "StatsViewer"
 
 const options = (t: TFunction) => {
   return [
@@ -45,6 +46,10 @@ const options = (t: TFunction) => {
     {
       value: TEACHING_AND_LEARNING_SERVICES,
       label: t("role-teaching-and-learning-services"),
+    },
+    {
+      value: STATS_VIEWER,
+      label: t("role-stats-viewer"),
     },
   ]
 }

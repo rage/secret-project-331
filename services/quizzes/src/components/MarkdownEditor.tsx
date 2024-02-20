@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next"
 import Button from "../shared-module/components/Button"
 import TextField from "../shared-module/components/InputFields/TextField"
 
-import MarkdownText from "./MarkdownText"
+import ParsedText from "./ParsedText"
 
 const EditorWrapper = styled.div`
   width: 100%;
@@ -50,7 +50,7 @@ export const MarkdownEditor: React.FC<React.PropsWithChildren<MarkdownEditorProp
               flex: 1;
             `}
           >
-            <MarkdownText text={text} />
+            <ParsedText inline parseLatex parseMarkdown text={text} />
           </div>
         )}
         <Button

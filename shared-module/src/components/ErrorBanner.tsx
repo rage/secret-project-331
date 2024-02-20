@@ -264,7 +264,10 @@ const ErrorBanner: React.FC<React.PropsWithChildren<React.PropsWithChildren<Bann
         <BannerWrapper>
           <Content>
             <Text>
-              <h2>{t("error-title")}</h2>
+              <h2>
+                {t("error-title")}
+                {error.message && `: ${error.message}`}
+              </h2>
             </Text>
             <DetailTag>
               <details>

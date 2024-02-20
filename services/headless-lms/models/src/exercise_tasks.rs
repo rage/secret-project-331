@@ -42,7 +42,7 @@ pub struct CourseMaterialExerciseTask {
     pub order_number: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct NewExerciseTask {
     pub exercise_slide_id: Uuid,
     pub exercise_type: String,
@@ -61,7 +61,7 @@ pub struct ExerciseTaskSpec {
     pub private_spec: Option<serde_json::Value>,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseTask {
     pub id: Uuid,

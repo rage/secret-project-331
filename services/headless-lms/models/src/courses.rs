@@ -26,7 +26,7 @@ pub struct CourseContextData {
     pub is_test_mode: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Course {
     pub id: Uuid,
@@ -46,7 +46,7 @@ pub struct Course {
     pub base_module_completion_requires_n_submodule_completions: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseBreadcrumbInfo {
     pub course_id: Uuid,
@@ -57,7 +57,7 @@ pub struct CourseBreadcrumbInfo {
 }
 
 /// Represents the subset of page fields that are required to create a new course.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewCourse {
     pub name: String,
@@ -122,7 +122,7 @@ RETURNING id
     Ok(res.id)
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseStructure {
     pub course: Course,
@@ -153,6 +153,94 @@ SELECT id,
 FROM courses
 WHERE deleted_at IS NULL;
 "#
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(courses)
+}
+
+pub async fn all_courses_user_enrolled_to(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> ModelResult<Vec<Course>> {
+    let courses = sqlx::query_as!(
+        Course,
+        r#"
+SELECT id,
+  name,
+  created_at,
+  updated_at,
+  organization_id,
+  deleted_at,
+  slug,
+  content_search_language::text,
+  language_code,
+  copied_from,
+  course_language_group_id,
+  description,
+  is_draft,
+  is_test_mode,
+  base_module_completion_requires_n_submodule_completions
+FROM courses
+WHERE courses.deleted_at IS NULL
+  AND id IN (
+    SELECT current_course_id
+    FROM user_course_settings
+    WHERE deleted_at IS NULL
+      AND user_id = $1
+  )
+"#,
+        user_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(courses)
+}
+
+pub async fn all_courses_with_roles_for_user(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> ModelResult<Vec<Course>> {
+    let courses = sqlx::query_as!(
+        Course,
+        r#"
+SELECT id,
+  name,
+  created_at,
+  updated_at,
+  organization_id,
+  deleted_at,
+  slug,
+  content_search_language::text,
+  language_code,
+  copied_from,
+  course_language_group_id,
+  description,
+  is_draft,
+  is_test_mode,
+  base_module_completion_requires_n_submodule_completions
+FROM courses
+WHERE courses.deleted_at IS NULL
+  AND (
+    id IN (
+      SELECT course_id
+      FROM roles
+      WHERE deleted_at IS NULL
+        AND user_id = $1
+        AND course_id IS NOT NULL
+    )
+    OR (
+      id IN (
+        SELECT ci.course_id
+        FROM course_instances ci
+          JOIN ROLES r ON r.course_instance_id = ci.id
+        WHERE r.user_id = $1
+          AND r.deleted_at IS NULL
+          AND ci.deleted_at IS NULL
+      )
+    )
+  ) "#,
+        user_id
     )
     .fetch_all(conn)
     .await?;
@@ -428,7 +516,7 @@ WHERE organization_id = $1
     })
 }
 // Represents the subset of page fields that one is allowed to update in a course
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseUpdate {
     name: String,

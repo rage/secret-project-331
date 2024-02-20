@@ -5,14 +5,14 @@ import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 test.describe("anonymous user", () => {
   test("cannot see draft course", async ({ page }) => {
-    await page.goto("http://project-331.local/")
+    await page.goto("http://project-331.local/organizations")
 
     await Promise.all([
-      page.locator("text=University of Helsinki, Department of Mathematics and Statistics").click(),
+      page.getByText("University of Helsinki, Department of Mathematics and Statistics").click(),
     ])
 
-    await expect(page.locator("text=Introduction to Statistics")).toBeVisible()
-    await expect(page.locator("text=Introduction to Drafts")).toBeHidden()
+    await expect(page.getByText("Introduction to Statistics")).toBeVisible()
+    await expect(page.getByText("Introduction to Drafts")).toBeHidden()
   })
 })
 
@@ -21,19 +21,19 @@ test.describe("user", () => {
     storageState: "src/states/user@example.com.json",
   })
   test("cannot see draft course", async ({ page }) => {
-    await page.goto("http://project-331.local/")
+    await page.goto("http://project-331.local/organizations")
 
     await Promise.all([
-      page.locator("text=University of Helsinki, Department of Mathematics and Statistics").click(),
+      page.getByText("University of Helsinki, Department of Mathematics and Statistics").click(),
     ])
 
-    await expect(page.locator("text=Introduction to Statistics")).toBeVisible()
-    await expect(page.locator("text=Introduction to Drafts")).toBeHidden()
+    await expect(page.getByText("Introduction to Statistics")).toBeVisible()
+    await expect(page.getByText("Introduction to Drafts")).toBeHidden()
   })
   test("cannot directly navigate to the draft course page", async ({ page }) => {
     await page.goto("http://project-331.local/org/uh-mathstat/courses/introduction-to-drafts")
-    await page.getByText("Unauthorized").waitFor()
-    await expect(page.locator("text=Introduction to Drafts")).toBeHidden()
+    await page.getByText("Unauthorized", { exact: true }).waitFor()
+    await expect(page.getByText("Introduction to Drafts")).toBeHidden()
   })
 })
 
@@ -42,23 +42,23 @@ test.describe("admin", () => {
     storageState: "src/states/admin@example.com.json",
   })
   test("can see draft course", async ({ page }) => {
-    await page.goto("http://project-331.local/")
+    await page.goto("http://project-331.local/organizations")
 
     await Promise.all([
-      page.locator("text=University of Helsinki, Department of Mathematics and Statistics").click(),
+      page.getByText("University of Helsinki, Department of Mathematics and Statistics").click(),
     ])
 
-    await expect(page.locator("text=Introduction to Statistics")).toBeVisible()
-    await expect(page.locator("text=Introduction to Drafts")).toBeVisible()
+    await expect(page.getByText("Introduction to Statistics")).toBeVisible()
+    await expect(page.getByText("Introduction to Drafts")).toBeVisible()
   })
   test("can create a draft course and change it to a non-draft course", async ({
     page,
     headless,
   }, testInfo) => {
-    await page.goto("http://project-331.local/")
+    await page.goto("http://project-331.local/organizations")
 
     await Promise.all([
-      page.locator("text=University of Helsinki, Department of Mathematics and Statistics").click(),
+      page.getByText("University of Helsinki, Department of Mathematics and Statistics").click(),
     ])
 
     await page.click(`button:text("Create")`)
@@ -80,7 +80,7 @@ test.describe("admin", () => {
       headless,
       testInfo,
       snapshotName: "draft-course",
-      waitForTheseToBeVisibleAndStable: [page.locator("text=Advanced drafts (Draft)")],
+      waitForTheseToBeVisibleAndStable: [page.getByText("Advanced drafts (Draft)")],
     })
 
     await page.getByRole("button", { name: "Edit" }).first().click()
@@ -106,7 +106,7 @@ test.describe("Teacher", () => {
   })
 
   test("Can give students access to the draft course", async ({ page, browser }) => {
-    await page.goto("http://project-331.local/")
+    await page.goto("http://project-331.local/organizations")
     await page
       .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
       .click()
@@ -136,7 +136,7 @@ test.describe("Teacher", () => {
   })
 
   test("teacher gets permissions to new course when copying a course", async ({ page }) => {
-    await page.goto("http://project-331.local/")
+    await page.goto("http://project-331.local/organizations")
     await page
       .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
       .click()
@@ -163,7 +163,7 @@ test.describe("Teacher", () => {
   test("teacher can copy course and grant users the same permissions as the original course", async ({
     page,
   }) => {
-    await page.goto("http://project-331.local/")
+    await page.goto("http://project-331.local/organizations")
     await page
       .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
       .click()

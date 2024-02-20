@@ -33,7 +33,7 @@ test.describe("test ManualReviewEverything behavior", () => {
     const teacherPage = await context3.newPage()
 
     // Student 1 submits an answer
-    await student1Page.goto("http://project-331.local/")
+    await student1Page.goto("http://project-331.local/organizations")
     await student1Page
       .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
       .click()
@@ -58,7 +58,7 @@ test.describe("test ManualReviewEverything behavior", () => {
     await student1Page.getByText("Try again").waitFor()
 
     // Student 2 submits an answer
-    await student2Page.goto("http://project-331.local/")
+    await student2Page.goto("http://project-331.local/organizations")
     await student2Page
       .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
       .click()
@@ -156,7 +156,7 @@ test.describe("test ManualReviewEverything behavior", () => {
     })
 
     // Teacher checks answers requiring attention
-    await teacherPage.goto("http://project-331.local/")
+    await teacherPage.goto("http://project-331.local/organizations")
     await teacherPage
       .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
       .click()
@@ -217,7 +217,7 @@ test.describe("test ManualReviewEverything behavior", () => {
     const teacherPage = await context3.newPage()
 
     // student 1 submits an answer
-    await student1Page.goto("http://project-331.local/")
+    await student1Page.goto("http://project-331.local/organizations")
     await student1Page
       .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
       .click()
@@ -247,7 +247,7 @@ test.describe("test ManualReviewEverything behavior", () => {
     await student1Page.getByText("Try again").waitFor()
 
     // student 2 submits an answer
-    await student2Page.goto("http://project-331.local/")
+    await student2Page.goto("http://project-331.local/organizations")
     await student2Page
       .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
       .click()
@@ -340,7 +340,7 @@ test.describe("test ManualReviewEverything behavior", () => {
     })
 
     // teacher checks the answers
-    await teacherPage.goto("http://project-331.local/")
+    await teacherPage.goto("http://project-331.local/organizations")
     await teacherPage
       .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
       .click()

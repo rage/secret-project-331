@@ -8,7 +8,7 @@ test.use({
 })
 
 test("course list renders", async ({ page, headless }, testInfo) => {
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
     page.click(
@@ -22,6 +22,6 @@ test("course list renders", async ({ page, headless }, testInfo) => {
     testInfo,
     screenshotTarget: page,
     snapshotName: "course-listing",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Courses:")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("Courses:")],
   })
 })

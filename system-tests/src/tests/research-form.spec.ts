@@ -8,7 +8,7 @@ test.use({
 })
 
 test("Can create a new research form for a course", async ({ page }) => {
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
   await page
     .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
     .click()
@@ -52,7 +52,7 @@ test("Research form is shown on a coursepage if not answered", async ({
     headless,
     testInfo,
     snapshotName: "research-consent-form-shows-if-not-aswered",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Research form")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("Research form")],
   })
   await page.getByText("I want to take part in research").click()
   await page.getByRole("button", { name: "Save" }).click()
@@ -69,10 +69,11 @@ test("User can change answer of the research form", async ({ page, headless }, t
     headless,
     testInfo,
     snapshotName: "research-consent-form-shows-in-user-setting-page",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Advanced course instance management")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("Advanced course instance management")],
   })
   await page.getByRole("link", { name: "Edit" }).getByRole("button", { name: "Edit" }).click()
-  expect(await page.getByLabel("I want to take part in research").isChecked())
+
+  await expect(page.getByLabel("I want to take part in research")).toBeChecked()
 
   await page.getByText("I want to take part in research").click()
   await page.getByRole("button", { name: "Save" }).click()

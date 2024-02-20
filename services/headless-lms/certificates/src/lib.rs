@@ -17,7 +17,7 @@ use icu::datetime::TypedDateTimeFormatter;
 use resvg::tiny_skia;
 use std::path::Path;
 use std::time::Instant;
-use usvg::{fontdb, TreeParsing, TreeTextToPath};
+use usvg::{fontdb, TreeParsing, TreePostProc};
 
 use quick_xml::{events::BytesText, Writer};
 use std::io::Cursor;
@@ -154,16 +154,21 @@ fn generate_certificate_impl(
     })?;
     info!("Setup time {:?}", start_setup.elapsed());
     let parse_background_svg_start = Instant::now();
-    let rtree = {
-        let mut rtree = usvg::Tree::from_data(background_svg, &opt).map_err(|original_error| {
+    let tree = {
+        let mut tree = usvg::Tree::from_data(background_svg, &opt).map_err(|original_error| {
             UtilError::new(
                 UtilErrorType::Other,
                 "Could not parse background svg".to_string(),
                 Some(original_error.into()),
             )
         })?;
-        rtree.convert_text(fontdb);
-        resvg::Tree::from_usvg(&rtree)
+        tree.postprocess(
+            usvg::PostProcessingSteps {
+                convert_text_into_paths: true,
+            },
+            fontdb,
+        );
+        tree
     };
 
     info!(
@@ -174,14 +179,15 @@ fn generate_certificate_impl(
     let start_render_background = Instant::now();
     // Scaling the background to the paper size, if the aspect ratio is wrong (for example if it does not follow the aspect ratio of A4 paper size), the background will get stretched.
     // If that's the case, the you should fix the background svg.
-    let background_size = rtree.size.to_int_size();
+    let background_size = tree.size.to_int_size();
     let x_scale = paper_size.width_px() as f32 / background_size.width() as f32;
     let y_scale = paper_size.height_px() as f32 / background_size.height() as f32;
     info!(
         "Background size {:?}, paper size: {:?}, x_scale: {}, y_scale: {}",
         background_size, paper_size, x_scale, y_scale
     );
-    rtree.render(
+    resvg::render(
+        &tree,
         resvg::tiny_skia::Transform::from_scale(x_scale, y_scale),
         &mut pixmap.as_mut(),
     );
@@ -194,8 +200,8 @@ fn generate_certificate_impl(
     let text_svg_data = generate_text_svg(texts, debug_show_anchoring_points, paper_size)?;
     info!("{}", String::from_utf8_lossy(&text_svg_data));
     let parse_text_svg_start = Instant::now();
-    let text_rtree = {
-        let mut text_rtree =
+    let text_tree = {
+        let mut text_tree =
             usvg::Tree::from_data(&text_svg_data, &opt).map_err(|original_error| {
                 UtilError::new(
                     UtilErrorType::Other,
@@ -203,20 +209,29 @@ fn generate_certificate_impl(
                     Some(original_error.into()),
                 )
             })?;
-        text_rtree.convert_text(fontdb);
-        resvg::Tree::from_usvg(&text_rtree)
+        text_tree.postprocess(
+            usvg::PostProcessingSteps {
+                convert_text_into_paths: true,
+            },
+            fontdb,
+        );
+        text_tree
     };
 
     info!("Parse text svg time {:?}", parse_text_svg_start.elapsed());
 
     let render_text_start = Instant::now();
-    text_rtree.render(tiny_skia::Transform::default(), &mut pixmap.as_mut());
+    resvg::render(
+        &text_tree,
+        tiny_skia::Transform::default(),
+        &mut pixmap.as_mut(),
+    );
     info!("Render text time {:?}", render_text_start.elapsed());
 
     if let Some(overlay_svg) = overlay_svg {
         let start_render_overlay = Instant::now();
-        let overlay_rtree = {
-            let mut overlay_rtree =
+        let overlay_tree = {
+            let mut overlay_tree =
                 usvg::Tree::from_data(overlay_svg, &opt).map_err(|original_error| {
                     UtilError::new(
                         UtilErrorType::Other,
@@ -224,11 +239,20 @@ fn generate_certificate_impl(
                         Some(original_error.into()),
                     )
                 })?;
-            overlay_rtree.convert_text(fontdb);
-            resvg::Tree::from_usvg(&overlay_rtree)
+            overlay_tree.postprocess(
+                usvg::PostProcessingSteps {
+                    convert_text_into_paths: true,
+                },
+                fontdb,
+            );
+            overlay_tree
         };
 
-        overlay_rtree.render(tiny_skia::Transform::default(), &mut pixmap.as_mut());
+        resvg::render(
+            &overlay_tree,
+            tiny_skia::Transform::default(),
+            &mut pixmap.as_mut(),
+        );
 
         info!("Overlay time {:?}", start_render_overlay.elapsed());
     }

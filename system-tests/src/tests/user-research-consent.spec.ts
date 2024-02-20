@@ -8,7 +8,7 @@ test("Research consent form is visible on login, if not yet answered", async ({
   headless,
 }, testInfo) => {
   await test.step("Research consent form is visible on login, if not yet answered", async () => {
-    await page.goto("http://project-331.local/")
+    await page.goto("http://project-331.local/organizations")
     await page.getByRole("button", { name: "Open menu" }).click()
     await page.getByRole("button", { name: "Log in" }).click()
     await page.click(`label:has-text("Email")`)
@@ -17,7 +17,7 @@ test("Research consent form is visible on login, if not yet answered", async ({
     await page.click(`label:has-text("Password")`)
     await page.fill(`label:has-text("Password")`, "student-without-research-consent")
     await page.locator("id=login-button").click()
-    await expect(page.locator("text=Regarding research done on courses")).toBeVisible()
+    await expect(page.getByText("Regarding research done on courses")).toBeVisible()
 
     await page
       .getByLabel(
@@ -30,7 +30,7 @@ test("Research consent form is visible on login, if not yet answered", async ({
       headless,
       testInfo,
       snapshotName: "research-consent-form",
-      waitForTheseToBeVisibleAndStable: [page.locator("text=Regarding research done on courses")],
+      waitForTheseToBeVisibleAndStable: [page.getByText("Regarding research done on courses")],
     })
     await page.getByRole("button", { name: "Save" }).click()
 
@@ -45,11 +45,11 @@ test("Research consent form is visible on login, if not yet answered", async ({
     await page.click(`label:has-text("Password")`)
     await page.fill(`label:has-text("Password")`, "student-without-research-consent")
     await page.locator("id=login-button").click()
-    await expect(page.locator("text=Organizations")).toBeVisible()
+    await expect(page.getByText("Organizations")).toBeVisible()
   })
 
   await test.step("Can change research consent", async () => {
-    await page.goto("http://project-331.local/")
+    await page.goto("http://project-331.local/organizations")
     await page
       .getByRole("link", {
         name: "University of Helsinki, Department of Mathematics and Statistics",

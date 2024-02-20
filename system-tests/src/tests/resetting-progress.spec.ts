@@ -7,7 +7,7 @@ test.use({
 })
 
 test("Resetting teacher's own progress resets points", async ({ page }) => {
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
   await page
     .getByRole("link", { name: "University of Helsinki, Department of Mathematics and Statistics" })
     .click()
@@ -21,7 +21,8 @@ test("Resetting teacher's own progress resets points", async ({ page }) => {
     .click()
   await page.getByRole("button", { name: "Submit" }).first().click()
   await page.getByText("Good job!").waitFor()
-  await page.getByText("Points:1/1").waitFor()
+  // await page.getByText("Points:1/1").waitFor()
+  await page.locator('div.points:has-text("1⁄1")').waitFor()
   await page.getByRole("navigation", { name: "Navigation menu" }).click()
   await page.getByRole("button", { name: "Open menu" }).click()
   await page.getByRole("button", { name: "Manage course" }).click()
@@ -33,8 +34,8 @@ test("Resetting teacher's own progress resets points", async ({ page }) => {
   await page.goto(
     "http://project-331.local/org/uh-mathstat/courses/reset-progress/chapter-1/page-2",
   )
-  await page.getByText("Points:0/1").first().waitFor()
-  await page.getByText("Points:1/1").waitFor({ state: "hidden" })
+  await page.getByText("0⁄1").first().waitFor()
+  await page.getByText("1⁄1").waitFor({ state: "hidden" })
   await page.getByRole("button", { name: "try again" }).waitFor({ state: "hidden" })
 })
 
@@ -45,7 +46,7 @@ test("Teacher can reset progress for all students on draft courses", async ({ pa
       storageState: "src/states/student1@example.com.json",
     })
     const studentPage = await studentContext.newPage()
-    await studentPage.goto("http://project-331.local/")
+    await studentPage.goto("http://project-331.local/organizations")
     await studentPage
       .getByRole("link", {
         name: "University of Helsinki, Department of Mathematics and Statistics",
@@ -61,7 +62,7 @@ test("Teacher can reset progress for all students on draft courses", async ({ pa
       .click()
     await studentPage.getByRole("button", { name: "Submit" }).first().click()
     await studentPage.getByText("Good job!").waitFor()
-    await studentPage.getByText("Points:1/1").waitFor()
+    await studentPage.getByText("1⁄1").waitFor()
     await page.goto("http://project-331.local/org/uh-mathstat")
     await page.locator(`[aria-label="Manage course 'Reset progress'"]`).click()
 
@@ -102,8 +103,8 @@ test("Teacher can reset progress for all students on draft courses", async ({ pa
     await studentPage.goto(
       "http://project-331.local/org/uh-mathstat/courses/reset-progress/chapter-1/page-2",
     )
-    await studentPage.getByText("Points:0/1").first().waitFor()
-    await studentPage.getByText("Points:1/1").waitFor({ state: "hidden" })
+    await studentPage.getByText("0⁄1").first().waitFor()
+    await studentPage.getByText("1⁄1").waitFor({ state: "hidden" })
     await studentPage.getByRole("button", { name: "try again" }).waitFor({ state: "hidden" })
   } finally {
     // eslint-disable-next-line playwright/no-conditional-in-test

@@ -10,7 +10,6 @@ import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary
 import { quizTheme } from "../../../../styles/QuizStyles"
 import { FlexDirection, sanitizeFlexDirection } from "../../../../util/css-sanitization"
 import { orderArrayWithId } from "../../../../util/randomizer"
-import MarkdownText from "../../../MarkdownText"
 import ParsedText from "../../../ParsedText"
 
 import { QuizItemSubmissionComponentProps } from "."
@@ -23,26 +22,30 @@ const gradingOption = css`
   flex: 1;
   flex-wrap: wrap;
   justify-content: space-between;
-  margin: 0.3rem;
+  margin: 0.3rem 0;
   padding: 0 1rem;
+  border-radius: 0.375rem;
+  font-size: 1.125rem;
+  color: #4c5868;
+  border: 0.125rem solid #d8d8d8;
 `
 
 // eslint-disable-next-line i18next/no-literal-string
 const gradingOptionWrongAndSelected = css`
-  background: ${quizTheme.gradingWrongItemBackground};
-  color: ${quizTheme.gradingWrongItemColor};
+  background: #fbeef0;
+  border: 0.125rem solid #f5d0d3;
 `
 
 // eslint-disable-next-line i18next/no-literal-string
 const gradingOptionSelected = css`
-  background: ${quizTheme.gradingSelectedItemBackground};
-  color: ${quizTheme.gradingSelectedItemColor};
+  background: #f4f4f4;
+  border: 0.125rem solid #d8d8d8;
 `
 
 // eslint-disable-next-line i18next/no-literal-string
 const gradingOptionCorrectAndSelected = css`
   background: ${quizTheme.gradingCorrectItemBackground};
-  color: ${quizTheme.gradingCorrectItemColor};
+  border: 0.125rem solid #69af8a;
 `
 
 const MultipleChoiceSubmission: React.FC<
@@ -74,14 +77,16 @@ const MultipleChoiceSubmission: React.FC<
   return (
     <div
       className={css`
-        margin: 0.5rem;
+        margin: 0.5rem 0;
       `}
     >
       <div
         className={css`
-          font-size: ${quizTheme.quizTitleFontSize};
-          font-weight: bold;
+          font-weight: 500;
+          color: #4c5868;
           font-family: "Raleway", sans-serif;
+          font-size: 1.25rem;
+          margin-bottom: 1rem;
         `}
       >
         <ParsedText inline parseLatex parseMarkdown text={public_quiz_item.title} />
@@ -93,7 +98,9 @@ const MultipleChoiceSubmission: React.FC<
           margin: 0.5rem 0;
         `}
       >
-        {public_quiz_item.body && <MarkdownText text={public_quiz_item.body} />}
+        {public_quiz_item.body && (
+          <ParsedText inline parseLatex parseMarkdown text={public_quiz_item.body} />
+        )}
       </p>
       <div
         className={css`
@@ -102,6 +109,10 @@ const MultipleChoiceSubmission: React.FC<
 
           ${respondToOrLarger.sm} {
             flex-direction: ${direction};
+            ${public_quiz_item.optionDisplayDirection === "horizontal" &&
+            `
+                flex-wrap: wrap;
+              `}
           }
         `}
       >
@@ -148,7 +159,7 @@ const MultipleChoiceSubmission: React.FC<
                 >
                   <div
                     className={css`
-                      padding: 1rem 0;
+                      padding: 0.8rem 0;
                       max-width: 50ch;
                     `}
                   >
@@ -162,10 +173,42 @@ const MultipleChoiceSubmission: React.FC<
                           public_quiz_item.optionDisplayDirection,
                           "row",
                         )};
+                        ${public_quiz_item.optionDisplayDirection === "horizontal" &&
+                        `
+                            padding-left: 0.635rem;
+                          `}
                       `}
                     >
-                      <div>{correctAnswer == true && t("correct-option")}</div>
-                      <div>{correctAnswer == false && t("incorrect-option")}</div>
+                      {correctAnswer == true && (
+                        <div
+                          className={css`
+                            background: #69af8a;
+                            font-size: 0.625rem;
+                            text-transform: uppercase;
+                            font-weight: bold;
+                            padding: 0.3125rem 0.375rem 0.25rem 0.375rem;
+                            border-radius: 0.125rem;
+                            color: #14261c;
+                          `}
+                        >
+                          {t("correct-option")}
+                        </div>
+                      )}
+                      {correctAnswer == false && (
+                        <div
+                          className={css`
+                            background: #eedbdd;
+                            font-size: 0.625rem;
+                            text-transform: uppercase;
+                            font-weight: bold;
+                            padding: 0.3125rem 0.375rem 0.25rem 0.375rem;
+                            border-radius: 0.125rem;
+                            color: #b12632;
+                          `}
+                        >
+                          {t("incorrect-option")}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -194,11 +237,13 @@ const RowSubmissionFeedback: React.FC<React.PropsWithChildren<RowSubmissionFeedb
   return feedback ? (
     <div
       className={css`
-        margin: 0 0.5rem 1rem;
+        margin: 0 0.5rem 1rem 0;
         display: flex;
+        color: #4c5868;
+        font-size: 1.125rem;
         border-left: ${correct
-          ? `6px solid ${quizTheme.gradingCorrectItemBackground}`
-          : `6px solid ${quizTheme.gradingWrongItemBackground}`};
+          ? `0.375rem solid ${quizTheme.gradingCorrectItemBorderColor}`
+          : `0.375rem solid #ebcbcd`};
         box-sizing: border-box;
         background: ${quizTheme.feedbackBackground};
         padding: 0.5rem 0px 0.5rem 0.5rem;

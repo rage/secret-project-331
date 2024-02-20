@@ -9,10 +9,10 @@ test.use({
 
 test("material reference tests", async ({ page, headless }, testInfo) => {
   test.slow()
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
-    page.locator("text=University of Helsinki, Department of Mathematics and Statistics").click(),
+    page.getByText("University of Helsinki, Department of Mathematics and Statistics").click(),
   ])
 
   await page.locator("[aria-label=\"Manage course \\'Introduction to citations\\'\"] svg").click()
@@ -27,10 +27,10 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "material-reference-list",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Add new reference")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("Add new reference")],
   })
 
-  await page.locator("text=Add new reference").click()
+  await page.getByText("Add new reference").click()
 
   await expectScreenshotsToMatchSnapshots({
     axeSkip: ["page-has-heading-one"],
@@ -38,7 +38,7 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "add-new-material-reference-dialog",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Submit"), page.locator("text=Close")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("Submit"), page.locator("text=Close")],
   })
 
   await page.locator('textarea[name="references"]').click()
@@ -57,12 +57,12 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
       `,
   )
 
-  await page.locator("text=Submit").click()
+  await page.getByText("Submit").click()
 
   await page.getByText("Success").first().waitFor()
 
   // If the bibtext fails to parse, an error will be displayed.
-  await page.locator("text=Error").first().waitFor({ state: "hidden" })
+  await page.getByText("Error").first().waitFor({ state: "hidden" })
 
   await expectScreenshotsToMatchSnapshots({
     axeSkip: ["heading-order"],
@@ -70,11 +70,11 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "new-material-reference-added",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Add new reference")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("Add new reference")],
     clearNotifications: true,
   })
 
-  await page.locator("text=Edit reference").click()
+  await page.getByText("Edit reference").click()
 
   await expectScreenshotsToMatchSnapshots({
     axeSkip: ["heading-order", "page-has-heading-one"],
@@ -94,7 +94,7 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
       "@incollection{wang2003,\n  title={Artificial neural network},\n  author={Wang, Sun-Chong},\n  booktitle={Interdisciplinary computing in java programming},\n  pages={81--100},\n  year={2003},\n  publisher={Springer}\n}\n",
     )
 
-  await page.locator("text=Save").click()
+  await page.getByText("Save").click()
 
   await page.getByText("Success").first().waitFor()
 
@@ -104,17 +104,21 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "material-reference-edited",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Add new reference")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("Add new reference")],
     clearNotifications: true,
   })
 
-  await page.locator("text=Pages").click()
+  await page.getByText("Pages").click()
 
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/049061ba-ac30-49f1-aa9d-b7566dc22b78/pages",
   )
 
-  await page.locator("text=Page One/chapter-1/page-1Edit page >> button").first().click()
+  await page
+    .getByRole("row", { name: "Page One /chapter-1/page-1" })
+    .getByRole("button")
+    .first()
+    .click()
 
   await page.locator('[aria-label="Add block"]').click()
 
@@ -147,7 +151,7 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
   const TABLE_CONTENT = ["This cell contains citation\\cite{wang2003}", "Blank", "Blank", "Blank"]
   const CAPTION_CONTENT = "This caption has citation\\cite{wang2003}"
 
-  await page.locator("text=Create Table").click()
+  await page.getByText("Create Table").click()
 
   await page.locator('[aria-label="Body cell text"]').first().fill(TABLE_CONTENT[0])
 
@@ -159,8 +163,8 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
 
   await page.locator('[aria-label="Table caption text"]').fill(CAPTION_CONTENT)
 
-  await page.locator("text=Save").nth(3).click()
-  await page.waitForSelector(`text="Operation successful!"`)
+  await page.getByText("Save").nth(3).click()
+  await page.getByText(`Operation successful!`).waitFor()
 
   await page.goto(
     "http://project-331.local/org/uh-mathstat/courses/introduction-to-citations/chapter-1/page-1",
@@ -177,25 +181,25 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
       await page.locator(`text=This paragraph contains a citation`).scrollIntoViewIfNeeded(),
   })
 
-  await page.locator("text=Reference").scrollIntoViewIfNeeded()
+  await page.getByText("Reference").scrollIntoViewIfNeeded()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
     testInfo,
     snapshotName: "closed-course-material-reference-list",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Reference")],
-    beforeScreenshot: async () => await page.locator("text=Reference").scrollIntoViewIfNeeded(),
+    waitForTheseToBeVisibleAndStable: [page.getByText("Reference")],
+    beforeScreenshot: async () => await page.getByText("Reference").scrollIntoViewIfNeeded(),
   })
 
-  await page.locator("text=Reference").click()
+  await page.getByText("Reference").click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
     testInfo,
     snapshotName: "open-course-material-reference-list",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Reference"), page.locator("text=Wang")],
-    beforeScreenshot: async () => await page.locator("text=Reference").scrollIntoViewIfNeeded(),
+    waitForTheseToBeVisibleAndStable: [page.getByText("Reference"), page.locator("text=Wang")],
+    beforeScreenshot: async () => await page.getByText("Reference").scrollIntoViewIfNeeded(),
   })
 })

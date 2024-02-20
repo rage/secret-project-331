@@ -7,7 +7,7 @@ test.use({
 })
 
 test("Exercise list works", async ({ page, headless }, testInfo) => {
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
   await page
     .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
     .click()
@@ -20,6 +20,6 @@ test("Exercise list works", async ({ page, headless }, testInfo) => {
     testInfo,
     snapshotName: "exercise-list-view",
 
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Exercises in this course")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("Exercises in this course")],
   })
 })

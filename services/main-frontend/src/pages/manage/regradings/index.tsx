@@ -21,6 +21,7 @@ import SelectField from "../../../shared-module/components/InputFields/SelectFie
 import TextAreaField from "../../../shared-module/components/InputFields/TextAreaField"
 import Pagination from "../../../shared-module/components/Pagination"
 import Spinner from "../../../shared-module/components/Spinner"
+import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
 import usePaginationInfo from "../../../shared-module/hooks/usePaginationInfo"
 import useToastMutation from "../../../shared-module/hooks/useToastMutation"
 import { respondToOrLarger } from "../../../shared-module/styles/respond"
@@ -215,4 +216,4 @@ const RegradingsPage: React.FC = () => {
   )
 }
 
-export default RegradingsPage
+export default withSignedIn(RegradingsPage)

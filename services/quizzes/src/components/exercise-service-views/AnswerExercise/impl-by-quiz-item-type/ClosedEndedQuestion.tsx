@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import React, { useCallback, useId } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -6,7 +7,7 @@ import { PublicSpecQuizItemClosedEndedQuestion } from "../../../../../types/quiz
 import TextField from "../../../../shared-module/components/InputFields/TextField"
 import { stripNonPrintableCharacters } from "../../../../shared-module/utils/strings"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
-import MarkdownText from "../../../MarkdownText"
+import ParsedText from "../../../ParsedText"
 import CloseEndedQuestionWrapper from "../../../Shared/CloseEndedQuestionWrapper"
 
 import { QuizItemComponentProps } from "."
@@ -53,14 +54,32 @@ const ClosedEndedQuestion: React.FC<
 
   return (
     <CloseEndedQuestionWrapper wideScreenDirection={quizDirection}>
-      <div>{quizItem.title && <MarkdownText text={quizItem.title} />}</div>
-      <div>{quizItem.body && <MarkdownText text={quizItem.body} />}</div>
+      <div>
+        {quizItem.title && <ParsedText inline parseLatex parseMarkdown text={quizItem.title} />}
+      </div>
+      <div>
+        {quizItem.body && <ParsedText inline parseLatex parseMarkdown text={quizItem.body} />}
+      </div>
       <div>
         <TextField
           id={fieldId}
           aria-label={t("answer")}
           label={t("answer")}
           type="text"
+          className={css`
+            label {
+              font-weight: 500;
+              color: #4c5868;
+              font-family: "Raleway", sans-serif;
+              font-size: 0.938rem;
+              margin-bottom: 1rem;
+            }
+            input {
+              background: #f4f5f7 !important;
+              border-radius: 0.25rem;
+              border: 0.188rem solid #dfe1e6 !important;
+            }
+          `}
           value={quizItemAnswerState?.textData ?? ""}
           onChangeByValue={(e) => handleChange(e)}
           error={

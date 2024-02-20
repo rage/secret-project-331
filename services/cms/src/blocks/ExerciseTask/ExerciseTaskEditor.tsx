@@ -14,7 +14,6 @@ import DebugModal from "../../shared-module/components/DebugModal"
 import ErrorBanner from "../../shared-module/components/ErrorBanner"
 import Spinner from "../../shared-module/components/Spinner"
 import { baseTheme, primaryFont, typography } from "../../shared-module/styles"
-import { narrowContainerWidthPx } from "../../shared-module/styles/constants"
 import { runCallbackIfEnterPressed } from "../../shared-module/utils/accessibility"
 import { gutenbergControlsVisible } from "../../styles/EditorStyles"
 import breakFromCenteredProps from "../../utils/breakfromCenteredProps"
@@ -223,7 +222,7 @@ const ExerciseTaskEditor: React.FC<
                     exerciseTaskId={attributes.id}
                     onPrivateSpecChange={(x) => setAttributes({ private_spec: x })}
                     privateSpec={privateSpecToPostToIframe}
-                    url={`${url}?width=${narrowContainerWidthPx}`}
+                    url={url}
                   />
                 )}
               </ExerciseTaskEditorCard>

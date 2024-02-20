@@ -312,6 +312,9 @@ export async function takeScreenshotAndComparetoSnapshot(
   page: Page,
   useCoordinatesFromTheBottomForSavingYCoordinates: boolean | undefined,
 ): Promise<void> {
+  if (process.env.SKIP_TAKING_SCREENSHOTS) {
+    return
+  }
   const pathToImage = testInfo.snapshotPath(screenshotName)
   let newScreenshot = false
   try {
@@ -335,17 +338,37 @@ export async function takeScreenshotAndComparetoSnapshot(
       await expect(screenshotTarget).toHaveScreenshot(screenshotName, screenshotOptions)
     }
   } catch (e: unknown) {
+    await page.waitForTimeout(100)
     testInfo.config.updateSnapshots = originalUpdateSnapshotsSetting
     const savedYCoordinate = await imageSavedPageYCoordinate(pathToImage)
-    if (savedYCoordinate !== null) {
+    if (
+      savedYCoordinate !== null &&
+      process.env.UPDATE_SCREENSHOTS_WITHOUT_SCROLL_RESTORATION === undefined
+    ) {
       console.log(
         `Found a saved y coordinate of ${savedYCoordinate}. Scrolling to it for the screenshot comparison.`,
       )
-      page.evaluate((savedYCoordinate) => {
-        window.scrollTo(0, savedYCoordinate)
-      }, savedYCoordinate)
+      let yCoordinateRightNTimes = 0
+      let totalTries = 0
+      do {
+        const observedYCoordinate = await page.evaluate(() => window.scrollY)
+        if (observedYCoordinate === savedYCoordinate) {
+          yCoordinateRightNTimes++
+        } else {
+          await page.evaluate((savedYCoordinate) => {
+            window.scrollTo(0, savedYCoordinate)
+          }, savedYCoordinate)
+          yCoordinateRightNTimes = 0
+        }
+        if (totalTries > 100) {
+          throw new Error(`Could not scroll to the saved y coordinate`)
+        }
+        await page.waitForTimeout(100)
+
+        totalTries++
+      } while (yCoordinateRightNTimes < 3)
     }
-    await page.waitForTimeout(600)
+
     if (isPage(screenshotTarget)) {
       await expect(screenshotTarget).toHaveScreenshot(screenshotName, screenshotOptions)
     } else {
@@ -354,7 +377,11 @@ export async function takeScreenshotAndComparetoSnapshot(
   } finally {
     testInfo.config.updateSnapshots = originalUpdateSnapshotsSetting
   }
-  if (testInfo.config.updateSnapshots === "all" || newScreenshot) {
+  if (
+    testInfo.config.updateSnapshots === "all" ||
+    newScreenshot ||
+    process.env.UPDATE_SCREENSHOTS_WITHOUT_SCROLL_RESTORATION !== undefined
+  ) {
     // When updating snapshots, optimize the new image so that it does not take extra space in version control.
     await ensureImageHasBeenOptimized(pathToImage)
     const savedYCoordinate = await imageSavedPageYCoordinate(pathToImage)

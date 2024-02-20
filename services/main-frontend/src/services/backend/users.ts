@@ -1,9 +1,11 @@
 import {
+  Course,
   CourseInstanceEnrollmentsInfo,
   ResearchFormQuestionAnswer,
   UserResearchConsent,
 } from "../../shared-module/bindings"
 import {
+  isCourse,
   isCourseInstanceEnrollmentsInfo,
   isResearchFormQuestionAnswer,
   isUserResearchConsent,
@@ -19,13 +21,7 @@ export async function getCourseInstanceEnrollmentsInfo(
 }
 
 export const postUserResearchConsent = async (consent: boolean): Promise<UserResearchConsent> => {
-  const res = await mainFrontendClient.post(
-    `/users/user-research-consents`,
-    { consent },
-    {
-      responseType: "json",
-    },
-  )
+  const res = await mainFrontendClient.post(`/users/user-research-consents`, { consent })
   return validateResponse(res, isUserResearchConsent)
 }
 
@@ -39,4 +35,9 @@ export const getAllResearchConsentAnswersByUserId = async (): Promise<
 > => {
   const res = await mainFrontendClient.get(`/users/user-research-form-question-answers`)
   return validateResponse(res, isArray(isResearchFormQuestionAnswer))
+}
+
+export const getMyCourses = async (): Promise<Course[]> => {
+  const response = await mainFrontendClient.get("/users/my-courses")
+  return validateResponse(response, isArray(isCourse))
 }

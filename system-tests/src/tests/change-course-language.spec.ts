@@ -8,7 +8,7 @@ test.use({
 })
 
 test("Changing course language works", async ({ page, headless }, testInfo) => {
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
   await page
     .getByRole("link", { name: "University of Helsinki, Department of Mathematics and Statistics" })
     .click()
@@ -23,7 +23,7 @@ test("Changing course language works", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "course-lang-selection-eng-to-fi",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Choose your preferred language")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("Choose your preferred language")],
   })
   const value = page.locator("#changeLanguage")
   await value?.selectOption({ label: "Suomi" })
@@ -47,7 +47,7 @@ test("Changing course language works", async ({ page, headless }, testInfo) => {
     testInfo,
     snapshotName: "course-lang-selection-fi-to-eng",
     waitForTheseToBeVisibleAndStable: [
-      page.locator("text=Valitse kieli"),
+      page.getByText("Valitse kieli"),
       page.locator("id=language-flag"),
     ],
   })

@@ -9,10 +9,10 @@ test.use({
 })
 
 test("quizzes open feedback", async ({ page, headless }, testInfo) => {
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
-    await page.locator("text=University of Helsinki, Department of Computer Science").click(),
+    await page.getByText("University of Helsinki, Department of Computer Science").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
@@ -20,13 +20,13 @@ test("quizzes open feedback", async ({ page, headless }, testInfo) => {
 
   await selectCourseInstanceIfPrompted(page)
 
-  await page.locator("text=The Basics").click()
+  await page.getByText("The Basics").click()
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1",
   )
 
   await page.click(`a:has-text("Page 4")`)
-  await page.waitForSelector("text=First chapters open page.")
+  await page.getByText("First chapters open page.").waitFor()
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/page-4",
   )
@@ -34,7 +34,7 @@ test("quizzes open feedback", async ({ page, headless }, testInfo) => {
   const frame = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
   await frame
-    .locator("text=When you started studying at the uni? Give the date in yyyy-mm-dd format.")
+    .getByText("When you started studying at the uni? Give the date in yyyy-mm-dd format.")
     .waitFor()
 
   await frame
@@ -43,7 +43,9 @@ test("quizzes open feedback", async ({ page, headless }, testInfo) => {
     )
     .fill("19999-01-01")
 
-  await page.locator("text=Submit").click()
+  await page.getByText("Submit").click()
+  await page.getByText("Try again").waitFor()
+  await page.locator(`text=This is an extra submit message from the teacher.`).waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
@@ -55,10 +57,10 @@ test("quizzes open feedback", async ({ page, headless }, testInfo) => {
     ],
   })
 
-  await page.locator("text=Try again").click()
+  await page.getByText("Try again").click()
 
   await frame
-    .locator("text=When you started studying at the uni? Give the date in yyyy-mm-dd format.")
+    .getByText("When you started studying at the uni? Give the date in yyyy-mm-dd format.")
     .waitFor()
 
   await frame
@@ -67,7 +69,7 @@ test("quizzes open feedback", async ({ page, headless }, testInfo) => {
     )
     .fill("1999-01-01")
 
-  await page.locator("text=Submit").click()
+  await page.getByText("Submit").click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,

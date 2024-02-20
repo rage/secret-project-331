@@ -8,7 +8,7 @@ use crate::{
     prelude::*,
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseService {
     pub id: Uuid,
@@ -24,7 +24,7 @@ pub struct ExerciseService {
 }
 
 /// Exercise service definition that the CMS can use to render the editor view.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseServiceIframeRenderingInfo {
     pub id: Uuid,
@@ -35,7 +35,7 @@ pub struct ExerciseServiceIframeRenderingInfo {
     pub has_custom_view: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseServiceNewOrUpdate {
     pub name: String,

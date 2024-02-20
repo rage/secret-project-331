@@ -8,59 +8,62 @@ test.use({
 })
 
 test("Registers automatic completion", async ({ page, headless }, testInfo) => {
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
 
   await page
     .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
     .click()
 
-  await page.locator("text=Automatic Completions").click()
+  await page.getByText("Automatic Completions").click()
 
   await selectCourseInstanceIfPrompted(page)
 
-  await page.locator("text=Chapter 1The Basics").click()
+  await page.getByText("Chapter 1The Basics").click()
 
-  await page.locator("text=1Page One").click()
+  await page.getByText("1Page One").click()
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/automatic-completions/chapter-1/page-1",
   )
 
-  await page.frameLocator("iframe").locator("text=b").click()
+  await page.frameLocator("iframe").getByText("b").click()
 
   await page.locator('button:has-text("Submit")').click()
   // Have to wait until the submit is done
   await page.getByText(`Good job!`).waitFor()
 
-  await page.locator("text=Automatic Completions").click()
+  await page.getByText("Automatic Completions").click()
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs/courses/automatic-completions")
-  await page.waitForSelector("text=Congratulations!")
+  await page.getByText("Congratulations!").waitFor()
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
     testInfo,
     snapshotName: "automatic-completion-congratulations-card",
     waitForTheseToBeVisibleAndStable: [
-      page.locator("text=Congratulations!"),
-      page.locator("text=You have successfully completed the course!"),
+      page.getByText("Congratulations!"),
+      page.getByText("You have successfully completed the course!"),
     ],
     // reset to top before beforeScreenshot so that scrollIntoViewIfNeeded lands in a consistent spot
     scrollToYCoordinate: 0,
-    beforeScreenshot: () => page.locator("text=Congratulations!").scrollIntoViewIfNeeded(),
+    beforeScreenshot: () => page.getByText("Congratulations!").scrollIntoViewIfNeeded(),
   })
 
-  await page.locator("text=Automatic CompletionsRegister >> button").click()
+  await page
+    .getByLabel("Register completion for Automatic Completions")
+    .getByRole("button", { name: "Register" })
+    .click()
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
     testInfo,
     snapshotName: "automatic-completion-registration-page",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Register completion")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("Register completion")],
   })
 
-  await page.locator("text=To the registration form").click()
+  await page.getByText("To the registration form").click()
   await expect(page).toHaveURL("https://www.example.com")
 
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
 
   await page
     .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
@@ -92,18 +95,21 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
   await page.getByRole("button", { name: "Save" }).click()
   await page.getByRole("button", { name: "Save changes" }).click()
 
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
 
   await page
     .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
     .click()
 
-  await page.locator("text=Automatic Completions").click()
+  await page.getByText("Automatic Completions").click()
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs/courses/automatic-completions")
-  await page.waitForSelector("text=Congratulations!")
+  await page.getByText("Congratulations!").waitFor()
 
-  await page.locator("text=Automatic CompletionsRegister >> button").click()
+  await page
+    .getByLabel("Register completion for Automatic Completions")
+    .getByRole("button", { name: "Register" })
+    .click()
 
-  await page.locator("text=To the registration form").click()
+  await page.getByText("To the registration form").click()
   await expect(page).toHaveURL("https://www.example.com/override")
 })

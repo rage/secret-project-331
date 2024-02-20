@@ -31,7 +31,7 @@ pub struct PeerReviewConfig {
 }
 
 /// Like `PeerReviewConfig` but only the fields it's fine to show to all users.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseMaterialPeerReviewConfig {
     pub id: Uuid,
@@ -299,7 +299,10 @@ pub async fn get_course_material_peer_review_data(
 
     match user_exercise_state {
         Some(ref user_exercise_state) => {
-            if user_exercise_state.reviewing_stage == ReviewingStage::PeerReview {
+            if matches!(
+                user_exercise_state.reviewing_stage,
+                ReviewingStage::PeerReview | ReviewingStage::WaitingForPeerReviews
+            ) {
                 // Calling library inside a model function. Maybe should be refactored by moving
                 // complicated logic to own library file?
                 let res = library::peer_reviewing::try_to_select_exercise_slide_submission_for_peer_review(

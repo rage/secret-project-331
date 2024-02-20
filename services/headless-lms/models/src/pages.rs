@@ -27,7 +27,7 @@ use crate::{
     CourseOrExamId, SpecFetcher,
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Page {
     pub id: Uuid,
@@ -47,7 +47,7 @@ pub struct Page {
     pub page_language_group_id: Option<Uuid>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PageInfo {
     pub page_id: Uuid,
@@ -58,7 +58,7 @@ pub struct PageInfo {
     pub organization_slug: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PageAudioFiles {
     pub id: Uuid,
@@ -75,7 +75,7 @@ impl Page {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CoursePageWithUserData {
     pub page: Page,
@@ -86,7 +86,7 @@ pub struct CoursePageWithUserData {
     pub is_test_mode: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PageWithExercises {
     #[serde(flatten)]
@@ -122,7 +122,7 @@ pub struct PageDetailsUpdate {
     pub url_path: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NormalizedCmsExerciseTask {
     pub id: Uuid,
@@ -131,7 +131,7 @@ pub struct NormalizedCmsExerciseTask {
     pub private_spec: Option<serde_json::Value>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PageRoutingData {
     pub url_path: String,
@@ -143,7 +143,7 @@ pub struct PageRoutingData {
     pub chapter_front_page_id: Option<Uuid>,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 pub struct PageMetadata {
     pub page_id: Uuid,
     pub order_number: i32,
@@ -153,7 +153,7 @@ pub struct PageMetadata {
     pub exam_id: Option<Uuid>,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PageChapterAndCourseInformation {
     pub chapter_name: Option<String>,
@@ -187,12 +187,12 @@ pub struct ContentManagementPage {
     pub organization_id: Uuid,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct SearchRequest {
     pub query: String,
 }
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PageNavigationInformation {
     pub chapter_front_page: Option<PageRoutingData>,
@@ -200,7 +200,7 @@ pub struct PageNavigationInformation {
     pub previous_page: Option<PageRoutingData>,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseWithExerciseTasks {
     id: Uuid,
@@ -215,7 +215,7 @@ pub struct ExerciseWithExerciseTasks {
     score_maximum: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct IsChapterFrontPage {
     pub is_chapter_front_page: bool,
@@ -911,7 +911,7 @@ impl CmsPageExercise {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CmsPageExerciseSlide {
     pub id: Uuid,
@@ -929,7 +929,7 @@ impl From<ExerciseSlide> for CmsPageExerciseSlide {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CmsPageExerciseTask {
     pub id: Uuid,
@@ -1612,6 +1612,7 @@ pub async fn upsert_peer_review_configs(
         peer_reviews_to_receive,
         processing_strategy,
         accepting_threshold,
+        points_are_all_or_nothing,
         deleted_at
       ) ",
         );
@@ -1644,6 +1645,7 @@ pub async fn upsert_peer_review_configs(
                 .push_bind(pr.peer_reviews_to_receive)
                 .push_bind(pr.processing_strategy)
                 .push_bind(pr.accepting_threshold)
+                .push_bind(pr.points_are_all_or_nothing)
                 .push("NULL");
         });
 
@@ -1664,6 +1666,7 @@ SET course_id = excluded.course_id,
   peer_reviews_to_receive = excluded.peer_reviews_to_receive,
   processing_strategy = excluded.processing_strategy,
   accepting_threshold = excluded.accepting_threshold,
+  points_are_all_or_nothing = excluded.points_are_all_or_nothing,
   deleted_at = NULL
 RETURNING id;
 ",
@@ -1738,6 +1741,7 @@ pub async fn upsert_peer_review_questions(
         question,
         question_type,
         answer_required,
+        weight,
         deleted_at
       ) ",
         );
@@ -1780,6 +1784,7 @@ pub async fn upsert_peer_review_questions(
                     .push_bind(prq.question.as_str())
                     .push_bind(prq.question_type)
                     .push_bind(prq.answer_required)
+                    .push_bind(prq.weight)
                     .push("NULL");
             },
         );
@@ -1792,6 +1797,7 @@ SET peer_review_config_id = excluded.peer_review_config_id,
     question = excluded.question,
     question_type = excluded.question_type,
     answer_required = excluded.answer_required,
+    weight = excluded.weight,
     deleted_at = NULL
 RETURNING id;
 ",
@@ -3367,7 +3373,7 @@ mod test {
             accepting_threshold: 0.5,
             peer_reviews_to_give: 2,
             peer_reviews_to_receive: 1,
-            points_are_all_or_nothing: true,
+            points_are_all_or_nothing: false,
         };
         let prq = CmsPeerReviewQuestion {
             id: prq_id,
@@ -3376,7 +3382,7 @@ mod test {
             order_number: 0,
             question: "juu".to_string(),
             question_type: crate::peer_review_questions::PeerReviewQuestionType::Essay,
-            weight: 0.0,
+            weight: 0.31,
         };
         let mut remapped_exercises = HashMap::new();
         remapped_exercises.insert(exercise_id, exercise);
@@ -3391,6 +3397,8 @@ mod test {
         assert!(pr_res.get(&pr_id).unwrap().accepting_threshold == 0.5);
 
         assert!(prq_res.get(&prq_id).unwrap().question == *"juu");
+        assert!(!pr_res.get(&pr_id).unwrap().points_are_all_or_nothing);
+        assert_eq!(prq_res.get(&prq_id).unwrap().weight, 0.31);
     }
 
     #[tokio::test]

@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
+import { BullhornMegaphone } from "@vectopus/atlas-icons-react"
 import React, { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -38,6 +39,7 @@ import { baseTheme } from "../../../shared-module/styles"
 import { COLUMN } from "../../../util/constants"
 import { FlexDirection, sanitizeFlexDirection } from "../../../util/css-sanitization"
 import FlexWrapper from "../../FlexWrapper"
+import ParsedText from "../../ParsedText"
 
 import CheckBoxFeedback from "./impl-by-quiz-item-type/Checkbox"
 import ChooseN from "./impl-by-quiz-item-type/ChooseN"
@@ -124,17 +126,17 @@ const SubmissionFeedback: React.FC<{
   const { t } = useTranslation()
 
   let backgroundColor = "#fffaf1"
-  let borderColor = "#f3e5cb"
+  // let borderColor = "#f3e5cb"
   let textColor = "#C25100"
 
   const userScore = itemFeedback.correctnessCoefficient ?? itemFeedback.score
   if (userScore == 1) {
-    backgroundColor = "#f1fff2"
-    borderColor = "#cbf3cd"
-    textColor = "#1c850d"
+    backgroundColor = "#D5EADF"
+    // borderColor = "#cbf3cd"
+    textColor = "#246F46"
   } else if (userScore == 0) {
     backgroundColor = "#fff4f5"
-    borderColor = "#f3cbcf"
+    // borderColor = "#f3cbcf"
     textColor = "#d52a3c"
   }
 
@@ -176,29 +178,36 @@ const SubmissionFeedback: React.FC<{
     if (
       !customItemFeedback?.endsWith(".") &&
       !customItemFeedback?.endsWith("!") &&
-      !customItemFeedback?.endsWith("?")
+      !customItemFeedback?.endsWith("?") &&
+      !customItemFeedback?.endsWith("]")
     ) {
       return customItemFeedback + "."
     }
     return customItemFeedback
-  }, [itemFeedback.quiz_item_feedback])
+  }, [itemFeedback.quiz_item_feedback, itemModelSolution?.messageOnModelSolution])
 
   return (
     <div
       className={css`
         background: ${backgroundColor};
-        border: 1px solid ${borderColor};
         box-sizing: border-box;
-        border-radius: 4px;
+        border-radius: 0.25rem;
         color: ${textColor};
-        margin: 1.5rem auto;
+        margin: 1.5rem 0rem 1.5rem 0rem;
         margin-bottom: 0;
-        padding: 0.25rem 1.5rem;
-        width: fit-content;
-        text-align: center;
+        padding: 0.875rem;
+        max-width: 100%;
+        display: flex;
+        font-size: 1.125rem;
+        line-height: 1.125rem;
+        column-gap: 0.8rem;
       `}
     >
-      {mapScoreToFeedback(userScore)} {customItemFeedback}
+      <BullhornMegaphone size={20} weight="bold" color="7A3F75" />{" "}
+      <span>
+        {mapScoreToFeedback(userScore)}{" "}
+        <ParsedText inline parseLatex parseMarkdown text={customItemFeedback} />
+      </span>
     </div>
   )
 }

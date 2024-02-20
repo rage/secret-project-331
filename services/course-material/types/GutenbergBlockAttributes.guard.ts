@@ -79,6 +79,12 @@ export function isBlockAttributes(obj: unknown): obj is BlockAttributes {
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     (typeof typedObj["ref"] === "undefined" || typeof typedObj["ref"] === "number") &&
+    (typeof typedObj["overrides"] === "undefined" ||
+      (((typedObj["overrides"] !== null && typeof typedObj["overrides"] === "object") ||
+        typeof typedObj["overrides"] === "function") &&
+        Object.entries<any>(typedObj["overrides"]).every(
+          ([key, _value]) => typeof key === "string",
+        ))) &&
     (typeof typedObj["lock"] === "undefined" ||
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&
@@ -417,7 +423,7 @@ export function isHeadingAttributes(obj: unknown): obj is HeadingAttributes {
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     (typeof typedObj["textAlign"] === "undefined" || typeof typedObj["textAlign"] === "string") &&
-    typeof typedObj["content"] === "string" &&
+    (typeof typedObj["content"] === "undefined" || typeof typedObj["content"] === "string") &&
     typeof typedObj["level"] === "number" &&
     (typeof typedObj["placeholder"] === "undefined" ||
       typeof typedObj["placeholder"] === "string") &&
@@ -576,7 +582,7 @@ export function isListItemAttributes(obj: unknown): obj is ListItemAttributes {
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     (typeof typedObj["placeholder"] === "undefined" ||
       typeof typedObj["placeholder"] === "string") &&
-    typeof typedObj["content"] === "string" &&
+    (typeof typedObj["content"] === "undefined" || typeof typedObj["content"] === "string") &&
     (typeof typedObj["lock"] === "undefined" ||
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&
@@ -604,7 +610,7 @@ export function isParagraphAttributes(obj: unknown): obj is ParagraphAttributes 
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     (typeof typedObj["align"] === "undefined" || typeof typedObj["align"] === "string") &&
-    typeof typedObj["content"] === "string" &&
+    (typeof typedObj["content"] === "undefined" || typeof typedObj["content"] === "string") &&
     typeof typedObj["dropCap"] === "boolean" &&
     (typeof typedObj["placeholder"] === "undefined" ||
       typeof typedObj["placeholder"] === "string") &&
@@ -642,7 +648,7 @@ export function isPreformattedAttributes(obj: unknown): obj is PreformattedAttri
   const typedObj = obj as PreformattedAttributes
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    typeof typedObj["content"] === "string" &&
+    (typeof typedObj["content"] === "undefined" || typeof typedObj["content"] === "string") &&
     (typeof typedObj["lock"] === "undefined" ||
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&
@@ -675,7 +681,7 @@ export function isPullquoteAttributes(obj: unknown): obj is PullquoteAttributes 
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     (typeof typedObj["value"] === "undefined" || typeof typedObj["value"] === "string") &&
-    typeof typedObj["citation"] === "string" &&
+    (typeof typedObj["citation"] === "undefined" || typeof typedObj["citation"] === "string") &&
     (typeof typedObj["textAlign"] === "undefined" || typeof typedObj["textAlign"] === "string") &&
     (typeof typedObj["align"] === "undefined" ||
       typedObj["align"] === "" ||
@@ -718,7 +724,7 @@ export function isQuoteAttributes(obj: unknown): obj is QuoteAttributes {
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["value"] === "string" &&
-    typeof typedObj["citation"] === "string" &&
+    (typeof typedObj["citation"] === "undefined" || typeof typedObj["citation"] === "string") &&
     (typeof typedObj["align"] === "undefined" || typeof typedObj["align"] === "string") &&
     (typeof typedObj["lock"] === "undefined" ||
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
@@ -822,7 +828,7 @@ export function isTableAttributes(obj: unknown): obj is TableAttributes {
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["hasFixedLayout"] === "boolean" &&
-    typeof typedObj["caption"] === "string" &&
+    (typeof typedObj["caption"] === "undefined" || typeof typedObj["caption"] === "string") &&
     Array.isArray(typedObj["head"]) &&
     typedObj["head"].every((e: any) => isCells(e) as boolean) &&
     Array.isArray(typedObj["body"]) &&
@@ -892,7 +898,7 @@ export function isVerseAttributes(obj: unknown): obj is VerseAttributes {
   const typedObj = obj as VerseAttributes
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    typeof typedObj["content"] === "string" &&
+    (typeof typedObj["content"] === "undefined" || typeof typedObj["content"] === "string") &&
     (typeof typedObj["textAlign"] === "undefined" || typeof typedObj["textAlign"] === "string") &&
     (typeof typedObj["lock"] === "undefined" ||
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||

@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Clone, PartialEq, Deserialize, Serialize)]
 pub struct StudyRegistryRegistrar {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,

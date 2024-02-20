@@ -1,5 +1,3 @@
-import LoadingButton from "@mui/lab/LoadingButton"
-import { FloppyDiskSave } from "@vectopus/atlas-icons-react"
 import { BlockInstance } from "@wordpress/blocks"
 import dynamic from "next/dynamic"
 import React, { useState } from "react"
@@ -8,6 +6,7 @@ import { useTranslation } from "react-i18next"
 import { allowedExamInstructionsCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import mediaUploadBuilder from "../../services/backend/media/mediaUpload"
 import { ExamInstructions, ExamInstructionsUpdate } from "../../shared-module/bindings"
+import Button from "../../shared-module/components/Button"
 import Spinner from "../../shared-module/components/Spinner"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
@@ -65,15 +64,9 @@ const ExamsInstructionsEditor: React.FC<React.PropsWithChildren<ExamsInstruction
       <div className="editor__component">
         <div>
           {error && <pre>{error}</pre>}
-          <LoadingButton
-            // eslint-disable-next-line i18next/no-literal-string
-            loadingPosition="start"
-            startIcon={<FloppyDiskSave size={15} />}
-            loading={saving}
-            onClick={handleOnSave}
-          >
+          <Button variant="primary" size="medium" disabled={saving} onClick={handleOnSave}>
             {t("save")}
-          </LoadingButton>
+          </Button>
         </div>
       </div>
 

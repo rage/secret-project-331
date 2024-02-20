@@ -13,23 +13,23 @@ test.use({
 })
 
 test("feedback test", async ({ page, headless }, testInfo) => {
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
-    await page.locator("text=University of Helsinki, Department of Computer Science").click(),
+    await page.getByText("University of Helsinki, Department of Computer Science").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
-  await page.locator("text=Introduction to feedback").click()
+  await page.getByText("Introduction to feedback").click()
 
   await selectCourseInstanceIfPrompted(page)
 
-  await page.locator("text=The Basics").click()
+  await page.getByText("The Basics").click()
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-feedback/chapter-1",
   )
 
-  await page.locator("text=Page One").first().click()
+  await page.getByText("Page One").first().click()
   await page.locator(`text=Everything is a big topic`).waitFor()
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-feedback/chapter-1/page-1",
@@ -38,7 +38,7 @@ test("feedback test", async ({ page, headless }, testInfo) => {
   // page has a frame that pushes all the content down after loafing, so let's wait for it to load first
   const frame = await getLocatorForNthExerciseServiceIframe(page, "example-exercise", 1)
 
-  await frame.locator("text=b").waitFor()
+  await frame.getByText("b").waitFor()
 
   await page.click("text=So big", {
     clickCount: 3,
@@ -72,13 +72,13 @@ test("feedback test", async ({ page, headless }, testInfo) => {
 
   await page.click(`button:text("Add comment")`)
   await page.click(`button:text("Send")`)
-  await page.waitForSelector("text=Feedback submitted successfully")
+  await page.getByText("Feedback submitted successfully").waitFor()
 
   await logout(page)
   await login("admin@example.com", "admin", page, true)
 
   await Promise.all([
-    await page.locator("text=University of Helsinki, Department of Computer Science").click(),
+    await page.getByText("University of Helsinki, Department of Computer Science").click(),
   ])
   await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
@@ -90,7 +90,7 @@ test("feedback test", async ({ page, headless }, testInfo) => {
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/feedback")
 
   // Makes sure the components have rendered so that the next waitForTheseToBeVisibleAndStable always works with the placeholder
-  await page.waitForSelector(`text="Page: Page One"`)
+  await page.getByText(`Page: Page One`).waitFor()
 
   // Unread feedback view
   await expectScreenshotsToMatchSnapshots({
@@ -103,15 +103,15 @@ test("feedback test", async ({ page, headless }, testInfo) => {
     ],
   })
 
-  await page.locator("text=Mark as read").first().click()
+  await page.getByText("Mark as read").first().click()
   // We have to wait for the feedback item to disappear so that we don't accidentally click the same button multiple times. Computers are sometimes faster that one would expect.
-  await page.waitForSelector("text=I found this pretty confusing!", { state: "hidden" })
-  await page.locator("text=Mark as read").first().click()
-  await page.waitForSelector("text=Anonymous unrelated feedback", { state: "hidden" })
-  await page.locator("text=Mark as read").first().click()
-  await page.waitForSelector("text=Anonymous feedback", { state: "hidden" })
-  await page.locator("text=Mark as read").first().click()
-  await page.waitForSelector("text=I dont think we need these paragraphs", { state: "hidden" })
+  await page.getByText("I found this pretty confusing!").waitFor({ state: "hidden" })
+  await page.getByText("Mark as read").first().click()
+  await page.getByText("Anonymous unrelated feedback").waitFor({ state: "hidden" })
+  await page.getByText("Mark as read").first().click()
+  await page.getByText("Anonymous feedback").waitFor({ state: "hidden" })
+  await page.getByText("Mark as read").first().click()
+  await page.getByText("I dont think we need these paragraphs").waitFor({ state: "hidden" })
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,

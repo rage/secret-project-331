@@ -17,7 +17,8 @@
                 "reviewer",
                 "course_or_exam_creator",
                 "material_viewer",
-                "teaching_and_learning_services"
+                "teaching_and_learning_services",
+                "stats_viewer"
               ]
             }
           }

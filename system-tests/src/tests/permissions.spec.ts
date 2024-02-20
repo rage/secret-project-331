@@ -1,6 +1,10 @@
 import { expect, test } from "@playwright/test"
 
-import { showNextToastsInfinitely, showToastsNormally } from "../utils/notificationUtils"
+import {
+  hideToasts,
+  showNextToastsInfinitely,
+  showToastsNormally,
+} from "../utils/notificationUtils"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 test.use({
@@ -8,22 +12,22 @@ test.use({
 })
 
 test("Managing permissions works", async ({ page, headless }, testInfo) => {
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
-    page.locator("text=University of Helsinki, Department of Computer Science").click(),
+    page.getByText("University of Helsinki, Department of Computer Science").click(),
   ])
 
   await page.locator("[aria-label=\"Manage course 'Permission management'\"] svg").click()
 
-  await page.locator("text=Permissions").click()
+  await page.getByText("Permissions").click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
     testInfo,
     snapshotName: "initial-permission-management-page",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Roles for course")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("Roles for course")],
   })
 
   await page.click('[placeholder="Enter email"]')
@@ -31,24 +35,20 @@ test("Managing permissions works", async ({ page, headless }, testInfo) => {
   // Fill [placeholder="Enter email"]
   await page.fill('[placeholder="Enter email"]', "teacher@example.com")
 
-  await page.locator("text=RoleAdminAssistantReviewerTeacher >> div").click()
-
   // Select Admin
   await page.selectOption("select", "Admin")
 
-  await page.locator("text=Add user").click()
+  await page.getByText("Add user").click()
 
   await page.click('[placeholder="Enter email"]')
 
   // Fill [placeholder="Enter email"]
   await page.fill('[placeholder="Enter email"]', "admin@example.com")
 
-  await page.locator("text=RoleAdminAssistantReviewerTeacher >> div").click()
-
   // Select Admin
   await page.selectOption("select", "Teacher")
 
-  await page.locator("text=Add user").click()
+  await page.getByText("Add user").click()
 
   await page.click('[aria-label="Sort by email"]')
   await expect(page).toHaveURL(
@@ -91,26 +91,27 @@ test("Managing permissions works", async ({ page, headless }, testInfo) => {
     "Reviewer",
   )
 
+  await showNextToastsInfinitely(page)
   await page.click('[aria-label="Save edited role"]')
+  await page.getByText("Success").first().waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
     testInfo,
     snapshotName: "edited-permission",
-    waitForTheseToBeVisibleAndStable: [page.locator('text="Success"')],
     clearNotifications: false,
   })
 
-  await showNextToastsInfinitely(page)
+  await hideToasts(page)
   await page.click('[aria-label="Remove role"]')
+  await page.getByText("Success").first().waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
     testInfo,
     snapshotName: "removed-permission",
-    waitForTheseToBeVisibleAndStable: [page.locator('text="Success"')],
   })
   await showToastsNormally(page)
 })

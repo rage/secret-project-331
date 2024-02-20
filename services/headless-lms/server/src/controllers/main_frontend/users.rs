@@ -1,6 +1,6 @@
 use crate::prelude::*;
 use models::{
-    course_instance_enrollments::CourseInstanceEnrollmentsInfo,
+    course_instance_enrollments::CourseInstanceEnrollmentsInfo, courses::Course,
     research_forms::ResearchFormQuestionAnswer, user_research_consents::UserResearchConsent,
     users::User,
 };
@@ -8,7 +8,6 @@ use models::{
 /**
 GET `/api/v0/main-frontend/users/:id`
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 pub async fn get_user(
     user_id: web::Path<Uuid>,
@@ -24,7 +23,6 @@ pub async fn get_user(
 /**
 GET `/api/v0/main-frontend/users/:id/course-instance-enrollments`
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 pub async fn get_course_instance_enrollments_for_user(
     user_id: web::Path<Uuid>,
@@ -60,7 +58,6 @@ pub struct ConsentData {
 /**
 POST `/api/v0/main-frontend/users/user-research-consents` - Adds a research consent for a student.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 pub async fn post_user_consents(
     payload: web::Json<ConsentData>,
@@ -83,7 +80,6 @@ pub async fn post_user_consents(
 /**
 GET `/api/v0/main-frontend/users/get-user-research-consent` - Gets users research consent.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 pub async fn get_research_consent_by_user_id(
     user: AuthUser,
@@ -101,7 +97,6 @@ pub async fn get_research_consent_by_user_id(
 /**
 GET `/api/v0/main-frontend/users/get-user-research-consents` - Gets all users research consents for a course specific research form.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_all_research_form_answers_with_user_id(
     user: AuthUser,
@@ -117,11 +112,42 @@ async fn get_all_research_form_answers_with_user_id(
     token.authorized_ok(web::Json(res))
 }
 
+/**
+GET `/api/v0/main-frontend/users/my-courses` - Gets all the courses the user has either started or gotten a permission to.
+*/
+#[instrument(skip(pool))]
+async fn get_my_courses(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<Vec<Course>>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+
+    let courses_enrolled_to =
+        models::courses::all_courses_user_enrolled_to(&mut conn, user.id).await?;
+
+    let courses_with_roles =
+        models::courses::all_courses_with_roles_for_user(&mut conn, user.id).await?;
+
+    let combined = courses_enrolled_to
+        .clone()
+        .into_iter()
+        .chain(
+            courses_with_roles
+                .into_iter()
+                .filter(|c| !courses_enrolled_to.iter().any(|c2| c.id == c2.id)),
+        )
+        .collect();
+
+    token.authorized_ok(web::Json(combined))
+}
+
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route(
         "/user-research-form-question-answers",
         web::get().to(get_all_research_form_answers_with_user_id),
     )
+    .route("/my-courses", web::get().to(get_my_courses))
     .route(
         "/get-user-research-consent",
         web::get().to(get_research_consent_by_user_id),

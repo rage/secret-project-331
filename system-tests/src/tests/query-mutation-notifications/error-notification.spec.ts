@@ -12,21 +12,18 @@ test("Error notifications work", async ({ page, headless }, testInfo) => {
 
   await page.click(`button:text("Edit page"):right-of(:text("In the second chapter..."))`)
 
-  await page.locator("text=Add task").click()
+  await page.getByText("Add task").click()
   await showNextToastsInfinitely(page)
   await page.click(`button:text-is("Save") >> visible=true`)
   await page.evaluate(() => {
     window.scrollTo(0, 0)
   })
-
+  await page.getByText("An error occurred").waitFor()
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
     testInfo,
     snapshotName: "error-notification-test",
-    waitForTheseToBeVisibleAndStable: [
-      page.getByRole("heading", { name: "Error 400: Bad Request" }),
-    ],
     clearNotifications: true,
   })
   await showToastsNormally(page)

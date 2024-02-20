@@ -10,11 +10,11 @@ test.use({
 })
 
 test("latex-block renders", async ({ page, headless }, testInfo) => {
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
     await page
-      .locator("text=University of Helsinki, Department of Mathematics and Statistics")
+      .getByText("University of Helsinki, Department of Mathematics and Statistics")
       .click(),
   ])
 
@@ -34,7 +34,7 @@ test("latex-block renders", async ({ page, headless }, testInfo) => {
   await page.locator("[aria-label=\"Manage course 'Latex course'\"] svg").click()
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")
 
-  await page.locator("text=Pages").click()
+  await page.getByText("Pages").click()
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")
 
   await page.click(`:nth-match(button:has-text("New chapter"), 1)`)
@@ -46,7 +46,7 @@ test("latex-block renders", async ({ page, headless }, testInfo) => {
 
   await page.click(`button:text("Edit page"):right-of(:text("first page"))`)
   // - CHAPTER GRID
-  await page.locator("text=Pages in chapter placeholder").click()
+  await page.getByText("Pages in chapter placeholder").click()
   await page.waitForTimeout(100)
 
   await page.click('[aria-label="Options"]')
@@ -116,11 +116,11 @@ test("latex-block renders", async ({ page, headless }, testInfo) => {
 
   await page.goto(`http://project-331.local/org/uh-mathstat`)
   // Click text=Latex course
-  await page.locator("text=Latex course").click()
+  await page.getByText("Latex course").click()
 
   await selectCourseInstanceIfPrompted(page)
 
-  await page.locator("text=first page").click()
+  await page.getByText("first page").click()
   await expectUrlPathWithRandomUuid(page, "/org/uh-mathstat/courses/latex-course/chapter-1")
 
   await expectScreenshotsToMatchSnapshots({
@@ -129,8 +129,8 @@ test("latex-block renders", async ({ page, headless }, testInfo) => {
     testInfo,
     snapshotName: "latex",
     waitForTheseToBeVisibleAndStable: [
-      page.locator("text=Inline latex"),
-      page.locator("text=Wubba Lubba Dub Dub"),
+      page.getByText("Inline latex"),
+      page.getByText("Wubba Lubba Dub Dub"),
     ],
   })
 })

@@ -1,6 +1,6 @@
 use crate::{course_module_completions, prelude::*};
 
-#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Clone, PartialEq, Deserialize, Serialize)]
 pub struct CourseModuleCompletionRegisteredToStudyRegistry {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -14,7 +14,7 @@ pub struct CourseModuleCompletionRegisteredToStudyRegistry {
     pub real_student_number: String,
 }
 
-#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Clone, PartialEq, Deserialize, Serialize)]
 pub struct NewCourseModuleCompletionRegisteredToStudyRegistry {
     pub course_id: Uuid,
     pub course_module_completion_id: Uuid,

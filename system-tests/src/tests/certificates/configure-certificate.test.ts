@@ -8,7 +8,7 @@ test.use({
 
 test("Configuring certificates works", async ({ page, headless }, testInfo) => {
   // go to config page
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
   await page
     .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
     .click()
@@ -84,7 +84,7 @@ test("Configuring certificates works", async ({ page, headless }, testInfo) => {
     snapshotName: "editing-config",
     scrollToYCoordinate: 800,
     // wait for the Cancel button to be visible to ensure the form has rendered completely
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Cancel")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("Cancel")],
     clearNotifications: true,
   })
   await page

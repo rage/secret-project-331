@@ -357,6 +357,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                 `}
                 placeholder={t("ects-credits")}
                 type="number"
+                step="any"
                 {...register("ects_credits", {
                   valueAsNumber: true,
                 })}

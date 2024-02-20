@@ -1,5 +1,4 @@
 import {
-  expect,
   PlaywrightTestArgs,
   PlaywrightTestOptions,
   PlaywrightWorkerArgs,
@@ -29,7 +28,7 @@ test.describe("Login session with Playwright", async () => {
       PlaywrightWorkerArgs &
       PlaywrightWorkerOptions) => {
       // Executed before each test
-      await page.goto("http://project-331.local")
+      await page.goto("http://project-331.local/organizations")
     },
   )
 
@@ -46,12 +45,12 @@ test.describe("Login session with Playwright", async () => {
 
   test("is succesful", async ({ page }) => {
     await page.locator("id=main-navigation-menu").click()
-    expect(await page.waitForSelector("text=Log out")).toBeTruthy()
+    await page.getByText("Log out").waitFor()
   })
 
   test("able to logout", async ({ page }) => {
     await logout(page)
-    expect(await page.waitForSelector("text=Log in")).toBeTruthy()
+    await page.getByText("Log in").waitFor()
   })
 })
 
@@ -64,19 +63,19 @@ test.describe("Login return_to", async () => {
       PlaywrightWorkerArgs &
       PlaywrightWorkerOptions) => {
       // Executed before each test
-      await page.goto("http://project-331.local")
+      await page.goto("http://project-331.local/organizations")
     },
   )
 
   test("works after succesful login", async ({ page }) => {
     await Promise.all([
-      page.locator("text=University of Helsinki, Department of Computer Science").click(),
+      page.getByText("University of Helsinki, Department of Computer Science").click(),
     ])
     await page.waitForURL(/http:\/\/project-331\.local\/org\/.*/)
 
     await page.locator("id=main-navigation-menu").click()
-    await page.locator("text=Log in").click()
-    await page.waitForSelector(`label:has-text("Password")`)
+    await page.getByText("Log in").click()
+    await page.locator(`label:has-text("Password")`).waitFor()
     await page.waitForURL(/http:\/\/project-331\.local\/login\?return_to=.*/)
 
     await page.click(`label:has-text("Email")`)

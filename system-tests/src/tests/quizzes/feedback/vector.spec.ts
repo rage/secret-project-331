@@ -23,22 +23,19 @@ test("quizzes vector feedback", async ({ page, headless }, testInfo) => {
   })
 
   await page
-    .frameLocator("iframe")
-    .locator(".quizzes-quiz-item")
-    .filter({ hasText: "X Answer" })
+    .frameLocator('iframe[title="Exercise 2\\, task 1 content"]')
     .getByLabel("Answer", { exact: true })
+    .nth(0)
     .fill("a")
   await page
-    .frameLocator("iframe")
-    .locator(".quizzes-quiz-item")
-    .filter({ hasText: "Y Answer" })
+    .frameLocator('iframe[title="Exercise 2\\, task 1 content"]')
     .getByLabel("Answer", { exact: true })
+    .nth(1)
     .fill("4")
   await page
-    .frameLocator("iframe")
-    .locator(".quizzes-quiz-item")
-    .filter({ hasText: "Z Answer" })
+    .frameLocator('iframe[title="Exercise 2\\, task 1 content"]')
     .getByLabel("Answer", { exact: true })
+    .nth(2)
     .fill("5")
 
   await expectScreenshotsToMatchSnapshots({
@@ -51,7 +48,7 @@ test("quizzes vector feedback", async ({ page, headless }, testInfo) => {
 
   await page.getByRole("button", { name: "Submit" }).click()
 
-  await page.frameLocator("iframe").locator("text=Your answer was not correct.").first().waitFor()
+  await page.frameLocator("iframe").getByText("Your answer was not correct.").first().waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
@@ -67,7 +64,7 @@ test("quizzes vector feedback", async ({ page, headless }, testInfo) => {
 
   await page.getByRole("button", { name: "Submit" }).click()
 
-  await page.frameLocator("iframe").locator("text=Your answer was correct.").first().waitFor()
+  await page.frameLocator("iframe").getByText("Your answer was correct.").first().waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
@@ -83,7 +80,7 @@ test("quizzes vector feedback", async ({ page, headless }, testInfo) => {
 
   await page.getByRole("button", { name: "Submit" }).click()
 
-  await page.frameLocator("iframe").locator("text=Your answer was not correct.").first().waitFor()
+  await page.frameLocator("iframe").getByText("Your answer was not correct.").first().waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,

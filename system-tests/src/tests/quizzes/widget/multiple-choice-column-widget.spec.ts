@@ -24,7 +24,7 @@ test("widget, multiple-choice column screenshot test", async ({ page, headless }
     screenshotTarget: frame,
   })
 
-  await frame.locator("text=#00ff00").click()
+  await frame.getByText("#00ff00").click()
 
   await expectScreenshotsToMatchSnapshots({
     headless,
@@ -36,7 +36,7 @@ test("widget, multiple-choice column screenshot test", async ({ page, headless }
     screenshotTarget: frame,
   })
 
-  await frame.locator("text=#ff0000").click()
+  await frame.getByText("#ff0000").click()
 
   await expectScreenshotsToMatchSnapshots({
     headless,

@@ -8,10 +8,10 @@ test.use({
 })
 
 test("Creating a new language version works", async ({ page, headless }, testInfo) => {
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
-    page.locator("text=University of Helsinki, Department of Computer Science").click(),
+    page.getByText("University of Helsinki, Department of Computer Science").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
@@ -40,25 +40,24 @@ test("Creating a new language version works", async ({ page, headless }, testInf
   await page.click(`button:text("Create")`)
   await page.getByText("Operation successful!").waitFor()
 
-  await Promise.all([page.getByRole("link", { name: "Home" }).click()])
+  await page.goto("http://project-331.local/org/uh-cs")
 
-  await Promise.all([
-    page.locator("text=University of Helsinki, Department of Computer Science").click(),
-  ])
-  await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
-
-  await page.locator("text=Johdatus lokalisointiin").click()
+  await page.getByText("Johdatus lokalisointiin").click()
 
   await selectCourseInstanceIfPrompted(page)
 
   await Promise.all([page.click('#content a >> :nth-match(div:has-text("Luku 1The Basics"), 3)')])
 
-  await page.locator("text=1Page One").click()
+  await page.getByText("1Page One").click()
 
   await page.getByText(`Like this.`).first().waitFor()
 
   await page.goto("about:blank")
-  await page.goto("http://project-331.local/org/uh-cs/courses/introduction-to-localizing/chapter-1")
+  await page.goto("http://project-331.local/org/uh-cs/courses/introduction-to-localizing/")
+  await page.getByText("Chapter 1").click()
+  await expect(page).toHaveURL(
+    "http://project-331.local/org/uh-cs/courses/introduction-to-localizing/chapter-1",
+  )
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
@@ -70,15 +69,15 @@ test("Creating a new language version works", async ({ page, headless }, testInf
     ],
   })
 
-  await page.locator("text=Johdatus lokalisointiin").click()
+  await page.getByText("Johdatus lokalisointiin").click()
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs/courses/johdatus-lokalisointiin")
 })
 
 test("creator of the language version has permissions to the new version", async ({ page }) => {
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
-    page.locator("text=University of Helsinki, Department of Computer Science").click(),
+    page.getByText("University of Helsinki, Department of Computer Science").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
@@ -90,7 +89,7 @@ test("creator of the language version has permissions to the new version", async
 test("creator of new language version can grant permissions to same users as the original course", async ({
   page,
 }) => {
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
   await page
     .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
     .click()

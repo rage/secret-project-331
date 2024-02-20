@@ -4,7 +4,7 @@ import React from "react"
 import { UserItemAnswerCheckbox } from "../../../../../types/quizTypes/answer"
 import { PublicSpecQuizItemCheckbox } from "../../../../../types/quizTypes/publicSpec"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
-import MarkdownText from "../../../MarkdownText"
+import ParsedText from "../../../ParsedText"
 
 import { QuizItemComponentProps } from "."
 
@@ -60,7 +60,7 @@ const Checkbox: React.FC<
           margin: 0.5rem;
         `}
       >
-        {quizItem.title && <MarkdownText text={quizItem.title} />}
+        {quizItem.title && <ParsedText inline parseLatex parseMarkdown text={quizItem.title} />}
       </div>
     </div>
   )

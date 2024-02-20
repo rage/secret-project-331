@@ -1,5 +1,5 @@
-import { Alert } from "@mui/lab"
 import { useQuery } from "@tanstack/react-query"
+import { parseISO } from "date-fns"
 import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -9,6 +9,7 @@ import {
   fetchDefaultModuleIdByCourseId,
   fetchModuleIdByChapterId,
 } from "../../../../services/backend"
+import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import MessageChannelIFrame from "../../../../shared-module/components/MessageChannelIFrame"
 import { CustomViewIframeState } from "../../../../shared-module/exercise-service-protocol-types"
 import useUserInfo from "../../../../shared-module/hooks/useUserInfo"
@@ -65,9 +66,9 @@ const CustomViewIframe: React.FC<React.PropsWithChildren<CustomViewIframeProps>>
       exercise_tasks: submissions_by_exercise.data.exercise_tasks.task_gradings
         .filter((grading) => grading.exercise_id == exer.id)
         .map((grading) => {
-          const answer = submissions_by_exercise.data.exercise_tasks.task_submissions
-            .filter((sub) => sub.exercise_task_grading_id == grading.id)
-            .sort((a, b) => a.created_at.getTime() - b.created_at.getTime())
+          const answer = submissions_by_exercise.data.exercise_tasks.task_submissions.filter(
+            (sub) => sub.exercise_task_grading_id == grading.id,
+          )
           const publicSpec = submissions_by_exercise.data.exercise_tasks.exercise_tasks.find(
             (task) => task.id == grading.exercise_task_id,
           )?.public_spec
@@ -81,7 +82,7 @@ const CustomViewIframe: React.FC<React.PropsWithChildren<CustomViewIframeProps>>
         .sort(
           (a, b) =>
             a.task_id.localeCompare(b.task_id) ||
-            b.grading.created_at.getTime() - a.grading.created_at.getTime(),
+            parseISO(b.grading.created_at).getTime() - parseISO(a.grading.created_at).getTime(),
         )
         .filter(
           (task, index, array) => array.findIndex((el) => el.task_id === task.task_id) === index,
@@ -90,10 +91,8 @@ const CustomViewIframe: React.FC<React.PropsWithChildren<CustomViewIframeProps>>
   })
 
   if (!url || url.trim() === "") {
-    return <Alert severity="error">{t("cannot-render-exercise-task-missing-url")}</Alert>
+    return <ErrorBanner error={t("cannot-render-exercise-task-missing-url")} variant="readOnly" />
   }
-
-  console.log(userInfo.data)
 
   if (!userInfo.data || !subs_by_exercise) {
     return <></>

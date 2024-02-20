@@ -1844,7 +1844,7 @@ export function isCustomViewExerciseTaskGrading(
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["id"] === "string" &&
-    typedObj["created_at"] instanceof Date &&
+    typeof typedObj["created_at"] === "string" &&
     typeof typedObj["exercise_id"] === "string" &&
     typeof typedObj["exercise_task_id"] === "string" &&
     (typedObj["feedback_text"] === null || typeof typedObj["feedback_text"] === "string")
@@ -1882,7 +1882,7 @@ export function isCustomViewExerciseTaskSubmission(
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["id"] === "string" &&
-    typedObj["created_at"] instanceof Date &&
+    typeof typedObj["created_at"] === "string" &&
     typeof typedObj["exercise_slide_submission_id"] === "string" &&
     typeof typedObj["exercise_slide_id"] === "string" &&
     typeof typedObj["exercise_task_id"] === "string" &&

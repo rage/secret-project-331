@@ -958,7 +958,7 @@ export interface CustomViewExerciseSubmissions {
 
 export interface CustomViewExerciseTaskGrading {
   id: string
-  created_at: Date
+  created_at: string
   exercise_id: string
   exercise_task_id: string
   feedback_json: unknown | null
@@ -979,7 +979,7 @@ export interface CustomViewExerciseTaskSpec {
 
 export interface CustomViewExerciseTaskSubmission {
   id: string
-  created_at: Date
+  created_at: string
   exercise_slide_submission_id: string
   exercise_slide_id: string
   exercise_task_id: string

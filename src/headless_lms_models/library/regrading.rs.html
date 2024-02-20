@@ -972,6 +972,7 @@
 <a href="#972" id="972">972</a>
 <a href="#973" id="973">973</a>
 <a href="#974" id="974">974</a>
+<a href="#975" id="975">975</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::{
     collections::{HashMap, HashSet},
     convert::TryFrom,
@@ -1939,6 +1940,7 @@
                 grade_endpoint_path: <span class="string">&quot;/grade&quot;</span>.to_string(),
                 public_spec_endpoint_path: <span class="string">&quot;/public-spec&quot;</span>.to_string(),
                 model_solution_spec_endpoint_path: <span class="string">&quot;/model-solution&quot;</span>.to_string(),
+                has_custom_view: <span class="bool-val">false</span>,
             },
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;

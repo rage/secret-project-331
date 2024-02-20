@@ -275,6 +275,9 @@
 <a href="#275" id="275">275</a>
 <a href="#276" id="276">276</a>
 <a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>futures::future::BoxFuture;
 <span class="kw">use </span>url::Url;
 
@@ -308,6 +311,8 @@
     <span class="kw">pub </span>name: String,
     <span class="kw">pub </span>slug: String,
     <span class="kw">pub </span>public_iframe_url: String,
+    <span class="comment">// #[serde(skip_serializing_if = &quot;Option::is_none&quot;)]
+    </span><span class="kw">pub </span>has_custom_view: bool,
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -510,6 +515,7 @@ WHERE deleted_at IS NULL
                         name: exercise_service.name,
                         slug: exercise_service.slug,
                         public_iframe_url: url.to_string(),
+                        has_custom_view: service_info.has_custom_view,
                     })
                 } <span class="kw">else </span>{
                     <span class="macro">warn!</span>(exercise_service_id = <span class="question-mark">?</span>exercise_service.id, <span class="string">&quot;Skipping exercise service from the list because it has an invalid base url&quot;</span>);

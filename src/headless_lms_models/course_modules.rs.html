@@ -859,6 +859,24 @@
 <a href="#859" id="859">859</a>
 <a href="#860" id="860">860</a>
 <a href="#861" id="861">861</a>
+<a href="#862" id="862">862</a>
+<a href="#863" id="863">863</a>
+<a href="#864" id="864">864</a>
+<a href="#865" id="865">865</a>
+<a href="#866" id="866">866</a>
+<a href="#867" id="867">867</a>
+<a href="#868" id="868">868</a>
+<a href="#869" id="869">869</a>
+<a href="#870" id="870">870</a>
+<a href="#871" id="871">871</a>
+<a href="#872" id="872">872</a>
+<a href="#873" id="873">873</a>
+<a href="#874" id="874">874</a>
+<a href="#875" id="875">875</a>
+<a href="#876" id="876">876</a>
+<a href="#877" id="877">877</a>
+<a href="#878" id="878">878</a>
+<a href="#879" id="879">879</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use crate</span>::{chapters, prelude::<span class="kw-2">*</span>};
@@ -1212,6 +1230,25 @@ AND course_modules.deleted_at IS NULL
     <span class="prelude-val">Ok</span>(res.into())
 }
 
+<span class="kw">pub async fn </span>get_course_module_id_by_chapter(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    chapter_id: Uuid,
+) -&gt; ModelResult&lt;Uuid&gt; {
+    <span class="kw">let </span>res: Uuid = <span class="macro">sqlx::query!</span>(
+        <span class="string">r#&quot;
+SELECT c.course_module_id
+from chapters c
+where c.id = $1
+  AND deleted_at IS NULL
+  &quot;#</span>,
+        chapter_id
+    )
+    .map(|record| record.course_module_id)
+    .fetch_one(conn)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(res)
+}
+
 <span class="kw">pub async fn </span>get_default_by_course_id(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     course_id: Uuid,
@@ -1223,7 +1260,6 @@ SELECT *
 FROM course_modules
 WHERE course_id = $1
   AND name IS NULL
-  AND order_number = 0
   AND deleted_at IS NULL
         &quot;</span>,
         course_id,

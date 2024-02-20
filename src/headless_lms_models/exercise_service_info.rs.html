@@ -266,6 +266,17 @@
 <a href="#266" id="266">266</a>
 <a href="#267" id="267">267</a>
 <a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>futures::future::BoxFuture;
@@ -287,6 +298,8 @@
     <span class="kw">pub </span>grade_endpoint_path: String,
     <span class="kw">pub </span>public_spec_endpoint_path: String,
     <span class="kw">pub </span>model_solution_spec_endpoint_path: String,
+    <span class="comment">//#[serde(skip_serializing_if = &quot;Option::is_none&quot;)]
+    </span><span class="kw">pub </span>has_custom_view: bool,
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -296,6 +309,8 @@
     <span class="kw">pub </span>grade_endpoint_path: String,
     <span class="kw">pub </span>public_spec_endpoint_path: String,
     <span class="kw">pub </span>model_solution_spec_endpoint_path: String,
+    <span class="comment">// #[serde(skip_serializing_if = &quot;Option::is_none&quot;)]
+    </span><span class="kw">pub </span>has_custom_view: bool,
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -312,6 +327,8 @@
     <span class="kw">pub </span>grade_endpoint_path: String,
     <span class="kw">pub </span>public_spec_endpoint_path: String,
     <span class="kw">pub </span>model_solution_spec_endpoint_path: String,
+    <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
+    </span><span class="kw">pub </span>has_custom_view: <span class="prelude-ty">Option</span>&lt;bool&gt;,
 }
 
 <span class="kw">pub async fn </span>insert(
@@ -326,16 +343,18 @@ INSERT INTO exercise_service_info (
     user_interface_iframe_path,
     grade_endpoint_path,
     public_spec_endpoint_path,
-    model_solution_spec_endpoint_path
+    model_solution_spec_endpoint_path,
+    has_custom_view
   )
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING *
 &quot;</span>,
         exercise_service_info.exercise_service_id,
         exercise_service_info.user_interface_iframe_path,
         exercise_service_info.grade_endpoint_path,
         exercise_service_info.public_spec_endpoint_path,
-        exercise_service_info.model_solution_spec_endpoint_path
+        exercise_service_info.model_solution_spec_endpoint_path,
+        exercise_service_info.has_custom_view
     )
     .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -382,21 +401,24 @@ INSERT INTO exercise_service_info(
     user_interface_iframe_path,
     grade_endpoint_path,
     public_spec_endpoint_path,
-    model_solution_spec_endpoint_path
+    model_solution_spec_endpoint_path,
+    has_custom_view
   )
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4, $5, $6)
 ON CONFLICT(exercise_service_id) DO UPDATE
 SET user_interface_iframe_path = $2,
   grade_endpoint_path = $3,
   public_spec_endpoint_path = $4,
-  model_solution_spec_endpoint_path = $5
+  model_solution_spec_endpoint_path = $5,
+  has_custom_view = $6
 RETURNING *
     &quot;#</span>,
         exercise_service_id,
         update.user_interface_iframe_path,
         update.grade_endpoint_path,
         update.public_spec_endpoint_path,
-        update.model_solution_spec_endpoint_path
+        update.model_solution_spec_endpoint_path,
+        update.has_custom_view.unwrap_or_else(|| <span class="bool-val">false</span>)
     )
     .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;

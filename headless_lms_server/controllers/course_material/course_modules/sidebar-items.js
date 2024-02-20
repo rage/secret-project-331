@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","get_course_module_id_by_chapter_id","get_default_course_module_id_by_course_id","get_user_course_module_exercises_by_exercise_type"]};

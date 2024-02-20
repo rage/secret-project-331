@@ -31,6 +31,8 @@
 <a href="#31" id="31">31</a>
 <a href="#32" id="32">32</a>
 <a href="#33" id="33">33</a>
+<a href="#34" id="34">34</a>
+<a href="#35" id="35">35</a>
 </pre></div><pre class="rust"><code><span class="doccomment">/*!
 Handlers for HTTP requests to `/api/v0/course-material`.
 
@@ -40,6 +42,7 @@ This documents all endpoints. Select a module below for a category.
 
 </span><span class="kw">pub mod </span>chapters;
 <span class="kw">pub mod </span>course_instances;
+<span class="kw">pub mod </span>course_modules;
 <span class="kw">pub mod </span>courses;
 <span class="kw">pub mod </span>exams;
 <span class="kw">pub mod </span>exercises;
@@ -62,6 +65,7 @@ This documents all endpoints. Select a module below for a category.
         .service(web::scope(<span class="string">&quot;/exams&quot;</span>).configure(exams::_add_routes))
         .service(web::scope(<span class="string">&quot;/acronyms&quot;</span>).configure(glossary::_add_routes))
         .service(web::scope(<span class="string">&quot;/oembed&quot;</span>).configure(oembed::_add_routes))
+        .service(web::scope(<span class="string">&quot;/course-modules&quot;</span>).configure(course_modules::_add_routes))
         .service(web::scope(<span class="string">&quot;/page_audio&quot;</span>).configure(page_audio_files::_add_routes));
 }
 </code></pre></div></section></main></body></html>

@@ -49,6 +49,12 @@ pub async fn enroll(
         ));
     }
 
+    // enroll if teacher is testing regardless of exams starting time
+    if payload.is_teacher_testing {
+        exams::enroll(&mut conn, *exam_id, user.id, payload.is_teacher_testing).await?;
+        let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*exam_id)).await?;
+        return token.authorized_ok(web::Json(()));
+    }
     if exam.started_at_or(now, false) {
         // This check should probably be handled in the authorize function but I'm not sure of
         // the proper action type.
@@ -220,7 +226,6 @@ GET /api/v0/course-material/exams/:id/fetch-exam-for-testing
 
 Fetches an exam for testing.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 pub async fn fetch_exam_for_testing(
     pool: web::Data<PgPool>,
@@ -289,7 +294,6 @@ GET /api/v0/course-material/exams/:id/reset-exam-progress
 
 Used for testing an exam, resets exercise submissions and restarts the exam time.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 pub async fn reset_exam_progress(
     pool: web::Data<PgPool>,
@@ -317,7 +321,6 @@ GET /api/v0/course-material/exams/:id/update-show-exercise-answers
 
 Used for testing an exam, updates wheter exercise answers are shown.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 pub async fn update_show_exercise_answers(
     pool: web::Data<PgPool>,

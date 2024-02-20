@@ -163,7 +163,6 @@ async fn duplicate_exam(
 /**
 POST `/api/v0/main-frontend/organizations/{organization_id}/edit-exam` - edits an exam.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn edit_exam(
     pool: web::Data<PgPool>,

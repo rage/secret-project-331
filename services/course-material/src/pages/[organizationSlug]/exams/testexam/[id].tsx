@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { addMinutes, differenceInSeconds, isPast, min, parseISO } from "date-fns"
@@ -322,10 +321,10 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
         {exam.data?.enrollment_data.enrollment.is_teacher_testing && (
           <div>
             <Button variant="primary" size="medium" onClick={handleResetProgress}>
-              Reset exam progress
+              {t("button-text-reset-exam-progress")}
             </Button>
             <CheckBox
-              label={"show answers"}
+              label={t("show-answers")}
               checked={showExamAnswers}
               onChange={() => {
                 handleShowAnswers()

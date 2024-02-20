@@ -965,6 +965,7 @@ mod test {
                 grade_endpoint_path: "/grade".to_string(),
                 public_spec_endpoint_path: "/public-spec".to_string(),
                 model_solution_spec_endpoint_path: "/model-solution".to_string(),
+                has_custom_view: false,
             },
         )
         .await?;

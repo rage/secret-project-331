@@ -14,7 +14,13 @@ import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
 import { ConditionAttributes } from "."
 
-const ALLOWED_NESTED_BLOCKS = ["core/heading", "core/buttons", "core/button", "core/paragraph"]
+const ALLOWED_NESTED_BLOCKS = [
+  "core/heading",
+  "core/buttons",
+  "core/button",
+  "core/paragraph",
+  "moocfi/exercise-custom-view-block",
+]
 
 const Wrapper = styled.div`
   margin-left: 1rem;

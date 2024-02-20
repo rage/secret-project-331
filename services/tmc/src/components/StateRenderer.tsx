@@ -6,15 +6,15 @@ import { UploadResultMessage } from "../shared-module/exercise-service-protocol-
 import { EXERCISE_SERVICE_CONTENT_ID } from "../shared-module/utils/constants"
 import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 import withNoSsr from "../shared-module/utils/withNoSsr"
-import { IframeState } from "../util/stateInterfaces"
+import { ExerciseIframeState } from "../util/stateInterfaces"
 
 import AnswerExercise from "./AnswerExercise"
 import ExerciseEditor from "./ExerciseEditor"
 import ViewSubmission from "./ViewSubmission"
 
 interface Props {
-  state: IframeState | null
-  setState: (updater: (state: IframeState | null) => IframeState | null) => void
+  state: ExerciseIframeState | null
+  setState: (updater: (state: ExerciseIframeState | null) => ExerciseIframeState | null) => void
   sendFileUploadMessage: (filename: string, file: File) => void
   fileUploadResponse: UploadResultMessage | null
 }

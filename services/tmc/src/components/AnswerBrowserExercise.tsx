@@ -4,11 +4,11 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import Button from "../shared-module/components/Button"
-import { ExerciseFile, IframeState, PublicSpec } from "../util/stateInterfaces"
+import { ExerciseFile, ExerciseIframeState, PublicSpec } from "../util/stateInterfaces"
 
 interface Props {
   initialPublicSpec: PublicSpec & { type: "browser" }
-  setState: (updater: (state: IframeState | null) => IframeState | null) => void
+  setState: (updater: (state: ExerciseIframeState | null) => ExerciseIframeState | null) => void
 }
 
 const AnswerBrowserExercise: React.FC<React.PropsWithChildren<Props>> = ({

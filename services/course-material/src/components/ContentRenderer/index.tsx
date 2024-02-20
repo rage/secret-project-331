@@ -48,6 +48,7 @@ import CourseChapterGridBlock from "./moocfi/CourseChapterGridBlock"
 import CourseObjectiveSectionBlock from "./moocfi/CourseObjectiveSectionBlock"
 import CourseProgressBlock from "./moocfi/CourseProgressBlock"
 import ExerciseBlock from "./moocfi/ExerciseBlock"
+import ExerciseCustomViewBlock from "./moocfi/ExerciseCustomViewBlock"
 import ExerciseInChapterBlock from "./moocfi/ExerciseInChapterBlock/index"
 import GlossaryBlock from "./moocfi/Glossary"
 import HeroSectionBlock from "./moocfi/HeroSectionBlock"
@@ -154,6 +155,7 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   "moocfi/author": AuthorBlock,
   "moocfi/author-inner-block": AuthorInnerBlock,
   "moocfi/research-consent-checkbox": ResearchFormCheckBoxBlock,
+  "moocfi/exercise-custom-view-block": ExerciseCustomViewBlock,
 }
 
 const highlightedBlockStyles = css`

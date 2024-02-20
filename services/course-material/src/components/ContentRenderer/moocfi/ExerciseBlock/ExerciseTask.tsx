@@ -7,7 +7,7 @@ import ContentRenderer from "../.."
 import { Block } from "../../../../services/backend"
 import { CourseMaterialExerciseTask } from "../../../../shared-module/bindings"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
-import { IframeState } from "../../../../shared-module/exercise-service-protocol-types"
+import { ExerciseIframeState } from "../../../../shared-module/exercise-service-protocol-types"
 import { baseTheme, headingFont } from "../../../../shared-module/styles"
 
 import ExerciseTaskIframe from "./ExerciseTaskIframe"
@@ -16,7 +16,7 @@ interface ExerciseTaskProps {
   canPostSubmission: boolean
   exerciseTask: CourseMaterialExerciseTask
   isExam: boolean
-  postThisStateToIFrame: IframeState | undefined
+  postThisStateToIFrame: ExerciseIframeState | undefined
   setAnswer: (answer: { valid: boolean; data: unknown }) => void
   exerciseNumber: number
 }

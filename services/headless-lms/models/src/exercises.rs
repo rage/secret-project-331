@@ -877,6 +877,34 @@ pub async fn get_all_exercise_statuses_by_user_id_and_course_instance_id(
     Ok(res)
 }
 
+pub async fn get_exercises_by_module_containing_exercise_type(
+    conn: &mut PgConnection,
+    exercise_type: &str,
+    course_module_id: Uuid,
+) -> ModelResult<Vec<Exercise>> {
+    let res: Vec<Exercise> = sqlx::query_as!(
+        Exercise,
+        r#"
+SELECT ex.*
+FROM exercises ex
+  JOIN exercise_slides slides ON ex.id = slides.exercise_id
+  JOIN exercise_tasks tasks ON slides.id = tasks.exercise_slide_id
+  JOIN chapters c ON ex.chapter_id = c.id
+where tasks.exercise_type = $1
+  AND c.course_module_id = $2
+  AND ex.deleted_at IS NULL
+  AND tasks.deleted_at IS NULL
+  and c.deleted_at IS NULL
+  and slides.deleted_at IS NULL
+        "#,
+        exercise_type,
+        course_module_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -924,6 +952,7 @@ mod test {
                 grade_endpoint_path: "/grade".to_string(),
                 public_spec_endpoint_path: "/public-spec".to_string(),
                 model_solution_spec_endpoint_path: "test-only-empty-path".to_string(),
+                has_custom_view: false,
             },
         )
         .await

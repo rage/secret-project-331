@@ -7,7 +7,6 @@ GET `/api/v0/course-material/course-modules/chapter/:chapter_id/`
 
 Returns course module id based on chapter.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_course_module_id_by_chapter_id(
     chapter_id: web::Path<Uuid>,
@@ -25,7 +24,6 @@ GET `/api/v0/course-material/course-modules/course/:course_instance_id/`
 
 Returns course module id based on chapter.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_default_course_module_id_by_course_id(
     course_id: web::Path<Uuid>,
@@ -44,7 +42,6 @@ GET `/api/v0/course-material/course-modules/:course_module_id/exercise-tasks/:ex
 
 Returns exercise submissions for user to be used in en exercise service Custom view.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_user_course_module_exercises_by_exercise_type(
     path: web::Path<(Uuid, String, Uuid)>,

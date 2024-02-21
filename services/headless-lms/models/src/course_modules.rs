@@ -351,6 +351,25 @@ AND course_modules.deleted_at IS NULL
     Ok(res.into())
 }
 
+pub async fn get_course_module_id_by_chapter(
+    conn: &mut PgConnection,
+    chapter_id: Uuid,
+) -> ModelResult<Uuid> {
+    let res: Uuid = sqlx::query!(
+        r#"
+SELECT c.course_module_id
+from chapters c
+where c.id = $1
+  AND deleted_at IS NULL
+  "#,
+        chapter_id
+    )
+    .map(|record| record.course_module_id)
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_default_by_course_id(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -362,7 +381,6 @@ SELECT *
 FROM course_modules
 WHERE course_id = $1
   AND name IS NULL
-  AND order_number = 0
   AND deleted_at IS NULL
         ",
         course_id,

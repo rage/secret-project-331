@@ -68,6 +68,11 @@ import {
   CourseStructure,
   CourseUpdate,
   CreateAccountDetails,
+  CustomViewExerciseSubmissions,
+  CustomViewExerciseTaskGrading,
+  CustomViewExerciseTasks,
+  CustomViewExerciseTaskSpec,
+  CustomViewExerciseTaskSubmission,
   DatabaseChapter,
   EditedBlockNoLongerExistsData,
   EditedBlockStillExistsData,
@@ -1123,7 +1128,10 @@ export function isExerciseServiceInfoApi(obj: unknown): obj is ExerciseServiceIn
     typeof typedObj["user_interface_iframe_path"] === "string" &&
     typeof typedObj["grade_endpoint_path"] === "string" &&
     typeof typedObj["public_spec_endpoint_path"] === "string" &&
-    typeof typedObj["model_solution_spec_endpoint_path"] === "string"
+    typeof typedObj["model_solution_spec_endpoint_path"] === "string" &&
+    (typeof typedObj["has_custom_view"] === "undefined" ||
+      typedObj["has_custom_view"] === false ||
+      typedObj["has_custom_view"] === true)
   )
 }
 
@@ -1152,7 +1160,8 @@ export function isExerciseServiceIframeRenderingInfo(
     typeof typedObj["id"] === "string" &&
     typeof typedObj["name"] === "string" &&
     typeof typedObj["slug"] === "string" &&
-    typeof typedObj["public_iframe_url"] === "string"
+    typeof typedObj["public_iframe_url"] === "string" &&
+    typeof typedObj["has_custom_view"] === "boolean"
   )
 }
 
@@ -1813,6 +1822,72 @@ export function isCourseInstanceCompletionSummary(
     typedObj["users_with_course_module_completions"].every(
       (e: any) => isUserWithModuleCompletions(e) as boolean,
     )
+  )
+}
+
+export function isCustomViewExerciseSubmissions(
+  obj: unknown,
+): obj is CustomViewExerciseSubmissions {
+  const typedObj = obj as CustomViewExerciseSubmissions
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (isCustomViewExerciseTasks(typedObj["exercise_tasks"]) as boolean) &&
+    Array.isArray(typedObj["exercises"]) &&
+    typedObj["exercises"].every((e: any) => isExercise(e) as boolean)
+  )
+}
+
+export function isCustomViewExerciseTaskGrading(
+  obj: unknown,
+): obj is CustomViewExerciseTaskGrading {
+  const typedObj = obj as CustomViewExerciseTaskGrading
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["created_at"] === "string" &&
+    typeof typedObj["exercise_id"] === "string" &&
+    typeof typedObj["exercise_task_id"] === "string" &&
+    (typedObj["feedback_text"] === null || typeof typedObj["feedback_text"] === "string")
+  )
+}
+
+export function isCustomViewExerciseTasks(obj: unknown): obj is CustomViewExerciseTasks {
+  const typedObj = obj as CustomViewExerciseTasks
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    Array.isArray(typedObj["exercise_tasks"]) &&
+    typedObj["exercise_tasks"].every((e: any) => isCustomViewExerciseTaskSpec(e) as boolean) &&
+    Array.isArray(typedObj["task_submissions"]) &&
+    typedObj["task_submissions"].every(
+      (e: any) => isCustomViewExerciseTaskSubmission(e) as boolean,
+    ) &&
+    Array.isArray(typedObj["task_gradings"]) &&
+    typedObj["task_gradings"].every((e: any) => isCustomViewExerciseTaskGrading(e) as boolean)
+  )
+}
+
+export function isCustomViewExerciseTaskSpec(obj: unknown): obj is CustomViewExerciseTaskSpec {
+  const typedObj = obj as CustomViewExerciseTaskSpec
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["order_number"] === "number"
+  )
+}
+
+export function isCustomViewExerciseTaskSubmission(
+  obj: unknown,
+): obj is CustomViewExerciseTaskSubmission {
+  const typedObj = obj as CustomViewExerciseTaskSubmission
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["created_at"] === "string" &&
+    typeof typedObj["exercise_slide_submission_id"] === "string" &&
+    typeof typedObj["exercise_slide_id"] === "string" &&
+    typeof typedObj["exercise_task_id"] === "string" &&
+    (typedObj["exercise_task_grading_id"] === null ||
+      typeof typedObj["exercise_task_grading_id"] === "string")
   )
 }
 

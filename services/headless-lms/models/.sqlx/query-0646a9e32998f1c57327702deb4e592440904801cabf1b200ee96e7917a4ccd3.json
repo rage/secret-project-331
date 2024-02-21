@@ -1,0 +1,48 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id,\n  created_at,\n  exercise_slide_submission_id,\n  exercise_slide_id,\n  exercise_task_id,\n  exercise_task_grading_id,\n  data_json\nFROM exercise_task_submissions g\nWHERE deleted_at IS NULL\nAND g.exercise_task_id IN (\n    SELECT distinct (t.id)\n    FROM exercise_tasks t\n    WHERE deleted_at IS NULL\n    AND t.exercise_slide_id IN (\n        SELECT s.exercise_slide_id\n        FROM exercise_slide_submissions s\n        WHERE s.user_id = $1\n        AND s.course_instance_id = $4\n        AND deleted_at IS NULL\n        AND s.exercise_id IN (\n            SELECT id\n            FROM exercises e\n            WHERE exercise_type = $2\n            AND deleted_at IS NULL\n            AND e.chapter_id IN (\n                SELECT id\n                FROM chapters c\n                WHERE c.course_module_id = $3\n                AND deleted_at IS NULL\n              )\n          )\n      )\n  )\n      ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "exercise_slide_submission_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "exercise_slide_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "exercise_task_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "exercise_task_grading_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "data_json",
+        "type_info": "Jsonb"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "Text", "Uuid", "Uuid"]
+    },
+    "nullable": [false, false, false, false, false, true, true]
+  },
+  "hash": "0646a9e32998f1c57327702deb4e592440904801cabf1b200ee96e7917a4ccd3"
+}

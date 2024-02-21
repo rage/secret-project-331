@@ -558,6 +558,7 @@ export interface ExerciseServiceInfoApi {
   grade_endpoint_path: string
   public_spec_endpoint_path: string
   model_solution_spec_endpoint_path: string
+  has_custom_view?: boolean
 }
 
 export interface ExerciseService {
@@ -577,6 +578,7 @@ export interface ExerciseServiceIframeRenderingInfo {
   name: string
   slug: string
   public_iframe_url: string
+  has_custom_view: boolean
 }
 
 export interface ExerciseServiceNewOrUpdate {
@@ -949,6 +951,42 @@ export interface CompletionRegistrationLink {
 export interface CourseInstanceCompletionSummary {
   course_modules: Array<CourseModule>
   users_with_course_module_completions: Array<UserWithModuleCompletions>
+}
+
+export interface CustomViewExerciseSubmissions {
+  exercise_tasks: CustomViewExerciseTasks
+  exercises: Array<Exercise>
+}
+
+export interface CustomViewExerciseTaskGrading {
+  id: string
+  created_at: string
+  exercise_id: string
+  exercise_task_id: string
+  feedback_json: unknown | null
+  feedback_text: string | null
+}
+
+export interface CustomViewExerciseTasks {
+  exercise_tasks: Array<CustomViewExerciseTaskSpec>
+  task_submissions: Array<CustomViewExerciseTaskSubmission>
+  task_gradings: Array<CustomViewExerciseTaskGrading>
+}
+
+export interface CustomViewExerciseTaskSpec {
+  id: string
+  public_spec: unknown | null
+  order_number: number
+}
+
+export interface CustomViewExerciseTaskSubmission {
+  id: string
+  created_at: string
+  exercise_slide_submission_id: string
+  exercise_slide_id: string
+  exercise_task_id: string
+  exercise_task_grading_id: string | null
+  data_json: unknown | null
 }
 
 export interface ManualCompletionPreview {

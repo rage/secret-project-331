@@ -11,7 +11,7 @@ test.use({
 })
 
 const createPageAndNavigate = async (page: Page) => {
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
     await page.getByText("University of Helsinki, Department of Computer Science").click(),

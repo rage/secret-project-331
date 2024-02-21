@@ -9,7 +9,7 @@ test.use({
 })
 
 test("Managing course instances works", async ({ page, headless }, testInfo) => {
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
     page.getByText("University of Helsinki, Department of Computer Science").click(),

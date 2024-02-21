@@ -8,7 +8,7 @@ test.use({
 })
 
 test("quizzes open feedback", async ({ page, headless }, testInfo) => {
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
     await page.getByText("University of Helsinki, Department of Computer Science").click(),
@@ -30,16 +30,22 @@ test("quizzes open feedback", async ({ page, headless }, testInfo) => {
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/scale",
   )
   await page
-    .frameLocator("iframe")
-    .locator('text=What is this? 12345 >> span:has-text("4")')
-    .click()
-  // ('text=What is this? 12345 >> input:has-text("4")')
-  await page.frameLocator("iframe").locator('text=12345678 >> span:has-text("3")').check()
+    .frameLocator('iframe[title="Exercise 2\\, task 1 content"]')
+    .getByLabel("What is this?")
+    .getByText("4")
+    .check()
   await page
-    .frameLocator("iframe")
-    .locator('text=Please rate this 12 >> span:has-text("1")')
+    .frameLocator('iframe[title="Exercise 2\\, task 1 content"]')
+    .getByLabel("And this?")
+    .getByText("3")
+    .check()
+  await page
+    .frameLocator('iframe[title="Exercise 2\\, task 1 content"]')
+    .getByLabel("Please rate this")
+    .getByText("1")
     .check()
   await page.getByText("Submit").click()
+  await page.getByText("Try again").waitFor()
   await page.frameLocator("iframe").locator(`input[aria-label="3"]:disabled`).first().waitFor()
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,

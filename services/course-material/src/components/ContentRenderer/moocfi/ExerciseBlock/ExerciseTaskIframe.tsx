@@ -3,13 +3,13 @@ import { useTranslation } from "react-i18next"
 
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import MessageChannelIFrame from "../../../../shared-module/components/MessageChannelIFrame"
-import { IframeState } from "../../../../shared-module/exercise-service-protocol-types"
+import { ExerciseIframeState } from "../../../../shared-module/exercise-service-protocol-types"
 import { isMessageFromIframe } from "../../../../shared-module/exercise-service-protocol-types.guard"
 
 interface ExerciseTaskIframeProps {
   exerciseServiceSlug: string
   url: string
-  postThisStateToIFrame: IframeState | null
+  postThisStateToIFrame: ExerciseIframeState | null
   setAnswer: ((answer: { valid: boolean; data: unknown }) => void) | null
   title: string
 }

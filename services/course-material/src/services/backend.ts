@@ -10,6 +10,7 @@ import {
   CourseMaterialPeerReviewDataWithToken,
   CourseMaterialPeerReviewSubmission,
   CoursePageWithUserData,
+  CustomViewExerciseSubmissions,
   ExamData,
   ExamEnrollment,
   IsChapterFrontPage,
@@ -50,6 +51,7 @@ import {
   isCourseMaterialExercise,
   isCourseMaterialPeerReviewDataWithToken,
   isCoursePageWithUserData,
+  isCustomViewExerciseSubmissions,
   isExamData,
   isIsChapterFrontPage,
   isMaterialReference,
@@ -592,4 +594,33 @@ export const postResearchFormUserAnswer = async (
     answer,
   )
   return validateResponse(response, isString)
+}
+
+export const fetchCourseModuleExercisesAndSubmissionsByType = async (
+  courseModuleId: string,
+  exercise_type: string,
+  courseInstanceId: string,
+): Promise<CustomViewExerciseSubmissions> => {
+  const res = await courseMaterialClient.get(
+    `/course-modules/${courseModuleId}/exercise-tasks/${exercise_type}/${courseInstanceId}`,
+    {
+      responseType: "json",
+    },
+  )
+  return validateResponse(res, isCustomViewExerciseSubmissions)
+}
+
+export const fetchModuleIdByChapterId = async (chapter_id: string) => {
+  const res = await courseMaterialClient.get(`/course-modules/chapter/${chapter_id}`, {
+    responseType: "json",
+  })
+  return validateResponse(res, isString)
+}
+
+export const fetchDefaultModuleIdByCourseId = async (course_id: string) => {
+  console.log("in here")
+  const res = await courseMaterialClient.get(`/course-modules/course/${course_id}`, {
+    responseType: "json",
+  })
+  return validateResponse(res, isString)
 }

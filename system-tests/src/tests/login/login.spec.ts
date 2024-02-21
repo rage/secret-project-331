@@ -28,7 +28,7 @@ test.describe("Login session with Playwright", async () => {
       PlaywrightWorkerArgs &
       PlaywrightWorkerOptions) => {
       // Executed before each test
-      await page.goto("http://project-331.local")
+      await page.goto("http://project-331.local/organizations")
     },
   )
 
@@ -63,7 +63,7 @@ test.describe("Login return_to", async () => {
       PlaywrightWorkerArgs &
       PlaywrightWorkerOptions) => {
       // Executed before each test
-      await page.goto("http://project-331.local")
+      await page.goto("http://project-331.local/organizations")
     },
   )
 

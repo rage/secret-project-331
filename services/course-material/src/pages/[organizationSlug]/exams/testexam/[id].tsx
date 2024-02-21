@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { addMinutes, differenceInSeconds, isPast, min, parseISO } from "date-fns"
 import React, { useCallback, useContext, useEffect, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -54,6 +54,8 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
   )
   const now = useTime(5000)
 
+  const queryClient = useQueryClient()
+
   const exam = useQuery({
     queryKey: [`exam-page-testexam-${examId}-fetch-exam-for-testing`],
     queryFn: () => fetchExamForTesting(examId),
@@ -66,8 +68,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
     },
     {
       onSuccess: async () => {
-        exam.refetch()
-        window.location.reload()
+        await queryClient.refetchQueries()
       },
     },
   )
@@ -79,8 +80,8 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
     },
     {
       onSuccess: async () => {
-        exam.refetch()
-        window.location.reload()
+        showAnswersMutation.mutate(false)
+        await queryClient.refetchQueries()
       },
     },
   )
@@ -320,7 +321,13 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
       <>
         {exam.data?.enrollment_data.enrollment.is_teacher_testing && (
           <div>
-            <Button variant="primary" size="medium" onClick={handleResetProgress}>
+            <Button
+              variant="primary"
+              size="medium"
+              onClick={() => {
+                handleResetProgress()
+              }}
+            >
               {t("button-text-reset-exam-progress")}
             </Button>
             <CheckBox

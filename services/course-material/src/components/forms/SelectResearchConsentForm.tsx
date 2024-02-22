@@ -49,7 +49,6 @@ const SelectResearchConsentForm: React.FC<React.PropsWithChildren<ResearchConsen
     queryFn: () => fetchResearchFormQuestionsWithCourseId(assertNotNullOrUndefined(courseId)),
   })
 
-  console.log(JSON.stringify({ questionIdsAndAnswers }, null, 2))
   // Adds all checkbox ids and false as default answer to questionIdsAndAnswers
   useEffect(() => {
     setQuestionIdsAndAnswers((prev) => {

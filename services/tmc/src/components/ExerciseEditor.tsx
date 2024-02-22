@@ -4,11 +4,11 @@ import { useTranslation } from "react-i18next"
 
 import Button from "../shared-module/components/Button"
 import CheckBox from "../shared-module/components/InputFields/CheckBox"
-import { ExerciseEditorState, IframeState } from "../util/stateInterfaces"
+import { ExerciseEditorState, ExerciseIframeState } from "../util/stateInterfaces"
 
 interface Props {
   state: ExerciseEditorState
-  setState: (updater: (state: IframeState | null) => IframeState | null) => void
+  setState: (updater: (state: ExerciseIframeState | null) => ExerciseIframeState | null) => void
 }
 
 const ExerciseEditor: React.FC<React.PropsWithChildren<Props>> = ({ state, setState }) => {

@@ -3,14 +3,14 @@ import _ from "lodash"
 import React from "react"
 
 import { UploadResultMessage } from "../shared-module/exercise-service-protocol-types"
-import { IframeState, PublicSpec } from "../util/stateInterfaces"
+import { ExerciseIframeState, PublicSpec } from "../util/stateInterfaces"
 
 import AnswerBrowserExercise from "./AnswerBrowserExercise"
 import AnswerEditorExercise from "./AnswerEditorExercise"
 
 interface Props {
   initialPublicSpec: PublicSpec
-  setState: (updater: (state: IframeState | null) => IframeState | null) => void
+  setState: (updater: (state: ExerciseIframeState | null) => ExerciseIframeState | null) => void
   sendFileUploadMessage: (filename: string, file: File) => void
   fileUploadResponse: UploadResultMessage | null
 }

@@ -5,7 +5,7 @@ import { UserItemAnswerScale } from "../../../../../types/quizTypes/answer"
 import { PublicSpecQuizItemScale } from "../../../../../types/quizTypes/publicSpec"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
-import MarkdownText from "../../../MarkdownText"
+import ParsedText from "../../../ParsedText"
 
 import { QuizItemSubmissionComponentProps } from "."
 
@@ -46,7 +46,7 @@ const Scale: React.FC<
             font-weight: 500;
           `}
         >
-          <MarkdownText text={public_quiz_item.title} />
+          <ParsedText inline parseLatex parseMarkdown text={public_quiz_item.title} />
         </div>
       )}
       <div

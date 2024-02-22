@@ -17,7 +17,7 @@
   "button-text-give-extra-peer-review": "Give extra peer review",
   "button-text-manage-course": "Manage course",
   "button-text-refresh": "Refresh",
-  "button-text-reset-exam-progress": "Reset exam progress",
+  "button-text-reset": "Reset",
   "can-comment-on-portions-of-material-by-highlightig": "You can comment on specific portions of the material by highlighting it.",
   "cannot-render-exercise-task-missing-url": "Cannot render exercise task, missing url.",
   "chapter-chapter-number-chapter-name": "Chapter {{chapterNumber}}: {{chapterName}}",

@@ -31,7 +31,7 @@ import Spinner from "../../../../shared-module/components/Spinner"
 import HideTextInSystemTests from "../../../../shared-module/components/system-tests/HideTextInSystemTests"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
 import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
-import { baseTheme } from "../../../../shared-module/styles"
+import { baseTheme, fontWeights, headingFont } from "../../../../shared-module/styles"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
@@ -320,15 +320,38 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
       </CoursePageDispatch.Provider>
       <>
         {exam.data?.enrollment_data.enrollment.is_teacher_testing && (
-          <div>
+          <div
+            className={css`
+              display: flex;
+              flex-direction: row;
+              align-items: baseline;
+              gap: 1rem;
+
+              span {
+                font-size: 20px;
+                font-family: ${headingFont};
+                font-weight: ${fontWeights.semibold};
+                color: ${baseTheme.colors.gray[700]};
+              }
+            `}
+          >
             <Button
+              className={css`
+                font-size: 20px !important;
+                font-family: ${headingFont} !important;
+                font-weight: ${fontWeights.semibold} !important;
+
+                width: 124px;
+                height: 47px;
+              `}
               variant="primary"
               size="medium"
+              transform="capitalize"
               onClick={() => {
                 handleResetProgress()
               }}
             >
-              {t("button-text-reset-exam-progress")}
+              {t("button-text-reset")}
             </Button>
             <CheckBox
               label={t("show-answers")}

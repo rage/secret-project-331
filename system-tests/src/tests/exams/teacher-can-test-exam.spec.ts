@@ -98,7 +98,7 @@ test("Testing exam works", async ({ page }) => {
   ).toBeHidden()
 
   //Reset exam progress
-  await page.getByRole("button", { name: "Reset exam progress" }).click()
+  await page.getByRole("button", { name: "Reset" }).click()
   await page.getByRole("button", { name: "Submit" }).isDisabled()
 
   await page
@@ -107,7 +107,7 @@ test("Testing exam works", async ({ page }) => {
     .click()
   await page.getByRole("button", { name: "Submit" }).click()
   await page.getByText("Your submission has been").isVisible()
-  await page.getByText("show answers").click()
+  await page.getByText("Show answers").click()
   await expect(
     page
       .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')

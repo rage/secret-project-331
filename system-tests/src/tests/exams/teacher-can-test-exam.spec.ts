@@ -5,7 +5,7 @@ test.use({
 })
 
 test("Testing exam works", async ({ page }) => {
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
   await page.getByLabel("University of Helsinki, Department of Computer Science").click()
   //Create exam
   await page.getByRole("button", { name: "Create" }).nth(1).click()
@@ -61,7 +61,7 @@ test("Testing exam works", async ({ page }) => {
   await page.getByRole("button", { name: "Save", exact: true }).click()
   await page.getByText("Success", { exact: true }).click()
 
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
   await page.getByLabel("University of Helsinki, Department of Computer Science").click()
   await page
     .locator("li")
@@ -71,7 +71,6 @@ test("Testing exam works", async ({ page }) => {
     .click()
 
   //Test exam
-
   await page.getByRole("link", { name: "Test exam", exact: true }).click()
   page.on("dialog", (dialog) => dialog.accept())
   await page.locator(`button:text("Start the exam!")`).click()

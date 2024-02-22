@@ -5,7 +5,7 @@ test.use({
 })
 
 test("Editing exam works", async ({ page }) => {
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
   await page.getByLabel("University of Helsinki, Department of Computer Science").click()
   //Create exam
   await page.getByRole("button", { name: "Create" }).nth(1).click()

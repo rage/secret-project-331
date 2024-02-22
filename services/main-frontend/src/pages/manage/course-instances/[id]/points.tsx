@@ -50,11 +50,11 @@ const CourseInstancePointsList: React.FC<
     } else if (sorting == NUMBER) {
       return first.user.user_id.localeCompare(second.user.user_id)
     } else if (sorting == SCORE) {
-      return first.totalPoints - second.totalPoints
+      return second.totalPoints - first.totalPoints
     } else if (sorting == EMAIL) {
       return first.user.email.localeCompare(second.user.email)
     } else {
-      return first.chapterPoints[sorting] - second.chapterPoints[sorting]
+      return second.chapterPoints[sorting] - first.chapterPoints[sorting]
     }
   }
 
@@ -148,7 +148,10 @@ const CourseInstancePointsList: React.FC<
                   return (
                     <th key={c.id}>
                       {t("title-chapter-only-number", { "chapter-number": c.chapter_number })}{" "}
-                      <a href={courseSorting} onClick={() => setSorting(courseSorting)}>
+                      <a
+                        href={courseSorting}
+                        onClick={() => setSorting(courseSorting.substring(1))}
+                      >
                         {DOWN_ARROW}
                       </a>
                     </th>
@@ -194,7 +197,7 @@ const CourseInstancePointsList: React.FC<
                       <td>{user.email}</td>
                       <td>
                         {roundDown(totalPoints, 2)}/{instanceTotalPoints} (
-                        {Math.round(totalPoints / instanceTotalPoints)}%)
+                        {roundDown((totalPoints / instanceTotalPoints) * 100, 0)}%)
                       </td>
 
                       {getPointsList.data.chapter_points.map((c) => {

@@ -29,13 +29,9 @@ test("Can create a new research form for a course", async ({ page }) => {
     .fill("This course does research")
   await page.getByRole("option", { name: "CheckBox" }).click()
   await page.getByRole("document", { name: "Block: CheckBox" }).locator("div").nth(1).click()
-  await page
-    .getByRole("textbox", { name: "Add question here" })
-    .fill("I want to take part in reseach")
-  await page.getByRole("textbox", { name: "Add question here" }).press("ArrowLeft")
-  await page
-    .getByRole("textbox", { name: "Add question here" })
-    .fill("I want to take part in research")
+  await page.getByRole("textbox").fill("I want to take part in reseach")
+  await page.getByRole("textbox").press("ArrowLeft")
+  await page.getByRole("textbox").fill("I want to take part in research")
   await page.getByRole("button", { name: "Save" }).click()
   await page.getByText("Operation successful!").waitFor()
 })

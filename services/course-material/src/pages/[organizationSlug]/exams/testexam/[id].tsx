@@ -325,7 +325,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
               display: flex;
               flex-direction: row;
               align-items: baseline;
-              gap: 1rem;
+              gap: 20px;
 
               span {
                 font-size: 20px;
@@ -339,10 +339,6 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
               className={css`
                 font-size: 20px !important;
                 font-family: ${headingFont} !important;
-                font-weight: ${fontWeights.semibold} !important;
-
-                width: 124px;
-                height: 47px;
               `}
               variant="primary"
               size="medium"
@@ -351,7 +347,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
                 handleResetProgress()
               }}
             >
-              {t("button-text-reset")}
+              {t("button-text-reset-exam-progress")}
             </Button>
             <CheckBox
               label={t("show-answers")}

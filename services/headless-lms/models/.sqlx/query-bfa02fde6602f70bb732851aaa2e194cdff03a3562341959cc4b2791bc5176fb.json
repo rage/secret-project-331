@@ -92,6 +92,11 @@
         "ordinal": 17,
         "name": "exercise_language_group_id",
         "type_info": "Uuid"
+      },
+      {
+        "ordinal": 18,
+        "name": "needs_self_review",
+        "type_info": "Bool"
       }
     ],
     "parameters": {
@@ -115,7 +120,8 @@
       false,
       false,
       false,
-      true
+      true,
+      false
     ]
   },
   "hash": "bfa02fde6602f70bb732851aaa2e194cdff03a3562341959cc4b2791bc5176fb"

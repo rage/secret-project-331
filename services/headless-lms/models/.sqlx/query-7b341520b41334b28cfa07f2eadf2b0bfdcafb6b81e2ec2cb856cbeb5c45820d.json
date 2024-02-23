@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n    INSERT INTO peer_review_configs (\n    id,\n    course_id,\n    exercise_id,\n    peer_reviews_to_give,\n    peer_reviews_to_receive,\n    accepting_threshold,\n    processing_strategy,\n    points_are_all_or_nothing\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT (id) DO\nUPDATE\nSET course_id = excluded.course_id,\n  exercise_id = excluded.exercise_id,\n  peer_reviews_to_give = excluded.peer_reviews_to_give,\n  peer_reviews_to_receive = excluded.peer_reviews_to_receive,\n  accepting_threshold = excluded.accepting_threshold,\n  processing_strategy = excluded.processing_strategy,\n  points_are_all_or_nothing = excluded.points_are_all_or_nothing\nRETURNING id,\n  course_id,\n  exercise_id,\n  peer_reviews_to_give,\n  peer_reviews_to_receive,\n  accepting_threshold,\n  processing_strategy AS \"processing_strategy:_\",\n  points_are_all_or_nothing\n",
+  "query": "\n    INSERT INTO peer_review_configs (\n    id,\n    course_id,\n    exercise_id,\n    peer_reviews_to_give,\n    peer_reviews_to_receive,\n    accepting_threshold,\n    processing_strategy,\n    points_are_all_or_nothing,\n    additional_review_instructions\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) ON CONFLICT (id) DO\nUPDATE\nSET course_id = excluded.course_id,\n  exercise_id = excluded.exercise_id,\n  peer_reviews_to_give = excluded.peer_reviews_to_give,\n  peer_reviews_to_receive = excluded.peer_reviews_to_receive,\n  accepting_threshold = excluded.accepting_threshold,\n  processing_strategy = excluded.processing_strategy,\n  points_are_all_or_nothing = excluded.points_are_all_or_nothing,\n  additional_review_instructions = excluded.additional_review_instructions\nRETURNING id,\n  course_id,\n  exercise_id,\n  peer_reviews_to_give,\n  peer_reviews_to_receive,\n  accepting_threshold,\n  processing_strategy AS \"processing_strategy:_\",\n  points_are_all_or_nothing,\n  additional_review_instructions\n",
   "describe": {
     "columns": [
       {
@@ -53,6 +53,11 @@
         "ordinal": 7,
         "name": "points_are_all_or_nothing",
         "type_info": "Bool"
+      },
+      {
+        "ordinal": 8,
+        "name": "additional_review_instructions",
+        "type_info": "Jsonb"
       }
     ],
     "parameters": {
@@ -75,10 +80,11 @@
             }
           }
         },
-        "Bool"
+        "Bool",
+        "Jsonb"
       ]
     },
-    "nullable": [false, false, true, false, false, false, false, false]
+    "nullable": [false, false, true, false, false, false, false, false, true]
   },
-  "hash": "be08e7992f9a64d794d4206a684839d3a801f21e5d425ad472d36cea47c8e0a3"
+  "hash": "7b341520b41334b28cfa07f2eadf2b0bfdcafb6b81e2ec2cb856cbeb5c45820d"
 }

@@ -43,6 +43,7 @@ pub struct Exercise {
     pub max_tries_per_slide: Option<i32>,
     pub limit_number_of_tries: bool,
     pub needs_peer_review: bool,
+    pub needs_self_review: bool,
     pub use_course_default_peer_review_config: bool,
     pub exercise_language_group_id: Option<Uuid>,
 }

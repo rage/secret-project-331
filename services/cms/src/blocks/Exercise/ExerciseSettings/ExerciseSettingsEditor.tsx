@@ -1,4 +1,5 @@
 import { css } from "@emotion/css"
+import { InnerBlocks } from "@wordpress/block-editor"
 import { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -10,6 +11,8 @@ import CheckBox from "../../../shared-module/components/InputFields/CheckBox"
 import TextField from "../../../shared-module/components/InputFields/TextField"
 import { baseTheme } from "../../../shared-module/styles"
 import { respondToOrLarger } from "../../../shared-module/styles/respond"
+
+const ALLOWED_NESTED_BLOCKS = ["core/image", "core/paragraph", "core/list", "moocfi/latex"]
 
 const ExerciseSettingsEditor = () => {
   const { t } = useTranslation()
@@ -109,6 +112,16 @@ const ExerciseSettingsEditor = () => {
               exerciseId={attributes.id}
               courseId={courseId}
               courseGlobalEditor={false}
+              instructionsEditor={
+                <div
+                  className={css`
+                    border: 1px solid ${baseTheme.colors.gray[100]};
+                    padding: 1rem;
+                  `}
+                >
+                  <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} templateLock={false} />
+                </div>
+              }
             />
           </details>
         </Accordion>

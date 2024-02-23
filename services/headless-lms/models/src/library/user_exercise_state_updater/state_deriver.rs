@@ -815,6 +815,7 @@ mod tests {
                 needs_peer_review,
                 use_course_default_peer_review_config,
                 exercise_language_group_id: None,
+                needs_self_review: false,
             }
         }
 
@@ -835,6 +836,7 @@ mod tests {
                 processing_strategy,
                 manual_review_cutoff_in_days: 21,
                 points_are_all_or_nothing: true,
+                additional_review_instructions: None,
             }
         }
 

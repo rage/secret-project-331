@@ -28,6 +28,7 @@ pub struct PeerReviewConfig {
     pub processing_strategy: PeerReviewProcessingStrategy,
     pub manual_review_cutoff_in_days: i32,
     pub points_are_all_or_nothing: bool,
+    pub additional_review_instructions: Option<serde_json::Value>,
 }
 
 /// Like `PeerReviewConfig` but only the fields it's fine to show to all users.
@@ -41,7 +42,7 @@ pub struct CourseMaterialPeerReviewConfig {
     pub peer_reviews_to_receive: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CmsPeerReviewConfig {
     pub id: Uuid,
@@ -52,6 +53,7 @@ pub struct CmsPeerReviewConfig {
     pub accepting_threshold: f32,
     pub processing_strategy: PeerReviewProcessingStrategy,
     pub points_are_all_or_nothing: bool,
+    pub additional_review_instructions: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -118,9 +120,10 @@ pub async fn upsert_with_id(
     peer_reviews_to_receive,
     accepting_threshold,
     processing_strategy,
-    points_are_all_or_nothing
+    points_are_all_or_nothing,
+    additional_review_instructions
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT (id) DO
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) ON CONFLICT (id) DO
 UPDATE
 SET course_id = excluded.course_id,
   exercise_id = excluded.exercise_id,
@@ -128,7 +131,8 @@ SET course_id = excluded.course_id,
   peer_reviews_to_receive = excluded.peer_reviews_to_receive,
   accepting_threshold = excluded.accepting_threshold,
   processing_strategy = excluded.processing_strategy,
-  points_are_all_or_nothing = excluded.points_are_all_or_nothing
+  points_are_all_or_nothing = excluded.points_are_all_or_nothing,
+  additional_review_instructions = excluded.additional_review_instructions
 RETURNING id,
   course_id,
   exercise_id,
@@ -136,7 +140,8 @@ RETURNING id,
   peer_reviews_to_receive,
   accepting_threshold,
   processing_strategy AS "processing_strategy:_",
-  points_are_all_or_nothing
+  points_are_all_or_nothing,
+  additional_review_instructions
 "#,
         pkey_policy.into_uuid(),
         cms_peer_review.course_id,
@@ -146,6 +151,7 @@ RETURNING id,
         cms_peer_review.accepting_threshold,
         cms_peer_review.processing_strategy as _,
         cms_peer_review.points_are_all_or_nothing,
+        cms_peer_review.additional_review_instructions,
     )
     .fetch_one(conn)
     .await?;
@@ -167,7 +173,8 @@ SELECT id,
   accepting_threshold,
   processing_strategy AS "processing_strategy: _",
   manual_review_cutoff_in_days,
-  points_are_all_or_nothing
+  points_are_all_or_nothing,
+  additional_review_instructions
 FROM peer_review_configs
 WHERE id = $1
   AND deleted_at IS NULL
@@ -198,7 +205,8 @@ SELECT id,
     accepting_threshold,
     processing_strategy AS "processing_strategy: _",
     manual_review_cutoff_in_days,
-    points_are_all_or_nothing
+    points_are_all_or_nothing,
+    additional_review_instructions
 FROM peer_review_configs
 WHERE exercise_id = $1
   AND deleted_at IS NULL
@@ -241,7 +249,8 @@ SELECT id,
   accepting_threshold,
   processing_strategy AS "processing_strategy: _",
   manual_review_cutoff_in_days,
-  points_are_all_or_nothing
+  points_are_all_or_nothing,
+  additional_review_instructions
 FROM peer_review_configs
 WHERE course_id = $1
   AND exercise_id IS NULL
@@ -343,7 +352,8 @@ SELECT pr.id as id,
   pr.peer_reviews_to_receive as peer_reviews_to_receive,
   pr.accepting_threshold as accepting_threshold,
   pr.processing_strategy AS "processing_strategy: _",
-  points_are_all_or_nothing
+  points_are_all_or_nothing,
+  pr.additional_review_instructions
 from pages p
   join exercises e on p.id = e.page_id
   join peer_review_configs pr on e.id = pr.exercise_id
@@ -396,7 +406,8 @@ SELECT id,
   peer_reviews_to_receive,
   accepting_threshold,
   processing_strategy AS "processing_strategy: _",
-  points_are_all_or_nothing
+  points_are_all_or_nothing,
+  additional_review_instructions
 FROM peer_review_configs
 WHERE course_id = $1
   AND exercise_id IS NULL
@@ -423,7 +434,8 @@ SELECT id,
   peer_reviews_to_receive,
   accepting_threshold,
   processing_strategy AS "processing_strategy:_",
-  points_are_all_or_nothing
+  points_are_all_or_nothing,
+  additional_review_instructions
 FROM peer_review_configs
 WHERE id = $1;
     "#,

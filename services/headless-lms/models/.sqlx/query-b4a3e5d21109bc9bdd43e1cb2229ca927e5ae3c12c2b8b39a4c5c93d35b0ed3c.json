@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT pr.id as id,\n  pr.course_id as course_id,\n  pr.exercise_id as exercise_id,\n  pr.peer_reviews_to_give as peer_reviews_to_give,\n  pr.peer_reviews_to_receive as peer_reviews_to_receive,\n  pr.accepting_threshold as accepting_threshold,\n  pr.processing_strategy AS \"processing_strategy: _\",\n  points_are_all_or_nothing\nfrom pages p\n  join exercises e on p.id = e.page_id\n  join peer_review_configs pr on e.id = pr.exercise_id\nwhere p.id = $1\n  AND p.deleted_at IS NULL\n  AND e.deleted_at IS NULL\n  AND pr.deleted_at IS NULL;\n    ",
+  "query": "\nSELECT pr.id as id,\n  pr.course_id as course_id,\n  pr.exercise_id as exercise_id,\n  pr.peer_reviews_to_give as peer_reviews_to_give,\n  pr.peer_reviews_to_receive as peer_reviews_to_receive,\n  pr.accepting_threshold as accepting_threshold,\n  pr.processing_strategy AS \"processing_strategy: _\",\n  points_are_all_or_nothing,\n  pr.additional_review_instructions\nfrom pages p\n  join exercises e on p.id = e.page_id\n  join peer_review_configs pr on e.id = pr.exercise_id\nwhere p.id = $1\n  AND p.deleted_at IS NULL\n  AND e.deleted_at IS NULL\n  AND pr.deleted_at IS NULL;\n    ",
   "describe": {
     "columns": [
       {
@@ -53,12 +53,17 @@
         "ordinal": 7,
         "name": "points_are_all_or_nothing",
         "type_info": "Bool"
+      },
+      {
+        "ordinal": 8,
+        "name": "additional_review_instructions",
+        "type_info": "Jsonb"
       }
     ],
     "parameters": {
       "Left": ["Uuid"]
     },
-    "nullable": [false, false, true, false, false, false, false, false]
+    "nullable": [false, false, true, false, false, false, false, false, true]
   },
-  "hash": "41be4f4cee17aa5c37896ab21d8b8578ca5474fb4dfbcdde8a797d63d1a51855"
+  "hash": "b4a3e5d21109bc9bdd43e1cb2229ca927e5ae3c12c2b8b39a4c5c93d35b0ed3c"
 }

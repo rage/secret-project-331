@@ -100,6 +100,7 @@ export interface PeerReviewEditorExtraProps {
   exerciseId?: string
   courseId: string
   courseGlobalEditor: boolean
+  instructionsEditor: React.ReactNode
 }
 
 export type PeerReviewEditorProps = React.HTMLAttributes<HTMLDivElement> &
@@ -112,6 +113,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
   attributes: exerciseAttributes,
   setAttributes: setExerciseAttributes,
   courseGlobalEditor,
+  instructionsEditor,
 }) => {
   const { t } = useTranslation()
   const peerReviewEnabled = exerciseAttributes.needs_peer_review ?? false
@@ -360,6 +362,10 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                     display: flex;
                     gap: 5px 5px;
                     justify-content: space-between;
+
+                    h2 {
+                      margin-bottom: 2rem;
+                    }
                   `}
                 >
                   <TextField
@@ -441,6 +447,8 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                     handlePeerReviewValueChange(value, "accepting_threshold")
                   }}
                 />
+                <h2>Additional review instructions</h2>
+                {instructionsEditor}
                 <h2>{t("configure-review-answers-option")}</h2>
                 {parsedPeerReviewQuestionConfig &&
                   parsedPeerReviewQuestionConfig

@@ -113,6 +113,20 @@ export function normalizeDocument(args: UnnormalizedDocument): CmsPageUpdate {
     return newBlock
   })
 
+  // Verify exercise blocks don't have other attributes than id
+  const exerciseBlocks = normalizedBlocks.filter((block) => block.name === "moocfi/exercise")
+  exerciseBlocks.forEach((block) => {
+    const attributes = block.attributes
+    if (Object.prototype.hasOwnProperty.call(attributes, "id") === false) {
+      throw new Error("Exercise block is missing id attribute")
+    }
+    if (Object.keys(attributes).length !== 1) {
+      throw new Error(
+        `Exercise block has more attributes than just id. This is not allowed. Found attributes: ${JSON.stringify(attributes)}`,
+      )
+    }
+  })
+
   return {
     content: normalizedBlocks,
     chapter_id: args.chapterId,

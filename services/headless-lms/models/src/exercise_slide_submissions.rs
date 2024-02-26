@@ -451,6 +451,58 @@ LIMIT $2 OFFSET $3
     Ok(submissions)
 }
 
+pub async fn exercise_slide_submission_count_with_exam_id(
+    conn: &mut PgConnection,
+    exam_id: Uuid,
+) -> ModelResult<u32> {
+    let count = sqlx::query!(
+        "
+SELECT COUNT(*) as count
+FROM exercise_slide_submissions
+WHERE exam_id = $1
+AND deleted_at IS NULL
+",
+        exam_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(count.count.unwrap_or(0).try_into()?)
+}
+
+pub async fn exercise_slide_submissions_with_exam_id(
+    conn: &mut PgConnection,
+    exam_id: Uuid,
+    pagination: Pagination,
+) -> ModelResult<Vec<ExerciseSlideSubmission>> {
+    let submissions = sqlx::query_as!(
+        ExerciseSlideSubmission,
+        r#"
+        SELECT id,
+        created_at,
+        updated_at,
+        deleted_at,
+        exercise_slide_id,
+        course_id,
+        course_instance_id,
+        exam_id,
+        exercise_id,
+        user_id,
+        user_points_update_strategy AS "user_points_update_strategy: _"
+    FROM exercise_slide_submissions
+    WHERE exam_id = $1
+      AND deleted_at IS NULL
+      AND created_at in (SELECT MAX(created_at) FROM exercise_slide_submissions GROUP BY user_id, exercise_slide_id)
+    LIMIT $2 OFFSET $3
+        "#,
+        exam_id,
+        pagination.limit(),
+        pagination.offset(),
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(submissions)
+}
+
 pub async fn get_course_daily_slide_submission_counts(
     conn: &mut PgConnection,
     course: &Course,

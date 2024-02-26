@@ -96,6 +96,9 @@ const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = (
                 {t("link-export-submissions")}
               </a>
             </li>
+            <li>
+              <a href={`/manage/exams/${getExam.data.id}/submissions`}>{t("grading")}</a>
+            </li>
           </ul>
           <h2>{t("courses")}</h2>
           {getExam.data.courses.map((c) => (

@@ -1,4 +1,13 @@
-import { CourseExam, Exam, ExamCourseInfo, NewExam, OrgExam } from "../../shared-module/bindings"
+import {
+  CourseExam,
+  Exam,
+  ExamCourseInfo,
+  ExerciseSubmissions,
+  NewExam,
+  OrgExam,
+} from "../../shared-module/bindings"
+import { isExerciseSubmissions } from "../../shared-module/bindings.guard"
+import { validateResponse } from "../../shared-module/utils/fetching"
 import { mainFrontendClient } from "../mainFrontendClient"
 
 export const createExam = async (organizationId: string, data: NewExam) => {
@@ -31,4 +40,15 @@ export const setCourse = async (examId: string, courseId: string): Promise<void>
 export const unsetCourse = async (examId: string, courseId: string): Promise<void> => {
   const data: ExamCourseInfo = { course_id: courseId }
   await mainFrontendClient.post(`/exams/${examId}/unset`, data)
+}
+
+export const fetchExerciseSubmissionsWithExamId = async (
+  examId: string,
+  page: number,
+  limit: number,
+): Promise<ExerciseSubmissions> => {
+  const response = await mainFrontendClient.get(
+    `/exams/${examId}/submissions?page=${page}&limit=${limit}`,
+  )
+  return validateResponse(response, isExerciseSubmissions)
 }

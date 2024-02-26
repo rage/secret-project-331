@@ -1,3 +1,5 @@
+use futures::future;
+
 use chrono::Utc;
 use models::{
     course_exams,
@@ -11,6 +13,8 @@ use crate::{
     },
     prelude::*,
 };
+
+use super::exercises::ExerciseSubmissions;
 
 /**
 GET `/api/v0/main-frontend/exams/:id
@@ -161,6 +165,40 @@ async fn duplicate_exam(
 }
 
 /**
+GET `/api/v0/main-frontend/exercises/:exercise_id/submissions-with-exam-id` - Returns all exams exercise submissions.
+ */
+#[instrument(skip(pool))]
+async fn get_exercise_submissions_with_exam_id(
+    pool: web::Data<PgPool>,
+    exam_id: web::Path<Uuid>,
+    pagination: web::Query<Pagination>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<ExerciseSubmissions>> {
+    let mut conn = pool.acquire().await?;
+
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(*exam_id)).await?;
+
+    let submission_count =
+        models::exercise_slide_submissions::exercise_slide_submission_count_with_exam_id(
+            &mut conn, *exam_id,
+        );
+    let mut conn = pool.acquire().await?;
+    let submissions = models::exercise_slide_submissions::exercise_slide_submissions_with_exam_id(
+        &mut conn,
+        *exam_id,
+        *pagination,
+    );
+    let (submission_count, submissions) = future::try_join(submission_count, submissions).await?;
+
+    let total_pages = pagination.total_pages(submission_count);
+
+    token.authorized_ok(web::Json(ExerciseSubmissions {
+        data: submissions,
+        total_pages,
+    }))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -176,5 +214,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             "/{id}/export-submissions",
             web::get().to(export_submissions),
         )
-        .route("/{id}/duplicate", web::post().to(duplicate_exam));
+        .route("/{id}/duplicate", web::post().to(duplicate_exam))
+        .route(
+            "/{exam_id}/submissions",
+            web::get().to(get_exercise_submissions_with_exam_id),
+        );
 }

@@ -772,6 +772,7 @@ export interface Exercise {
   max_tries_per_slide: number | null
   limit_number_of_tries: boolean
   needs_peer_review: boolean
+  needs_self_review: boolean
   use_course_default_peer_review_config: boolean
   exercise_language_group_id: string | null
 }
@@ -1276,6 +1277,7 @@ export interface CmsPeerReviewConfig {
   accepting_threshold: number
   processing_strategy: PeerReviewProcessingStrategy
   points_are_all_or_nothing: boolean
+  additional_review_instructions: unknown | null
 }
 
 export interface CmsPeerReviewConfiguration {
@@ -1309,6 +1311,7 @@ export interface PeerReviewConfig {
   processing_strategy: PeerReviewProcessingStrategy
   manual_review_cutoff_in_days: number
   points_are_all_or_nothing: boolean
+  additional_review_instructions: unknown | null
 }
 
 export interface PeerReviewSubmission {

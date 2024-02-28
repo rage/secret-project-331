@@ -1471,6 +1471,7 @@ export function isExercise(obj: unknown): obj is Exercise {
       typeof typedObj["max_tries_per_slide"] === "number") &&
     typeof typedObj["limit_number_of_tries"] === "boolean" &&
     typeof typedObj["needs_peer_review"] === "boolean" &&
+    typeof typedObj["needs_self_review"] === "boolean" &&
     typeof typedObj["use_course_default_peer_review_config"] === "boolean" &&
     (typedObj["exercise_language_group_id"] === null ||
       typeof typedObj["exercise_language_group_id"] === "string")

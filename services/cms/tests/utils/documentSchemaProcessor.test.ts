@@ -71,6 +71,19 @@ const exampleCMSPageUpdate: CmsPageUpdate = {
         peer_reviews_to_give: 1,
         peer_reviews_to_receive: 1,
         points_are_all_or_nothing: true,
+        additional_review_instructions: [
+          {
+            name: "core/paragraph",
+            isValid: true,
+            clientId: "2450740e-231e-40fc-b18a-576e18b4242d",
+            attributes: {
+              align: "center",
+              content: "These are additional instructions for the peer review or the self review",
+              dropCap: false,
+            },
+            innerBlocks: [],
+          },
+        ],
       },
       peer_review_questions: [
         {
@@ -175,25 +188,44 @@ const exampleUnnormalizedDocument: UnnormalizedDocument = {
       attributes: exampleUnnormalizedDocumentExerciseAttributes,
       innerBlocks: [
         {
-          // When denormalizing in tests, this is inferred from exercise slide id so that the whole operation is reversible
-          clientId: "a9d527a3-2728-4ca2-bd6f-f443914d8052",
-          name: "moocfi/exercise-slide",
-          attributes: exampleUnnormalizedDocumentExerciseSlideAttributes,
+          name: "moocfi/exercise-settings",
           isValid: true,
+          clientId: "be53c60f-1476-585e-9def-4cae02ae20da",
+          attributes: {},
+          innerBlocks: [],
+        },
+        {
+          name: "moocfi/exercise-slides",
+          isValid: true,
+          clientId: "c68d8f6e-a3de-5fbf-bf86-04d68ba5aad1",
+          attributes: {},
           innerBlocks: [
             {
-              // When denormalizing in tests, this is inferred from exercise task id so that the whole operation is reversible
-              clientId: "b5d31a4f-2720-4582-93e7-13c4c0c2a9df",
-              name: "moocfi/exercise-task",
-              attributes: exampleUnnormalizedDocumentExerciseTaskAttributes,
+              // When denormalizing in tests, this is inferred from exercise slide id so that the whole operation is reversible
+              clientId: "a9d527a3-2728-4ca2-bd6f-f443914d8052",
+              name: "moocfi/exercise-slide",
+              attributes: exampleUnnormalizedDocumentExerciseSlideAttributes,
               isValid: true,
               innerBlocks: [
                 {
-                  name: "core/paragraph",
+                  // When denormalizing in tests, this is inferred from exercise task id so that the whole operation is reversible
+                  clientId: "b5d31a4f-2720-4582-93e7-13c4c0c2a9df",
+                  name: "moocfi/exercise-task",
+                  attributes: exampleUnnormalizedDocumentExerciseTaskAttributes,
                   isValid: true,
-                  clientId: "c484685c-addf-49d6-a8aa-0efc5bc91d83",
-                  attributes: { align: "center", content: "Example assignment", dropCap: false },
-                  innerBlocks: [],
+                  innerBlocks: [
+                    {
+                      name: "core/paragraph",
+                      isValid: true,
+                      clientId: "c484685c-addf-49d6-a8aa-0efc5bc91d83",
+                      attributes: {
+                        align: "center",
+                        content: "Example assignment",
+                        dropCap: false,
+                      },
+                      innerBlocks: [],
+                    },
+                  ],
                 },
               ],
             },

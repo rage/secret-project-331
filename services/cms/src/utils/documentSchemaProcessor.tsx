@@ -1,7 +1,7 @@
 /* eslint-disable i18next/no-literal-string */
 
 import { BlockInstance } from "@wordpress/blocks"
-import { v4 } from "uuid"
+import { v4, v5 } from "uuid"
 
 import { ExerciseAttributes } from "../blocks/Exercise"
 import { ExerciseSlideAttributes } from "../blocks/Exercise/ExerciseSlide/ExerciseSlideEditor"
@@ -76,7 +76,13 @@ export function normalizeDocument(args: UnnormalizedDocument): CmsPageUpdate {
     })
     exerciseCount = exerciseCount + 1
     let exerciseSlideCount = 0
-    block.innerBlocks.forEach((block2) => {
+    const slidesBlock = block.innerBlocks.find((block2) => block2.name === "moocfi/exercise-slides")
+    if (slidesBlock === undefined) {
+      throw new Error(
+        "Exercise block is missing slides. It should not be possible to remove that one.",
+      )
+    }
+    slidesBlock.innerBlocks.forEach((block2) => {
       if (block2.name !== "moocfi/exercise-slide") {
         return
       }
@@ -157,7 +163,7 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
     const normalizedBlock = block as BlockInstance<NormalizedExerciseBlockAttributes>
 
     const slides = input.exercise_slides.filter((x) => x.exercise_id === exercise.id)
-    const innerBlocks = slides.map((slide) => {
+    const slidesInnerBlocks = slides.map((slide) => {
       const tasks = input.exercise_tasks.filter((x) => x.exercise_slide_id === slide.id)
       const denormalizedSlide: BlockInstance<ExerciseSlideAttributes> = {
         // Using slide id in tests ensures that this operation is reversible
@@ -193,7 +199,24 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
 
     const exerciseBlock: BlockInstance<ExerciseAttributes> = {
       ...normalizedBlock,
-      innerBlocks,
+      innerBlocks: [
+        {
+          name: "moocfi/exercise-settings",
+          isValid: true,
+          // Deterministic client id but derived from exercise id so that it's different for each exercise
+          clientId: v5("9ab7c78a-4b3a-4695-bca1-cb93de0dabec", exercise.id),
+          attributes: {},
+          innerBlocks: [],
+        },
+        {
+          name: "moocfi/exercise-slides",
+          isValid: true,
+          // Deterministic client id but derived from exercise id so that it's different for each exercise
+          clientId: v5("335f1f8e-4fd3-4a5f-888f-87efd6ef4595", exercise.id),
+          attributes: {},
+          innerBlocks: slidesInnerBlocks,
+        },
+      ],
       attributes: {
         id: normalizedBlock.attributes.id,
         name: exercise.name,

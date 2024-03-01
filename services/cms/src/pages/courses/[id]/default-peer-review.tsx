@@ -87,24 +87,6 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
     { onSuccess: () => getCmsPeerReviewConfiguration.refetch() },
   )
 
-  // Detect focus change
-  useEffect(() => {
-    const handleFocusChange = (e: FocusEvent) => {
-      if (additionalInstructionsWrapperRef.current?.contains(e.target as Node)) {
-        setAdditionalInstructionsFocused(true)
-      } else {
-        setAdditionalInstructionsFocused(false)
-      }
-    }
-
-    document.addEventListener("focusin", handleFocusChange)
-    document.addEventListener("focusout", handleFocusChange)
-    return () => {
-      document.removeEventListener("focusin", handleFocusChange)
-      document.removeEventListener("focusout", handleFocusChange)
-    }
-  }, [])
-
   if (getCmsPeerReviewConfiguration.isError) {
     return <ErrorBanner error={getCmsPeerReviewConfiguration.error} variant="text" />
   }
@@ -123,8 +105,9 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
         instructionsEditor={
           <PeerReviewAdditionalInstructionsEditor
             content={[]}
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             setContent={function (value: BlockInstance<{ [k: string]: any }>[]): void {
-              throw new Error("Function not implemented.")
+              // TODO
             }}
           />
         }

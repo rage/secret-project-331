@@ -27,7 +27,15 @@ const PeerReviewAdditionalInstructionsEditor = (
   // Detect focus change
   useEffect(() => {
     const handleFocusChange = (e: FocusEvent) => {
-      if (additionalInstructionsWrapperRef.current?.contains(e.target as Node)) {
+      const target = e.target as Node
+
+      if (
+        additionalInstructionsWrapperRef.current?.contains(e.target as Node) ||
+        // Focus detection does not always work with the contains in the gutenberg editor, so we will try to detect that case separately
+        Array.from(target.parentElement?.classList ?? []).find(
+          (c) => c.indexOf("block-editor") > -1,
+        )
+      ) {
         setAdditionalInstructionsFocused(true)
       } else {
         setAdditionalInstructionsFocused(false)

@@ -23,6 +23,7 @@ import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import { isBlockInstanceArray } from "../../../utils/Gutenberg/blockInstance"
+import { makeSurePeerReviewConfigAdditionalInstructionsAreNullInsteadOfEmptyLookingArray } from "../../../utils/peerReviewConfig"
 
 interface PeerReviewManagerProps {
   // courseId
@@ -64,7 +65,8 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
   const mutateCourseDefaultPeerReview = useToastMutation(
     () => {
       {
-        const prc: CmsPeerReviewConfig = JSON.parse(attributes.peer_review_config ?? "{}")
+        let prc: CmsPeerReviewConfig = JSON.parse(attributes.peer_review_config ?? "{}")
+        prc = makeSurePeerReviewConfigAdditionalInstructionsAreNullInsteadOfEmptyLookingArray(prc)
         const prq: CmsPeerReviewQuestion[] = JSON.parse(
           attributes.peer_review_questions_config ?? "[]",
         )

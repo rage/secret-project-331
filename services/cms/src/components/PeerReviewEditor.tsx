@@ -15,7 +15,6 @@ import {
   PeerReviewQuestion,
   PeerReviewQuestionType,
 } from "../shared-module/bindings"
-import Accordion from "../shared-module/components/Accordion"
 import Button from "../shared-module/components/Button"
 import ErrorBanner from "../shared-module/components/ErrorBanner"
 import CheckBox from "../shared-module/components/InputFields/CheckBox"
@@ -256,6 +255,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
       peer_reviews_to_give: 3,
       peer_reviews_to_receive: 2,
       points_are_all_or_nothing: true,
+      additional_review_instructions: [],
     }
     setExerciseAttributes({
       ...exerciseAttributes,
@@ -447,7 +447,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                     handlePeerReviewValueChange(value, "accepting_threshold")
                   }}
                 />
-                <h2>Additional review instructions</h2>
+                <h2>{t("title-additional-review-instructions")}</h2>
                 {instructionsEditor}
                 <h2>{t("configure-review-answers-option")}</h2>
                 {parsedPeerReviewQuestionConfig &&
@@ -564,6 +564,7 @@ function defaultPeerReviewConfig(
     peer_reviews_to_give: 3,
     peer_reviews_to_receive: 2,
     points_are_all_or_nothing: true,
+    additional_review_instructions: [],
   }
 }
 

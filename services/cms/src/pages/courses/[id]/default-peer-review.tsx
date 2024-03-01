@@ -1,13 +1,18 @@
+import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import React, { useEffect, useState } from "react"
+import { BlockInstance } from "@wordpress/blocks"
+import dynamic from "next/dynamic"
+import React, { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { ExerciseAttributes } from "../../../blocks/Exercise"
 import PeerReviewEditor from "../../../components/PeerReviewEditor"
+import PeerReviewAdditionalInstructionsEditor from "../../../components/editors/PeerReviewAdditionalInstructionsEditor"
 import {
   getCoursesDefaultCmsPeerReviewConfiguration,
   putCoursesDefaultCmsPeerReviewConfiguration,
 } from "../../../services/backend/courses"
+import { MediaUploadProps } from "../../../services/backend/media/mediaUpload"
 import {
   CmsPeerReviewConfig,
   CmsPeerReviewConfiguration,
@@ -82,6 +87,24 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
     { onSuccess: () => getCmsPeerReviewConfiguration.refetch() },
   )
 
+  // Detect focus change
+  useEffect(() => {
+    const handleFocusChange = (e: FocusEvent) => {
+      if (additionalInstructionsWrapperRef.current?.contains(e.target as Node)) {
+        setAdditionalInstructionsFocused(true)
+      } else {
+        setAdditionalInstructionsFocused(false)
+      }
+    }
+
+    document.addEventListener("focusin", handleFocusChange)
+    document.addEventListener("focusout", handleFocusChange)
+    return () => {
+      document.removeEventListener("focusin", handleFocusChange)
+      document.removeEventListener("focusout", handleFocusChange)
+    }
+  }, [])
+
   if (getCmsPeerReviewConfiguration.isError) {
     return <ErrorBanner error={getCmsPeerReviewConfiguration.error} variant="text" />
   }
@@ -97,6 +120,14 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
         setAttributes={setAttributes}
         courseId={getCmsPeerReviewConfiguration.data.peer_review_config.course_id}
         courseGlobalEditor={true}
+        instructionsEditor={
+          <PeerReviewAdditionalInstructionsEditor
+            content={[]}
+            setContent={function (value: BlockInstance<{ [k: string]: any }>[]): void {
+              throw new Error("Function not implemented.")
+            }}
+          />
+        }
       />
       <Button
         variant="primary"

@@ -1,8 +1,6 @@
-import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { BlockInstance } from "@wordpress/blocks"
-import dynamic from "next/dynamic"
-import React, { useEffect, useRef, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { ExerciseAttributes } from "../../../blocks/Exercise"
@@ -12,7 +10,6 @@ import {
   getCoursesDefaultCmsPeerReviewConfiguration,
   putCoursesDefaultCmsPeerReviewConfiguration,
 } from "../../../services/backend/courses"
-import { MediaUploadProps } from "../../../services/backend/media/mediaUpload"
 import {
   CmsPeerReviewConfig,
   CmsPeerReviewConfiguration,
@@ -25,6 +22,7 @@ import useToastMutation from "../../../shared-module/hooks/useToastMutation"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import { isBlockInstanceArray } from "../../../utils/Gutenberg/blockInstance"
 
 interface PeerReviewManagerProps {
   // courseId
@@ -44,24 +42,24 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
 
   const { id } = query
 
-  const getCmsPeerReviewConfiguration = useQuery({
+  const peerReviewConfigurationQuery = useQuery({
     queryKey: [`course-${id}-cms-peer-review-configuration`],
     queryFn: () => getCoursesDefaultCmsPeerReviewConfiguration(id),
   })
 
   useEffect(() => {
-    if (!getCmsPeerReviewConfiguration.data) {
+    if (!peerReviewConfigurationQuery.data) {
       return
     }
     setAttributes({
-      peer_review_config: JSON.stringify(getCmsPeerReviewConfiguration.data.peer_review_config),
+      peer_review_config: JSON.stringify(peerReviewConfigurationQuery.data.peer_review_config),
       peer_review_questions_config: JSON.stringify(
-        getCmsPeerReviewConfiguration.data.peer_review_questions,
+        peerReviewConfigurationQuery.data.peer_review_questions,
       ),
       needs_peer_review: true,
       use_course_default_peer_review: false,
     })
-  }, [getCmsPeerReviewConfiguration.data])
+  }, [peerReviewConfigurationQuery.data])
 
   const mutateCourseDefaultPeerReview = useToastMutation(
     () => {
@@ -84,14 +82,34 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
       successMessage: t("default-toast-success-message"),
     },
 
-    { onSuccess: () => getCmsPeerReviewConfiguration.refetch() },
+    { onSuccess: () => peerReviewConfigurationQuery.refetch() },
   )
 
-  if (getCmsPeerReviewConfiguration.isError) {
-    return <ErrorBanner error={getCmsPeerReviewConfiguration.error} variant="text" />
+  const parsedAdditionalInstructions: BlockInstance[] = useMemo(() => {
+    const parsedConfig = JSON.parse(attributes.peer_review_config ?? "{}") as CmsPeerReviewConfig
+    const additionalInstructions = parsedConfig?.additional_review_instructions
+    if (isBlockInstanceArray(additionalInstructions)) {
+      return additionalInstructions
+    }
+    return []
+  }, [attributes.peer_review_config])
+
+  const updateAdditionalInstructions = useCallback((newValue: BlockInstance[]) => {
+    setAttributes((prev) => {
+      const newConfig = JSON.parse(prev.peer_review_config ?? "{}") as CmsPeerReviewConfig
+      newConfig.additional_review_instructions = newValue
+      return {
+        ...prev,
+        peer_review_config: JSON.stringify(newConfig),
+      }
+    })
+  }, [])
+
+  if (peerReviewConfigurationQuery.isError) {
+    return <ErrorBanner error={peerReviewConfigurationQuery.error} variant="text" />
   }
 
-  if (getCmsPeerReviewConfiguration.isPending) {
+  if (peerReviewConfigurationQuery.isPending) {
     return <Spinner variant="medium" />
   }
 
@@ -100,15 +118,13 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
       <PeerReviewEditor
         attributes={attributes}
         setAttributes={setAttributes}
-        courseId={getCmsPeerReviewConfiguration.data.peer_review_config.course_id}
+        courseId={peerReviewConfigurationQuery.data.peer_review_config.course_id}
         courseGlobalEditor={true}
         instructionsEditor={
           <PeerReviewAdditionalInstructionsEditor
-            content={[]}
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            setContent={function (value: BlockInstance<{ [k: string]: any }>[]): void {
-              // TODO
-            }}
+            content={parsedAdditionalInstructions}
+            setContent={updateAdditionalInstructions}
+            courseId={peerReviewConfigurationQuery.data.peer_review_config.course_id}
           />
         }
       />

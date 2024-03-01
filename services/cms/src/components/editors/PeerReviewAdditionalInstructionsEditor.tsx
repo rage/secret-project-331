@@ -1,14 +1,15 @@
 import { css } from "@emotion/css"
 import { BlockInstance } from "@wordpress/blocks"
 import dynamic from "next/dynamic"
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 
-import { MediaUploadProps } from "../../services/backend/media/mediaUpload"
+import mediaUploadBuilder from "../../services/backend/media/mediaUpload"
 import Spinner from "../../shared-module/components/Spinner"
 
 interface PeerReviewAdditionalInstructionsEditorProps {
   content: BlockInstance[]
   setContent: (value: BlockInstance[]) => void
+  courseId: string
 }
 
 const EditorLoading = <Spinner variant="medium" />
@@ -21,6 +22,8 @@ const GutenbergEditor = dynamic(() => import("./GutenbergEditor"), {
 const PeerReviewAdditionalInstructionsEditor = (
   props: PeerReviewAdditionalInstructionsEditorProps,
 ) => {
+  // Defaults to true so that the migrations get run once. This is fine here because when this component is rendered, the content is already available.
+  const [needToRunMigrationsAndValidations, setNeedToRunMigrationsAndValidations] = useState(true)
   const additionalInstructionsWrapperRef = React.useRef<HTMLDivElement>(null)
   const [additionalInstructionsFocused, setAdditionalInstructionsFocused] = React.useState(false)
 
@@ -64,13 +67,9 @@ const PeerReviewAdditionalInstructionsEditor = (
         showSidebar={additionalInstructionsFocused}
         content={props.content}
         onContentChange={props.setContent}
-        mediaUpload={function (props: MediaUploadProps): void {
-          // TODO
-        }}
-        needToRunMigrationsAndValidations={false}
-        setNeedToRunMigrationsAndValidations={function (value: boolean): void {
-          // TODO
-        }}
+        mediaUpload={mediaUploadBuilder({ courseId: props.courseId })}
+        needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
+        setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
       />
     </div>
   )

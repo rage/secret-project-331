@@ -26,6 +26,7 @@ import dontRenderUntilQueryParametersReady, {
 } from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import { assertNotNullOrUndefined } from "../../../shared-module/utils/nullability"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
+import { isBlockInstanceArray } from "../../../utils/Gutenberg/blockInstance"
 
 interface ResearchFormProps {
   query: SimplifiedUrlQuery<"id">
@@ -136,18 +137,6 @@ const ResearchForms: React.FC<React.PropsWithChildren<ResearchFormProps>> = ({ q
       {getResearchForm.isError && <ErrorBanner error={getResearchForm.error} variant="readOnly" />}
     </>
   )
-}
-
-function isBlockInstanceArray(obj: unknown): obj is BlockInstance[] {
-  if (!Array.isArray(obj)) {
-    return false
-  }
-  for (const o of obj) {
-    if (typeof o.name !== "string" || typeof o.clientId !== "string") {
-      return false
-    }
-  }
-  return true
 }
 
 function isMoocfiCheckbox(obj: BlockInstance): obj is BlockInstance<CheckBoxAttributes> {

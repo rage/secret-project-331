@@ -62,6 +62,7 @@ const exampleCMSPageUpdate: CmsPageUpdate = {
       limit_number_of_tries: true,
       deadline: null,
       needs_peer_review: true,
+      needs_self_review: false,
       peer_review_config: {
         id: "f0ae5814-927d-4a38-a0c0-db66f08c2bee",
         course_id: "",
@@ -143,6 +144,7 @@ const exampleUnnormalizedDocumentExerciseAttributes: ExerciseAttributes = {
   max_tries_per_slide: 72,
   limit_number_of_tries: true,
   needs_peer_review: true,
+  needs_self_review: false,
   peer_review_config:
     '[{"id":"f0ae5814-927d-4a38-a0c0-db66f08c2bee","course_id":"","exercise_id":"dd46fb67-d168-4554-b912-0018f812166d","processing_strategy":"AutomaticallyGradeOrManualReviewByAverage","accepting_threshold":"0.5","peer_reviews_to_give":"1","peer_reviews_to_receive":"1"}]',
   peer_review_questions_config:

@@ -62,6 +62,7 @@ export function normalizeDocument(args: UnnormalizedDocument): CmsPageUpdate {
       limit_number_of_tries: exerciseAttributes.limit_number_of_tries,
       deadline: null,
       needs_peer_review: exerciseAttributes.needs_peer_review,
+      needs_self_review: exerciseAttributes.needs_self_review,
       peer_review_config:
         exerciseAttributes.peer_review_config === "null" ||
         exerciseAttributes.peer_review_config === null
@@ -224,6 +225,7 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
         max_tries_per_slide: exercise.max_tries_per_slide ?? undefined,
         limit_number_of_tries: exercise.limit_number_of_tries,
         needs_peer_review: exercise.needs_peer_review,
+        needs_self_review: exercise.needs_self_review,
         peer_review_config:
           exercise.needs_peer_review && !exercise.use_course_default_peer_review_config
             ? JSON.stringify(exercise.peer_review_config)

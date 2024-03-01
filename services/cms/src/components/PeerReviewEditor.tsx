@@ -116,6 +116,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
 }) => {
   const { t } = useTranslation()
   const peerReviewEnabled = exerciseAttributes.needs_peer_review ?? false
+  const selfReviewEnabled = exerciseAttributes.needs_self_review ?? false
 
   useEffect(() => {
     if (
@@ -245,27 +246,6 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
     })
   }
 
-  const toggleUsePeerReviewConfig = (checked: boolean) => {
-    const prc: CmsPeerReviewConfig = {
-      id: v4(),
-      course_id: courseId,
-      exercise_id: exerciseId ?? null,
-      processing_strategy: "AutomaticallyGradeOrManualReviewByAverage",
-      accepting_threshold: 2.1,
-      peer_reviews_to_give: 3,
-      peer_reviews_to_receive: 2,
-      points_are_all_or_nothing: true,
-      additional_review_instructions: [],
-    }
-    setExerciseAttributes({
-      ...exerciseAttributes,
-      peer_review_config: checked ? JSON.stringify(prc) : "null",
-      peer_review_questions_config: "[]",
-      use_course_default_peer_review: true,
-      needs_peer_review: checked,
-    })
-  }
-
   const toggleUseDefaultPeerReviewConfig = (checked: boolean) => {
     const prc = defaultPeerReviewConfig(exerciseId, courseId)
 
@@ -329,13 +309,24 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
         `}
       >
         {!courseGlobalEditor && (
-          <CheckBox
-            label={t("add-peer-review")}
-            onChangeByValue={(checked, _name) => toggleUsePeerReviewConfig(checked)}
-            checked={peerReviewEnabled}
-          />
+          <>
+            <CheckBox
+              label={t("add-peer-review")}
+              onChangeByValue={(checked, _name) =>
+                setExerciseAttributes({ needs_peer_review: checked })
+              }
+              checked={peerReviewEnabled}
+            />
+            <CheckBox
+              label={t("add-self-review")}
+              onChangeByValue={(checked, _name) =>
+                setExerciseAttributes({ needs_self_review: checked })
+              }
+              checked={selfReviewEnabled}
+            />
+          </>
         )}
-        {peerReviewEnabled && (
+        {(peerReviewEnabled || selfReviewEnabled) && (
           <div>
             {!courseGlobalEditor && (
               <CheckBox

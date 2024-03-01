@@ -1098,6 +1098,7 @@ export interface CmsPageExercise {
   limit_number_of_tries: boolean
   deadline: string | null
   needs_peer_review: boolean
+  needs_self_review: boolean
   peer_review_config: CmsPeerReviewConfig | null
   peer_review_questions: Array<CmsPeerReviewQuestion> | null
   use_course_default_peer_review_config: boolean

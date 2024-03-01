@@ -2071,6 +2071,7 @@ export function isCmsPageExercise(obj: unknown): obj is CmsPageExercise {
     typeof typedObj["limit_number_of_tries"] === "boolean" &&
     (typedObj["deadline"] === null || typeof typedObj["deadline"] === "string") &&
     typeof typedObj["needs_peer_review"] === "boolean" &&
+    typeof typedObj["needs_self_review"] === "boolean" &&
     (typedObj["peer_review_config"] === null ||
       (isCmsPeerReviewConfig(typedObj["peer_review_config"]) as boolean)) &&
     (typedObj["peer_review_questions"] === null ||

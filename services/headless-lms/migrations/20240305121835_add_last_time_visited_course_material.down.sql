@@ -1,0 +1,1 @@
+DROP TABLE last_time_visited_course_materials;

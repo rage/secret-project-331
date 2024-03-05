@@ -80,7 +80,17 @@
       }
     ],
     "parameters": {
-      "Left": ["Varchar", "Uuid", "Varchar", "Varchar", "Varchar", "Uuid", "Uuid", "Bool", "Int4"]
+      "Left": [
+        "Varchar",
+        "Uuid",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Uuid",
+        "Uuid",
+        "Bool",
+        "Int4"
+      ]
     },
     "nullable": [
       false,

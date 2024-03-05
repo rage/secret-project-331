@@ -78,7 +78,16 @@
         "Bool"
       ]
     },
-    "nullable": [false, false, true, false, false, false, false, false]
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
   },
   "hash": "be08e7992f9a64d794d4206a684839d3a801f21e5d425ad472d36cea47c8e0a3"
 }

@@ -10,9 +10,20 @@
       }
     ],
     "parameters": {
-      "Left": ["Uuid", "Varchar", "Jsonb", "Timestamptz", "Timestamptz", "Int4", "Uuid", "Int4"]
+      "Left": [
+        "Uuid",
+        "Varchar",
+        "Jsonb",
+        "Timestamptz",
+        "Timestamptz",
+        "Int4",
+        "Uuid",
+        "Int4"
+      ]
     },
-    "nullable": [false]
+    "nullable": [
+      false
+    ]
   },
   "hash": "aa31c9ac2566ab617066e365b22d919fc138a046d8ae095af6194a7fd77fe89d"
 }

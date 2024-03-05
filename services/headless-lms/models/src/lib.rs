@@ -38,6 +38,7 @@ pub mod feedback;
 pub mod file_uploads;
 pub mod generated_certificates;
 pub mod glossary;
+pub mod last_time_visited_course_materials;
 pub mod library;
 pub mod material_references;
 pub mod offered_answers_to_peer_review_temporary;

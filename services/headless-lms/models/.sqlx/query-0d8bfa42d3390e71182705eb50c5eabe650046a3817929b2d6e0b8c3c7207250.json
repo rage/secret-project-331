@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT MAX(created_at) as last_time_gave_peer_review\nFROM peer_review_submissions\nWHERE user_id = $1\n  AND course_instance_id IN (\n    SELECT id\n    FROM course_instances\n    WHERE course_id = $2\n  )\n  AND deleted_at IS NULL\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "last_time_gave_peer_review",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "0d8bfa42d3390e71182705eb50c5eabe650046a3817929b2d6e0b8c3c7207250"
+}

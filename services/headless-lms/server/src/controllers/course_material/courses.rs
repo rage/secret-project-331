@@ -174,6 +174,15 @@ async fn get_course_page_by_path(
     )
     .await?;
 
+    if let Some(user) = user {
+        models::last_time_visited_course_materials::upsert_last_time_visited_course_materials(
+            &mut conn,
+            course_or_exam_id,
+            user.id,
+        )
+        .await?;
+    }
+
     token.authorized_ok(web::Json(page_with_user_data))
 }
 

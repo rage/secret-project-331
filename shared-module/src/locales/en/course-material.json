@@ -112,7 +112,7 @@
   "opens-in-time": "Opens in {{ relative-time }}",
   "opens-now": "Opens now!",
   "peer-review": "Peer review",
-  "peer-review-instructions": "Here's an answer from another student. Please give feedback to them and evaluate the answer with the given statements.",
+  "peer-review-instructions": "Below, you can find an answer submitted by another student. Please review their response based on the given statements.",
   "peer-reviews-received-from-other-students": "Peer reviews received from other students",
   "please-log-in-to-answer-exercise": "Please log in to answer this exercise.",
   "please-log-in-to-see-your-progress": "Please log in to see your progress.",

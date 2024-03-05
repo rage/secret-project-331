@@ -1353,6 +1353,7 @@ INSERT INTO exercises(
     limit_number_of_tries,
     deadline,
     needs_peer_review,
+    needs_self_review,
     use_course_default_peer_review_config,
     exercise_language_group_id
   )
@@ -1370,7 +1371,8 @@ VALUES (
     $11,
     $12,
     $13,
-    $14
+    $14,
+    $15
   ) ON CONFLICT (id) DO
 UPDATE
 SET course_id = $2,
@@ -1384,8 +1386,9 @@ SET course_id = $2,
   limit_number_of_tries = $10,
   deadline = $11,
   needs_peer_review = $12,
-  use_course_default_peer_review_config = $13,
-  exercise_language_group_id = $14,
+  needs_self_review = $13,
+  use_course_default_peer_review_config = $14,
+  exercise_language_group_id = $15,
   deleted_at = NULL
 RETURNING *;
             ",
@@ -1401,6 +1404,7 @@ RETURNING *;
             exercise_update.limit_number_of_tries,
             exercise_update.deadline,
             exercise_update.needs_peer_review,
+            exercise_update.needs_self_review,
             exercise_update.use_course_default_peer_review_config,
             exercise_language_group_id,
         )
@@ -1616,6 +1620,7 @@ pub async fn upsert_peer_review_configs(
         processing_strategy,
         accepting_threshold,
         points_are_all_or_nothing,
+        additional_review_instructions,
         deleted_at
       ) ",
         );
@@ -1649,6 +1654,7 @@ pub async fn upsert_peer_review_configs(
                 .push_bind(pr.processing_strategy)
                 .push_bind(pr.accepting_threshold)
                 .push_bind(pr.points_are_all_or_nothing)
+                .push_bind(pr.additional_review_instructions.clone())
                 .push("NULL");
         });
 
@@ -1670,6 +1676,7 @@ SET course_id = excluded.course_id,
   processing_strategy = excluded.processing_strategy,
   accepting_threshold = excluded.accepting_threshold,
   points_are_all_or_nothing = excluded.points_are_all_or_nothing,
+  additional_review_instructions = excluded.additional_review_instructions,
   deleted_at = NULL
 RETURNING id;
 ",
@@ -1694,7 +1701,7 @@ SELECT id as "id!",
   processing_strategy AS "processing_strategy!: _",
   accepting_threshold "accepting_threshold!",
   points_are_all_or_nothing "points_are_all_or_nothing!",
-  additional_review_instructions as "additional_review_instructions!"
+  additional_review_instructions
 FROM peer_review_configs
 WHERE id IN (
     SELECT UNNEST($1::uuid [])

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO exercises(\n    id,\n    course_id,\n    name,\n    order_number,\n    page_id,\n    chapter_id,\n    exam_id,\n    score_maximum,\n    max_tries_per_slide,\n    limit_number_of_tries,\n    deadline,\n    needs_peer_review,\n    use_course_default_peer_review_config,\n    exercise_language_group_id\n  )\nVALUES (\n    $1,\n    $2,\n    $3,\n    $4,\n    $5,\n    $6,\n    $7,\n    $8,\n    $9,\n    $10,\n    $11,\n    $12,\n    $13,\n    $14\n  ) ON CONFLICT (id) DO\nUPDATE\nSET course_id = $2,\n  name = $3,\n  order_number = $4,\n  page_id = $5,\n  chapter_id = $6,\n  exam_id = $7,\n  score_maximum = $8,\n  max_tries_per_slide = $9,\n  limit_number_of_tries = $10,\n  deadline = $11,\n  needs_peer_review = $12,\n  use_course_default_peer_review_config = $13,\n  exercise_language_group_id = $14,\n  deleted_at = NULL\nRETURNING *;\n            ",
+  "query": "\nINSERT INTO exercises(\n    id,\n    course_id,\n    name,\n    order_number,\n    page_id,\n    chapter_id,\n    exam_id,\n    score_maximum,\n    max_tries_per_slide,\n    limit_number_of_tries,\n    deadline,\n    needs_peer_review,\n    needs_self_review,\n    use_course_default_peer_review_config,\n    exercise_language_group_id\n  )\nVALUES (\n    $1,\n    $2,\n    $3,\n    $4,\n    $5,\n    $6,\n    $7,\n    $8,\n    $9,\n    $10,\n    $11,\n    $12,\n    $13,\n    $14,\n    $15\n  ) ON CONFLICT (id) DO\nUPDATE\nSET course_id = $2,\n  name = $3,\n  order_number = $4,\n  page_id = $5,\n  chapter_id = $6,\n  exam_id = $7,\n  score_maximum = $8,\n  max_tries_per_slide = $9,\n  limit_number_of_tries = $10,\n  deadline = $11,\n  needs_peer_review = $12,\n  needs_self_review = $13,\n  use_course_default_peer_review_config = $14,\n  exercise_language_group_id = $15,\n  deleted_at = NULL\nRETURNING *;\n            ",
   "describe": {
     "columns": [
       {
@@ -114,6 +114,7 @@
         "Timestamptz",
         "Bool",
         "Bool",
+        "Bool",
         "Uuid"
       ]
     },
@@ -139,5 +140,5 @@
       false
     ]
   },
-  "hash": "2287acace1485c0a48de22f8d85eb2ea26349ab882eb27b0bba65c2ae4b7a039"
+  "hash": "0d96e932b2009c3c9d778abf5c8cfce2af2fc9ae27668f23dd68774b203aac87"
 }

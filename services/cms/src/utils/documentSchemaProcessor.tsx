@@ -11,6 +11,7 @@ import {
   CmsPageExerciseSlide,
   CmsPageExerciseTask,
   CmsPageUpdate,
+  CmsPeerReviewConfig,
 } from "../shared-module/bindings"
 
 /**
@@ -52,6 +53,23 @@ export function normalizeDocument(args: UnnormalizedDocument): CmsPageUpdate {
     }
     const originalExerciseBlock = block as BlockInstance<ExerciseAttributes>
     const exerciseAttributes = block.attributes as ExerciseAttributes
+    const peerReviewConfig =
+      exerciseAttributes.peer_review_config === "null" ||
+      exerciseAttributes.peer_review_config === null
+        ? null
+        : (JSON.parse(exerciseAttributes.peer_review_config) as CmsPeerReviewConfig)
+
+    const execiseSettingsBlock = block.innerBlocks.find(
+      (block2) => block2.name === "moocfi/exercise-settings",
+    )
+    if (execiseSettingsBlock === undefined) {
+      throw new Error(
+        "Exercise block is missing the settings block. It should not be possible to remove that one.",
+      )
+    }
+    if (peerReviewConfig) {
+      peerReviewConfig.additional_review_instructions = execiseSettingsBlock.innerBlocks
+    }
 
     exercises.push({
       id: exerciseAttributes.id,
@@ -63,11 +81,7 @@ export function normalizeDocument(args: UnnormalizedDocument): CmsPageUpdate {
       deadline: null,
       needs_peer_review: exerciseAttributes.needs_peer_review,
       needs_self_review: exerciseAttributes.needs_self_review,
-      peer_review_config:
-        exerciseAttributes.peer_review_config === "null" ||
-        exerciseAttributes.peer_review_config === null
-          ? null
-          : JSON.parse(exerciseAttributes.peer_review_config),
+      peer_review_config: peerReviewConfig,
       peer_review_questions:
         exerciseAttributes.peer_review_questions_config === "null" ||
         exerciseAttributes.peer_review_config === null
@@ -198,6 +212,9 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
       return denormalizedSlide
     })
 
+    const settingsInnerBlocks =
+      (exercise.peer_review_config?.additional_review_instructions as BlockInstance[]) ?? []
+
     const exerciseBlock: BlockInstance<ExerciseAttributes> = {
       ...normalizedBlock,
       innerBlocks: [
@@ -207,7 +224,7 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
           // Deterministic client id but derived from exercise id so that it's different for each exercise
           clientId: v5("9ab7c78a-4b3a-4695-bca1-cb93de0dabec", exercise.id),
           attributes: {},
-          innerBlocks: [],
+          innerBlocks: settingsInnerBlocks,
         },
         {
           name: "moocfi/exercise-slides",

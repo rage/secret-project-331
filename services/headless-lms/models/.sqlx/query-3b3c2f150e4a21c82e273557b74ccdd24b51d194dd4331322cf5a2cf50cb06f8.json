@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id as \"id!\",\n  course_id as \"course_id!\",\n  exercise_id,\n  peer_reviews_to_give as \"peer_reviews_to_give!\",\n  peer_reviews_to_receive as \"peer_reviews_to_receive!\",\n  processing_strategy AS \"processing_strategy!: _\",\n  accepting_threshold \"accepting_threshold!\",\n  points_are_all_or_nothing \"points_are_all_or_nothing!\",\n  additional_review_instructions as \"additional_review_instructions!\"\nFROM peer_review_configs\nWHERE id IN (\n    SELECT UNNEST($1::uuid [])\n  )\n  AND deleted_at IS NULL;\n    ",
+  "query": "\nSELECT id as \"id!\",\n  course_id as \"course_id!\",\n  exercise_id,\n  peer_reviews_to_give as \"peer_reviews_to_give!\",\n  peer_reviews_to_receive as \"peer_reviews_to_receive!\",\n  processing_strategy AS \"processing_strategy!: _\",\n  accepting_threshold \"accepting_threshold!\",\n  points_are_all_or_nothing \"points_are_all_or_nothing!\",\n  additional_review_instructions\nFROM peer_review_configs\nWHERE id IN (\n    SELECT UNNEST($1::uuid [])\n  )\n  AND deleted_at IS NULL;\n    ",
   "describe": {
     "columns": [
       {
@@ -56,7 +56,7 @@
       },
       {
         "ordinal": 8,
-        "name": "additional_review_instructions!",
+        "name": "additional_review_instructions",
         "type_info": "Jsonb"
       }
     ],
@@ -65,5 +65,5 @@
     },
     "nullable": [false, false, true, false, false, false, false, false, true]
   },
-  "hash": "ecb08af3dc7765f59b2074f13ac4b3185d2289d95cafeb968d02cc287b98e7b8"
+  "hash": "3b3c2f150e4a21c82e273557b74ccdd24b51d194dd4331322cf5a2cf50cb06f8"
 }

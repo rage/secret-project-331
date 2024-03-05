@@ -10,7 +10,10 @@ import {
   fetchPeerReviewDataByExerciseId,
   postPeerReviewSubmission,
 } from "../../../../../services/backend"
-import { CourseMaterialPeerReviewQuestionAnswer } from "../../../../../shared-module/bindings"
+import {
+  CourseMaterialPeerReviewQuestionAnswer,
+  NewProposedBlockEdit,
+} from "../../../../../shared-module/bindings"
 import ErrorBanner from "../../../../../shared-module/components/ErrorBanner"
 import PeerReviewProgress from "../../../../../shared-module/components/PeerReview/PeerReviewProgress"
 import Spinner from "../../../../../shared-module/components/Spinner"
@@ -19,6 +22,7 @@ import useToastMutation from "../../../../../shared-module/hooks/useToastMutatio
 import { narrowContainerWidthPx } from "../../../../../shared-module/styles/constants"
 import getGuestPseudonymousUserId from "../../../../../shared-module/utils/getGuestPseudonymousUserId"
 import { exerciseTaskGradingToExerciseTaskGradingResult } from "../../../../../shared-module/utils/typeMappter"
+import InnerBlocks from "../../../util/InnerBlocks"
 import ExerciseTaskIframe from "../ExerciseTaskIframe"
 
 import PeerReviewQuestion from "./PeerReviewQuestion"
@@ -185,6 +189,17 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
         <div>
           <p>{t("peer-review-instructions")}</p>
         </div>
+        <ContentRenderer
+          data={peerReviewData.peer_review_config.additional_review_instructions}
+          editing={false}
+          selectedBlockId={null}
+          setEdits={function (
+            value: React.SetStateAction<Map<string, NewProposedBlockEdit>>,
+          ): void {
+            throw new Error("Function not implemented.")
+          }}
+          isExam={false}
+        />
       </div>
 
       <div>

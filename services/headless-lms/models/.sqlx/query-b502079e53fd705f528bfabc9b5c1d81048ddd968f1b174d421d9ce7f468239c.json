@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT visit_time\nFROM last_time_visited_course_materials\nWHERE course_id = $1\n  AND user_id = $2\n  AND deleted_at IS NULL\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "visit_time",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "b502079e53fd705f528bfabc9b5c1d81048ddd968f1b174d421d9ce7f468239c"
+}

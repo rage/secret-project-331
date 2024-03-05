@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT MAX(created_at) as last_time_submitted_exercise\nFROM exercise_slide_submissions\nWHERE user_id = $1\n  AND course_id = $2\n  AND deleted_at IS NULL\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "last_time_submitted_exercise",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "11d4ca37cd1340e5da8ae4a78ee5313cb2edef8d25bf0551632a60e82c4bd611"
+}

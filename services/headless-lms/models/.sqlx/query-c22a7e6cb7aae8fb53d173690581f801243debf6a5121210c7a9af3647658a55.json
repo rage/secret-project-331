@@ -75,7 +75,14 @@
       }
     ],
     "parameters": {
-      "Left": ["Uuid", "Varchar", "Timestamptz", "Timestamptz", "Uuid", "Varchar"]
+      "Left": [
+        "Uuid",
+        "Varchar",
+        "Timestamptz",
+        "Timestamptz",
+        "Uuid",
+        "Varchar"
+      ]
     },
     "nullable": [
       false,

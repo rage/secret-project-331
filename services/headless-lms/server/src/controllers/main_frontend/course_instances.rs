@@ -10,6 +10,7 @@ use models::{
     exercises::ExerciseStatusSummaryForUser,
     library::{
         self,
+        last_active::LastActiveInformation,
         progressing::{
             CourseInstanceCompletionSummary, ManualCompletionPreview,
             TeacherManualCompletionRequest,
@@ -385,6 +386,34 @@ async fn get_all_exercise_statuses_by_course_instance_id(
 }
 
 /**
+ * GET /course-instances/:id/last-active-information/:user_id - Returns infromation when the user was last active in the course.
+ */
+#[instrument(skip(pool))]
+pub async fn get_last_active_information(
+    course_instance_id: web::Path<Uuid>,
+    user_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<LastActiveInformation>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewUserProgressOrDetails,
+        Some(user.id),
+        Res::CourseInstance(*course_instance_id),
+    )
+    .await?;
+    let last_active_information =
+        models::library::last_active::get_last_active_information_for_user(
+            &mut conn,
+            *user_id,
+            *course_instance_id,
+        )
+        .await?;
+    token.authorized_ok(web::Json(last_active_information))
+}
+
+/**
 GET /course-instances/:id/course-module-completions/:user_id - Returns a list of all course module completions for a given user for this course instance.
 */
 #[instrument(skip(pool))]
@@ -485,6 +514,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_instance_id}/status-for-all-exercises/{user_id}",
             web::get().to(get_all_exercise_statuses_by_course_instance_id),
+        )
+        .route(
+            "/course-instances/:id/last-active-information/:user_id",
+            web::get().to(get_last_active_information),
         )
         .route(
             "/{course_instance_id}/course-module-completions/{user_id}",

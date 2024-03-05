@@ -4,6 +4,7 @@ pub mod course_instances;
 pub mod custom_view_exercises;
 pub mod global_stats;
 pub mod grading;
+pub mod last_active;
 pub mod page_visit_stats;
 pub mod peer_reviewing;
 pub mod progressing;

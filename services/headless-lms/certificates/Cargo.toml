@@ -11,9 +11,9 @@ headless-lms-utils = { path = "../utils" }
 headless-lms-models = { path = "../models" }
 
 # An SVG rendering library.
-resvg = "0.38.0"
+resvg = "0.40.0"
 # An SVG simplification library.
-usvg = "0.38.0"
+usvg = "0.40.0"
 # A simple, streaming XML writer.
 xmlwriter = "0.1.0"
 # High performance xml reader and writer
@@ -29,9 +29,9 @@ url = "2.5.0"
 # Application-level tracing for Rust.
 tracing = "0.1.40"
 # Flexible concrete Error type built on std::error::Error
-anyhow = "1.0.79"
+anyhow = "1.0.80"
 # Date and time library for Rust
-chrono = "0.4.33"
+chrono = "0.4.34"
 # A library to generate and parse UUIDs.
 uuid = { version = "1.7.0", features = ["serde", "v4", "v5"] }
 # An implementation of futures and streams featuring zero allocations, composability, and itera…

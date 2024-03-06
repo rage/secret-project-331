@@ -36,8 +36,6 @@ import {
 import { GradingRequest } from "../shared-module/common/exercise-service-protocol-types-2"
 import useToastMutation from "../shared-module/common/hooks/useToastMutation"
 import { baseTheme, monospaceFont } from "../shared-module/common/styles"
-import { narrowContainerWidthPx } from "../shared-module/common/styles/constants"
-import { respondToOrLarger } from "../shared-module/common/styles/respond"
 import withErrorBoundary from "../shared-module/common/utils/withErrorBoundary"
 import withNoSsr from "../shared-module/common/utils/withNoSsr"
 

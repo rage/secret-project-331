@@ -72,7 +72,7 @@ const exampleCMSPageUpdate: CmsPageUpdate = {
         peer_reviews_to_give: 1,
         peer_reviews_to_receive: 1,
         points_are_all_or_nothing: true,
-        additional_review_instructions: [
+        review_instructions: [
           {
             name: "core/paragraph",
             isValid: true,

@@ -89,7 +89,7 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
 
   const parsedAdditionalInstructions: BlockInstance[] = useMemo(() => {
     const parsedConfig = JSON.parse(attributes.peer_review_config ?? "{}") as CmsPeerReviewConfig
-    const additionalInstructions = parsedConfig?.additional_review_instructions
+    const additionalInstructions = parsedConfig?.review_instructions
     if (isBlockInstanceArray(additionalInstructions)) {
       return additionalInstructions
     }
@@ -99,7 +99,7 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
   const updateAdditionalInstructions = useCallback((newValue: BlockInstance[]) => {
     setAttributes((prev) => {
       const newConfig = JSON.parse(prev.peer_review_config ?? "{}") as CmsPeerReviewConfig
-      newConfig.additional_review_instructions = newValue
+      newConfig.review_instructions = newValue
       return {
         ...prev,
         peer_review_config: JSON.stringify(newConfig),

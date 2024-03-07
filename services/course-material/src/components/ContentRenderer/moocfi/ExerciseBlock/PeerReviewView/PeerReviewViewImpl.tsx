@@ -167,40 +167,37 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
         attempt={peerReviewData.num_peer_reviews_given}
       />
 
-      <div
-        className={css`
-          border: 0;
-          margin-bottom: 1rem;
-          background-color: #fff;
-          padding: 0.8rem 1.25rem;
-          border-radius: 0.625rem;
-        `}
-      >
-        <h4
+      {Boolean(peerReviewData.peer_review_config.review_instructions) && (
+        <div
           className={css`
-            padding-bottom: 0.5rem;
-            font-weight: 600;
-            font-size: 20px;
+            border: 0;
+            margin-bottom: 1rem;
+            background-color: #fff;
+            padding: 0.8rem 1.25rem;
+            border-radius: 0.625rem;
           `}
         >
-          {t("title-peer-review-instructions")}
-        </h4>
+          <h4
+            className={css`
+              padding-bottom: 0.5rem;
+              font-weight: 600;
+              font-size: 20px;
+            `}
+          >
+            {t("title-peer-review-instructions")}
+          </h4>
 
-        <div>
-          <p>{t("peer-review-instructions")}</p>
+          <ContentRenderer
+            data={peerReviewData.peer_review_config.review_instructions as Block<unknown>[]}
+            editing={false}
+            selectedBlockId={null}
+            setEdits={function (_value): void {
+              // NOP
+            }}
+            isExam={false}
+          />
         </div>
-        <ContentRenderer
-          data={peerReviewData.peer_review_config.additional_review_instructions}
-          editing={false}
-          selectedBlockId={null}
-          setEdits={function (
-            value: React.SetStateAction<Map<string, NewProposedBlockEdit>>,
-          ): void {
-            throw new Error("Function not implemented.")
-          }}
-          isExam={false}
-        />
-      </div>
+      )}
 
       <div>
         {peerReviewData.answer_to_review.course_material_exercise_tasks
@@ -217,6 +214,7 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
                     isExam={false}
                   />
                 </div>
+
                 <ExerciseTaskIframe
                   exerciseServiceSlug={course_material_exercise_task.exercise_service_slug}
                   key={course_material_exercise_task.id}
@@ -247,6 +245,7 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
                     "exercise-number": exerciseNumber + 1,
                     "task-number": course_material_exercise_task.order_number + 1,
                   })}
+                  headingBeforeIframe={t("title-answer-submitted-by-another-student")}
                 />
               </div>
             )

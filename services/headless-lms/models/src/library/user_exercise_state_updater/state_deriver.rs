@@ -836,7 +836,7 @@ mod tests {
                 processing_strategy,
                 manual_review_cutoff_in_days: 21,
                 points_are_all_or_nothing: true,
-                additional_review_instructions: None,
+                review_instructions: None,
             }
         }
 

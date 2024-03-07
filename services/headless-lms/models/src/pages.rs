@@ -1620,7 +1620,7 @@ pub async fn upsert_peer_review_configs(
         processing_strategy,
         accepting_threshold,
         points_are_all_or_nothing,
-        additional_review_instructions,
+        review_instructions,
         deleted_at
       ) ",
         );
@@ -1654,7 +1654,7 @@ pub async fn upsert_peer_review_configs(
                 .push_bind(pr.processing_strategy)
                 .push_bind(pr.accepting_threshold)
                 .push_bind(pr.points_are_all_or_nothing)
-                .push_bind(pr.additional_review_instructions.clone())
+                .push_bind(pr.review_instructions.clone())
                 .push("NULL");
         });
 
@@ -1676,7 +1676,7 @@ SET course_id = excluded.course_id,
   processing_strategy = excluded.processing_strategy,
   accepting_threshold = excluded.accepting_threshold,
   points_are_all_or_nothing = excluded.points_are_all_or_nothing,
-  additional_review_instructions = excluded.additional_review_instructions,
+  review_instructions = excluded.review_instructions,
   deleted_at = NULL
 RETURNING id;
 ",
@@ -1701,7 +1701,7 @@ SELECT id as "id!",
   processing_strategy AS "processing_strategy!: _",
   accepting_threshold "accepting_threshold!",
   points_are_all_or_nothing "points_are_all_or_nothing!",
-  additional_review_instructions
+  review_instructions
 FROM peer_review_configs
 WHERE id IN (
     SELECT UNNEST($1::uuid [])
@@ -3386,7 +3386,7 @@ mod test {
             peer_reviews_to_give: 2,
             peer_reviews_to_receive: 1,
             points_are_all_or_nothing: false,
-            additional_review_instructions: None,
+            review_instructions: None,
         };
         let prq = CmsPeerReviewQuestion {
             id: prq_id,
@@ -3431,7 +3431,7 @@ mod test {
             peer_reviews_to_give: 2,
             peer_reviews_to_receive: 1,
             points_are_all_or_nothing: true,
-            additional_review_instructions: None,
+            review_instructions: None,
         };
         let prq = CmsPeerReviewQuestion {
             id: prq_id,

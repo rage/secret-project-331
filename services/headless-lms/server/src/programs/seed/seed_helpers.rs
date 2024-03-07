@@ -582,7 +582,7 @@ pub async fn create_best_peer_review(
             accepting_threshold,
             processing_strategy,
             points_are_all_or_nothing,
-            additional_review_instructions: None,
+            review_instructions: None,
         },
     )
     .await?;

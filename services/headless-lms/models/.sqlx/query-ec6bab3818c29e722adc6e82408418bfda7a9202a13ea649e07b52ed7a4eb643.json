@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n    created_at,\n    updated_at,\n    deleted_at,\n    course_id,\n    exercise_id,\n    peer_reviews_to_give,\n    peer_reviews_to_receive,\n    accepting_threshold,\n    processing_strategy AS \"processing_strategy: _\",\n    manual_review_cutoff_in_days,\n    points_are_all_or_nothing,\n    additional_review_instructions\nFROM peer_review_configs\nWHERE exercise_id = $1\n  AND deleted_at IS NULL\n        ",
+  "query": "\nSELECT id,\n    created_at,\n    updated_at,\n    deleted_at,\n    course_id,\n    exercise_id,\n    peer_reviews_to_give,\n    peer_reviews_to_receive,\n    accepting_threshold,\n    processing_strategy AS \"processing_strategy: _\",\n    manual_review_cutoff_in_days,\n    points_are_all_or_nothing,\n    review_instructions\nFROM peer_review_configs\nWHERE exercise_id = $1\n  AND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -76,7 +76,7 @@
       },
       {
         "ordinal": 12,
-        "name": "additional_review_instructions",
+        "name": "review_instructions",
         "type_info": "Jsonb"
       }
     ],
@@ -99,5 +99,5 @@
       true
     ]
   },
-  "hash": "df2634d41135c9e57b78ac4169879fb42fca128e5c5dcf2ed49ee341149348ae"
+  "hash": "ec6bab3818c29e722adc6e82408418bfda7a9202a13ea649e07b52ed7a4eb643"
 }

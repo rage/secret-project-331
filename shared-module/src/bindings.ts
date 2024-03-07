@@ -1278,7 +1278,7 @@ export interface CmsPeerReviewConfig {
   accepting_threshold: number
   processing_strategy: PeerReviewProcessingStrategy
   points_are_all_or_nothing: boolean
-  additional_review_instructions: unknown | null
+  review_instructions: unknown | null
 }
 
 export interface CmsPeerReviewConfiguration {
@@ -1312,7 +1312,7 @@ export interface PeerReviewConfig {
   processing_strategy: PeerReviewProcessingStrategy
   manual_review_cutoff_in_days: number
   points_are_all_or_nothing: boolean
-  additional_review_instructions: unknown | null
+  review_instructions: unknown | null
 }
 
 export interface PeerReviewSubmission {

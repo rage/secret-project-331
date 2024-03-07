@@ -68,7 +68,7 @@ export function normalizeDocument(args: UnnormalizedDocument): CmsPageUpdate {
       )
     }
     if (peerReviewConfig) {
-      peerReviewConfig.additional_review_instructions = execiseSettingsBlock.innerBlocks
+      peerReviewConfig.review_instructions = execiseSettingsBlock.innerBlocks
     }
 
     exercises.push({
@@ -213,7 +213,7 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
     })
 
     const settingsInnerBlocks =
-      (exercise.peer_review_config?.additional_review_instructions as BlockInstance[]) ?? []
+      (exercise.peer_review_config?.review_instructions as BlockInstance[]) ?? []
 
     const exerciseBlock: BlockInstance<ExerciseAttributes> = {
       ...normalizedBlock,

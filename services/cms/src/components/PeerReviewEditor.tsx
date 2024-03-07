@@ -555,7 +555,7 @@ function defaultPeerReviewConfig(
     peer_reviews_to_give: 3,
     peer_reviews_to_receive: 2,
     points_are_all_or_nothing: true,
-    additional_review_instructions: [],
+    review_instructions: [],
   }
 }
 

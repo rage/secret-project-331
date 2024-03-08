@@ -7,137 +7,140 @@ test.use({
   storageState: "src/states/user@example.com.json",
 })
 
-test("quizzes timeline feedback", async ({ page, headless }, testInfo) => {
-  await page.goto(
-    "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/the-timeline",
-  )
+test.describe(() => {
+  // Chrome sometimes does not render the ui correctly after resizing the window without reloading the page.
+  // This does not seem to be something we can fix, so we'll retry
+  test.describe.configure({ retries: 4 })
 
-  await selectCourseInstanceIfPrompted(page)
+  test("quizzes timeline feedback", async ({ page, headless }, testInfo) => {
+    await page.goto(
+      "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/the-timeline",
+    )
 
-  await expectScreenshotsToMatchSnapshots({
-    screenshotTarget: page,
-    headless,
-    testInfo,
-    snapshotName: "timeline-initial",
-    scrollToYCoordinate: 470,
-  })
+    await selectCourseInstanceIfPrompted(page)
 
-  // Select 59e30264-fb11-4e44-a91e-1c5cf80fd977
-  await page
-    .frameLocator("iframe")
-    .locator(`label:text("1995")`)
-    .selectOption({ label: "Finland switches their currency to Euro" })
+    await expectScreenshotsToMatchSnapshots({
+      screenshotTarget: page,
+      headless,
+      testInfo,
+      snapshotName: "timeline-initial",
+      scrollToYCoordinate: 470,
+    })
 
-  await page
-    .frameLocator("iframe")
-    .locator(`label:text("2002")`)
-    .selectOption({ label: "Finland switches their currency to Euro" })
+    // Select 59e30264-fb11-4e44-a91e-1c5cf80fd977
+    await page
+      .frameLocator("iframe")
+      .locator(`label:text("1995")`)
+      .selectOption({ label: "Finland switches their currency to Euro" })
 
-  await page
-    .frameLocator("iframe")
-    .locator(`label:text("1998")`)
-    .selectOption({ label: "Finland joins the Economic and Monetary Union of the European Union" })
+    await page
+      .frameLocator("iframe")
+      .locator(`label:text("2002")`)
+      .selectOption({ label: "Finland switches their currency to Euro" })
 
-  // eslint-disable-next-line playwright/no-wait-for-timeout
-  await page.waitForTimeout(100)
-  await page.locator(`button:disabled:text("Submit")`).waitFor()
+    await page.frameLocator("iframe").locator(`label:text("1998")`).selectOption({
+      label: "Finland joins the Economic and Monetary Union of the European Union",
+    })
 
-  await page
-    .frameLocator("iframe")
-    .locator(`[aria-label="Remove"]:right-of(:text("2002"))`)
-    .nth(0)
-    .click()
+    // eslint-disable-next-line playwright/no-wait-for-timeout
+    await page.waitForTimeout(100)
+    await page.locator(`button:disabled:text("Submit")`).waitFor()
 
-  await page
-    .frameLocator("iframe")
-    .locator(`label:text("2002")`)
-    .selectOption({ label: "Finland joins the European Union" })
+    await page
+      .frameLocator("iframe")
+      .locator(`[aria-label="Remove"]:right-of(:text("2002"))`)
+      .nth(0)
+      .click()
 
-  await expectScreenshotsToMatchSnapshots({
-    screenshotTarget: page,
-    headless,
-    testInfo,
-    snapshotName: "timeline-filled",
-    scrollToYCoordinate: 470,
-  })
+    await page
+      .frameLocator("iframe")
+      .locator(`label:text("2002")`)
+      .selectOption({ label: "Finland joins the European Union" })
 
-  await page.getByText("Submit").click()
+    await expectScreenshotsToMatchSnapshots({
+      screenshotTarget: page,
+      headless,
+      testInfo,
+      snapshotName: "timeline-filled",
+      scrollToYCoordinate: 470,
+    })
 
-  await page.frameLocator("iframe").getByText("Your answer was partially correct.").waitFor()
+    await page.getByText("Submit").click()
 
-  await expectScreenshotsToMatchSnapshots({
-    screenshotTarget: page,
-    headless,
-    testInfo,
-    snapshotName: "timeline-feedback-wrong",
-    scrollToYCoordinate: 470,
-  })
+    await page.frameLocator("iframe").getByText("Your answer was partially correct.").waitFor()
 
-  await page.getByText("Try again").click()
-  // Clear previous answers
-  await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
-  await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
-  await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
+    await expectScreenshotsToMatchSnapshots({
+      screenshotTarget: page,
+      headless,
+      testInfo,
+      snapshotName: "timeline-feedback-wrong",
+      scrollToYCoordinate: 470,
+    })
 
-  await page
-    .frameLocator("iframe")
-    .locator(`label:text("1995")`)
-    .selectOption({ label: "Finland joins the European Union" })
+    await page.getByText("Try again").click()
+    // Clear previous answers
+    await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
+    await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
+    await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
 
-  await page
-    .frameLocator("iframe")
-    .locator(`label:text("1998")`)
-    .selectOption({ label: "Finland joins the Economic and Monetary Union of the European Union" })
+    await page
+      .frameLocator("iframe")
+      .locator(`label:text("1995")`)
+      .selectOption({ label: "Finland joins the European Union" })
 
-  await page
-    .frameLocator("iframe")
-    .locator(`label:text("2002")`)
-    .selectOption({ label: "Finland switches their currency to Euro" })
+    await page.frameLocator("iframe").locator(`label:text("1998")`).selectOption({
+      label: "Finland joins the Economic and Monetary Union of the European Union",
+    })
 
-  await page.getByText("Submit").click()
+    await page
+      .frameLocator("iframe")
+      .locator(`label:text("2002")`)
+      .selectOption({ label: "Finland switches their currency to Euro" })
 
-  await page.frameLocator("iframe").getByText("Your answer was correct.").waitFor()
+    await page.getByText("Submit").click()
 
-  await expectScreenshotsToMatchSnapshots({
-    screenshotTarget: page,
-    headless,
-    testInfo,
-    snapshotName: "timeline-feedback-correct",
-    scrollToYCoordinate: 470,
-  })
+    await page.frameLocator("iframe").getByText("Your answer was correct.").waitFor()
 
-  // Model solution is now visible since we got full points, so we can see what feedback looks like with the model solution
+    await expectScreenshotsToMatchSnapshots({
+      screenshotTarget: page,
+      headless,
+      testInfo,
+      snapshotName: "timeline-feedback-correct",
+      scrollToYCoordinate: 470,
+    })
 
-  await page.getByText("Try again").click()
-  // Clear previous answers
-  await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
-  await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
-  await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
+    // Model solution is now visible since we got full points, so we can see what feedback looks like with the model solution
 
-  await page
-    .frameLocator("iframe")
-    .locator(`label:text("1998")`)
-    .selectOption({ label: "Finland joins the European Union" })
+    await page.getByText("Try again").click()
+    // Clear previous answers
+    await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
+    await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
+    await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
 
-  await page
-    .frameLocator("iframe")
-    .locator(`label:text("1995")`)
-    .selectOption({ label: "Finland joins the Economic and Monetary Union of the European Union" })
+    await page
+      .frameLocator("iframe")
+      .locator(`label:text("1998")`)
+      .selectOption({ label: "Finland joins the European Union" })
 
-  await page
-    .frameLocator("iframe")
-    .locator(`label:text("2002")`)
-    .selectOption({ label: "Finland switches their currency to Euro" })
+    await page.frameLocator("iframe").locator(`label:text("1995")`).selectOption({
+      label: "Finland joins the Economic and Monetary Union of the European Union",
+    })
 
-  await page.getByText("Submit").click()
+    await page
+      .frameLocator("iframe")
+      .locator(`label:text("2002")`)
+      .selectOption({ label: "Finland switches their currency to Euro" })
 
-  await page.frameLocator("iframe").getByText("Your answer was partially correct.").waitFor()
+    await page.getByText("Submit").click()
 
-  await expectScreenshotsToMatchSnapshots({
-    screenshotTarget: page,
-    headless,
-    testInfo,
-    snapshotName: "timeline-feedback-incorrect-with-model-solution",
-    scrollToYCoordinate: 600,
+    await page.frameLocator("iframe").getByText("Your answer was partially correct.").waitFor()
+
+    await expectScreenshotsToMatchSnapshots({
+      screenshotTarget: page,
+      headless,
+      testInfo,
+      snapshotName: "timeline-feedback-incorrect-with-model-solution",
+      scrollToYCoordinate: 600,
+    })
   })
 })

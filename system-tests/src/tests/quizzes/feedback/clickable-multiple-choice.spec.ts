@@ -8,70 +8,76 @@ test.use({
   storageState: "src/states/user@example.com.json",
 })
 
-test("quizzes clickable multiple-choice feedback", async ({ page, headless }, testInfo) => {
-  await page.goto("http://project-331.local/organizations")
+test.describe(() => {
+  // Chrome sometimes does not render the ui correctly after resizing the window without reloading the page.
+  // This does not seem to be something we can fix, so we'll retry
+  test.describe.configure({ retries: 4 })
 
-  await Promise.all([
-    await page.getByText("University of Helsinki, Department of Computer Science").click(),
-  ])
-  await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
+  test("quizzes clickable multiple-choice feedback", async ({ page, headless }, testInfo) => {
+    await page.goto("http://project-331.local/organizations")
 
-  await page.click(`[aria-label="Navigate to course 'Introduction to everything'"]`)
+    await Promise.all([
+      await page.getByText("University of Helsinki, Department of Computer Science").click(),
+    ])
+    await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
-  await selectCourseInstanceIfPrompted(page)
+    await page.click(`[aria-label="Navigate to course 'Introduction to everything'"]`)
 
-  await page.getByText("The Basics").click()
-  await expect(page).toHaveURL(
-    "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1",
-  )
+    await selectCourseInstanceIfPrompted(page)
 
-  await page.click(`a:has-text("Page 6")`)
-  await expect(page).toHaveURL(
-    "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/page-6",
-  )
+    await page.getByText("The Basics").click()
+    await expect(page).toHaveURL(
+      "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1",
+    )
 
-  // page has a frame that pushes all the content down after loafing, so let's wait for it to load first
-  const frame = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
-  await frame.getByText("Pick all the programming languages from below").waitFor()
+    await page.click(`a:has-text("Page 6")`)
+    await expect(page).toHaveURL(
+      "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/page-6",
+    )
 
-  await frame.locator(`button:text("AC")`).click()
-  await frame.locator(`button:text("Jupiter")`).click()
+    // page has a frame that pushes all the content down after loafing, so let's wait for it to load first
+    const frame = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
+    await frame.getByText("Pick all the programming languages from below").waitFor()
 
-  await page.getByText("Submit").click()
+    await frame.locator(`button:text("AC")`).click()
+    await frame.locator(`button:text("Jupiter")`).click()
 
-  await page.getByText("Try again").waitFor()
-  await page.getByText(`This is an extra submit message from the teacher.`).waitFor()
+    await page.getByText("Submit").click()
 
-  await expectScreenshotsToMatchSnapshots({
-    screenshotTarget: page,
-    headless,
-    testInfo,
-    snapshotName: "clickable-multiple-choice-incorrect-answer",
-    waitForTheseToBeVisibleAndStable: [
-      page.locator(`text=This is an extra submit message from the teacher.`),
-    ],
-  })
+    await page.getByText("Try again").waitFor()
+    await page.getByText(`This is an extra submit message from the teacher.`).waitFor()
 
-  await page.getByText("Try again").click()
-  // Unselect all the options
-  await frame.getByText("Pick all the programming languages from below").waitFor()
-  await frame.locator(`button:text("AC")`).click()
-  await frame.locator(`button:text("Jupiter")`).click()
+    await expectScreenshotsToMatchSnapshots({
+      screenshotTarget: page,
+      headless,
+      testInfo,
+      snapshotName: "clickable-multiple-choice-incorrect-answer",
+      waitForTheseToBeVisibleAndStable: [
+        page.locator(`text=This is an extra submit message from the teacher.`),
+      ],
+    })
 
-  await frame.locator(`button:text("Java")`).click()
-  await frame.locator(`button:text("Erlang")`).click()
+    await page.getByText("Try again").click()
+    // Unselect all the options
+    await frame.getByText("Pick all the programming languages from below").waitFor()
+    await frame.locator(`button:text("AC")`).click()
+    await frame.locator(`button:text("Jupiter")`).click()
 
-  await page.getByText("Submit").click()
-  await page.getByText("Try again").waitFor()
-  await page.getByText(`This is an extra submit message from the teacher.`).waitFor()
+    await frame.locator(`button:text("Java")`).click()
+    await frame.locator(`button:text("Erlang")`).click()
 
-  await expectScreenshotsToMatchSnapshots({
-    screenshotTarget: page,
-    headless,
-    testInfo,
-    snapshotName: "clickable-multiple-choice-correct-answer",
-    waitForTheseToBeVisibleAndStable: [
-      page.getByText(`This is an extra submit message from the teacher.`),
-    ],
+    await page.getByText("Submit").click()
+    await page.getByText("Try again").waitFor()
+    await page.getByText(`This is an extra submit message from the teacher.`).waitFor()
+
+    await expectScreenshotsToMatchSnapshots({
+      screenshotTarget: page,
+      headless,
+      testInfo,
+      snapshotName: "clickable-multiple-choice-correct-answer",
+      waitForTheseToBeVisibleAndStable: [
+        page.getByText(`This is an extra submit message from the teacher.`),
+      ],
+    })
   })
 })

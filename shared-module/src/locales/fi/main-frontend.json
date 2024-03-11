@@ -94,6 +94,7 @@
   "confirm-enable-generating-certificates": "Haluatko varmasti sallia sertifikaattien luonnin?",
   "confirm-password": "Toista salasana",
   "confirm-your-password": "Toista salasanasi",
+  "could-not-find-course-course-instance-or-user-course-settings-for-enrollment": "En löytänyt kurssia, kurssi-instanssia, tai kurssin asetuksia ilmoittautumiselle",
   "course": "Kurssi",
   "course-id": "Kurssin tunnus",
   "course-language": "Kurssin kieli",
@@ -545,6 +546,7 @@
   "title-all-course-instances": "Kaikki kurssin versiot",
   "title-all-course-language-versions": "Kaikki kurssin kieliversiot",
   "title-all-exercises": "Kurssin tehtävät",
+  "title-browser": "Selain",
   "title-change-request": "Vaihda pyyntö",
   "title-change-requests": "Vaihda pyynnöt",
   "title-chapter": "Luku {{chapter-number}}: {{chapter-name}}",
@@ -554,6 +556,7 @@
   "title-course-users-counts-by-exercise": "Käyttäjien määrä tehtävän mukaan",
   "title-current-state-received-from-the-iframe": "Current state vastaanotettu IFramelta",
   "title-derived-specs": "Johdetut specit",
+  "title-device-type": "Laitteen tyyppi",
   "title-dialog-module-save": "Haluatko tallentaa muutokset kurssin moduuleihin?",
   "title-email-templates": "Sähköpostipohjat kurssin versiolle.",
   "title-feedback": "Palaute",
@@ -567,6 +570,7 @@
   "title-number-of-submissions-per-day": "Päivittäinen palautusten määrä",
   "title-number-of-submissions-per-weekday-and-hour": "Palautusten määrä viikonpäivän ja tunnin mukaan",
   "title-number-of-users-with-submissions-per-day": "Päivittäinen käyttäjien lukumäärä, jotka ovat palauttaneet jotakin",
+  "title-operating-system": "Käyttöjärjestelmä",
   "title-page-edit-history": "Sivun muokkaushistoria",
   "title-page-id": "Sivu: {{ id }}",
   "title-pending-roles": "Tulossa olevat roolit",
@@ -606,5 +610,6 @@
   "weekday-thursday": "Torstai",
   "weekday-tuesday": "Tiistai",
   "weekday-wednesday": "Keskiviikko",
-  "you-are-being-redirected-to-completion-registration-page-if-nothing-happens-click-here": "Sinut ohjataan Avoimen yliopiston suoritusten kirjaamissivulle automaattisesti. Jos mitään ei tapahdu, <2>paina tästä</2>."
+  "you-are-being-redirected-to-completion-registration-page-if-nothing-happens-click-here": "Sinut ohjataan Avoimen yliopiston suoritusten kirjaamissivulle automaattisesti. Jos mitään ei tapahdu, <2>paina tästä</2>.",
+  "your-name": "Nimi"
 }

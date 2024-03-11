@@ -13,6 +13,7 @@
   "answer-settings": "Vastausasetukset",
   "aria-label-option-index": "Vaihtoehto {{index}}",
   "body": "Runko",
+  "button-add-example": "Lisää esimerkki",
   "choose-quiz-item-option-direction-help-text": "Valitse suunta mihin Quiz-esine vaihtoehdot menevät widgetin sisällä",
   "column": "Sarake",
   "correct-answer": "Oikea vastaus",

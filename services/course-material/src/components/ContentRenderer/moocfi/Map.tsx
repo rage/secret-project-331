@@ -150,6 +150,7 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
 
   useEffect(() => {
     const getMap = async () => {
+      // eslint-disable-next-line i18next/no-literal-string
       const mapElement: SVGLineElement = await getElementBySelectorAsync(".world-map")
       setMap(mapElement)
     }
@@ -191,7 +192,8 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
         )?.count
 
         if (evt.type === "mouseover") {
-          svgElement.innerHTML = `<title style=''>${text} - ${count} student</title>`
+          // eslint-disable-next-line i18next/no-literal-string
+          svgElement.innerHTML = `<title style=''>${t("map-tooltip-students-in-country", { country: text, count })}</title>`
         } else if (evt.type === "mouseout") {
           svgElement.innerHTML = ""
         }
@@ -213,7 +215,7 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
         }
       })
     }
-  }, [countryCodeCount, map])
+  }, [countryCodeCount, map, t])
 
   const handleCountryChange = (event: React.ChangeEvent<HTMLFormElement>) => {
     if (!event.currentTarget.country) {
@@ -314,7 +316,7 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
               >
                 <SelectField
                   id={`country`}
-                  label={`Country`}
+                  label={t("label-country")}
                   onChange={() => null}
                   options={countryList}
                   defaultValue={countryList[90].label}

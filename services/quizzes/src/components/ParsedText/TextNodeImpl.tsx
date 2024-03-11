@@ -11,6 +11,7 @@ const sanitizeHTML = (dirty: string) => {
 }
 
 const TextNodeImpl: React.FC<React.PropsWithChildren<TextNodeProps>> = ({ text, inline }) => {
+  // eslint-disable-next-line i18next/no-literal-string
   const Tag = inline ? "span" : "div"
   return (
     <Tag

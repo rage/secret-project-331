@@ -24,6 +24,7 @@
   "congratulations-placeholder": "Onnittelulohko",
   "course-progress-placeholder": "Kurssin edistyminen lohko",
   "course-progress-placeholder-explanation": "Tämä lohko sijoitetaan kurssimateriaaliin, johon haluat näyttää kurssin edistymisen.",
+  "default": "Oletus",
   "delete": "Poista",
   "edit": "Muokkaa",
   "editor-select-sidebar-view": "Vaihda näkymää",

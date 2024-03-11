@@ -11,7 +11,7 @@
   "are-you-sure-you-want-to-reset-everyones-progress-on-the-course": "Are you sure you want to reset the progress for all students in this course? This will delete their submissions, points, completions, given peer reviews and more. Note that this feature is intended to be used only when you are testing the course and don't have real students doing the course yet.",
   "are-you-sure-you-want-to-reset-your-own-progress-on-the-course": "Are you sure you want to reset your own progress on the course? This will delete your submissions, points, completions, given peer reviews and more.",
   "at-the-form-field-fill-in-your-email-address": "At the form field 'Your email address on the MOOC course' <1>fill in: <2>{{email}}</2></1>",
-  "audio-addedd-successfully": "Audio uploaded successfully",
+  "audio-added-successfully": "Audio uploaded successfully",
   "audio-deleted-successfully": "Audio deleted successfully",
   "audio-upload": "Audio Upload",
   "audio-upload-description": "Please click browse to upload a file. It is advisable to upload two audio formats, one in mp3 and .ogg for cross browser compatibility.",

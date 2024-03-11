@@ -42,6 +42,15 @@ test.describe(() => {
       .getByText("When you started studying at the uni? Give the date in yyyy-mm-dd format.")
       .waitFor()
 
+    // eslint-disable-next-line playwright/no-conditional-in-test
+    if (testInfo.retry && (await page.getByText("Try again").isVisible())) {
+      await page.getByText("Try again").click()
+      await page.getByText("Try again").waitFor({ state: "hidden" })
+      await frame
+        .getByText("When you started studying at the uni? Give the date in yyyy-mm-dd format.")
+        .waitFor()
+    }
+
     await frame
       .locator(
         `input:below(:text("When you started studying at the uni? Give the date in yyyy-mm-dd format."))`,

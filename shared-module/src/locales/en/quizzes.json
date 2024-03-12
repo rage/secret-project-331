@@ -13,6 +13,7 @@
   "answer-settings": "Answering options",
   "aria-label-option-index": "Option {{index}}",
   "body": "Body",
+  "button-add-example": "Add example",
   "choose-quiz-item-option-direction-help-text": "Choose the direction the quiz item options will be used to lay out in the widget",
   "column": "Column",
   "correct-answer": "Correct answer",

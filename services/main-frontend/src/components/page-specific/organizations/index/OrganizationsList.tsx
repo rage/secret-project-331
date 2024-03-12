@@ -1,10 +1,8 @@
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import useAllOrganizationsQuery from "../../../../hooks/useAllOrganizationsQuery"
-import { fetchOrganizations } from "../../../../services/backend/organizations"
 import DebugModal from "../../../../shared-module/components/DebugModal"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"

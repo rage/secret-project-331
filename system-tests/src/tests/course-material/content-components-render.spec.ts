@@ -1,4 +1,4 @@
-import { test } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
@@ -23,6 +23,8 @@ test("blocks render correctly", async ({ page, headless }, testInfo) => {
   await page.getByText("Content rendering").click()
 
   await page.getByText("100px wide").waitFor()
+
+  await expect(page.getByText("crashed")).toBeHidden()
 
   await expectScreenshotsToMatchSnapshots({
     // TODO: these should be removed

@@ -19,6 +19,7 @@ const i18n = initI18n(SERVICE_NAME)
 
 const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pageProps }) => {
   const initialLanguage = useLanguage()
+  // eslint-disable-next-line i18next/no-literal-string
   const [language, setLanguage] = useState(initialLanguage ?? "en")
   const [translationResourcesLoadedCounter, setTranslationResourcesLoadedCounter] = useState(0)
 

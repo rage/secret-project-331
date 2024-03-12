@@ -7,6 +7,7 @@
  */
 import {
   AudioDeprecated1Attributes,
+  BlockDeprecated1Attributes,
   ButtonDeprecated10Attributes,
   ButtonDeprecated11Attributes,
   ButtonDeprecated1Attributes,
@@ -93,6 +94,30 @@ export function isAudioDeprecated1Attributes(obj: unknown): obj is AudioDeprecat
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
     (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["metadata"] === "undefined" ||
+      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
+        typeof typedObj["metadata"] === "function") &&
+        Object.entries<any>(typedObj["metadata"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
+  )
+}
+
+export function isBlockDeprecated1Attributes(obj: unknown): obj is BlockDeprecated1Attributes {
+  const typedObj = obj as BlockDeprecated1Attributes
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["ref"] === "undefined" || typeof typedObj["ref"] === "number") &&
+    (typeof typedObj["overrides"] === "undefined" ||
+      (((typedObj["overrides"] !== null && typeof typedObj["overrides"] === "object") ||
+        typeof typedObj["overrides"] === "function") &&
+        Object.entries<any>(typedObj["overrides"]).every(
+          ([key, _value]) => typeof key === "string",
+        ))) &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+        typeof typedObj["lock"] === "function") &&
+        Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
     (typeof typedObj["metadata"] === "undefined" ||
       (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
         typeof typedObj["metadata"] === "function") &&
@@ -1039,14 +1064,14 @@ export function isImageDeprecated1Attributes(obj: unknown): obj is ImageDeprecat
     (typeof typedObj["sizeSlug"] === "undefined" || typeof typedObj["sizeSlug"] === "string") &&
     typeof typedObj["linkDestination"] === "string" &&
     (typeof typedObj["linkTarget"] === "undefined" || typeof typedObj["linkTarget"] === "string") &&
+    (typeof typedObj["borderColor"] === "undefined" ||
+      typeof typedObj["borderColor"] === "string") &&
     (typeof typedObj["lock"] === "undefined" ||
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
     (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
     (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
-    (typeof typedObj["borderColor"] === "undefined" ||
-      typeof typedObj["borderColor"] === "string") &&
     (typeof typedObj["style"] === "undefined" ||
       (((typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
         typeof typedObj["style"] === "function") &&
@@ -1084,14 +1109,14 @@ export function isImageDeprecated2Attributes(obj: unknown): obj is ImageDeprecat
     (typeof typedObj["sizeSlug"] === "undefined" || typeof typedObj["sizeSlug"] === "string") &&
     typeof typedObj["linkDestination"] === "string" &&
     (typeof typedObj["linkTarget"] === "undefined" || typeof typedObj["linkTarget"] === "string") &&
+    (typeof typedObj["borderColor"] === "undefined" ||
+      typeof typedObj["borderColor"] === "string") &&
     (typeof typedObj["lock"] === "undefined" ||
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
     (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
     (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
-    (typeof typedObj["borderColor"] === "undefined" ||
-      typeof typedObj["borderColor"] === "string") &&
     (typeof typedObj["style"] === "undefined" ||
       (((typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
         typeof typedObj["style"] === "function") &&
@@ -1129,14 +1154,14 @@ export function isImageDeprecated3Attributes(obj: unknown): obj is ImageDeprecat
     (typeof typedObj["sizeSlug"] === "undefined" || typeof typedObj["sizeSlug"] === "string") &&
     typeof typedObj["linkDestination"] === "string" &&
     (typeof typedObj["linkTarget"] === "undefined" || typeof typedObj["linkTarget"] === "string") &&
+    (typeof typedObj["borderColor"] === "undefined" ||
+      typeof typedObj["borderColor"] === "string") &&
     (typeof typedObj["lock"] === "undefined" ||
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
     (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
     (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
-    (typeof typedObj["borderColor"] === "undefined" ||
-      typeof typedObj["borderColor"] === "string") &&
     (typeof typedObj["style"] === "undefined" ||
       (((typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
         typeof typedObj["style"] === "function") &&

@@ -66,6 +66,7 @@ const MultipleChoiceSubmission: React.FC<
   // device width. Sanitized since the value is used in CSS.
   const direction: FlexDirection = sanitizeFlexDirection(
     public_quiz_item.optionDisplayDirection,
+    // eslint-disable-next-line i18next/no-literal-string
     "row",
   )
 

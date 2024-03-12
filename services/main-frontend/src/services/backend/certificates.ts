@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 import { CertificateConfigurationUpdate, GeneratedCertificate } from "../../shared-module/bindings"
 import { isGeneratedCertificate } from "../../shared-module/bindings.guard"
 import { isArray, validateResponse } from "../../shared-module/utils/fetching"

@@ -62,9 +62,11 @@ export async function savePageYCoordinateToImage(
 ): Promise<void> {
   // eslint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(200)
-  let yCoordinate = await page.evaluate(() => {
+  let yCoordinate = await page.mainFrame().evaluate(() => {
     return window.scrollY
   })
+
+  console.info(`Saving y-coordinate ${yCoordinate} to image "${pathToImage}"`)
 
   if (useCoordinatesFromTheBottomForSavingYCoordinates) {
     const pageHeight = await page.evaluate(() => {
@@ -75,8 +77,12 @@ export async function savePageYCoordinateToImage(
 
   const contents = await readFile(pathToImage, "binary")
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const listOfPngMetadataChunks: any[] = pngMetadata.splitChunk(contents)
+  let listOfPngMetadataChunks: any[] = pngMetadata.splitChunk(contents)
   const iend = listOfPngMetadataChunks.pop()
+  // Remove previous y-coordinate metadata
+  listOfPngMetadataChunks = listOfPngMetadataChunks.filter(
+    (chunk) => !(chunk.data as string).startsWith("moocfi-page-y-"),
+  )
   listOfPngMetadataChunks.push(pngMetadata.createChunk("aaab", `moocfi-page-y-${yCoordinate}`))
   listOfPngMetadataChunks.push(iend)
   const newContents = pngMetadata.joinChunk(listOfPngMetadataChunks)

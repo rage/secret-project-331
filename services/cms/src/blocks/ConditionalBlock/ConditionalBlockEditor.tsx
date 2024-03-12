@@ -65,7 +65,7 @@ const ConditionalBlockEditor: React.FC<
               return (
                 <CheckBox
                   key={mod.id}
-                  label={mod.name ?? "Default"}
+                  label={mod.name ?? t("default")}
                   value={mod.id}
                   onChange={() => {
                     const previuoslyChecked = requiredModules.some((modId) => modId == mod.id)
@@ -89,7 +89,7 @@ const ConditionalBlockEditor: React.FC<
               return (
                 <CheckBox
                   key={inst.id}
-                  label={inst.name ?? "Default"}
+                  label={inst.name ?? t("default")}
                   value={inst.id}
                   onChange={() => {
                     const previuoslyChecked = requiredInstanceEnrollment.some(

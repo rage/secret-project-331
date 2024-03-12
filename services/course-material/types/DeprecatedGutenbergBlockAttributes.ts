@@ -33,6 +33,22 @@ export interface AudioDeprecated1Attributes {
 /**
  * @deprecated
  */
+export interface BlockDeprecated1Attributes {
+  ref?: number
+  overrides?: {
+    [k: string]: unknown
+  }
+  lock?: {
+    [k: string]: unknown
+  }
+  metadata?: {
+    [k: string]: unknown
+  }
+}
+
+/**
+ * @deprecated
+ */
 export interface ButtonDeprecated10Attributes {
   url?: string
   title?: string
@@ -662,12 +678,12 @@ export interface ImageDeprecated1Attributes {
   sizeSlug?: string
   linkDestination: string
   linkTarget?: string
+  borderColor?: string
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  borderColor?: string
   style?: {
     [k: string]: unknown
   }
@@ -697,12 +713,12 @@ export interface ImageDeprecated2Attributes {
   sizeSlug?: string
   linkDestination: string
   linkTarget?: string
+  borderColor?: string
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  borderColor?: string
   style?: {
     [k: string]: unknown
   }
@@ -732,12 +748,12 @@ export interface ImageDeprecated3Attributes {
   sizeSlug?: string
   linkDestination: string
   linkTarget?: string
+  borderColor?: string
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  borderColor?: string
   style?: {
     [k: string]: unknown
   }

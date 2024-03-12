@@ -31,6 +31,7 @@ const TopUTMSources: React.FC<React.PropsWithChildren<TopUTMSourcesProps>> = ({ 
       const totalCount = query.data
         .filter((item) => item.utm_source === utm_source)
         .reduce((acc, item) => acc + item.num_visitors, 0)
+      // eslint-disable-next-line i18next/no-literal-string
       return { ...acc, [utm_source ?? "null"]: totalCount }
     }, {})
     return totalCountsByUTMSource
@@ -93,7 +94,9 @@ const TopUTMSources: React.FC<React.PropsWithChildren<TopUTMSourcesProps>> = ({ 
                 },
               ],
               tooltip: {
+                // eslint-disable-next-line i18next/no-literal-string
                 trigger: "item",
+                // eslint-disable-next-line i18next/no-literal-string
                 formatter: "{b}: {c}",
               },
             }}

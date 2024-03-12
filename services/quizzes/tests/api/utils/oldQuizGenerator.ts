@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 import { NonGenericGradingRequest } from "../../../src/shared-module/exercise-service-protocol-types"
 import { COLUMN } from "../../../src/util/constants"
 import {

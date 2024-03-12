@@ -372,7 +372,7 @@ mod test {
         )
         .await
         .unwrap();
-        let mut server = mockito::Server::new();
+        let mut server = mockito::Server::new_async().await;
         let _m = server
             .mock("POST", Matcher::Any)
             .with_body(serde_json::to_string(&grading_result).unwrap())
@@ -465,7 +465,7 @@ mod test {
         )
         .await
         .unwrap();
-        let mut server = mockito::Server::new();
+        let mut server = mockito::Server::new_async().await;
         let _m = server
             .mock("POST", Matcher::Any)
             .with_body(serde_json::to_string(&grading_result).unwrap())
@@ -629,7 +629,7 @@ mod test {
             .exercise_task_submission_results
             .first()
             .unwrap();
-        let mut server = mockito::Server::new();
+        let mut server = mockito::Server::new_async().await;
         let _m = server
             .mock("POST", Matcher::Any)
             .with_body(serde_json::to_string(&grading_result).unwrap())
@@ -749,7 +749,7 @@ mod test {
         )
         .await
         .unwrap();
-        let mut server = mockito::Server::new();
+        let mut server = mockito::Server::new_async().await;
         let _m = server
             .mock("POST", Matcher::Any)
             .with_body(

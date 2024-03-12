@@ -82,7 +82,9 @@ const CourseVisitorsByDay: React.FC<React.PropsWithChildren<CourseVisitorsByDayP
           height={200 * Object.keys(data).length}
           options={{
             tooltip: {
+              // eslint-disable-next-line i18next/no-literal-string
               trigger: "item",
+              // eslint-disable-next-line i18next/no-literal-string
               formatter: "{b}: {c}",
             },
             visualMap: {

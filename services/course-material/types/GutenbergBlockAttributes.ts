@@ -33,7 +33,7 @@ export interface AudioAttributes {
 
 export interface BlockAttributes {
   ref?: number
-  overrides?: {
+  content?: {
     [k: string]: unknown
   }
   lock?: {
@@ -58,12 +58,12 @@ export interface ButtonAttributes {
   textColor?: string
   gradient?: string
   width?: number
+  borderColor?: string
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  borderColor?: string
   fontFamily?: string
   fontSize?: string
   style?: {
@@ -96,13 +96,13 @@ export interface ButtonsAttributes {
 
 export interface CodeAttributes {
   content?: StringWithHTML
+  borderColor?: string
   align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  borderColor?: string
   backgroundColor?: string
   textColor?: string
   gradient?: string
@@ -121,12 +121,12 @@ export interface ColumnAttributes {
   width?: string
   allowedBlocks?: unknown[]
   templateLock?: "all" | "insert" | "contentOnly" | false
+  borderColor?: string
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  borderColor?: string
   backgroundColor?: string
   textColor?: string
   gradient?: string
@@ -147,13 +147,13 @@ export interface ColumnsAttributes {
   verticalAlignment?: string
   isStackedOnMobile: boolean
   templateLock?: "all" | "insert" | "contentOnly" | false
+  borderColor?: string
   align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  borderColor?: string
   backgroundColor?: string
   textColor?: string
   gradient?: string
@@ -274,13 +274,13 @@ export interface ImageAttributes {
   sizeSlug?: string
   linkDestination: string
   linkTarget?: string
+  borderColor?: string
   align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  borderColor?: string
   style?: {
     [k: string]: unknown
   }
@@ -380,13 +380,13 @@ export interface PullquoteAttributes {
   value?: StringWithHTML
   citation?: StringWithHTML
   textAlign?: string
+  borderColor?: string
   align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  borderColor?: string
   backgroundColor?: string
   textColor?: string
   gradient?: string
@@ -466,13 +466,13 @@ export interface TableAttributes {
   head: Cells[]
   body: Cells[]
   foot: Cells[]
+  borderColor?: string
   align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  borderColor?: string
   backgroundColor?: string
   textColor?: string
   gradient?: string
@@ -500,12 +500,12 @@ export interface CellAttributes {
 export interface VerseAttributes {
   content?: StringWithHTML
   textAlign?: string
+  borderColor?: string
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  borderColor?: string
   backgroundColor?: string
   textColor?: string
   gradient?: string

@@ -111,7 +111,9 @@ const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsBy
                 },
               ],
               tooltip: {
+                // eslint-disable-next-line i18next/no-literal-string
                 trigger: "item",
+                // eslint-disable-next-line i18next/no-literal-string
                 formatter: "{b}: {c}",
               },
             }}

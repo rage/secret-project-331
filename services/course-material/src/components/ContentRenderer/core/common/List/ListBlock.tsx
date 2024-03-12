@@ -12,7 +12,7 @@ import { fontSizeMapper, mobileFontSizeMapper } from "../../../../../styles/font
 import InnerBlocks from "../../../util/InnerBlocks"
 import { parseText } from "../../../util/textParsing"
 
-const listBlockClassName = "course-material-list-block"
+const LIST_BLOCK_CLASS_NAME = "course-material-list-block"
 
 const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttributes>>> = (
   props,
@@ -35,6 +35,7 @@ const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttribu
 
   const { terms } = useContext(GlossaryContext)
 
+  /* eslint-disable i18next/no-literal-string */
   const listItemClass = cx(
     css`
       ${fontSize && `font-size: ${mobileFontSizeMapper(fontSize)};`}
@@ -53,8 +54,9 @@ const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttribu
         color: ${baseTheme.colors.gray[600]};
       }
     `,
-    listBlockClassName,
+    LIST_BLOCK_CLASS_NAME,
   )
+  /* eslint-enable i18next/no-literal-string */
 
   const usesNewFormat = props.data.innerBlocks && props.data.innerBlocks.length > 0
   let dangerouslySetInnerHTML = undefined

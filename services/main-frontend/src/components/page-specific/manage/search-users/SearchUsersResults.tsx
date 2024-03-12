@@ -62,6 +62,7 @@ const SearchUsersResults: React.FC<React.PropsWithChildren<SearchUsersResultsPro
       header: t("last-name"),
     }),
     columnHelper.display({
+      // eslint-disable-next-line i18next/no-literal-string
       id: "details",
       header: t("button-details"),
       cell: (props) => (

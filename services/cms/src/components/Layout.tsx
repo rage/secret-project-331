@@ -40,6 +40,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
   hideBreadcrumbs = false,
 }) => {
   const router = useRouter()
+  // eslint-disable-next-line i18next/no-literal-string
   const title = process.env.NEXT_PUBLIC_SITE_TITLE ?? "Secret Project 331"
   return (
     <>

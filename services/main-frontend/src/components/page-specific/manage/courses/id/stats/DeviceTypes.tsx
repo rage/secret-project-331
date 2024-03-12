@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import React, { useMemo } from "react"
+import { useTranslation } from "react-i18next"
 
 import { fetchCoursePageVisitDatumSummariesByDeviceTypes } from "../../../../../../services/backend/courses"
 import DebugModal from "../../../../../../shared-module/components/DebugModal"
@@ -22,6 +23,8 @@ const DeviceTypes: React.FC<React.PropsWithChildren<DeviceTypesProps>> = ({ cour
     queryFn: () => fetchCoursePageVisitDatumSummariesByDeviceTypes(courseId),
   })
 
+  const { t } = useTranslation()
+
   const aggregatedDataDeviceType = useMemo(() => {
     if (!query.data || query.data.length === 0) {
       return null
@@ -30,6 +33,7 @@ const DeviceTypes: React.FC<React.PropsWithChildren<DeviceTypesProps>> = ({ cour
     const aggregatedData: Record<string, number> = {}
     allDeviceTypesInData.forEach((deviceType) => {
       const deviceTypeData = query.data.filter((d) => d.device_type === deviceType)
+      // eslint-disable-next-line i18next/no-literal-string
       aggregatedData[deviceType ?? "null"] = deviceTypeData.reduce(
         (acc, curr) => acc + curr.num_visitors,
         0,
@@ -46,6 +50,7 @@ const DeviceTypes: React.FC<React.PropsWithChildren<DeviceTypesProps>> = ({ cour
     const aggregatedData: Record<string, number> = {}
     allOperatingSystemsInData.forEach((operatingSystem) => {
       const operatingSystemData = query.data.filter((d) => d.operating_system === operatingSystem)
+      // eslint-disable-next-line i18next/no-literal-string
       aggregatedData[operatingSystem ?? "null"] = operatingSystemData.reduce(
         (acc, curr) => acc + curr.num_visitors,
         0,
@@ -62,6 +67,7 @@ const DeviceTypes: React.FC<React.PropsWithChildren<DeviceTypesProps>> = ({ cour
     const aggregatedData: Record<string, number> = {}
     allBrowsersInData.forEach((browser) => {
       const browserData = query.data.filter((d) => d.browser === browser)
+      // eslint-disable-next-line i18next/no-literal-string
       aggregatedData[browser ?? "null"] = browserData.reduce(
         (acc, curr) => acc + curr.num_visitors,
         0,
@@ -111,11 +117,14 @@ const DeviceTypes: React.FC<React.PropsWithChildren<DeviceTypesProps>> = ({ cour
                 height={500}
                 options={{
                   tooltip: {
+                    // eslint-disable-next-line i18next/no-literal-string
                     trigger: "item",
+                    // eslint-disable-next-line i18next/no-literal-string
                     formatter: "{b}: {c} ({d}%)",
                   },
                   title: {
-                    text: "Device type",
+                    text: t("title-device-type"),
+                    // eslint-disable-next-line i18next/no-literal-string
                     left: "center",
                   },
                   series: [
@@ -148,11 +157,14 @@ const DeviceTypes: React.FC<React.PropsWithChildren<DeviceTypesProps>> = ({ cour
                 height={500}
                 options={{
                   tooltip: {
+                    // eslint-disable-next-line i18next/no-literal-string
                     trigger: "item",
+                    // eslint-disable-next-line i18next/no-literal-string
                     formatter: "{b}: {c} ({d}%)",
                   },
                   title: {
-                    text: "Operating System",
+                    text: t("title-operating-system"),
+                    // eslint-disable-next-line i18next/no-literal-string
                     left: "center",
                   },
                   series: [
@@ -185,11 +197,14 @@ const DeviceTypes: React.FC<React.PropsWithChildren<DeviceTypesProps>> = ({ cour
                 height={500}
                 options={{
                   tooltip: {
+                    // eslint-disable-next-line i18next/no-literal-string
                     trigger: "item",
+                    // eslint-disable-next-line i18next/no-literal-string
                     formatter: "{b}: {c} ({d}%)",
                   },
                   title: {
-                    text: "Browser",
+                    text: t("title-browser"),
+                    // eslint-disable-next-line i18next/no-literal-string
                     left: "center",
                   },
                   series: [

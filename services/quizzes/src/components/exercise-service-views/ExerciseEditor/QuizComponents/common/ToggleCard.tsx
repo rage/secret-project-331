@@ -17,6 +17,9 @@ interface ToggleSwitchProps {
   id: string
 }
 
+const NONE = "none"
+const UNSET = "unset"
+
 const ToggleCardContainer = styled.div<{ disabled: boolean }>`
   background-color: #fafafa;
   border: 2px solid #e0e0e0;
@@ -26,7 +29,7 @@ const ToggleCardContainer = styled.div<{ disabled: boolean }>`
   flex-direction: row;
   margin: 8px 0px 8px 0px;
   opacity: ${(props) => (props.disabled ? 0.5 : 1)};
-  pointer-events: ${(props) => (props.disabled ? "none" : "unset")};
+  pointer-events: ${(props) => (props.disabled ? NONE : UNSET)};
 `
 
 const ToggleCardDetails = styled.div`

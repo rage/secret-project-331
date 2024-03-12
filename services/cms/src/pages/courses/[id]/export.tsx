@@ -48,9 +48,11 @@ const ExportPage: React.FC<React.PropsWithChildren<ExportPageProps>> = ({ query 
           }).content
           let filename = page.url_path
           if (filename === "/") {
+            // eslint-disable-next-line i18next/no-literal-string
             filename = "/index"
           }
           tarBuilder.add_file(
+            // eslint-disable-next-line i18next/no-literal-string
             `pages${filename}.json`,
             textEncoder.encode(JSON.stringify(denormalizedContent, undefined, 2)),
           )
@@ -77,6 +79,7 @@ const ExportPage: React.FC<React.PropsWithChildren<ExportPageProps>> = ({ query 
               }
               const body = await response.arrayBuffer()
               const bodyAsUint8Array = new Uint8Array(body)
+              // eslint-disable-next-line i18next/no-literal-string
               const path = `files${parsedUrl.pathname}`
               console.info(`Saving ${path}`)
               tarBuilder.add_file(path, bodyAsUint8Array)
@@ -88,6 +91,7 @@ const ExportPage: React.FC<React.PropsWithChildren<ExportPageProps>> = ({ query 
         }
         const pageInfo = await fetchPageInfo(pages[0].id)
         save(
+          // eslint-disable-next-line i18next/no-literal-string
           `Page export ${pageInfo.course_slug} ${dateToString(new Date()).replaceAll(
             ":",
             ".",

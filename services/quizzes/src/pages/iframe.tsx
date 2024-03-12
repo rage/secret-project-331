@@ -118,7 +118,9 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
                 title: null,
                 body: null,
                 awardPointsEvenIfWrong: false,
+                // eslint-disable-next-line i18next/no-literal-string
                 grantPointsPolicy: "grant_whenever_possible",
+                // eslint-disable-next-line i18next/no-literal-string
                 quizItemDisplayDirection: "vertical",
                 submitMessage: null,
                 items: [],
@@ -142,8 +144,10 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
                 title: null,
                 body: null,
                 awardPointsEvenIfWrong: false,
+                // eslint-disable-next-line i18next/no-literal-string
                 grantPointsPolicy: "grant_whenever_possible",
                 submitMessage: null,
+                // eslint-disable-next-line i18next/no-literal-string
                 quizItemDisplayDirection: "vertical",
                 items: [],
               } satisfies PrivateSpecQuiz

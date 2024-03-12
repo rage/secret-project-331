@@ -31,6 +31,7 @@ const TopUTMCampaigns: React.FC<React.PropsWithChildren<TopUTMCampaignsProps>> =
       const totalCount = query.data
         .filter((item) => item.utm_campaign === utm_campaign)
         .reduce((acc, item) => acc + item.num_visitors, 0)
+      // eslint-disable-next-line i18next/no-literal-string
       return { ...acc, [utm_campaign ?? "null"]: totalCount }
     }, {})
     return totalCountsByUTMCampaign
@@ -93,7 +94,9 @@ const TopUTMCampaigns: React.FC<React.PropsWithChildren<TopUTMCampaignsProps>> =
                 },
               ],
               tooltip: {
+                // eslint-disable-next-line i18next/no-literal-string
                 trigger: "item",
+                // eslint-disable-next-line i18next/no-literal-string
                 formatter: "{b}: {c}",
               },
             }}

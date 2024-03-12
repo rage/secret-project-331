@@ -16,7 +16,7 @@ trap 'run_command kubectl delete pod $RANDOM_POD_NAME --force' EXIT
 
 run_command kubectl run "$RANDOM_POD_NAME" --image=eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest --command -- sleep infinity
 
-run_command kubectl wait --for=condition=ready pod/"$RANDOM_POD_NAME"
+run_command kubectl wait --timeout 300s --for=condition=ready pod/"$RANDOM_POD_NAME"
 # Copy migrations to pod
 run_command kubectl cp "$RELATIVE_PATH" "$RANDOM_POD_NAME":migrations
 # Create new database with a random name

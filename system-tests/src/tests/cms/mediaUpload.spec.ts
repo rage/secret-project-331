@@ -8,7 +8,7 @@ import {
 
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
-test.describe("Uploading media as admin", async () => {
+test.describe("Uploading media as admin", () => {
   // As Admin
   test.use({
     storageState: "src/states/admin@example.com.json",

@@ -1,0 +1,1 @@
+DROP TABLE exercise_list_of_suspected_cheaters;

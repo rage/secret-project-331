@@ -19,6 +19,23 @@ test.describe(() => {
 
     await selectCourseInstanceIfPrompted(page)
 
+    await page
+      .frameLocator('iframe[title="Exercise 2\\, task 1 content"]')
+      .getByText("Answer")
+      .first()
+      .waitFor()
+
+    // eslint-disable-next-line playwright/no-conditional-in-test
+    if (testInfo.retry && (await page.getByText("Try again").isVisible())) {
+      await page.getByText("Try again").click()
+      await page.getByText("Try again").waitFor({ state: "hidden" })
+      await page
+        .frameLocator('iframe[title="Exercise 2\\, task 1 content"]')
+        .getByText("Answer")
+        .first()
+        .waitFor()
+    }
+
     await expectScreenshotsToMatchSnapshots({
       screenshotTarget: page,
       headless,

@@ -42,6 +42,13 @@ test.describe(() => {
     await frame.waitFor()
     await frame.getByText("Which one is the Rust package manager?").waitFor()
 
+    // eslint-disable-next-line playwright/no-conditional-in-test
+    if (testInfo.retry && (await page.getByText("Try again").isVisible())) {
+      await page.getByText("Try again").click()
+      await page.getByText("Try again").waitFor({ state: "hidden" })
+      await frame.getByText("Which one is the Rust package manager?").waitFor()
+    }
+
     await frame.getByText("rustup").click()
 
     await page.getByText("Submit").click()

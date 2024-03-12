@@ -39,6 +39,13 @@ test.describe(() => {
     const frame = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
     await frame.getByText("Pick all the programming languages from below").waitFor()
 
+    // eslint-disable-next-line playwright/no-conditional-in-test
+    if (testInfo.retry && (await page.getByText("Try again").isVisible())) {
+      await page.getByText("Try again").click()
+      await page.getByText("Try again").waitFor({ state: "hidden" })
+      await frame.getByText("Pick all the programming languages from below").waitFor()
+    }
+
     await frame.locator(`button:text("AC")`).click()
     await frame.locator(`button:text("Jupiter")`).click()
 

@@ -40,6 +40,13 @@ test.describe(() => {
 
     await frame.getByText("write an essay").waitFor()
 
+    // eslint-disable-next-line playwright/no-conditional-in-test
+    if (testInfo.retry && (await page.getByText("Try again").isVisible())) {
+      await page.getByText("Try again").click()
+      await page.getByText("Try again").waitFor({ state: "hidden" })
+      await frame.getByText("write an essay").waitFor()
+    }
+
     await frame.locator("textarea")
       .fill(`Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin quis orci nec augue bibendum lobortis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Sed venenatis, purus in venenatis rutrum, turpis velit fermentum libero, eu eleifend elit purus id arcu. Sed sodales velit id mauris auctor, at tempor urna maximus. Aenean vulputate pellentesque mollis. In lacinia malesuada orci, ac tincidunt metus tempor ac. Morbi porta posuere nisi, in fringilla lacus ultricies pulvinar.
 

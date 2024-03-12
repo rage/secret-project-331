@@ -24,6 +24,13 @@ test.describe(() => {
 
     await frame.getByText("Choose the right answer from given options.").waitFor()
 
+    // eslint-disable-next-line playwright/no-conditional-in-test
+    if (testInfo.retry && (await page.getByText("Try again").isVisible())) {
+      await page.getByText("Try again").click()
+      await page.getByText("Try again").waitFor({ state: "hidden" })
+      await frame.getByText("Choose the right answer from given options.").waitFor()
+    }
+
     await frame
       .locator(`select:below(:text("Choose the right answer from given options."))`)
       .selectOption({ label: "The Wright answer" })

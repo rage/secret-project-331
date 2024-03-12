@@ -34,6 +34,24 @@ test.describe(() => {
     await expect(page).toHaveURL(
       "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/scale",
     )
+
+    await page
+      .frameLocator('iframe[title="Exercise 2\\, task 1 content"]')
+      .getByText("What is this?")
+      .first()
+      .waitFor()
+
+    // eslint-disable-next-line playwright/no-conditional-in-test
+    if (testInfo.retry && (await page.getByText("Try again").isVisible())) {
+      await page.getByText("Try again").click()
+      await page.getByText("Try again").waitFor({ state: "hidden" })
+      await page
+        .frameLocator('iframe[title="Exercise 2\\, task 1 content"]')
+        .getByText("What is this?")
+        .first()
+        .waitFor()
+    }
+
     await page
       .frameLocator('iframe[title="Exercise 2\\, task 1 content"]')
       .getByLabel("What is this?")

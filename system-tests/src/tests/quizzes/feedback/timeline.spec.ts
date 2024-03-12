@@ -27,6 +27,15 @@ test.describe(() => {
       scrollToYCoordinate: 470,
     })
 
+    await page.frameLocator("iframe").getByText("1995").first().waitFor()
+
+    // eslint-disable-next-line playwright/no-conditional-in-test
+    if (testInfo.retry && (await page.getByText("Try again").isVisible())) {
+      await page.getByText("Try again").click()
+      await page.getByText("Try again").waitFor({ state: "hidden" })
+      await page.frameLocator("iframe").getByText("1995").first().waitFor()
+    }
+
     // Select 59e30264-fb11-4e44-a91e-1c5cf80fd977
     await page
       .frameLocator("iframe")
